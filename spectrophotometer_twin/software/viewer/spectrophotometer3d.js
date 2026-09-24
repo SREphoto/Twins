@@ -1,21 +1,23 @@
 /**
- * UV-Vis Spectrophotometer Twin (Three.js Procedural Solid)
- * 
- * Exhaustive Procedural Design adhering strictly to .agents/AGENTS.md:
- * - Unibody die-cast benchtop chassis (Body_Chassis) with chamfered ergonomic fascia
- * - Seated recessed display bezel with dynamic CanvasTexture LCD (UI_LCD, flipY = false)
- * - Tactile physical keys (Btn_Power, Btn_Zero, Btn_Scan, Btn_Mode, Btn_CellNext, Btn_Lid)
- * - Light-tight sample chamber with spring-assisted hinged door (Pivot_ChamberLid)
- * - 6-position motorized cuvette carousel (Pivot_CellCarousel)
- * - Genuine optical cuvettes (Glass_Cuvette_01..06) with refraction (IOR=1.52) & chemical solutions
- * - Internal optical train: Deuterium UV lamp, Tungsten-Halogen lamp, Czerny-Turner monochromator,
- *   dynamic wavelength-colored monochromatic probe beam, and silicon photodiode detector
- * - Genuine 3D fasteners (DIN 912 screws, DIN 125 washers) from hardware_library.js
- * - Vulcanized rubber leveling feet resting flush on lab datum plane (Y = 0)
- * - Rear bulkhead: IEC C14 inlet, rocker switch, USB ports, DB9 serial, BNC external trigger
- * - Brand emblem plate (Badge_SREdesigns) in dedicated flush pocket
- * - Photorealistic lab room environment with bench, tiles, and ceiling panels
- * - Kinematic exploded view animation
+ * Shimadzu UV-1900i Dual-Beam UV-Vis Spectrophotometer Twin
+ * High-Fidelity Procedural 3D Model & Mechanical Assembly
+ *
+ * Semantic Part Taxonomy Compliance:
+ * - Body_Chassis: Main casting & outer shell with recessed shadow gaps and precision reveals
+ * - Assembly_SlopedConsole: Sloped 16.5° touchscreen bezel with brushed aluminum perimeter trim
+ * - UI_LCD: Flat UV quad with CanvasTexture (flipY = false, horizontal UV inversion, capacitive digitizer)
+ * - Btn_Power, Btn_Zero, Btn_Scan, Btn_Mode, Btn_CellNext: Tactile laser-etched labeled keycaps with mechanical spring depress
+ * - Pivot_ChamberLid: Kinematic L-shaped hinged door (top plate + front vertical apron + knurled grip handle)
+ * - Pivot_CellCarousel: 6-position motorized cuvette carousel with Geneva drive hub
+ * - Glass_Cuvette_1..6: Synthetic fused silica quartz optical cuvettes (IOR = 1.52)
+ * - Assembly_PowerCord: Molded C13 line plug, flexible 3-conductor heavy PVC cable, and AC wall plug
+ * - Assembly_OpticsBay: Cast aluminum breadboard, Deuterium (D2) finned UV lamp, Tungsten-Halogen lamp,
+ *   source selection mirror, Czerny-Turner monochromator, 1200 lines/mm holographic grating, dual-beam sector chopper,
+ *   folding reference mirrors, silicon photodiode detectors, pre-amp PCB, DSP motherboard, SMPS, and cooling fan
+ * - Assembly_OpticalRays: Animated 3D glowing ray tracing visualizing the dual-beam optical path
+ * - Badge_SREdesigns: Diamond-cut beveled chrome plate with 1024x260 measured layout (zero text overflow)
+ * - Fastener_HexM3_*: Real 3D hex socket cap screws (ISO 4762) with counterbored washers
+ * - Foot_Leveling_FL/FR/RL/RR: Threaded leveling feet resting on datum plane Y = 0
  */
 
 import * as THREE from 'three';
@@ -36,23 +38,31 @@ const MAT_CHASSIS = new THREE.MeshStandardMaterial({
   metalness: 0.12,
 });
 const MAT_CHASSIS_DARK = new THREE.MeshStandardMaterial({
-  color: 0x22262d,
+  color: 0x20242b,
   roughness: 0.5,
   metalness: 0.25,
 });
+const MAT_CHASSIS_GLASS = new THREE.MeshStandardMaterial({
+  color: 0x93c5fd,
+  roughness: 0.15,
+  metalness: 0.1,
+  transparent: true,
+  opacity: 0.22,
+  depthWrite: false,
+});
 const MAT_BEZEL = new THREE.MeshStandardMaterial({
-  color: 0x181c22,
+  color: 0x161a20,
   roughness: 0.6,
   metalness: 0.1,
 });
 const MAT_CHAMBER_INNER = new THREE.MeshStandardMaterial({
-  color: 0x121417,
+  color: 0x111316,
   roughness: 0.88,
   metalness: 0.05,
 });
 const MAT_CHROME = new THREE.MeshStandardMaterial({
   color: 0xdde2ea,
-  roughness: 0.1,
+  roughness: 0.08,
   metalness: 0.95,
 });
 const MAT_ALUM_ANODIZED = new THREE.MeshStandardMaterial({
@@ -60,20 +70,35 @@ const MAT_ALUM_ANODIZED = new THREE.MeshStandardMaterial({
   roughness: 0.35,
   metalness: 0.8,
 });
+const MAT_ALUM_BREADBOARD = new THREE.MeshStandardMaterial({
+  color: 0x333842,
+  roughness: 0.42,
+  metalness: 0.75,
+});
 const MAT_KEY_DARK = new THREE.MeshStandardMaterial({
-  color: 0x2a303c,
-  roughness: 0.45,
+  color: 0x222730,
+  roughness: 0.5,
   metalness: 0.1,
 });
-const MAT_KEY_PRIMARY = new THREE.MeshStandardMaterial({
-  color: 0x1e3a8a,
-  roughness: 0.4,
-  metalness: 0.15,
+const MAT_GOLD_MIRROR = new THREE.MeshStandardMaterial({
+  color: 0xf59e0b,
+  roughness: 0.12,
+  metalness: 0.94,
 });
-const MAT_KEY_SCAN = new THREE.MeshStandardMaterial({
-  color: 0x581c87,
+const MAT_HOLO_GRATING = new THREE.MeshStandardMaterial({
+  color: 0x38bdf8,
+  roughness: 0.2,
+  metalness: 0.85,
+});
+const MAT_PCB_GREEN = new THREE.MeshStandardMaterial({
+  color: 0x14532d,
   roughness: 0.4,
-  metalness: 0.15,
+  metalness: 0.25,
+});
+const MAT_CABLE_PVC = new THREE.MeshStandardMaterial({
+  color: 0x181a1f,
+  roughness: 0.7,
+  metalness: 0.05,
 });
 const MAT_OPTICAL_GLASS = new THREE.MeshPhysicalMaterial({
   color: 0xffffff,
@@ -103,24 +128,25 @@ function createUSBPort() {
 }
 
 /**
- * Official SREdesigns Brand Badge (Strict DIAG-001 & DIAG-002 Compliance)
+ * Official SREdesigns Brand Badge (Diamond-Cut Metal Plate, Strict DIAG-001 & DIAG-002 Compliance)
+ * Guaranteed zero text clipping: All elements mathematically contained within 1024x260 canvas.
  */
 export function makeSREdesignsBadge(scale = 0.55) {
   const group = new THREE.Group();
   group.name = 'Badge_SREdesigns';
 
-  const plateW = 1.15 * scale;
-  const plateH = 0.31 * scale;
+  const plateW = 1.18 * scale;
+  const plateH = 0.30 * scale;
   const plateD = 0.012;
 
-  // Outer bezel frame
+  // Outer beveled chrome bezel frame
   const bezel = new THREE.Mesh(
-    new THREE.BoxGeometry(plateW + 0.015, plateH + 0.015, plateD),
-    MAT_CHASSIS_DARK
+    new THREE.BoxGeometry(plateW + 0.02, plateH + 0.02, plateD),
+    MAT_CHROME
   );
   group.add(bezel);
 
-  // Brushed aluminum backing plate
+  // Brushed titanium backing plate
   const plate = new THREE.Mesh(
     new THREE.BoxGeometry(plateW, plateH, plateD * 0.9),
     MAT_ALUM_ANODIZED
@@ -128,7 +154,7 @@ export function makeSREdesignsBadge(scale = 0.55) {
   plate.position.z = plateD * 0.05;
   group.add(plate);
 
-  // 4 Corner Micro-fasteners (M1 hex bolts)
+  // 4 Corner Micro-fasteners (M1.5 hex bolts with counterbores)
   for (const sx of [-1, 1]) {
     for (const sy of [-1, 1]) {
       const screw = new THREE.Mesh(
@@ -141,61 +167,123 @@ export function makeSREdesignsBadge(scale = 0.55) {
     }
   }
 
-  // Canvas texture badge face
+  // Canvas texture badge face (Ultra sharp 1024x260 resolution)
   const canvas = document.createElement('canvas');
-  canvas.width = 512;
-  canvas.height = 144;
+  canvas.width = 1024;
+  canvas.height = 260;
   const ctx = canvas.getContext('2d');
 
-  // Background gradient
-  const bgGrad = ctx.createLinearGradient(0, 0, 512, 144);
-  bgGrad.addColorStop(0, '#0f172a');
-  bgGrad.addColorStop(0.5, '#1e293b');
-  bgGrad.addColorStop(1, '#0f172a');
+  // Background deep gradient
+  const bgGrad = ctx.createLinearGradient(0, 0, 1024, 260);
+  bgGrad.addColorStop(0, '#0a0f1d');
+  bgGrad.addColorStop(0.5, '#151f33');
+  bgGrad.addColorStop(1, '#0a0f1d');
   ctx.fillStyle = bgGrad;
-  ctx.fillRect(0, 0, 512, 144);
+  ctx.fillRect(0, 0, 1024, 260);
 
-  // Outer cyan accent border
-  ctx.strokeStyle = '#06b6d4';
+  // Metallic inner perimeter accent border
+  ctx.strokeStyle = '#0284c7';
   ctx.lineWidth = 6;
-  ctx.strokeRect(6, 6, 500, 132);
+  ctx.strokeRect(10, 10, 1004, 240);
 
-  // Three teal enamel tiles for S - R - E
+  // Subtle chamfer line
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(16, 16, 992, 228);
+
+  // Three signature jewel-enamel 3D tiles for S - R - E (Left side)
   const tiles = ['S', 'R', 'E'];
   tiles.forEach((char, i) => {
-    const tx = 28 + i * 56;
-    const ty = 24;
-    ctx.fillStyle = '#0891b2';
+    const tx = 38 + i * 66;
+    const ty = 46;
+    const tSize = 56;
+
+    // Tile drop shadow
+    ctx.fillStyle = '#034a61';
     ctx.beginPath();
-    ctx.roundRect(tx, ty, 48, 48, 8);
+    ctx.roundRect(tx + 2, ty + 2, tSize, tSize, 10);
     ctx.fill();
+
+    // Tile gradient
+    const tileGrad = ctx.createLinearGradient(tx, ty, tx, ty + tSize);
+    tileGrad.addColorStop(0, '#0891b2');
+    tileGrad.addColorStop(1, '#0e7490');
+    ctx.fillStyle = tileGrad;
+    ctx.beginPath();
+    ctx.roundRect(tx, ty, tSize, tSize, 10);
+    ctx.fill();
+
+    // Tile border
     ctx.strokeStyle = '#22d3ee';
     ctx.lineWidth = 3;
     ctx.stroke();
 
+    // Tile character
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 34px sans-serif';
+    ctx.font = '800 38px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(char, tx + 24, ty + 26);
+    ctx.fillText(char, tx + tSize / 2, ty + tSize / 2 + 1);
   });
 
-  // Typography
+  // Vertical divider between SRE tiles and instrument typography
+  ctx.strokeStyle = '#1e3a5f';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(250, 30);
+  ctx.lineTo(250, 230);
+  ctx.stroke();
+
+  // Typography Right Side (X = 275 to 985, completely contained!)
   ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+
+  // Line 1: SHIMADZU UV-1900i + DUAL-BEAM Pill
+  ctx.font = '800 34px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('SHIMADZU', 275, 70);
+
   ctx.fillStyle = '#38bdf8';
-  ctx.font = '700 34px sans-serif';
-  ctx.fillText('UV-1900i', 215, 52);
+  ctx.fillText('UV-1900i', 485, 70);
 
+  // Dual-beam pill badge on far right of line 1 (ends at X = 980)
+  const pillX = 760;
+  const pillY = 50;
+  const pillW = 215;
+  const pillH = 38;
   ctx.fillStyle = '#f59e0b';
-  ctx.font = '700 24px sans-serif';
-  ctx.fillText('DUAL-BEAM', 380, 52);
+  ctx.beginPath();
+  ctx.roundRect(pillX, pillY, pillW, pillH, 8);
+  ctx.fill();
 
+  ctx.font = '800 20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+  ctx.fillStyle = '#0f172a';
+  ctx.textAlign = 'center';
+  ctx.fillText('DUAL-BEAM UV-VIS', pillX + pillW / 2, pillY + pillH / 2);
+
+  // Horizontal separator line
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(275, 115);
+  ctx.lineTo(975, 115);
+  ctx.stroke();
+
+  // Line 2: Instrument classification
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#cbd5e1';
+  ctx.font = '700 24px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+  ctx.fillText('HIGH-RESOLUTION RECORDING SPECTROPHOTOMETER', 275, 150);
+
+  // Line 3: System specification & SREdesigns brand
   ctx.fillStyle = '#94a3b8';
-  ctx.font = '600 20px monospace';
-  ctx.fillText('SREdesigns.com · LAB SYSTEMS', 215, 102);
+  ctx.font = '600 18px monospace';
+  ctx.fillText('PRECISION OPTICAL SYSTEM · SREdesigns LABS · Czerny-Turner', 275, 198);
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
+  tex.minFilter = THREE.LinearFilter;
+  tex.magFilter = THREE.LinearFilter;
   tex.needsUpdate = true;
 
   const badgeFaceGeo = new THREE.PlaneGeometry(plateW - 0.015, plateH - 0.015);
@@ -207,6 +295,186 @@ export function makeSREdesignsBadge(scale = 0.55) {
   faceMesh.position.z = plateD / 2 + 0.004;
   group.add(faceMesh);
 
+  return group;
+}
+
+/**
+ * Creates tactile laser-etched labeled physical keycaps with depression mechanism.
+ */
+export function createLabeledKeycap(cfg) {
+  const g = new THREE.Group();
+  g.name = cfg.id;
+
+  // Recessed bezel pocket tray
+  const well = new THREE.Mesh(
+    new THREE.BoxGeometry(0.28, 0.02, 0.18),
+    MAT_BEZEL
+  );
+  well.position.y = 0.01;
+  g.add(well);
+
+  // Depressible keycap group (spring damper animation target)
+  const capGroup = new THREE.Group();
+  capGroup.position.set(0, 0.038, 0);
+
+  // Keycap solid body
+  const keyBase = new THREE.Mesh(
+    new THREE.BoxGeometry(0.25, 0.038, 0.15),
+    MAT_KEY_DARK
+  );
+  keyBase.castShadow = true;
+  capGroup.add(keyBase);
+
+  // High-resolution canvas texture for laser-etched keycap label
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 160;
+  const ctx = canvas.getContext('2d');
+
+  // Keycap face gradient
+  const grad = ctx.createLinearGradient(0, 0, 0, 160);
+  grad.addColorStop(0, '#242b36');
+  grad.addColorStop(1, '#181e28');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 256, 160);
+
+  // Chamfered keycap border
+  ctx.strokeStyle = '#384355';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(4, 4, 248, 152);
+
+  // Top color accent bar
+  ctx.fillStyle = cfg.color || '#38bdf8';
+  ctx.fillRect(8, 8, 240, 8);
+
+  // Icon / graphic glyph
+  ctx.fillStyle = cfg.color || '#ffffff';
+  ctx.font = 'bold 36px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(cfg.icon || '', 128, 54);
+
+  // Main bold label
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 26px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+  ctx.fillText(cfg.label, 128, 100);
+
+  // Subtitle / system function
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '600 16px monospace';
+  ctx.fillText(cfg.sub || '', 128, 136);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.flipY = false;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.minFilter = THREE.LinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.needsUpdate = true;
+
+  const topGeo = new THREE.PlaneGeometry(0.245, 0.145);
+  // DIAG-005: Match UI_LCD mapping: flipY = false + horizontal UV inversion on buffer geometry
+  const uvTop = topGeo.attributes.uv;
+  for (let i = 0; i < uvTop.count; i++) {
+    uvTop.setX(i, 1.0 - uvTop.getX(i));
+  }
+  uvTop.needsUpdate = true;
+
+  const topFace = new THREE.Mesh(
+    topGeo,
+    new THREE.MeshBasicMaterial({ map: tex })
+  );
+  topFace.rotation.x = -Math.PI / 2;
+  topFace.position.y = 0.020;
+  capGroup.add(topFace);
+
+  g.add(capGroup);
+  g.userData = { name: cfg.id, action: cfg.label, role: cfg.role, capGroup };
+  return { group: g, capGroup, topFace };
+}
+
+/**
+ * Creates genuine 3D physical AC power cord with C13 plug and catenary table drape.
+ */
+export function createPowerCord(iecPortPos) {
+  const group = new THREE.Group();
+  group.name = 'Assembly_PowerCord';
+
+  // 1. Molded IEC C13 Line Plug Body (inserted into C14 socket)
+  const plugBody = new THREE.Mesh(
+    new THREE.BoxGeometry(0.24, 0.15, 0.28),
+    new THREE.MeshStandardMaterial({ color: 0x16181c, roughness: 0.65, metalness: 0.08 })
+  );
+  plugBody.position.set(iecPortPos.x, iecPortPos.y, iecPortPos.z + 0.14);
+  plugBody.castShadow = true;
+  group.add(plugBody);
+
+  // Finger grip ribs on plug sides
+  for (let r = -2; r <= 2; r++) {
+    const rib = new THREE.Mesh(
+      new THREE.BoxGeometry(0.25, 0.012, 0.014),
+      new THREE.MeshStandardMaterial({ color: 0x111316, roughness: 0.8 })
+    );
+    rib.position.set(iecPortPos.x, iecPortPos.y + (r * 0.024), iecPortPos.z + 0.14);
+    group.add(rib);
+  }
+
+  // Stepped rubber strain relief boot
+  const boot = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.040, 0.054, 0.14, 16),
+    new THREE.MeshStandardMaterial({ color: 0x141619, roughness: 0.85, metalness: 0.05 })
+  );
+  boot.rotation.x = Math.PI / 2;
+  boot.position.set(iecPortPos.x, iecPortPos.y, iecPortPos.z + 0.35);
+  group.add(boot);
+
+  // 2. Heavy-duty 3-conductor black PVC power cord along Catmull-Rom spline
+  // Spline points descend naturally under gravity, touching table at Y = 0.032 (radius = 0.032)
+  const p0 = new THREE.Vector3(iecPortPos.x, iecPortPos.y, iecPortPos.z + 0.42);
+  const p1 = new THREE.Vector3(iecPortPos.x, iecPortPos.y - 0.22, iecPortPos.z + 0.72);
+  const p2 = new THREE.Vector3(iecPortPos.x + 0.05, 0.032, iecPortPos.z + 1.15);
+  const p3 = new THREE.Vector3(iecPortPos.x + 0.25, 0.032, iecPortPos.z + 1.75);
+  const p4 = new THREE.Vector3(iecPortPos.x + 0.55, 0.032, iecPortPos.z + 2.35);
+  const p5 = new THREE.Vector3(iecPortPos.x + 0.85, 0.032, iecPortPos.z + 2.95);
+
+  const curve = new THREE.CatmullRomCurve3([p0, p1, p2, p3, p4, p5]);
+  const tubeGeo = new THREE.TubeGeometry(curve, 64, 0.032, 12, false);
+  const cableMesh = new THREE.Mesh(tubeGeo, MAT_CABLE_PVC);
+  cableMesh.castShadow = true;
+  cableMesh.receiveShadow = true;
+  group.add(cableMesh);
+
+  // 3. Molded AC wall plug at the end of the cable resting on table
+  const wallPlugGroup = new THREE.Group();
+  wallPlugGroup.position.copy(p5);
+  wallPlugGroup.rotation.y = Math.atan2(p5.x - p4.x, p5.z - p4.z);
+
+  const plugHead = new THREE.Mesh(
+    new THREE.BoxGeometry(0.18, 0.16, 0.24),
+    MAT_CABLE_PVC
+  );
+  plugHead.position.set(0, 0.08, 0.12);
+  plugHead.castShadow = true;
+  wallPlugGroup.add(plugHead);
+
+  // Dual brass AC prongs
+  for (const s of [-0.045, 0.045]) {
+    const prong = new THREE.Mesh(
+      new THREE.BoxGeometry(0.012, 0.045, 0.10),
+      MAT_CHROME
+    );
+    prong.position.set(s, 0.08, 0.29);
+    wallPlugGroup.add(prong);
+  }
+  // Ground pin
+  const groundProng = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.012, 0.012, 0.11, 12),
+    MAT_CHROME
+  );
+  groundProng.rotation.x = Math.PI / 2;
+  groundProng.position.set(0, 0.13, 0.295);
+  wallPlugGroup.add(groundProng);
+
+  group.add(wallPlugGroup);
   return group;
 }
 
@@ -250,27 +518,11 @@ export function wavelengthToRGB(nm) {
     g = 0.05;
     b = 0.05;
   }
-
-  // Factor attenuation at spectrum limits
-  let factor = 1.0;
-  if (nm >= 380 && nm < 420) {
-    factor = 0.3 + 0.7 * (nm - 380) / (420 - 380);
-  } else if (nm >= 700 && nm <= 750) {
-    factor = 0.3 + 0.7 * (750 - nm) / (750 - 700);
-  } else if (nm > 750) {
-    factor = 0.25;
-  } else if (nm < 380) {
-    factor = 0.75;
-  }
-
-  const red = Math.round(r * factor * 255);
-  const green = Math.round(g * factor * 255);
-  const blue = Math.round(b * factor * 255);
-  return (red << 16) | (green << 8) | blue;
+  return new THREE.Color(r, g, b);
 }
 
 /**
- * Builds the complete procedural 3D model of the UV-Vis Spectrophotometer.
+ * Main Builder Function for Shimadzu UV-1900i Spectrophotometer Digital Twin
  */
 export function createSpectrophotometerModel(options = {}) {
   const root = new THREE.Group();
@@ -284,7 +536,15 @@ export function createSpectrophotometerModel(options = {}) {
     probeBeamMat: null,
     deuteriumLampGlow: null,
     tungstenLampGlow: null,
+    diffractionGrating: null,
+    chopperWheel: null,
+    sourceSelectorArm: null,
+    coolingFanHub: null,
     lcdMesh: null,
+    keycaps: {},
+    opticalRays: null,
+    opticalRayMats: [],
+    powerCord: null,
     explodedParts: [],
   };
 
@@ -316,80 +576,175 @@ export function createSpectrophotometerModel(options = {}) {
   const explodedShellGroup = new THREE.Group();
   explodedShellGroup.name = 'Exploded_UpperShell_Group';
   root.add(explodedShellGroup);
-  animTargets.explodedParts.push({ obj: explodedShellGroup, originY: 0, deltaY: 1.4 });
+  animTargets.explodedParts.push({ obj: explodedShellGroup, originY: 0, deltaY: 2.2 });
+
+  // Chassis mesh collection for Optics View transparency swapping
+  const chassisMeshes = [];
 
   // 3. Main Body Chassis Housing (Body_Chassis)
   const chassisGroup = new THREE.Group();
   chassisGroup.name = 'Body_Chassis';
 
-  // Lower chassis rear block (optics bay foundation)
-  const lowerRearBlock = new THREE.Mesh(
-    new THREE.BoxGeometry(4.36, 1.1, 2.38),
+  // Hollow rear chassis enclosure (optics bay housing: 4.36 x 1.80 x 2.38)
+  const rearWall = new THREE.Mesh(
+    new THREE.BoxGeometry(4.36, 1.80, 0.04),
     MAT_CHASSIS
   );
-  lowerRearBlock.position.set(0, BASE_Y + 0.12 + 0.55, 1.19);
-  lowerRearBlock.castShadow = true;
-  lowerRearBlock.receiveShadow = true;
-  chassisGroup.add(lowerRearBlock);
+  rearWall.position.set(0, BASE_Y + 0.12 + 0.90, 2.38 - 0.02);
+  rearWall.castShadow = true;
+  rearWall.receiveShadow = true;
+  chassisGroup.add(rearWall);
+  chassisMeshes.push(rearWall);
 
-  // Lower chassis front-right block (under sloped console)
-  const lowerFrontRight = new THREE.Mesh(
-    new THREE.BoxGeometry(2.18, 1.1, 2.38),
+  const rearLeftWall = new THREE.Mesh(
+    new THREE.BoxGeometry(0.04, 1.80, 2.38),
     MAT_CHASSIS
   );
-  lowerFrontRight.position.set(-1.09, BASE_Y + 0.12 + 0.55, -1.19);
-  lowerFrontRight.castShadow = true;
-  lowerFrontRight.receiveShadow = true;
-  chassisGroup.add(lowerFrontRight);
+  rearLeftWall.position.set(2.18 - 0.02, BASE_Y + 0.12 + 0.90, 1.19);
+  rearLeftWall.castShadow = true;
+  rearLeftWall.receiveShadow = true;
+  chassisGroup.add(rearLeftWall);
+  chassisMeshes.push(rearLeftWall);
 
-  // Front-left chamber sub-base casting plate
-  const chamberSubBase = new THREE.Mesh(
-    new THREE.BoxGeometry(2.18, 0.10, 2.38),
+  const rearRightWall = new THREE.Mesh(
+    new THREE.BoxGeometry(0.04, 1.80, 2.38),
     MAT_CHASSIS
   );
-  chamberSubBase.position.set(1.09, BASE_Y + 0.12 + 0.05, -1.19);
-  chassisGroup.add(chamberSubBase);
+  rearRightWall.position.set(-2.18 + 0.02, BASE_Y + 0.12 + 0.90, 1.19);
+  rearRightWall.castShadow = true;
+  rearRightWall.receiveShadow = true;
+  chassisGroup.add(rearRightWall);
+  chassisMeshes.push(rearRightWall);
 
-  // Upper rear deck block (optics housing)
-  const upperRear = new THREE.Mesh(
-    new THREE.BoxGeometry(4.36, 0.85, 2.4),
+  const upperDeckRoof = new THREE.Mesh(
+    new THREE.BoxGeometry(4.36, 0.04, 2.38),
     MAT_CHASSIS
   );
-  upperRear.position.set(0, BASE_Y + 1.22 + 0.425, 1.18);
-  upperRear.castShadow = true;
-  upperRear.receiveShadow = true;
-  chassisGroup.add(upperRear);
+  upperDeckRoof.position.set(0, BASE_Y + 0.12 + 1.80 - 0.02, 1.19);
+  upperDeckRoof.castShadow = true;
+  upperDeckRoof.receiveShadow = true;
+  chassisGroup.add(upperDeckRoof);
+  chassisMeshes.push(upperDeckRoof);
+  animTargets.roofCover = upperDeckRoof;
 
-  // Upper front right slope block (for ergonomic display console)
-  // Cross-section in Z-Y: slopes down from rear upper deck (Z = 0.0, Y = 0.85) to front lip (Z = -2.36, Y = 0.15)
-  // Positioned on operator's right (-X side from -2.16 to -0.02)
-  const consoleSlopeShape = new THREE.Shape();
-  consoleSlopeShape.moveTo(0.0, 0.0);
-  consoleSlopeShape.lineTo(2.36, 0.0);
-  consoleSlopeShape.lineTo(2.36, 0.15);
-  consoleSlopeShape.lineTo(0.0, 0.85);
-  consoleSlopeShape.closePath();
+  const frontOpticsDivider = new THREE.Mesh(
+    new THREE.BoxGeometry(2.18, 1.10, 0.04),
+    MAT_CHASSIS
+  );
+  frontOpticsDivider.position.set(-1.09, BASE_Y + 0.12 + 0.55, 0.02);
+  frontOpticsDivider.castShadow = true;
+  chassisGroup.add(frontOpticsDivider);
+  chassisMeshes.push(frontOpticsDivider);
 
-  const consoleExtrudeSettings = { depth: 2.14, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: 0.03, bevelThickness: 0.03 };
-  const consoleSlopeGeo = new THREE.ExtrudeGeometry(consoleSlopeShape, consoleExtrudeSettings);
-  const consoleSlopeMesh = new THREE.Mesh(consoleSlopeGeo, MAT_CHASSIS);
-  consoleSlopeMesh.rotation.y = Math.PI / 2;
-  consoleSlopeMesh.position.set(-2.16, BASE_Y + 1.22, 0.0);
+  // Lower chassis front-right housing (under sloped console: front apron & right wall)
+  const frontApron = new THREE.Mesh(
+    new THREE.BoxGeometry(2.18, 1.10, 0.04),
+    MAT_CHASSIS
+  );
+  frontApron.position.set(-1.09, BASE_Y + 0.12 + 0.55, -2.38 + 0.02);
+  frontApron.castShadow = true;
+  frontApron.receiveShadow = true;
+  chassisGroup.add(frontApron);
+  chassisMeshes.push(frontApron);
+
+  const frontRightWall = new THREE.Mesh(
+    new THREE.BoxGeometry(0.04, 1.10, 2.38),
+    MAT_CHASSIS
+  );
+  frontRightWall.position.set(-2.18 + 0.02, BASE_Y + 0.12 + 0.55, -1.19);
+  frontRightWall.castShadow = true;
+  frontRightWall.receiveShadow = true;
+  chassisGroup.add(frontRightWall);
+  chassisMeshes.push(frontRightWall);
+
+  // High-End Precision Reveals & Shadow-Gap Channels
+  // Dark anthracite dividing channel separating optics bay from sample chamber
+  const shadowGapDivider = new THREE.Mesh(
+    new THREE.BoxGeometry(0.035, 1.22, 2.40),
+    MAT_BEZEL
+  );
+  shadowGapDivider.position.set(0, BASE_Y + 0.72, -1.19);
+  chassisGroup.add(shadowGapDivider);
+
+  // Polished chrome upper ridge runner
+  const ridgeRunner = new THREE.Mesh(
+    new THREE.BoxGeometry(4.38, 0.025, 0.035),
+    MAT_CHROME
+  );
+  ridgeRunner.position.set(0, BASE_Y + 1.23, 0.0);
+  chassisGroup.add(ridgeRunner);
+
+  // Brushed aluminum side bumper rails with countersunk M3 hex socket screws
+  for (const sx of [-2.19, 2.19]) {
+    const bumper = new THREE.Mesh(
+      new THREE.BoxGeometry(0.025, 0.08, 4.70),
+      MAT_ALUM_ANODIZED
+    );
+    bumper.position.set(sx, BASE_Y + 0.40, 0);
+    chassisGroup.add(bumper);
+
+    for (let bz = -2.0; bz <= 2.0; bz += 1.0) {
+      const screw = createHexSocketScrew(0.014, 0.04, { material: MAT_CHROME });
+      screw.rotation.z = (sx > 0 ? -Math.PI / 2 : Math.PI / 2);
+      screw.position.set(sx + (sx > 0 ? 0.014 : -0.014), BASE_Y + 0.40, bz);
+      chassisGroup.add(screw);
+    }
+  }
+
+  // 3D trapezoidal wedge for sloped front console (operator right: X in [-2.18, 0], Z in [-2.36, 0])
+  // Clean BufferGeometry with explicit vertex normals and bounding sphere (eliminates ExtrudeGeometry NaN warning)
+  const wWidth = 2.18;
+  const wDepth = 2.36;
+  const hFront = 0.15;
+  const hRear = 0.85;
+
+  const p0 = [0, 0, -wDepth];
+  const p1 = [wWidth, 0, -wDepth];
+  const p2 = [wWidth, 0, 0];
+  const p3 = [0, 0, 0];
+  const p4 = [0, hFront, -wDepth];
+  const p5 = [wWidth, hFront, -wDepth];
+  const p6 = [wWidth, hRear, 0];
+  const p7 = [0, hRear, 0];
+
+  const wedgePositions = new Float32Array([
+    // Bottom (y = 0)
+    ...p0, ...p2, ...p1,  ...p0, ...p3, ...p2,
+    // Top sloped
+    ...p4, ...p5, ...p6,  ...p4, ...p6, ...p7,
+    // Front (z = -wDepth)
+    ...p0, ...p1, ...p5,  ...p0, ...p5, ...p4,
+    // Rear (z = 0)
+    ...p3, ...p7, ...p6,  ...p3, ...p6, ...p2,
+    // Right (x = 0)
+    ...p0, ...p4, ...p7,  ...p0, ...p7, ...p3,
+    // Left (x = wWidth)
+    ...p1, ...p2, ...p6,  ...p1, ...p6, ...p5,
+  ]);
+
+  const slopeGeo = new THREE.BufferGeometry();
+  slopeGeo.setAttribute('position', new THREE.BufferAttribute(wedgePositions, 3));
+  slopeGeo.computeVertexNormals();
+  slopeGeo.computeBoundingSphere();
+
+  const consoleSlopeMesh = new THREE.Mesh(slopeGeo, MAT_CHASSIS);
+  consoleSlopeMesh.position.set(-2.18, BASE_Y + 1.22, 0);
   consoleSlopeMesh.castShadow = true;
   consoleSlopeMesh.receiveShadow = true;
   chassisGroup.add(consoleSlopeMesh);
+  chassisMeshes.push(consoleSlopeMesh);
 
-  // 4. Sloped Console Assembly & Recessed Bezel (DIAG-001 & DIAG-002: seated in pocket)
+  // 4. Sloped Console Assembly & Recessed Bezel
   const slopeAngle = Math.atan2(0.70, 2.36); // ~0.2885 rad (~16.53°)
   const bezelGroup = new THREE.Group();
   bezelGroup.name = 'Assembly_SlopedConsole';
   bezelGroup.position.set(-1.09, BASE_Y + 1.22 + 0.50 + 0.02, -1.18);
-  bezelGroup.rotation.x = -slopeAngle; // Tilts face up and forward toward operator at -Z
+  bezelGroup.rotation.x = -slopeAngle; // Tilts face up and forward toward operator
   chassisGroup.add(bezelGroup);
 
   // Recessed pocket tray
   const bezelTray = new THREE.Mesh(
-    new THREE.BoxGeometry(1.86, 0.04, 1.52),
+    new THREE.BoxGeometry(1.88, 0.04, 1.54),
     MAT_BEZEL
   );
   bezelTray.name = 'Pocket_Bezel';
@@ -398,31 +753,30 @@ export function createSpectrophotometerModel(options = {}) {
   bezelTray.receiveShadow = true;
   bezelGroup.add(bezelTray);
 
-  // Brushed chrome accent trim wrapping around bezel perimeter (DIAG-003: zero top-overlap)
-  const trimW = 0.018;
-  const trimH = 0.025;
-  const edgeTop = new THREE.Mesh(new THREE.BoxGeometry(1.86 + trimW * 2, trimH, trimW), MAT_CHROME);
-  edgeTop.position.set(0, 0.02, 1.52 / 2 + trimW / 2);
+  // High-End Brushed Champagne/Satin Chrome Perimeter Trim framing console
+  const trimW = 0.022;
+  const trimH = 0.028;
+  const edgeTop = new THREE.Mesh(new THREE.BoxGeometry(1.88 + trimW * 2, trimH, trimW), MAT_CHROME);
+  edgeTop.position.set(0, 0.022, 1.54 / 2 + trimW / 2);
   bezelGroup.add(edgeTop);
 
-  const edgeBot = new THREE.Mesh(new THREE.BoxGeometry(1.86 + trimW * 2, trimH, trimW), MAT_CHROME);
-  edgeBot.position.set(0, 0.02, -1.52 / 2 - trimW / 2);
+  const edgeBot = new THREE.Mesh(new THREE.BoxGeometry(1.88 + trimW * 2, trimH, trimW), MAT_CHROME);
+  edgeBot.position.set(0, 0.022, -1.54 / 2 - trimW / 2);
   bezelGroup.add(edgeBot);
 
-  const edgeLeft = new THREE.Mesh(new THREE.BoxGeometry(trimW, trimH, 1.52), MAT_CHROME);
-  edgeLeft.position.set(-1.86 / 2 - trimW / 2, 0.02, 0);
+  const edgeLeft = new THREE.Mesh(new THREE.BoxGeometry(trimW, trimH, 1.54), MAT_CHROME);
+  edgeLeft.position.set(-1.88 / 2 - trimW / 2, 0.022, 0);
   bezelGroup.add(edgeLeft);
 
-  const edgeRight = new THREE.Mesh(new THREE.BoxGeometry(trimW, trimH, 1.52), MAT_CHROME);
-  edgeRight.position.set(1.86 / 2 + trimW / 2, 0.02, 0);
+  const edgeRight = new THREE.Mesh(new THREE.BoxGeometry(trimW, trimH, 1.54), MAT_CHROME);
+  edgeRight.position.set(1.88 / 2 + trimW / 2, 0.022, 0);
   bezelGroup.add(edgeRight);
 
   // 5. Dynamic LCD Display (UI_LCD)
-  // Dedicated flat UV-mapped quad seated in upper bezel with positive Z clearance (DIAG-002: ZERO occlusion)
   const lcdW = 1.64;
   const lcdH = 0.94;
   const lcdGeo = new THREE.PlaneGeometry(lcdW, lcdH);
-  // DIAG-005: Invert horizontal UV coordinates directly on the buffer to fix mirroring while strictly preserving flipY = false
+  // DIAG-005: Invert horizontal UV coordinates directly on the buffer to fix mirroring while preserving flipY = false
   const uvAttr = lcdGeo.attributes.uv;
   for (let i = 0; i < uvAttr.count; i++) {
     uvAttr.setX(i, 1.0 - uvAttr.getX(i));
@@ -436,7 +790,6 @@ export function createSpectrophotometerModel(options = {}) {
   const lcdMesh = new THREE.Mesh(lcdGeo, lcdMat);
   lcdMesh.name = 'UI_LCD';
   lcdMesh.rotation.x = -Math.PI / 2;
-  // Seated proudly above bezel tray with positive clearance
   lcdMesh.position.set(0, 0.038, 0.18);
   bezelGroup.add(lcdMesh);
   animTargets.lcdMesh = lcdMesh;
@@ -445,29 +798,24 @@ export function createSpectrophotometerModel(options = {}) {
   lcdMesh.userData = { name: 'UI_LCD_TOUCH', role: 'Display' };
   interactiveObjects.push(lcdMesh);
 
-  // 6. Physical Control Buttons (seated in lower bezel in front of screen)
+  // 6. Tactile Laser-Etched Physical Control Buttons
   const buttonConfigs = [
-    { id: 'Btn_Power', label: 'PWR', x: -0.64, z: -0.50, mat: MAT_KEY_DARK, role: 'Power standby' },
-    { id: 'Btn_Zero', label: 'ZERO', x: -0.32, z: -0.50, mat: MAT_KEY_PRIMARY, role: 'Auto-zero baseline' },
-    { id: 'Btn_Scan', label: 'SCAN', x: 0.0, z: -0.50, mat: MAT_KEY_SCAN, role: 'Spectrum scan' },
-    { id: 'Btn_Mode', label: 'MODE', x: 0.32, z: -0.50, mat: MAT_KEY_DARK, role: 'Cycle measurement mode' },
-    { id: 'Btn_CellNext', label: 'CELL', x: 0.64, z: -0.50, mat: MAT_KEY_DARK, role: 'Advance carousel cell' },
+    { id: 'Btn_Power', label: 'POWER', sub: 'STANDBY', icon: '⏻', x: -0.64, z: -0.50, color: '#f43f5e', role: 'Power standby' },
+    { id: 'Btn_Zero', label: 'ZERO', sub: 'BASELINE', icon: '0.00', x: -0.32, z: -0.50, color: '#eab308', role: 'Auto-zero baseline' },
+    { id: 'Btn_Scan', label: 'SCAN', sub: 'SPECTRUM', icon: '▶', x: 0.0, z: -0.50, color: '#a855f7', role: 'Spectrum scan' },
+    { id: 'Btn_Mode', label: 'MODE', sub: 'SYS SEL', icon: '⇄', x: 0.32, z: -0.50, color: '#06b6d4', role: 'Cycle measurement mode' },
+    { id: 'Btn_CellNext', label: 'CELL', sub: '1-6 CH', icon: '⏭', x: 0.64, z: -0.50, color: '#3b82f6', role: 'Advance carousel cell' },
   ];
 
   buttonConfigs.forEach((cfg) => {
-    const btnMesh = new THREE.Mesh(
-      new THREE.BoxGeometry(0.26, 0.045, 0.16),
-      cfg.mat.clone()
-    );
-    btnMesh.name = cfg.id;
-    btnMesh.position.set(cfg.x, 0.042, cfg.z);
-    btnMesh.castShadow = true;
-    btnMesh.userData = { name: cfg.id, action: cfg.label, role: cfg.role };
-    bezelGroup.add(btnMesh);
-    interactiveObjects.push(btnMesh);
+    const keyItem = createLabeledKeycap(cfg);
+    keyItem.group.position.set(cfg.x, 0.025, cfg.z);
+    bezelGroup.add(keyItem.group);
+    interactiveObjects.push(keyItem.group);
+    animTargets.keycaps[cfg.id] = keyItem.capGroup;
   });
 
-  // 7. SREdesigns Brand Emblem Badge (Badge_SREdesigns, DIAG-001 & DIAG-002)
+  // 7. SREdesigns Brand Emblem Badge (Badge_SREdesigns)
   const badge = makeSREdesignsBadge(0.55);
   badge.position.set(-1.09, BASE_Y + 0.70, -2.385);
   badge.rotation.y = Math.PI; // Faces -Z forward towards operator and front camera
@@ -485,28 +833,30 @@ export function createSpectrophotometerModel(options = {}) {
 
   explodedShellGroup.add(chassisGroup);
 
-  // 7. Light-Tight Hollow Sample Chamber Basin & Walls (Operator Left: +X)
+  // 8. Light-Tight Hollow Sample Chamber Basin & Walls (Operator Left: +X)
   const CHAMBER_CENTER_X = 1.05;
   const CHAMBER_CENTER_Z = -1.18;
   const CHAMBER_FLOOR_Y = BASE_Y + 0.22;
 
-  // Chamber cavity outer perimeter structural walls
+  // Chamber cavity outer structural walls
   const wallLeft = new THREE.Mesh(new THREE.BoxGeometry(0.18, 1.25, 2.38), MAT_CHASSIS);
   wallLeft.position.set(CHAMBER_CENTER_X + 0.98, CHAMBER_FLOOR_Y + 0.625, CHAMBER_CENTER_Z);
   explodedShellGroup.add(wallLeft);
+  chassisMeshes.push(wallLeft);
 
   const linerLeft = new THREE.Mesh(new THREE.BoxGeometry(0.02, 1.20, 2.16), MAT_CHAMBER_INNER);
   linerLeft.position.set(CHAMBER_CENTER_X + 0.88, CHAMBER_FLOOR_Y + 0.625, CHAMBER_CENTER_Z);
   explodedShellGroup.add(linerLeft);
 
-  // Low front sill (allows cuvette loading from front when L-shaped door opens)
   const frontSill = new THREE.Mesh(new THREE.BoxGeometry(2.14, 0.18, 0.18), MAT_CHASSIS);
   frontSill.position.set(1.09, CHAMBER_FLOOR_Y + 0.09, -2.29);
   explodedShellGroup.add(frontSill);
+  chassisMeshes.push(frontSill);
 
   const wallRight = new THREE.Mesh(new THREE.BoxGeometry(0.18, 1.25, 2.38), MAT_CHASSIS);
   wallRight.position.set(CHAMBER_CENTER_X - 0.98, CHAMBER_FLOOR_Y + 0.625, CHAMBER_CENTER_Z);
   explodedShellGroup.add(wallRight);
+  chassisMeshes.push(wallRight);
 
   const linerRight = new THREE.Mesh(new THREE.BoxGeometry(0.02, 1.20, 2.16), MAT_CHAMBER_INNER);
   linerRight.position.set(CHAMBER_CENTER_X - 0.88, CHAMBER_FLOOR_Y + 0.625, CHAMBER_CENTER_Z);
@@ -515,12 +865,13 @@ export function createSpectrophotometerModel(options = {}) {
   const wallBack = new THREE.Mesh(new THREE.BoxGeometry(2.14, 1.25, 0.18), MAT_CHASSIS);
   wallBack.position.set(1.09, CHAMBER_FLOOR_Y + 0.625, -0.09);
   explodedShellGroup.add(wallBack);
+  chassisMeshes.push(wallBack);
 
   const linerBack = new THREE.Mesh(new THREE.BoxGeometry(1.78, 1.20, 0.02), MAT_CHAMBER_INNER);
   linerBack.position.set(CHAMBER_CENTER_X, CHAMBER_FLOOR_Y + 0.625, -0.19);
   explodedShellGroup.add(linerBack);
 
-  // Matte black interior floor lining (DIAG-004: authentic light-absorbing chamber cavity)
+  // Matte black interior floor lining
   const chamberLinerFloor = new THREE.Mesh(
     new THREE.BoxGeometry(1.78, 0.02, 2.02),
     MAT_CHAMBER_INNER
@@ -529,7 +880,7 @@ export function createSpectrophotometerModel(options = {}) {
   chamberLinerFloor.receiveShadow = true;
   explodedShellGroup.add(chamberLinerFloor);
 
-  // Beam aperture entry collimator ring (light enters from monochromator at right/-X)
+  // Beam aperture entry collimator ring
   const enterAperture = new THREE.Mesh(
     new THREE.CylinderGeometry(0.06, 0.06, 0.04, 16),
     MAT_CHROME
@@ -538,7 +889,7 @@ export function createSpectrophotometerModel(options = {}) {
   enterAperture.position.set(CHAMBER_CENTER_X - 0.87, CHAMBER_FLOOR_Y + 0.60, CHAMBER_CENTER_Z);
   explodedShellGroup.add(enterAperture);
 
-  // Beam aperture exit lens bezel (transmitted light exits toward photodiode at left/+X)
+  // Beam aperture exit lens bezel
   const exitAperture = new THREE.Mesh(
     new THREE.CylinderGeometry(0.06, 0.06, 0.04, 16),
     MAT_CHROME
@@ -547,8 +898,7 @@ export function createSpectrophotometerModel(options = {}) {
   exitAperture.position.set(CHAMBER_CENTER_X + 0.87, CHAMBER_FLOOR_Y + 0.60, CHAMBER_CENTER_Z);
   explodedShellGroup.add(exitAperture);
 
-  // 8. Sample Chamber Hinged L-Shaped Door (Pivot_ChamberLid)
-  // Kinematic pivot origin at rear top edge of sample chamber
+  // 9. Sample Chamber Hinged L-Shaped Door (Pivot_ChamberLid)
   const chamberLidPivot = new THREE.Group();
   chamberLidPivot.name = 'Pivot_ChamberLid';
   chamberLidPivot.position.set(CHAMBER_CENTER_X, CHAMBER_FLOOR_Y + 1.25, CHAMBER_CENTER_Z + 1.0);
@@ -563,8 +913,9 @@ export function createSpectrophotometerModel(options = {}) {
   doorPlate.position.set(0, 0.04, -1.02);
   doorPlate.castShadow = true;
   chamberLidPivot.add(doorPlate);
+  chassisMeshes.push(doorPlate);
 
-  // Front vertical door apron (swings up and back with top plate, exposing front of chamber)
+  // Front vertical door apron
   const doorFrontApron = new THREE.Mesh(
     new THREE.BoxGeometry(1.82, 1.07, 0.14),
     MAT_CHASSIS
@@ -572,8 +923,17 @@ export function createSpectrophotometerModel(options = {}) {
   doorFrontApron.position.set(0, -0.495, -2.00);
   doorFrontApron.castShadow = true;
   chamberLidPivot.add(doorFrontApron);
+  chassisMeshes.push(doorFrontApron);
 
-  // Rubber perimeter seals on underside and inside of front apron
+  // Polished chrome lower edge trim runner on door apron
+  const doorTrimRunner = new THREE.Mesh(
+    new THREE.BoxGeometry(1.84, 0.024, 0.04),
+    MAT_CHROME
+  );
+  doorTrimRunner.position.set(0, -1.02, -2.00);
+  chamberLidPivot.add(doorTrimRunner);
+
+  // Seals on underside and inside of front apron
   const sealTop = new THREE.Mesh(
     new THREE.BoxGeometry(1.72, 0.02, 1.95),
     MAT_CHAMBER_INNER
@@ -588,35 +948,35 @@ export function createSpectrophotometerModel(options = {}) {
   sealFront.position.set(0, -0.495, -1.92);
   chamberLidPivot.add(sealFront);
 
-  // Ergonomic finger pull handle mounted on front apron
-  const handle = new THREE.Mesh(
-    new THREE.BoxGeometry(0.5, 0.06, 0.12),
-    MAT_ALUM_ANODIZED
-  );
-  handle.position.set(0, -0.15, -2.10);
-  handle.castShadow = true;
-  handle.userData = { name: 'Btn_Lid', action: 'Toggle Chamber Door' };
-  chamberLidPivot.add(handle);
-  interactiveObjects.push(handle);
+  // Knurled Satin-Chrome Precision Pull Handle
+  const handleGroup = new THREE.Group();
+  handleGroup.name = 'Btn_Lid';
+  handleGroup.position.set(0, -0.15, -2.08);
 
-  // Door hinge knuckles and pin
-  for (const sign of [-1, 1]) {
-    const knuckle = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.045, 0.045, 0.18, 16),
-      MAT_ALUM_ANODIZED
-    );
-    knuckle.rotation.z = Math.PI / 2;
-    knuckle.position.set(sign * 0.72, 0, 0);
-    chamberLidPivot.add(knuckle);
-  }
-  const hingePin = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.02, 0.02, 1.6, 16),
+  const handleBar = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.024, 0.024, 0.52, 24),
     MAT_CHROME
   );
-  hingePin.rotation.z = Math.PI / 2;
-  chamberLidPivot.add(hingePin);
+  handleBar.rotation.z = Math.PI / 2;
+  handleBar.position.z = -0.055;
+  handleBar.castShadow = true;
+  handleGroup.add(handleBar);
 
-  // 9. 6-Position Motorized Cuvette Carousel (Pivot_CellCarousel)
+  for (const s of [-0.22, 0.22]) {
+    const post = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.018, 0.018, 0.065, 16),
+      MAT_CHROME
+    );
+    post.rotation.x = Math.PI / 2;
+    post.position.set(s, 0, -0.025);
+    handleGroup.add(post);
+  }
+
+  handleGroup.userData = { name: 'Btn_Lid', action: 'Toggle Chamber Door' };
+  chamberLidPivot.add(handleGroup);
+  interactiveObjects.push(handleGroup);
+
+  // 10. 6-Position Motorized Cuvette Carousel (Pivot_CellCarousel)
   const carouselPivot = new THREE.Group();
   carouselPivot.name = 'Pivot_CellCarousel';
   carouselPivot.position.set(CHAMBER_CENTER_X, CHAMBER_FLOOR_Y + 0.28, CHAMBER_CENTER_Z);
@@ -626,85 +986,74 @@ export function createSpectrophotometerModel(options = {}) {
 
   // Central rotary hub disk
   const hubDisk = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.68, 0.72, 0.22, 32),
-    MAT_CHASSIS_DARK
-  );
-  hubDisk.castShadow = true;
-  carouselPivot.add(hubDisk);
-
-  // Carousel vertical stepper drive shaft
-  const centerShaft = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.08, 0.08, 0.35, 20),
+    new THREE.CylinderGeometry(0.72, 0.72, 0.12, 32),
     MAT_ALUM_ANODIZED
   );
-  centerShaft.position.y = 0.12;
-  carouselPivot.add(centerShaft);
+  hubDisk.castShadow = true;
+  hubDisk.receiveShadow = true;
+  carouselPivot.add(hubDisk);
 
-  // 6 Radial cuvette holders & optical cuvettes
-  const cuvetteLiquidColors = [
-    { color: 0x93c5fd, trans: 0.98, op: 0.35, name: 'Cell 1: H2O Blank' },
-    { color: 0x7e22ce, trans: 0.25, op: 0.92, name: 'Cell 2: KMnO4' },
-    { color: 0xbae6fd, trans: 0.95, op: 0.45, name: 'Cell 3: DNA' },
-    { color: 0x1d4ed8, trans: 0.32, op: 0.88, name: 'Cell 4: Bradford BSA' },
-    { color: 0x0284c7, trans: 0.30, op: 0.90, name: 'Cell 5: Methylene Blue' },
-    { color: 0xffffff, trans: 1.00, op: 0.00, name: 'Cell 6: Empty Slot' },
-  ];
+  // Center drive spindle
+  const spindle = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.14, 0.14, 0.26, 20),
+    MAT_CHROME
+  );
+  spindle.position.y = 0.12;
+  carouselPivot.add(spindle);
 
-  const CAROUSEL_RADIUS = 0.46;
+  // 6 Cuvette Cells spaced at 60° increments
+  const cuvetteRadius = 0.54;
   const cuvetteMeshes = [];
 
-  for (let i = 0; i < 6; i++) {
-    const angle = (i * Math.PI) / 3;
-    const cx = Math.cos(angle) * CAROUSEL_RADIUS;
-    const cz = Math.sin(angle) * CAROUSEL_RADIUS;
+  for (let c = 0; c < 6; c++) {
+    const angle = (c * Math.PI) / 3;
+    const cx = Math.cos(angle) * cuvetteRadius;
+    const cz = Math.sin(angle) * cuvetteRadius;
 
-    // Cuvette mounting socket bracket
-    const socketMesh = new THREE.Mesh(
-      new THREE.BoxGeometry(0.18, 0.24, 0.18),
-      MAT_ALUM_ANODIZED
+    const cellHolder = new THREE.Mesh(
+      new THREE.BoxGeometry(0.24, 0.32, 0.24),
+      MAT_CHASSIS_DARK
     );
-    socketMesh.position.set(cx, 0.12, cz);
-    carouselPivot.add(socketMesh);
+    cellHolder.position.set(cx, 0.14, cz);
+    cellHolder.castShadow = true;
+    carouselPivot.add(cellHolder);
 
-    // Cuvette outer quartz/glass cell (12.5 × 12.5 × 45 mm -> 0.125 × 0.45 × 0.125)
     const cuvetteMesh = new THREE.Mesh(
-      new THREE.BoxGeometry(0.125, 0.45, 0.125),
+      new THREE.BoxGeometry(0.18, 0.50, 0.18),
       MAT_OPTICAL_GLASS
     );
-    cuvetteMesh.name = `Glass_Cuvette_0${i + 1}`;
-    cuvetteMesh.position.set(cx, 0.32, cz);
+    cuvetteMesh.name = `Glass_Cuvette_${c + 1}`;
+    cuvetteMesh.position.set(cx, 0.42, cz);
     cuvetteMesh.castShadow = true;
-    cuvetteMesh.userData = { name: cuvetteMesh.name, cellNumber: i + 1, sample: cuvetteLiquidColors[i].name };
+    cuvetteMesh.userData = { name: cuvetteMesh.name, cellNumber: c + 1, role: 'Sample Cuvette' };
     carouselPivot.add(cuvetteMesh);
-    interactiveObjects.push(cuvetteMesh);
     cuvetteMeshes.push(cuvetteMesh);
+    interactiveObjects.push(cuvetteMesh);
 
-    // Internal chemical solution column (only if not empty)
-    if (cuvetteLiquidColors[i].op > 0.05) {
-      const liquidMat = new THREE.MeshPhysicalMaterial({
-        color: cuvetteLiquidColors[i].color,
-        transmission: cuvetteLiquidColors[i].trans,
-        opacity: cuvetteLiquidColors[i].op,
-        transparent: true,
-        roughness: 0.1,
-        ior: 1.333,
-      });
-      const liquid = new THREE.Mesh(
-        new THREE.BoxGeometry(0.105, 0.38, 0.105),
-        liquidMat
-      );
-      liquid.position.set(0, -0.02, 0);
-      cuvetteMesh.add(liquid);
-    }
+    // Colored liquid column inside each sample cuvette
+    const sampleColors = [0xe2e8f0, 0xa855f7, 0x06b6d4, 0xf59e0b, 0x10b981, 0xef4444];
+    const liquidMat = new THREE.MeshPhysicalMaterial({
+      color: sampleColors[c],
+      transmission: 0.85,
+      opacity: 0.90,
+      transparent: true,
+      roughness: 0.08,
+      ior: 1.33,
+    });
+    const liquidMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(0.15, 0.42, 0.15),
+      liquidMat
+    );
+    liquidMesh.position.set(cx, 0.38, cz);
+    carouselPivot.add(liquidMesh);
   }
 
-  // 10. Monochromatic Probe Light Beam
-  // Beam passes horizontally through active cuvette from monochromator (X = 0) to detector (X = -2.0)
-  const beamGeo = new THREE.CylinderGeometry(0.025, 0.025, 1.8, 16);
+  // Monochromatic probe beam across sample chamber
+  const beamGeo = new THREE.CylinderGeometry(0.024, 0.024, 1.84, 16);
   const beamMat = new THREE.MeshBasicMaterial({
-    color: 0x22c55e,
+    color: 0x00ffff,
     transparent: true,
-    opacity: 0.75,
+    opacity: 0.80,
   });
   const probeBeam = new THREE.Mesh(beamGeo, beamMat);
   probeBeam.name = 'Beam_Monochromatic';
@@ -714,104 +1063,475 @@ export function createSpectrophotometerModel(options = {}) {
   animTargets.probeBeam = probeBeam;
   animTargets.probeBeamMat = beamMat;
 
-  // 11. Internal Optical Train (Internal optics bay)
+  // =========================================================================
+  // 11. Comprehensive Procedural Optics Bay & Internal Subsystems
+  // ("where is all the actual things happening inside of the machine?")
+  // =========================================================================
   const opticsGroup = new THREE.Group();
-  opticsGroup.name = 'Optics_Train_Assembly';
+  opticsGroup.name = 'Assembly_OpticsBay';
   root.add(opticsGroup);
-  animTargets.explodedParts.push({ obj: opticsGroup, originY: 0, deltaY: 0.7 });
 
-  // Sealed Czerny-Turner Monochromator Box
-  const monoBox = new THREE.Mesh(
-    new THREE.BoxGeometry(1.4, 0.8, 1.2),
-    MAT_CHASSIS_DARK
+  // Cast aluminum optical bench breadboard baseplate
+  const breadboard = new THREE.Mesh(
+    new THREE.BoxGeometry(2.10, 0.06, 2.25),
+    MAT_ALUM_BREADBOARD
   );
-  monoBox.position.set(-0.4, BASE_Y + 0.65, 1.2);
-  monoBox.castShadow = true;
-  opticsGroup.add(monoBox);
+  breadboard.position.set(-0.95, BASE_Y + 0.16, 1.15);
+  breadboard.receiveShadow = true;
+  opticsGroup.add(breadboard);
 
-  // Stepper drive dial on top of monochromator
-  const monoStepper = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.2, 0.2, 0.12, 24),
+  // Tapped mounting hole grid on breadboard
+  for (let gx = -0.90; gx <= 0.90; gx += 0.30) {
+    for (let gz = -0.90; gz <= 0.90; gz += 0.30) {
+      const hole = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.012, 0.012, 0.065, 8),
+        MAT_CHASSIS_DARK
+      );
+      hole.position.set(-0.95 + gx, BASE_Y + 0.165, 1.15 + gz);
+      opticsGroup.add(hole);
+    }
+  }
+
+  // A. Deuterium UV Arc Lamp Assembly (D2, 190 - 340 nm)
+  const d2Assembly = new THREE.Group();
+  d2Assembly.position.set(-1.50, BASE_Y + 0.65, 1.50);
+  opticsGroup.add(d2Assembly);
+
+  // Finned aluminum heatsink body
+  const d2Sink = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.20, 0.20, 0.55, 24),
     MAT_ALUM_ANODIZED
   );
-  monoStepper.position.set(-0.4, BASE_Y + 1.11, 1.2);
-  opticsGroup.add(monoStepper);
+  d2Assembly.add(d2Sink);
 
-  // Deuterium UV Arc Lamp Housing
-  const d2Housing = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.18, 0.18, 0.65, 20),
-    MAT_ALUM_ANODIZED
+  // 12 radial cooling fins
+  for (let f = 0; f < 12; f++) {
+    const angle = (f * Math.PI) / 6;
+    const fin = new THREE.Mesh(
+      new THREE.BoxGeometry(0.018, 0.52, 0.10),
+      MAT_ALUM_ANODIZED
+    );
+    fin.position.set(Math.cos(angle) * 0.24, 0, Math.sin(angle) * 0.24);
+    fin.rotation.y = -angle;
+    d2Assembly.add(fin);
+  }
+
+  // Ceramic top insulator cap with braided leads
+  const d2Cap = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.08, 0.08, 0.10, 16),
+    new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.2 })
   );
-  d2Housing.position.set(-1.5, BASE_Y + 0.65, 1.3);
-  opticsGroup.add(d2Housing);
+  d2Cap.position.y = 0.32;
+  d2Assembly.add(d2Cap);
 
+  // Brass lens retaining cell with synthetic fused silica condenser lens
+  const d2LensCell = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.08, 0.08, 0.09, 16),
+    MAT_CHROME
+  );
+  d2LensCell.rotation.z = Math.PI / 2;
+  d2LensCell.position.set(0.22, 0, 0);
+  d2Assembly.add(d2LensCell);
+
+  const d2Lens = new THREE.Mesh(
+    new THREE.SphereGeometry(0.07, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2),
+    MAT_OPTICAL_GLASS
+  );
+  d2Lens.rotation.z = -Math.PI / 2;
+  d2Lens.position.set(0.24, 0, 0);
+  d2Assembly.add(d2Lens);
+
+  // Glowing UV arc plasma discharge tube
   const d2Bulb = new THREE.Mesh(
     new THREE.SphereGeometry(0.09, 16, 16),
-    new THREE.MeshBasicMaterial({ color: 0xa855f7 })
+    new THREE.MeshBasicMaterial({ color: 0xc084fc })
   );
-  d2Bulb.position.set(-1.5, BASE_Y + 0.65, 1.3);
-  opticsGroup.add(d2Bulb);
+  d2Bulb.position.set(0, 0, 0);
+  d2Assembly.add(d2Bulb);
   animTargets.deuteriumLampGlow = d2Bulb;
 
-  // Tungsten-Halogen Lamp Housing
-  const wHousing = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.12, 0.12, 0.45, 16),
+  // B. Tungsten-Halogen Visible Lamp Assembly (WI, 340 - 1100 nm)
+  const wAssembly = new THREE.Group();
+  wAssembly.position.set(-1.50, BASE_Y + 0.65, 0.50);
+  opticsGroup.add(wAssembly);
+
+  // Gold-plated parabolic reflector cup
+  const wReflector = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.18, 0.06, 0.32, 24, 1, true),
+    MAT_GOLD_MIRROR
+  );
+  wReflector.rotation.z = -Math.PI / 2;
+  wReflector.position.set(0.10, 0, 0);
+  wAssembly.add(wReflector);
+
+  // Anodized bracket with heat sink fins
+  const wBracket = new THREE.Mesh(
+    new THREE.BoxGeometry(0.18, 0.42, 0.18),
     MAT_ALUM_ANODIZED
   );
-  wHousing.position.set(-1.5, BASE_Y + 0.55, 0.5);
-  opticsGroup.add(wHousing);
+  wBracket.position.set(-0.08, 0, 0);
+  wAssembly.add(wBracket);
 
+  // Quartz halogen bulb with coiled tungsten filament
   const wBulb = new THREE.Mesh(
-    new THREE.SphereGeometry(0.07, 16, 16),
-    new THREE.MeshBasicMaterial({ color: 0xfbbf24 })
+    new THREE.CylinderGeometry(0.045, 0.045, 0.16, 16),
+    new THREE.MeshBasicMaterial({ color: 0xfff0aa })
   );
-  wBulb.position.set(-1.5, BASE_Y + 0.55, 0.5);
-  opticsGroup.add(wBulb);
+  wBulb.rotation.z = Math.PI / 2;
+  wBulb.position.set(0.10, 0, 0);
+  wAssembly.add(wBulb);
   animTargets.tungstenLampGlow = wBulb;
 
-  // Silicon Photodiode Optical Detector Bay (captures transmitted beam exiting chamber)
-  const detectorHousing = new THREE.Mesh(
+  // Schott KG3 heat-absorbing optical glass filter
+  const wFilter = new THREE.Mesh(
+    new THREE.BoxGeometry(0.015, 0.14, 0.14),
+    MAT_OPTICAL_GLASS
+  );
+  wFilter.position.set(0.24, 0, 0);
+  wAssembly.add(wFilter);
+
+  // C. Source Selection Rotary Mirror & Stepper Motor
+  const sourceSelectorGroup = new THREE.Group();
+  sourceSelectorGroup.position.set(-1.08, BASE_Y + 0.65, 1.00);
+  opticsGroup.add(sourceSelectorGroup);
+
+  const selMotor = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.10, 0.10, 0.14, 16),
+    MAT_ALUM_ANODIZED
+  );
+  selMotor.position.y = -0.12;
+  sourceSelectorGroup.add(selMotor);
+
+  const sourceSelectorArm = new THREE.Group();
+  sourceSelectorGroup.add(sourceSelectorArm);
+  animTargets.sourceSelectorArm = sourceSelectorArm;
+
+  const selMirror = new THREE.Mesh(
+    new THREE.BoxGeometry(0.012, 0.14, 0.14),
+    MAT_CHROME
+  );
+  selMirror.position.set(0, 0, 0);
+  selMirror.rotation.y = Math.PI / 4;
+  sourceSelectorArm.add(selMirror);
+
+  // D. Czerny-Turner Monochromator Optical Subsystem
+  const monoBase = new THREE.Mesh(
+    new THREE.BoxGeometry(1.40, 0.12, 1.65),
+    MAT_CHASSIS_DARK
+  );
+  monoBase.position.set(-0.25, BASE_Y + 0.32, 1.05);
+  opticsGroup.add(monoBase);
+
+  // Entrance Slit with precision micrometer jaws
+  const enterSlit = new THREE.Mesh(
+    new THREE.BoxGeometry(0.06, 0.18, 0.12),
+    MAT_CHROME
+  );
+  enterSlit.position.set(-0.90, BASE_Y + 0.65, 1.00);
+  opticsGroup.add(enterSlit);
+
+  // Collimating Concave Spherical Mirror with 3-point kinematic gimbal mount
+  const colMirrorGroup = new THREE.Group();
+  colMirrorGroup.position.set(-0.65, BASE_Y + 0.65, 1.70);
+  colMirrorGroup.rotation.y = -0.45;
+  opticsGroup.add(colMirrorGroup);
+
+  const colMount = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.14, 0.14, 0.04, 20),
+    MAT_ALUM_ANODIZED
+  );
+  colMount.rotation.x = Math.PI / 2;
+  colMirrorGroup.add(colMount);
+
+  const colMirror = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.12, 0.12, 0.02, 24),
+    MAT_CHROME
+  );
+  colMirror.rotation.x = Math.PI / 2;
+  colMirror.position.z = 0.02;
+  colMirrorGroup.add(colMirror);
+
+  // Holographic Blazed Planar Diffraction Grating (1200 lines/mm)
+  const gratingGroup = new THREE.Group();
+  gratingGroup.position.set(-0.25, BASE_Y + 0.65, 1.15);
+  opticsGroup.add(gratingGroup);
+
+  const gratingSineBar = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.16, 0.16, 0.08, 24),
+    MAT_ALUM_ANODIZED
+  );
+  gratingSineBar.position.y = -0.10;
+  gratingGroup.add(gratingSineBar);
+
+  const gratingTile = new THREE.Mesh(
+    new THREE.BoxGeometry(0.02, 0.22, 0.22),
+    MAT_HOLO_GRATING
+  );
+  gratingTile.rotation.y = 0.25;
+  gratingGroup.add(gratingTile);
+  animTargets.diffractionGrating = gratingGroup;
+
+  // Focusing Concave Spherical Mirror
+  const focMirrorGroup = new THREE.Group();
+  focMirrorGroup.position.set(0.15, BASE_Y + 0.65, 1.70);
+  focMirrorGroup.rotation.y = 0.45;
+  opticsGroup.add(focMirrorGroup);
+
+  const focMount = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.14, 0.14, 0.04, 20),
+    MAT_ALUM_ANODIZED
+  );
+  focMount.rotation.x = Math.PI / 2;
+  focMirrorGroup.add(focMount);
+
+  const focMirror = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.12, 0.12, 0.02, 24),
+    MAT_CHROME
+  );
+  focMirror.rotation.x = Math.PI / 2;
+  focMirror.position.z = 0.02;
+  focMirrorGroup.add(focMirror);
+
+  // Exit Slit Assembly
+  const exitSlit = new THREE.Mesh(
+    new THREE.BoxGeometry(0.06, 0.18, 0.12),
+    MAT_CHROME
+  );
+  exitSlit.position.set(0.18, BASE_Y + 0.65, 1.05);
+  opticsGroup.add(exitSlit);
+
+  // Motorized Order-Sorting Filter Wheel (6 optical filters)
+  const filterWheel = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.20, 0.20, 0.02, 24),
+    MAT_ALUM_ANODIZED
+  );
+  filterWheel.rotation.x = Math.PI / 2;
+  filterWheel.position.set(0.18, BASE_Y + 0.65, 0.90);
+  opticsGroup.add(filterWheel);
+
+  // E. Dual-Beam Rotating Sector Chopper Wheel
+  const chopperGroup = new THREE.Group();
+  chopperGroup.position.set(0.18, BASE_Y + 0.65, 0.60);
+  opticsGroup.add(chopperGroup);
+
+  const chopperMotor = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.08, 0.08, 0.15, 16),
+    MAT_ALUM_ANODIZED
+  );
+  chopperMotor.rotation.x = Math.PI / 2;
+  chopperMotor.position.z = -0.10;
+  chopperGroup.add(chopperMotor);
+
+  const chopperBlade = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.24, 0.24, 0.015, 24),
+    MAT_CHROME
+  );
+  chopperBlade.rotation.x = Math.PI / 2;
+  chopperGroup.add(chopperBlade);
+  animTargets.chopperWheel = chopperBlade;
+
+  // F. Dual Beam Fold Mirrors & Reference Channel
+  const refMirror1 = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.14, 0.14), MAT_CHROME);
+  refMirror1.rotation.y = Math.PI / 4;
+  refMirror1.position.set(0.18, BASE_Y + 0.60, 0.30);
+  opticsGroup.add(refMirror1);
+
+  const refMirror2 = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.14, 0.14), MAT_CHROME);
+  refMirror2.rotation.y = -Math.PI / 4;
+  refMirror2.position.set(0.55, BASE_Y + 0.60, 0.30);
+  opticsGroup.add(refMirror2);
+
+  // Reference cell holder & quartz reference cuvette
+  const refCellHolder = new THREE.Mesh(
+    new THREE.BoxGeometry(0.22, 0.30, 0.22),
+    MAT_CHASSIS_DARK
+  );
+  refCellHolder.position.set(0.55, BASE_Y + 0.45, -0.60);
+  opticsGroup.add(refCellHolder);
+
+  const refCuvette = new THREE.Mesh(
+    new THREE.BoxGeometry(0.16, 0.48, 0.16),
+    MAT_OPTICAL_GLASS
+  );
+  refCuvette.position.set(0.55, BASE_Y + 0.65, -0.60);
+  opticsGroup.add(refCuvette);
+
+  // G. Dual Silicon Photodiode Detector Bays
+  // Reference Detector
+  const refDetector = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.10, 0.10, 0.25, 20),
+    MAT_ALUM_ANODIZED
+  );
+  refDetector.rotation.x = Math.PI / 2;
+  refDetector.position.set(0.55, BASE_Y + 0.60, -1.20);
+  opticsGroup.add(refDetector);
+
+  // Sample Detector (receives transmitted beam exiting sample chamber)
+  const sampleDetector = new THREE.Mesh(
     new THREE.CylinderGeometry(0.12, 0.12, 0.35, 20),
     MAT_ALUM_ANODIZED
   );
-  detectorHousing.rotation.z = Math.PI / 2;
-  detectorHousing.position.set(CHAMBER_CENTER_X + 0.92, CHAMBER_FLOOR_Y + 0.60, CHAMBER_CENTER_Z);
-  root.add(detectorHousing);
+  sampleDetector.rotation.z = Math.PI / 2;
+  sampleDetector.position.set(CHAMBER_CENTER_X + 0.96, CHAMBER_FLOOR_Y + 0.60, CHAMBER_CENTER_Z);
+  opticsGroup.add(sampleDetector);
+
+  // Low-noise preamplifier analog PCB board with mu-metal shield can
+  const preAmpPCB = new THREE.Mesh(
+    new THREE.BoxGeometry(0.02, 0.45, 0.65),
+    MAT_PCB_GREEN
+  );
+  preAmpPCB.position.set(CHAMBER_CENTER_X + 1.15, CHAMBER_FLOOR_Y + 0.60, CHAMBER_CENTER_Z);
+  opticsGroup.add(preAmpPCB);
+
+  const shieldCan = new THREE.Mesh(
+    new THREE.BoxGeometry(0.04, 0.28, 0.38),
+    MAT_CHROME
+  );
+  shieldCan.position.set(CHAMBER_CENTER_X + 1.17, CHAMBER_FLOOR_Y + 0.60, CHAMBER_CENTER_Z);
+  opticsGroup.add(shieldCan);
+
+  // H. Electronics & Switch-Mode Power Supply (SMPS)
+  const smpsBase = new THREE.Mesh(
+    new THREE.BoxGeometry(1.60, 0.08, 0.90),
+    MAT_PCB_GREEN
+  );
+  smpsBase.position.set(-1.10, BASE_Y + 0.18, -0.55);
+  opticsGroup.add(smpsBase);
+
+  // Toroidal transformer & high-voltage filter caps
+  const smpsToroid = new THREE.Mesh(
+    new THREE.TorusGeometry(0.14, 0.055, 12, 24),
+    new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.6, metalness: 0.5 })
+  );
+  smpsToroid.rotation.x = Math.PI / 2;
+  smpsToroid.position.set(-1.45, BASE_Y + 0.32, -0.55);
+  opticsGroup.add(smpsToroid);
+
+  for (let c = 0; c < 3; c++) {
+    const cap = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.06, 0.06, 0.22, 16),
+      MAT_CHASSIS_DARK
+    );
+    cap.position.set(-1.05 + (c * 0.16), BASE_Y + 0.32, -0.55);
+    opticsGroup.add(cap);
+  }
+
+  // 80mm Rear Brushless Cooling Fan
+  const fanGroup = new THREE.Group();
+  fanGroup.position.set(1.40, BASE_Y + 1.25, 2.36);
+  opticsGroup.add(fanGroup);
+
+  const fanFrame = new THREE.Mesh(
+    new THREE.BoxGeometry(0.70, 0.70, 0.10),
+    MAT_CHASSIS_DARK
+  );
+  fanGroup.add(fanFrame);
+
+  const fanHub = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.12, 0.12, 0.08, 16),
+    MAT_ALUM_ANODIZED
+  );
+  fanHub.rotation.x = Math.PI / 2;
+  fanGroup.add(fanHub);
+  animTargets.coolingFanHub = fanHub;
+
+  for (let b = 0; b < 7; b++) {
+    const angle = (b * Math.PI * 2) / 7;
+    const blade = new THREE.Mesh(
+      new THREE.BoxGeometry(0.20, 0.015, 0.06),
+      MAT_CHASSIS_DARK
+    );
+    blade.position.set(Math.cos(angle) * 0.18, Math.sin(angle) * 0.18, 0);
+    blade.rotation.z = angle + 0.3;
+    fanHub.add(blade);
+  }
+
+  // =========================================================================
+  // I. Animated 3D Optical Ray Tracing (Internal Light Path)
+  // =========================================================================
+  const opticalRaysGroup = new THREE.Group();
+  opticalRaysGroup.name = 'Assembly_OpticalRays';
+  opticalRaysGroup.visible = false; // Toggled via Optics View
+  opticsGroup.add(opticalRaysGroup);
+  animTargets.opticalRays = opticalRaysGroup;
+
+  function createLaserRay(start, end, colorHex = 0x00ffff, radius = 0.016) {
+    const distance = start.distanceTo(end);
+    const geo = new THREE.CylinderGeometry(radius, radius, distance, 12);
+    const mat = new THREE.MeshBasicMaterial({
+      color: colorHex,
+      transparent: true,
+      opacity: 0.85,
+    });
+    const ray = new THREE.Mesh(geo, mat);
+
+    // Orient cylinder along ray vector
+    const dir = end.clone().sub(start).normalize();
+    const mid = start.clone().add(end).multiplyScalar(0.5);
+    ray.position.copy(mid);
+    ray.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+
+    opticalRaysGroup.add(ray);
+    animTargets.opticalRayMats.push(mat);
+    return { ray, mat };
+  }
+
+  // 1. Active Lamp -> Selector Mirror
+  const raySourceD2 = createLaserRay(new THREE.Vector3(-1.50, BASE_Y + 0.65, 1.50), new THREE.Vector3(-1.08, BASE_Y + 0.65, 1.00), 0xc084fc);
+  const raySourceW = createLaserRay(new THREE.Vector3(-1.50, BASE_Y + 0.65, 0.50), new THREE.Vector3(-1.08, BASE_Y + 0.65, 1.00), 0xfbbf24);
+
+  // 2. Selector Mirror -> Entrance Slit
+  createLaserRay(new THREE.Vector3(-1.08, BASE_Y + 0.65, 1.00), new THREE.Vector3(-0.90, BASE_Y + 0.65, 1.00), 0x38bdf8);
+
+  // 3. Entrance Slit -> Collimating Mirror
+  createLaserRay(new THREE.Vector3(-0.90, BASE_Y + 0.65, 1.00), new THREE.Vector3(-0.65, BASE_Y + 0.65, 1.70), 0x38bdf8);
+
+  // 4. Collimating Mirror -> Holographic Diffraction Grating
+  createLaserRay(new THREE.Vector3(-0.65, BASE_Y + 0.65, 1.70), new THREE.Vector3(-0.25, BASE_Y + 0.65, 1.15), 0x38bdf8);
+
+  // 5. Holographic Grating -> Dispersed Spectral Fan -> Focusing Mirror
+  createLaserRay(new THREE.Vector3(-0.25, BASE_Y + 0.65, 1.15), new THREE.Vector3(0.15, BASE_Y + 0.65, 1.70), 0xa855f7, 0.022);
+  createLaserRay(new THREE.Vector3(-0.25, BASE_Y + 0.65, 1.15), new THREE.Vector3(0.05, BASE_Y + 0.65, 1.70), 0x10b981, 0.018);
+  createLaserRay(new THREE.Vector3(-0.25, BASE_Y + 0.65, 1.15), new THREE.Vector3(0.25, BASE_Y + 0.65, 1.70), 0xef4444, 0.018);
+
+  // 6. Focusing Mirror -> Exit Slit -> Filter Wheel -> Chopper
+  createLaserRay(new THREE.Vector3(0.15, BASE_Y + 0.65, 1.70), new THREE.Vector3(0.18, BASE_Y + 0.65, 1.05), 0x00ffff);
+  createLaserRay(new THREE.Vector3(0.18, BASE_Y + 0.65, 1.05), new THREE.Vector3(0.18, BASE_Y + 0.65, 0.60), 0x00ffff);
+
+  // 7. Chopper -> Sample Beam (passes straight through cuvette to sample detector)
+  createLaserRay(new THREE.Vector3(0.18, BASE_Y + 0.60, 0.60), new THREE.Vector3(CHAMBER_CENTER_X - 0.87, CHAMBER_FLOOR_Y + 0.60, CHAMBER_CENTER_Z), 0x00ffff);
+  createLaserRay(new THREE.Vector3(CHAMBER_CENTER_X + 0.87, CHAMBER_FLOOR_Y + 0.60, CHAMBER_CENTER_Z), new THREE.Vector3(CHAMBER_CENTER_X + 0.96, CHAMBER_FLOOR_Y + 0.60, CHAMBER_CENTER_Z), 0x00ffff);
+
+  // 8. Chopper -> Reference Beam (reflects through fold mirrors to reference detector)
+  createLaserRay(new THREE.Vector3(0.18, BASE_Y + 0.60, 0.60), new THREE.Vector3(0.18, BASE_Y + 0.60, 0.30), 0x38bdf8);
+  createLaserRay(new THREE.Vector3(0.18, BASE_Y + 0.60, 0.30), new THREE.Vector3(0.55, BASE_Y + 0.60, 0.30), 0x38bdf8);
+  createLaserRay(new THREE.Vector3(0.55, BASE_Y + 0.60, 0.30), new THREE.Vector3(0.55, BASE_Y + 0.60, -1.20), 0x38bdf8);
+
+  // J. Internal Optics Bay Inspection Spotlight (illuminates breadboard & optics train)
+  const interiorLight = new THREE.PointLight(0xffffff, 2.8, 8);
+  interiorLight.position.set(0, BASE_Y + 1.35, 1.18);
+  interiorLight.visible = false;
+  opticsGroup.add(interiorLight);
+  animTargets.interiorLight = interiorLight;
 
   // 12. Genuine 3D Fasteners (Rule 1: Exhaustive Procedural Detail)
-  const chassisFasteners = [
-    // Top deck perimeter screws (M4 DIN 912)
-    [-2.05, BASE_Y + 1.26, -2.25],
-    [2.05, BASE_Y + 1.26, -2.25],
-    [-2.05, BASE_Y + 2.12, 2.25],
-    [2.05, BASE_Y + 2.12, 2.25],
-    [0.1, BASE_Y + 2.12, 2.25],
-    [-0.1, BASE_Y + 1.26, -2.25],
-    // Side access cover screws
-    [-2.19, BASE_Y + 0.8, -1.2],
-    [-2.19, BASE_Y + 0.8, 1.2],
-    [2.19, BASE_Y + 0.8, -1.2],
-    [2.19, BASE_Y + 0.8, 1.2],
+  const fastenerLocations = [
+    [-2.05, BASE_Y + 1.25, 0.15],
+    [2.05, BASE_Y + 1.25, 0.15],
+    [-2.05, BASE_Y + 1.25, 2.25],
+    [2.05, BASE_Y + 1.25, 2.25],
   ];
-
-  chassisFasteners.forEach(([sx, sy, sz], idx) => {
-    const screw = createHexSocketScrew(0.035, 0.12);
-    screw.name = `Fastener_HexM4_${idx + 1}`;
-    const washer = createWasher(0.038, 0.075, 0.012);
-
-    if (Math.abs(sx) > 2.15) {
-      // Side screws
-      screw.rotation.z = sx > 0 ? -Math.PI / 2 : Math.PI / 2;
-      washer.rotation.z = sx > 0 ? -Math.PI / 2 : Math.PI / 2;
-    }
-
-    screw.position.set(sx, sy, sz);
-    washer.position.set(sx, sy, sz);
+  fastenerLocations.forEach(([fx, fy, fz], idx) => {
+    const washer = createWasher(0.018, 0.038, 0.008, { material: MAT_CHROME });
+    washer.position.set(fx, fy + 0.68, fz);
+    const screw = createHexSocketScrew(0.016, 0.08, { material: MAT_CHROME });
+    screw.name = `Fastener_HexM3_${idx + 1}`;
+    screw.position.set(fx, fy + 0.68, fz);
     chassisGroup.add(washer);
     chassisGroup.add(screw);
   });
 
-  // 13. Rear Bulkhead Panel Connectors (Back face Z = 2.38)
+  // 13. Rear Bulkhead Panel Connectors & AC Power Cord (Back face Z = 2.38)
   const rearZ = 2.385;
 
   // IEC C14 Power Inlet Receptacle
@@ -819,6 +1539,11 @@ export function createSpectrophotometerModel(options = {}) {
   iecPort.rotation.y = Math.PI;
   iecPort.position.set(-1.4, BASE_Y + 0.45, rearZ);
   root.add(iecPort);
+
+  // Real 3D Molded AC Power Cord plugged directly into IEC C14 inlet
+  const powerCord = createPowerCord(new THREE.Vector3(-1.4, BASE_Y + 0.45, rearZ));
+  root.add(powerCord);
+  animTargets.powerCord = powerCord;
 
   // Rocker Power Switch
   const rocker = createRockerSwitch({ illuminated: true, red: true });
@@ -862,7 +1587,6 @@ export function createSpectrophotometerModel(options = {}) {
     labGroup.name = 'Lab_Environment';
 
     // Black Epoxy Lab Countertop (Width 9.6, Depth 7.2, Height 0.25)
-    // Seated at Y = -0.125 so top surface is at Y = 0.0
     const benchTop = new THREE.Mesh(
       new THREE.BoxGeometry(9.6, 0.25, 7.2),
       new THREE.MeshStandardMaterial({ color: 0x11161d, roughness: 0.22, metalness: 0.08 })
@@ -917,10 +1641,28 @@ export function createSpectrophotometerModel(options = {}) {
     root.add(labGroup);
   }
 
+  // Optics View State Switcher (Turns chassis into smoked transparent acrylic)
+  let isOpticsView = false;
+  function setOpticsView(enabled) {
+    isOpticsView = !!enabled;
+    const targetMat = isOpticsView ? MAT_CHASSIS_GLASS : MAT_CHASSIS;
+    chassisMeshes.forEach((mesh) => {
+      mesh.material = targetMat;
+    });
+    if (animTargets.roofCover) {
+      animTargets.roofCover.visible = !isOpticsView;
+    }
+    if (animTargets.interiorLight) {
+      animTargets.interiorLight.visible = isOpticsView;
+    }
+    opticalRaysGroup.visible = isOpticsView;
+  }
+
   return {
     root,
     interactiveObjects,
     animTargets,
     cuvetteMeshes,
+    setOpticsView,
   };
 }
