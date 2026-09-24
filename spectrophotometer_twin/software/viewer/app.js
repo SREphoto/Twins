@@ -418,6 +418,18 @@ controls.maxDistance = 14.0;
 window.camera = camera;
 window.controls = controls;
 
+function onWindowResize() {
+  if (!container || !camera || !renderer) return;
+  const w = container.clientWidth;
+  const h = container.clientHeight;
+  if (w <= 0 || h <= 0) return;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+}
+window.addEventListener('resize', onWindowResize);
+window.onWindowResize = onWindowResize;
+
 // Studio Lighting Setup
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
 scene.add(ambientLight);
@@ -755,6 +767,39 @@ document.getElementById('btn-sfx-mute')?.addEventListener('click', () => {
   }
 });
 
+// Collapsible Side UI Panels
+document.querySelectorAll('.panel-collapse-btn').forEach((btn) => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const panel = btn.closest('.panel-collapsible');
+    if (panel) {
+      const isCollapsed = panel.classList.toggle('collapsed');
+      btn.textContent = isCollapsed ? '▸' : '▾';
+      btn.title = isCollapsed ? 'Expand panel' : 'Collapse panel';
+      btn.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+      sfx.click();
+
+      // Trigger smooth canvas resize during and at end of CSS width transition
+      let steps = 0;
+      const interval = setInterval(() => {
+        window.dispatchEvent(new Event('resize'));
+        steps++;
+        if (steps > 15) clearInterval(interval);
+      }, 20);
+    }
+  });
+});
+
+// Allow clicking on collapsed vertical panel header to re-expand it
+document.querySelectorAll('.panel-collapsible').forEach((panel) => {
+  panel.querySelector('.panel-header')?.addEventListener('click', (e) => {
+    if (panel.classList.contains('collapsed')) {
+      const btn = panel.querySelector('.panel-collapse-btn');
+      btn?.click();
+    }
+  });
+});
+
 // Raycasting Interaction (Screen Touch, Keycaps, Lid, Cuvettes)
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -827,7 +872,7 @@ window.addEventListener('click', (e) => {
       } else if (name === 'Btn_CellNext') {
         triggerKeycapPress('Btn_CellNext');
         handleAdvanceCell();
-      } else if (name === 'Btn_Lid') {
+      } else if (name === 'Btn_Lid' || obj.name?.includes('Lid') || obj.name?.includes('Door')) {
         handleToggleDoor();
       } else if (obj.userData.cellNumber) {
         state.activeCell = obj.userData.cellNumber;
@@ -957,12 +1002,7 @@ window.setCameraPreset = setCameraPreset;
   });
 });
 
-// Window resize
-window.addEventListener('resize', () => {
-  camera.aspect = container.clientWidth / container.clientHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(container.clientWidth, container.clientHeight);
-});
+
 
 // --- Main Render / Animation Loop ---
 let lastTime = performance.now();

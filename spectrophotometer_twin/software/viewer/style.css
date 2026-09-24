@@ -188,16 +188,19 @@ body {
 .panel-collapsible {
   flex: 0 0 340px;
   max-width: 360px;
+  min-width: 0;
   background: var(--panel);
   border-left: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: flex-basis 0.25s ease, max-width 0.25s ease;
+  transition: flex-basis 0.25s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .panel-collapsible.collapsed {
-  flex-basis: 42px !important;
-  max-width: 42px !important;
+  flex: 0 0 44px !important;
+  max-width: 44px !important;
+  min-width: 44px !important;
+  cursor: pointer;
 }
 
 .panel-header {
@@ -208,6 +211,7 @@ body {
   border-bottom: 1px solid var(--border);
   background: var(--panel-2);
   user-select: none;
+  transition: padding 0.25s ease;
 }
 .panel-header h2 {
   margin: 0;
@@ -217,8 +221,27 @@ body {
   color: var(--text);
   white-space: nowrap;
 }
+.panel-collapsible.collapsed .panel-header {
+  padding: 0.75rem 0.25rem;
+  justify-content: flex-start;
+  align-items: center;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  gap: 0.75rem;
+  height: 100%;
+  border-bottom: none;
+}
 .panel-collapsible.collapsed .panel-header h2 {
-  display: none;
+  display: block;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  transform: rotate(180deg);
+  opacity: 0.85;
+  white-space: nowrap;
+  color: var(--muted);
+}
+.panel-collapsible.collapsed:hover .panel-header h2 {
+  color: var(--cyan);
 }
 
 .panel-collapse-btn {
@@ -234,6 +257,11 @@ body {
   background: var(--key);
   color: var(--text);
 }
+.panel-collapsible.collapsed .panel-collapse-btn {
+  writing-mode: horizontal-tb;
+  font-size: 1.1rem;
+  color: var(--cyan);
+}
 
 .panel-body {
   flex: 1;
@@ -244,7 +272,7 @@ body {
   gap: 0.9rem;
 }
 .panel-collapsible.collapsed .panel-body {
-  display: none;
+  display: none !important;
 }
 
 /* Control Buttons & Inputs */
