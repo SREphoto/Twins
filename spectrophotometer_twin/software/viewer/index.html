@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UV-1900i · UV-Vis Spectrophotometer Twin</title>
+  <link rel="stylesheet" href="style.css?v=20260924-gold" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">SHIMADZU</span>
+        <span class="brand-model">UV-1900i</span>
+        <span class="badge-sredesigns">SREdesigns</span>
+        <span class="brand-tag">Dual-Beam UV-Vis Spectrophotometer Twin</span>
+      </div>
+      <div class="topbar-status">
+        <span id="status-pill" class="pill run">READY</span>
+        <span id="status-detail" class="muted">Ready for photometric scan</span>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <!-- 3D Stage -->
+      <section class="stage">
+        <div class="view-toolbar">
+          <button type="button" class="view-btn" id="btn-explode" title="Separate assemblies">Exploded view</button>
+          <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe">Wireframe</button>
+          <button type="button" class="view-btn" id="btn-auto-rotate" title="Orbit camera automatically">Auto-rotate</button>
+          
+          <label class="orbit-speed-ctrl" title="Auto-orbit speed">
+            <span>Orbit</span>
+            <input type="range" id="orbit-speed" min="0.2" max="4" step="0.1" value="1.0" />
+            <span id="orbit-speed-val">1.0×</span>
+          </label>
+          <label class="orbit-speed-ctrl" title="Camera zoom">
+            <span>Zoom</span>
+            <input type="range" id="camera-zoom" min="0" max="100" step="1" value="45" />
+            <span id="camera-zoom-val">45%</span>
+          </label>
+          <label class="orbit-speed-ctrl" title="Lab lighting intensity">
+            <span>Light</span>
+            <input type="range" id="lab-light" min="0.2" max="2.5" step="0.1" value="1.0" />
+            <span id="lab-light-val">1.0×</span>
+          </label>
+          <button type="button" class="view-btn" id="btn-sfx-mute" title="Mute audio sounds">Mute SFX</button>
+        </div>
+
+        <div id="viewport3d" class="viewport"></div>
+        <div id="hud-tooltip" class="hud-tooltip" style="display: none;"></div>
+        <div class="stage-hint">Interactive 3D Twin: click touchscreen buttons, chamber door, cuvettes, or rear connectors</div>
+      </section>
+
+      <!-- Instrument Controls Panel -->
+      <aside class="instrument panel-collapsible" id="panel-instrument" data-panel="instrument">
+        <div class="panel-header">
+          <h2>Spectrometer Controls</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="instrument" title="Collapse panel" aria-expanded="true">▾</button>
+        </div>
+        <div class="panel-body">
+          <div class="btn-grid">
+            <button type="button" class="btn btn-primary" id="btn-zero">AUTO ZERO</button>
+            <button type="button" class="btn btn-scan" id="btn-scan">SCAN SPECTRUM</button>
+          </div>
+
+          <div class="btn-grid">
+            <button type="button" class="btn" id="btn-measure">READ FIXED λ</button>
+            <button type="button" class="btn" id="btn-mode">CYCLE MODE</button>
+          </div>
+
+          <div class="btn-grid">
+            <button type="button" class="btn" id="btn-cell-next">Advance Cell (1-6)</button>
+            <button type="button" class="btn" id="btn-door-toggle">Open Chamber</button>
+          </div>
+
+          <button type="button" class="btn" id="btn-power">Standby (ON/OFF)</button>
+
+          <!-- Wavelength Selection -->
+          <div class="field">
+            <span>Target Wavelength (190.0 – 1100.0 nm)</span>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="range" id="slider-wl" min="190" max="1100" step="1" value="525" style="flex: 1;" />
+              <input type="number" id="input-wl" min="190" max="1100" step="0.1" value="525.0" style="width: 75px;" />
+            </div>
+          </div>
+
+          <!-- Scan Range Setup -->
+          <div class="btn-grid">
+            <div class="field">
+              <span>Scan Start (nm)</span>
+              <input type="number" id="scan-start" min="190" max="1000" step="5" value="400" />
+            </div>
+            <div class="field">
+              <span>Scan End (nm)</span>
+              <input type="number" id="scan-end" min="200" max="1100" step="5" value="700" />
+            </div>
+          </div>
+
+          <!-- Photometric Readout Box -->
+          <div class="metric-box">
+            <div class="metric-row">
+              <span class="metric-title">Absorbance (A)</span>
+              <span class="metric-title">Transmittance (%T)</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-val" id="val-abs">0.0000 AU</span>
+              <span class="metric-val" id="val-trans">100.00 %</span>
+            </div>
+          </div>
+
+          <div class="metric-box">
+            <span class="metric-title">Optical Subsystem</span>
+            <span class="hint"><strong>Active Lamp:</strong> <span id="val-lamp" style="color: var(--amber);">Tungsten-Halogen (Vis)</span></span>
+            <span class="hint"><strong>Monochromator:</strong> Czerny-Turner (1200 lines/mm)</span>
+            <span class="hint"><strong>Spectral Bandwidth:</strong> 1.0 nm</span>
+            <span class="hint"><strong>Active Cell:</strong> <span id="val-cell">Position 1 (Blank)</span></span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Laboratory Sample Handling & GLP Output Panel -->
+      <aside class="lab panel-collapsible" id="panel-lab" data-panel="lab">
+        <div class="panel-header">
+          <h2>Lab Reagents & GLP</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="lab" title="Collapse panel" aria-expanded="true">▾</button>
+        </div>
+        <div class="panel-body">
+          <label class="field">
+            <span>Select Carousel Cuvette</span>
+            <select id="select-cell">
+              <option value="1">Cell 1: Deionized Water Blank (Ref)</option>
+              <option value="2" selected>Cell 2: KMnO4 (Potassium Permanganate)</option>
+              <option value="3">Cell 3: Calf Thymus DNA (TE Buffer)</option>
+              <option value="4">Cell 4: Bovine Serum Albumin (Bradford)</option>
+              <option value="5">Cell 5: Methylene Blue Dye</option>
+              <option value="6">Cell 6: Empty Chamber Slot</option>
+            </select>
+          </label>
+          <p id="sample-desc" class="hint">Permanganate purple solution (λmax = 525 nm)</p>
+
+          <p class="hint">
+            <strong>Standard Spectrophotometry Protocol:</strong><br>
+            1. Place solvent blank into Cell 1 & sample in Cell 2–5.<br>
+            2. Close chamber door — verify interlock engages.<br>
+            3. Select Cell 1 & click <strong>AUTO ZERO</strong> to blank baseline.<br>
+            4. Advance carousel to sample cuvette.<br>
+            5. Click <strong>SCAN SPECTRUM</strong> to acquire full UV-Vis curve.<br>
+            6. Export GLP compliant spectral report.
+          </p>
+
+          <div class="field">
+            <span>GLP Compliance Log</span>
+            <pre class="glp-log" id="glp-log">Ready for spectrophotometric run...</pre>
+          </div>
+
+          <button type="button" class="btn" id="btn-export-glp">Export GLP Log</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="app.js?v=20260924-gold"></script>
+</body>
+</html>

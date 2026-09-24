@@ -4,6 +4,46 @@ Newest first. Template: `templates/change_log_entry.md`.
 
 ---
 
+## 2026-09-24 · NBA · build-spectrophotometer-twin
+
+| Field   | Value                                                                                                                                                                                                                                                            |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | NBA / 5-Agent Pipeline                                                                                                                                                                                                                                           |
+| Machine | `spectrophotometer_twin`, `lab_viewer`                                                                                                                                                                                                                          |
+| Intent  | Build and register the UV-Vis Spectrophotometer (Shimadzu UV-1900i class) digital twin to full Gold-Standard with exhaustive procedural CAD detail, deterministic Beer-Lambert physics, Czerny-Turner optics, dynamic canvas LCD, and 6-cell carousel. |
+
+### Created
+
+- `spectrophotometer_twin/docs/PRODUCT_BRIEF.md` — Product brief & educational objectives.
+- `spectrophotometer_twin/docs/dimensions.md` — 1:1 metric geometry specifications.
+- `spectrophotometer_twin/docs/BOM.md` — Parametric Bill of Materials.
+- `spectrophotometer_twin/docs/control_spec.md` — Control state machine and optical physics models.
+- `spectrophotometer_twin/docs/STANDARD.md` — Package normative standard.
+- `spectrophotometer_twin/research/sources.md` — Manual citations and chemical reagent references.
+- `spectrophotometer_twin/AGENTS.md` — Twin package agent rules.
+- `spectrophotometer_twin/README.md` — Quick start guide.
+- `spectrophotometer_twin/requirements.txt` — Package dependencies.
+- `spectrophotometer_twin/scripts/test.sh` — Controller unit test runner.
+- `spectrophotometer_twin/scripts/serve.sh` — Standalone package HTTP server runner.
+- `spectrophotometer_twin/software/controller/spectrophotometer_controller.py` — Pure Python state machine and Beer-Lambert simulation engine.
+- `spectrophotometer_twin/software/controller/test_controller.py` — Unit test suite (6/6 tests passing).
+- `spectrophotometer_twin/software/viewer/index.html` — Gold Standard HTML shell with collapsible control and lab panels.
+- `spectrophotometer_twin/software/viewer/style.css` — Gold Standard stylesheet (`--bg: #0c1016`).
+- `spectrophotometer_twin/software/viewer/spectrophotometer3d.js` — Exhaustive procedural Three.js solid model with DIN 912 fasteners, hinged lid, 6-cell carousel, refractive quartz cuvettes, dynamic probe beam, and Czerny-Turner optics.
+- `spectrophotometer_twin/software/viewer/app.js` — Web application controller with dynamic LCD CanvasTexture (`flipY = false`), live spectrum curve plotting, raycaster clicks, and GLP compliance logger.
+- `spectrophotometer_twin/software/viewer/sfx.js` — Web Audio synthesizer for stepper motors, shutter clicks, and zero chime.
+- `.master/registry/spectrophotometer_twin_manifest.md` — Machine manifest for `spectrophotometer_twin`.
+- `.master/logs/report_cards/2026-09-24_NBA_build-spectrophotometer-twin.md` — End-of-work report card.
+
+### Changed
+
+- `lab_viewer/machines/registry.js` — Elevated `spectrophotometer` status from `planned` to `ready`.
+- `.master/registry/machines.md` — Registered `spectrophotometer_twin` as active Gold-tier machine.
+- `.master/logs/master_change_log.md` — this entry.
+- `.master/logs/conversation_log.md` — session log entry.
+
+---
+
 ## 2026-09-06 · NBA · gold-rebuild-balance-rotovap
 
 | Field   | Value                                                                                                                                                                                                                                                            |

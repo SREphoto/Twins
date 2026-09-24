@@ -121,12 +121,12 @@ export const MACHINES = [
   {
     id: "spectrophotometer",
     name: "Spectrophotometer",
-    tag: "Planned twin",
+    tag: "Dual-Beam UV-Vis Spectrophotometer",
     packageDir: "spectrophotometer_twin",
-    status: "planned",
-    viewerUrl: "./placeholders/planned.html?id=spectrophotometer",
+    status: "ready",
+    viewerUrl: "../spectrophotometer_twin/software/viewer/",
     transitionKind: "box",
-    panelHint: "Cuvette path, absorbance — not built yet",
+    panelHint: "Czerny-Turner optics, Beer-Lambert law, 6-cell carousel, spectrum scan",
   },
 ];
 

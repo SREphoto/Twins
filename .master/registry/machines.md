@@ -13,6 +13,7 @@
 | `vacuum_pump_twin`           | active | yes   | [vacuum_pump_twin_manifest.md](vacuum_pump_twin_manifest.md)                     | Diaphragm vacuum pump with dual heads & gas ballast; lab_viewer id `vacuum_pump`            |
 | `vortex_mixer_twin`          | active | no    | [vortex_mixer_twin_manifest.md](vortex_mixer_twin_manifest.md)                   | Touch/continuous mode vortex mixer; lab_viewer id `vortex_mixer`                            |
 | `hotplate_twin`              | active | yes   | [hotplate_twin_manifest.md](hotplate_twin_manifest.md)                             | Precision digital magnetic hotplate stirrer with PT1000 ATC; lab_viewer id `hotplate`      |
+| `spectrophotometer_twin`     | active | yes   | [spectrophotometer_twin_manifest.md](spectrophotometer_twin_manifest.md)         | Dual-beam UV-Vis spectrophotometer with Czerny-Turner optics & 6-cell carousel; lab_viewer id `spectrophotometer` |
 | `lab_viewer`                 | active | —     | (workspace shell)                                                                | Multi-machine desk under `Twins/lab_viewer/`                                                |
 
 ## How to add
