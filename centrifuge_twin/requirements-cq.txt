@@ -1,0 +1,16 @@
+# Python 3.12 recommended (.venv-cq)
+# Install order matters on macOS:
+#   pip install cadquery-ocp
+#   pip install cadquery --no-deps
+#   pip install 'multimethod>=1.11,<2' runtype scipy nlopt typish nptyping ezdxf casadi typing_extensions
+cadquery-ocp>=7.7
+cadquery==2.8.0
+multimethod>=1.11,<2
+runtype
+scipy
+nlopt>=2.9
+typish
+nptyping
+ezdxf
+casadi
+typing_extensions

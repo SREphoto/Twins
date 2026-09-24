@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PH-METER 2000 · Benchtop Dual pH/mV Meter Twin</title>
+  <link rel="stylesheet" href="style.css?v=20260725-gold" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">PH-METER</span>
+        <span class="brand-model">2000-ATC</span>
+        <span class="brand-tag">Benchtop dual pH/mV meter twin</span>
+      </div>
+      <div class="topbar-status">
+        <span id="status-pill" class="pill">PROBE AIR</span>
+        <span id="status-detail" class="muted">Dip probe into beaker</span>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <!-- 3D Stage -->
+      <section class="stage">
+        <div class="view-toolbar">
+          <button type="button" class="view-btn" id="btn-explode" title="Separate major assemblies">Exploded view</button>
+          <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe">Wireframe</button>
+          <button type="button" class="view-btn" id="btn-auto-rotate" title="Orbit camera automatically">Auto-rotate</button>
+          <label class="orbit-speed-ctrl" title="Auto-orbit speed">
+            <span>Orbit</span>
+            <input type="range" id="orbit-speed" min="0.2" max="4" step="0.1" value="1.1" />
+            <span id="orbit-speed-val">1.1×</span>
+          </label>
+          <label class="orbit-speed-ctrl" title="Camera zoom">
+            <span>Zoom</span>
+            <input type="range" id="camera-zoom" min="0" max="100" step="1" value="45" />
+            <span id="camera-zoom-val">45%</span>
+          </label>
+          <label class="orbit-speed-ctrl light-ctrl" title="Overall lab brightness">
+            <span>Light</span>
+            <input type="range" id="lab-light" min="0.15" max="2.2" step="0.05" value="1" />
+            <span id="lab-light-val">1.0×</span>
+          </label>
+          <label class="orbit-speed-ctrl light-ctrl" title="Lighting mood">
+            <span>Mood</span>
+            <select id="lab-light-mood">
+              <option value="neutral" selected>Neutral</option>
+              <option value="bright">Bright</option>
+              <option value="dim">Dim</option>
+              <option value="cool">Cool</option>
+              <option value="warm">Warm</option>
+            </select>
+          </label>
+          <button type="button" class="view-btn btn-showcase" id="btn-full-showcase">Full showcase</button>
+          <button type="button" class="view-btn" id="btn-view-reset">Reset view</button>
+        </div>
+        <div id="viewport3d" class="viewport"></div>
+        <p id="viewport-status" class="viewport-caption">Loading CAD model…</p>
+        <div class="stage-hint">Drag to orbit · Zoom / Light sliders · click keypads / parts</div>
+      </section>
+
+      <!-- Instrument control panel -->
+      <aside class="instrument panel-collapsible" id="panel-instrument" data-panel="instrument">
+        <div class="panel-head">
+          <h2 class="panel-title">Control panel</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="instrument">▾</button>
+        </div>
+        <div class="panel-body">
+          <div class="instrument-frame">
+            <canvas id="lcd" width="1024" height="512" class="lcd"></canvas>
+
+            <div class="keypad">
+              <div class="action-row">
+                <button type="button" class="key key-primary" id="btn-mode">pH / mV Mode</button>
+                <button type="button" class="key" id="btn-calib">Calibrate 7.00</button>
+                <button type="button" class="key" id="btn-calib-4">Calibrate 4.01</button>
+                <button type="button" class="key" id="btn-calib-10">Calibrate 10.01</button>
+              </div>
+            </div>
+
+            <div class="instrument-actions" style="margin-top:10px">
+              <button type="button" class="btn" id="btn-dip-probe">Dip Probe → Solution</button>
+              <button type="button" class="btn btn-demo" id="btn-showcase-panel">Full showcase</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Part explorer -->
+      <aside class="parts panel-collapsible" id="parts-panel" data-panel="parts">
+        <div class="panel-head">
+          <h2 class="panel-title">Part explorer</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="parts">▾</button>
+        </div>
+        <div class="panel-body">
+          <button type="button" class="btn" id="btn-parts-clear">Clear focus</button>
+          <p id="parts-focus-status" class="muted">No part focused</p>
+          <p id="parts-count" class="hint"></p>
+          <div id="parts-list" class="parts-list" role="list"></div>
+        </div>
+      </aside>
+
+      <!-- Lab bench -->
+      <aside class="lab panel-collapsible" id="panel-lab" data-panel="lab">
+        <div class="panel-head">
+          <h2 class="panel-title">Lab bench</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="lab">▾</button>
+        </div>
+        <div class="panel-body">
+          <label class="field">
+            <span>Buffer / Sample Solution</span>
+            <select id="solution-select">
+              <option value="7.00">pH 7.00 Neutral Buffer</option>
+              <option value="4.01">pH 4.01 Acidic Buffer</option>
+              <option value="10.01">pH 10.01 Basic Buffer</option>
+              <option value="2.50">Unknown Acid Sample (0.003M HCl)</option>
+              <option value="11.80">Unknown Base Sample (0.006M NaOH)</option>
+            </select>
+          </label>
+          <pre id="clean-log" class="clean-log">Meter initialized. Dip probe to measure.</pre>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="app.js?v=20260725-gold"></script>
+</body>
+</html>

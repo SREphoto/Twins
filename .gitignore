@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# OS metadata
+.DS_Store
+**/.DS_Store
+Thumbs.db
+
+# Python cache & virtual environments
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+.venv*/
+**/.venv/
+**/.venv*/
+env/
+**/env/
+venv/
+**/venv/
+
+# Temporary logs & scratch
+*.log
+scratch/

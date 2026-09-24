@@ -1,0 +1,1067 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SREdesigns — Muffle Furnace 3D Showcase</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          'Inter',
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        background: #0a0a0f;
+        color: #e2e8f0;
+        overflow: hidden;
+        height: 100vh;
+      }
+
+      .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 24px;
+        background: linear-gradient(
+          180deg,
+          rgba(10, 10, 15, 0.95) 0%,
+          transparent 100%
+        );
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .brand-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #ef4444, #f97316);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 16px;
+        color: white;
+      }
+      .brand h1 {
+        font-size: 15px;
+        font-weight: 600;
+      }
+      .brand p {
+        font-size: 11px;
+        color: #64748b;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .header-actions button {
+        padding: 6px 14px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+        color: #94a3b8;
+        font-family: inherit;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .header-actions button:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #e2e8f0;
+      }
+      .header-actions button.active {
+        background: rgba(239, 68, 68, 0.2);
+        color: #fca5a5;
+        border-color: rgba(239, 68, 68, 0.3);
+      }
+
+      #canvas-container {
+        width: 100vw;
+        height: 100vh;
+      }
+
+      .side-panel {
+        position: fixed;
+        top: 48px;
+        right: 0;
+        bottom: 48px;
+        width: 280px;
+        padding: 16px;
+        overflow-y: auto;
+        z-index: 90;
+        background: linear-gradient(
+          270deg,
+          rgba(10, 10, 15, 0.9) 0%,
+          transparent 100%
+        );
+      }
+      .panel-section {
+        margin-bottom: 20px;
+      }
+      .panel-section h3 {
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        color: #64748b;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+      }
+
+      .control-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 12px;
+        color: #94a3b8;
+      }
+
+      .toggle {
+        position: relative;
+        width: 38px;
+        height: 20px;
+        cursor: pointer;
+      }
+      .toggle input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .toggle-slider {
+        position: absolute;
+        inset: 0;
+        border-radius: 10px;
+        background: #1e293b;
+        transition: 0.3s;
+      }
+      .toggle-slider::before {
+        content: '';
+        position: absolute;
+        left: 2px;
+        top: 2px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #475569;
+        transition: 0.3s;
+      }
+      .toggle input:checked + .toggle-slider {
+        background: #ef4444;
+      }
+      .toggle input:checked + .toggle-slider::before {
+        transform: translateX(18px);
+        background: #fca5a5;
+      }
+
+      input[type='range'] {
+        width: 100px;
+        height: 4px;
+        border-radius: 2px;
+        background: #1e293b;
+        outline: none;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+      input[type='range']::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #ef4444;
+        cursor: pointer;
+      }
+
+      .feature-card {
+        padding: 10px 12px;
+        margin-bottom: 6px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .feature-card:hover {
+        background: rgba(239, 68, 68, 0.08);
+        border-color: rgba(239, 68, 68, 0.2);
+      }
+      .feature-card h4 {
+        font-size: 12px;
+        font-weight: 500;
+        margin-bottom: 2px;
+      }
+      .feature-card p {
+        font-size: 10px;
+        color: #64748b;
+        line-height: 1.4;
+      }
+
+      .status-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 24px;
+        padding: 10px;
+        background: rgba(10, 10, 15, 0.85);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        font-size: 12px;
+        color: #64748b;
+      }
+      .status-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #22c55e;
+      }
+
+      .stat-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: #64748b;
+        padding: 3px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      }
+      .stat-row .value {
+        color: #94a3b8;
+        font-weight: 500;
+      }
+
+      .loading-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        background: #0a0a0f;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.5s;
+      }
+      .loading-overlay.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 3px solid #1e293b;
+        border-top-color: #ef4444;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .loading-text {
+        margin-top: 16px;
+        font-size: 13px;
+        color: #475569;
+      }
+
+      #toast {
+        position: fixed;
+        top: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(59, 130, 246, 0.9);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 12px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+        z-index: 300;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="toast">Interaction successful</div>
+
+    <div class="loading-overlay" id="loading">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Loading 3D Model…</div>
+    </div>
+
+    <div class="header">
+      <div class="brand">
+        <div class="brand-icon">F</div>
+        <div>
+          <h1>SREdesigns Muffle Furnace</h1>
+          <p>
+            Pro-Fidelity 3D Model — <span id="object-count">0</span> Components
+          </p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btn-wireframe" onclick="toggleWireframe()">
+          Wireframe
+        </button>
+        <button id="btn-explode" onclick="toggleExplode()">Explode View</button>
+        <button id="btn-autorotate" class="active" onclick="toggleAutoRotate()">
+          Auto Rotate
+        </button>
+        <button id="btn-features" onclick="toggleFeatures()">≡ Features</button>
+      </div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <div class="side-panel" id="side-panel">
+      <div class="panel-section">
+        <h3>Equipment Controls</h3>
+        <p style="font-size: 11px; color: #94a3b8; margin-bottom: 12px">
+          🖱️ Click the 3D buttons on the top controller to operate the furnace.
+        </p>
+
+        <div class="control-row">
+          <span>Start / Stop Run</span>
+          <button
+            id="html-start-btn"
+            onclick="toggleRun()"
+            style="
+              background: #22c55e;
+              color: white;
+              border: none;
+              padding: 4px 12px;
+              border-radius: 4px;
+              font-weight: 600;
+              cursor: pointer;
+            "
+          >
+            START
+          </button>
+        </div>
+
+        <div class="control-row">
+          <span>Door Position</span>
+          <input
+            type="range"
+            id="door-slider"
+            min="0"
+            max="100"
+            value="0"
+            oninput="updateDoor(this.value)"
+            title="Adjust door angle"
+          />
+        </div>
+
+        <div class="control-row">
+          <span>Tray Position</span>
+          <input
+            type="range"
+            id="tray-slider"
+            min="0"
+            max="100"
+            value="0"
+            oninput="updateTray(this.value)"
+            title="Slide wire tray"
+          />
+        </div>
+
+        <div class="control-row">
+          <span>X-Ray Chassis</span>
+          <label class="toggle">
+            <input
+              type="checkbox"
+              id="xray-toggle"
+              onchange="toggleXRay(this.checked)"
+              title="Toggle X-ray mode"
+            />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="panel-section" id="features-section">
+        <h3>Feature Highlights</h3>
+
+        <div class="feature-card" onclick="focusFeature('controller')">
+          <h4>🖥️ PID Controller Panel</h4>
+          <p>
+            Interactive buttons to set Temperature, Timer, and Power. Dynamic
+            LCD updates in real-time.
+          </p>
+        </div>
+
+        <div class="feature-card" onclick="focusFeature('door')">
+          <h4>🚪 Insulated Door</h4>
+          <p>
+            Thick refractory-lined door providing an excellent thermal seal,
+            swinging open 180°.
+          </p>
+        </div>
+
+        <div class="feature-card" onclick="focusFeature('chamber')">
+          <h4>🔥 Ceramic Chamber</h4>
+          <p>
+            High-purity ceramic internal liner with side heating elements
+            capable of 1100°C.
+          </p>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h3>Model Stats</h3>
+        <div class="stat-row">
+          <span>Objects</span><span class="value" id="stat-objects">—</span>
+        </div>
+        <div class="stat-row">
+          <span>Materials</span><span class="value" id="stat-materials">—</span>
+        </div>
+        <div class="stat-row">
+          <span>File Size</span><span class="value" id="stat-filesize">—</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <div class="status-item">
+        <span class="status-dot" id="status-indicator"></span>
+        <span id="run-status">Online</span>
+      </div>
+      <div class="status-item">
+        Chamber Temp: <strong id="temp-display">20 °C</strong>
+      </div>
+      <div class="status-item">
+        Door: <strong id="door-status">Sealed</strong>
+      </div>
+    </div>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+        }
+      }
+    </script>
+
+    <script type="module">
+      import * as THREE from 'three';
+      import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+      import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0a0a0f);
+      scene.fog = new THREE.FogExp2(0x0a0a0f, 0.8);
+
+      const camera = new THREE.PerspectiveCamera(
+        40,
+        window.innerWidth / window.innerHeight,
+        0.01,
+        100
+      );
+      camera.position.set(0.6, 0.4, 0.6);
+
+      const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+      });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.0;
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      document
+        .getElementById('canvas-container')
+        .appendChild(renderer.domElement);
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.target.set(0, 0.2, 0);
+      controls.minDistance = 0.2;
+      controls.maxDistance = 2.5;
+
+      const keyLight = new THREE.DirectionalLight(0xffffff, 3.0);
+      keyLight.position.set(2, 3, -3); // Placed in front to illuminate the door
+      keyLight.castShadow = true;
+      keyLight.shadow.mapSize.setScalar(2048);
+      keyLight.shadow.bias = -0.0005;
+      scene.add(keyLight);
+
+      const fillLight = new THREE.DirectionalLight(0x80aaff, 1.2);
+      fillLight.position.set(-3, 1, -2); // Added more fill to the front left
+      scene.add(fillLight);
+
+      const rimLight = new THREE.DirectionalLight(0xffeedd, 2.0);
+      rimLight.position.set(0, 2, 3); // Strong rim light from behind
+      scene.add(rimLight);
+
+      scene.add(new THREE.AmbientLight(0x202030, 0.5)); // Darker, moodier ambient
+
+      const chamberLight = new THREE.PointLight(0xff5500, 0, 1.0);
+      chamberLight.position.set(0, 0.18, 0);
+      scene.add(chamberLight);
+
+      const ground = new THREE.Mesh(
+        new THREE.PlaneGeometry(4, 4),
+        new THREE.MeshStandardMaterial({
+          color: 0x111118,
+          roughness: 0.8,
+          metalness: 0.1,
+        })
+      );
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = -0.01;
+      ground.receiveShadow = true;
+      scene.add(ground);
+
+      const gridHelper = new THREE.GridHelper(2, 40, 0x1a1a26, 0x1a1a26);
+      gridHelper.position.y = -0.005;
+      scene.add(gridHelper);
+
+      let model = null;
+      let heaterParts = [];
+      let lidMeshes = [];
+      let lidPivot = null;
+      let trayRoots = [];
+      let trayBaseZ = 0;
+      let allMeshes = [];
+      let originalPositions = new Map();
+      let originalMaterials = new Map();
+      let autoRotate = true;
+      let isExploded = false;
+
+      // ── STATE ──
+      let powerOn = false;
+      let isRunning = false;
+      let targetTemp = 800;
+      let currentTemp = 20;
+      let timerSeconds = 3600; // 1 hour
+      let remainingSeconds = 3600;
+      let runStartTime = 0;
+
+      // ── CANVAS LCD SETUP ──
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 256;
+      const ctx = canvas.getContext('2d');
+      const lcdTexture = new THREE.CanvasTexture(canvas);
+      lcdTexture.colorSpace = THREE.SRGBColorSpace;
+      lcdTexture.minFilter = THREE.LinearFilter;
+
+      function updateLCD() {
+        const w = canvas.width,
+          h = canvas.height;
+
+        ctx.save();
+        // Depending on Blender's plane UV mapping, we flip horizontally
+        ctx.translate(w, 0);
+        ctx.scale(-1, 1);
+
+        // Background — deep navy
+        ctx.fillStyle = '#010810';
+        ctx.fillRect(0, 0, w, h);
+
+        if (!powerOn) {
+          ctx.restore();
+          lcdTexture.needsUpdate = true;
+          return;
+        }
+
+        // Subtle scanlines
+        ctx.fillStyle = 'rgba(0,60,140,0.06)';
+        for (let y = 0; y < h; y += 4) {
+          ctx.fillRect(0, y, w, 2);
+        }
+
+        // Outer border glow
+        ctx.strokeStyle = '#2060cc';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(2, 2, w - 4, h - 4);
+
+        if (!isRunning && currentTemp <= 25) {
+          // Standby mode
+          const now = new Date();
+          const timeStr = now.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false,
+          });
+
+          ctx.fillStyle = '#38bdf8';
+          ctx.font = '600 24px monospace';
+          ctx.fillText('STANDBY', 30, 60);
+
+          ctx.font = 'bold 64px monospace';
+          ctx.fillStyle = '#40aaff';
+          ctx.fillText(timeStr, 30, 140);
+
+          // Show Set Temp/Timer lightly
+          ctx.font = '20px monospace';
+          ctx.fillStyle = '#3080cc';
+          ctx.fillText(
+            `TARGET ${targetTemp}°C   TIMER ${Math.floor(timerSeconds / 60)}M`,
+            30,
+            215
+          );
+        } else {
+          // Run mode / Cooling mode
+          ctx.fillStyle = '#40aaff';
+          ctx.font = 'bold 16px monospace';
+          ctx.textAlign = 'left';
+          ctx.fillText('CURRENT °C', 20, 50);
+          ctx.fillText('TARGET °C', 180, 50);
+          ctx.fillText('TIME', 330, 50);
+
+          ctx.font = 'bold 36px monospace';
+
+          // Current Temp (glow indicator if heating)
+          const isHeating = isRunning && currentTemp < targetTemp;
+          const glowStr = isHeating && Date.now() % 1000 < 500 ? ' ↑' : '';
+
+          ctx.fillStyle = isHeating ? '#f59e0b' : '#00ff80'; // Orange or Green
+          ctx.fillText(Math.round(currentTemp).toString() + glowStr, 20, 100);
+
+          // Target Temp
+          ctx.fillStyle = '#ffffff';
+          ctx.fillText(targetTemp.toString(), 180, 100);
+
+          // Timer
+          const hrs = Math.floor(remainingSeconds / 3600);
+          const mins = Math.floor((remainingSeconds % 3600) / 60);
+          const secs = Math.floor(remainingSeconds % 60);
+          const timeFmt = `${hrs > 0 ? hrs + ':' : ''}${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+          ctx.fillStyle = isRunning ? '#ffffff' : '#64748b';
+          ctx.fillText(timeFmt, 330, 100);
+
+          // Divider line
+          ctx.fillStyle = '#1060aa';
+          ctx.fillRect(20, 140, w - 40, 3);
+
+          // Progress Bar
+          ctx.fillStyle = '#1a4080';
+          ctx.fillRect(20, 160, Math.floor(w - 40), 12);
+          ctx.fillStyle = isHeating ? '#f59e0b' : '#00bfff';
+          const pct = isRunning ? remainingSeconds / timerSeconds : 0;
+          ctx.fillRect(20, 160, Math.floor((w - 40) * (1 - pct)), 12); // Fills up as time passes
+
+          // Bottom status
+          ctx.font = '24px monospace';
+          ctx.fillStyle = isRunning ? '#00ff80' : '#3080cc';
+          ctx.fillText(isRunning ? '● HEATER ACTIVE' : '○ COOLING', 20, 220);
+        }
+
+        ctx.restore();
+        lcdTexture.needsUpdate = true;
+      }
+
+      // Initial draw
+      updateLCD();
+      setInterval(updateLCD, 1000); // 1Hz update for clocks
+
+      const MODEL_PATH = './models/muffle_furnace.glb';
+
+      const loader = new GLTFLoader();
+      loader.load(
+        MODEL_PATH,
+        (gltf) => {
+          model = gltf.scene;
+          model.traverse((child) => {
+            if (child.isMesh) child.castShadow = true;
+          });
+
+          const box = new THREE.Box3().setFromObject(model);
+          const center = box.getCenter(new THREE.Vector3());
+          model.position.sub(new THREE.Vector3(center.x, box.min.y, center.z));
+          scene.add(model);
+
+          let objCount = 0,
+            matSet = new Set();
+          model.traverse((child) => {
+            if (child.name.toLowerCase().includes('wiretray_root')) {
+              trayRoots.push(child);
+              if (!trayBaseZ) trayBaseZ = child.position.z;
+            }
+
+            if (!child.isMesh) return;
+            objCount++;
+            if (child.material) matSet.add(child.material.name);
+            allMeshes.push(child);
+            originalPositions.set(child.uuid, child.position.clone());
+
+            child.material = child.material.clone();
+            originalMaterials.set(child.uuid, child.material);
+
+            const nm = child.name.toLowerCase();
+
+            // Map LCD Texture
+            if (nm.includes('lcd_screen')) {
+              // Create a specific emissive material for the screen
+              const screenMat = new THREE.MeshStandardMaterial({
+                map: lcdTexture,
+                emissiveMap: lcdTexture,
+                emissive: new THREE.Color(0xffffff),
+                emissiveIntensity: 3.5,
+                roughness: 0.1,
+                metalness: 0.1,
+                side: THREE.DoubleSide,
+                toneMapped: false,
+              });
+              child.material = screenMat;
+            }
+
+            if (nm.includes('liner_')) heaterParts.push(child);
+            if (nm.includes('lid_')) lidMeshes.push(child);
+          });
+
+          document.getElementById('stat-objects').textContent = objCount;
+          document.getElementById('stat-materials').textContent = matSet.size;
+
+          // Door Hinge Setup (Front-Left book-style swing)
+          if (lidMeshes.length > 0) {
+            const modelBox = new THREE.Box3().setFromObject(model);
+            const hingeX = modelBox.min.x + 0.01;
+            const hingeY = 0.2;
+            const hingeZ = modelBox.min.z * 0.95;
+
+            lidPivot = new THREE.Group();
+            // In Three.js, Y is UP. Blender Z = ThreeJS Y. Blender +Y = ThreeJS -Z.
+            // Hinge in Blender: X=-150mm(-0.15), Y=+210mm(+0.21 -> -0.21 Z), Z=(height +0.22 Y)
+            lidPivot.position.set(-0.15, 0.22, -0.21);
+            model.add(lidPivot);
+
+            lidMeshes.forEach((mesh) => {
+              const worldPos = new THREE.Vector3();
+              mesh.getWorldPosition(worldPos);
+              const localPos = model.worldToLocal(worldPos.clone());
+              mesh.removeFromParent();
+              mesh.position.set(
+                localPos.x - lidPivot.position.x,
+                localPos.y - lidPivot.position.y,
+                localPos.z - lidPivot.position.z
+              );
+              lidPivot.add(mesh);
+            });
+          }
+
+          document.getElementById('loading').classList.add('hidden');
+        },
+        undefined
+      );
+
+      // ── LOGIC ──
+
+      window.toggleRun = function () {
+        if (!powerOn) {
+          showToast('Turn power on first');
+          return;
+        }
+        isRunning = !isRunning;
+
+        const btn = document.getElementById('html-start-btn');
+        if (isRunning) {
+          btn.textContent = 'STOP';
+          btn.style.background = '#ef4444';
+          if (remainingSeconds <= 0) remainingSeconds = timerSeconds;
+          document.getElementById('run-status').textContent = 'Running';
+          document.getElementById('status-indicator').style.background =
+            '#ef4444';
+        } else {
+          btn.textContent = 'START';
+          btn.style.background = '#22c55e';
+          document.getElementById('run-status').textContent = 'Standby';
+          document.getElementById('status-indicator').style.background =
+            '#22c55e';
+        }
+        updateLCD();
+      };
+
+      window.updateDoor = function (pct) {
+        if (lidPivot) lidPivot.rotation.y = (pct / 100) * (Math.PI * 0.85);
+        document.getElementById('door-status').textContent =
+          pct > 10 ? 'Open' : 'Sealed';
+      };
+
+      window.updateTray = function (pct) {
+        trayRoots.forEach((t) => {
+          // slide out toward -Z in ThreeJS (since front is -Z)
+          t.position.z = trayBaseZ - (pct / 100) * 0.25;
+        });
+      };
+
+      window.toggleWireframe = function () {
+        const isWire = document
+          .getElementById('btn-wireframe')
+          .classList.toggle('active');
+        allMeshes.forEach((m) => {
+          if (m.material) m.material.wireframe = isWire;
+        });
+      };
+
+      window.toggleExplode = function () {
+        isExploded = document
+          .getElementById('btn-explode')
+          .classList.toggle('active');
+        allMeshes.forEach((m) => {
+          const orig = originalPositions.get(m.uuid);
+          if (!orig) return;
+          if (isExploded) {
+            const dir = orig.clone().normalize();
+            m.position.copy(orig).add(dir.multiplyScalar(0.08));
+          } else {
+            m.position.copy(orig);
+          }
+        });
+      };
+
+      window.toggleAutoRotate = function () {
+        autoRotate = document
+          .getElementById('btn-autorotate')
+          .classList.toggle('active');
+      };
+
+      window.toggleFeatures = function () {
+        const p = document.getElementById('features-section');
+        p.style.display = p.style.display === 'none' ? 'block' : 'none';
+      };
+
+      window.toggleXRay = function (on) {
+        const xrayMat = new THREE.MeshStandardMaterial({
+          color: 0xef4444,
+          transparent: true,
+          opacity: 0.15,
+          side: THREE.DoubleSide,
+          depthWrite: false,
+        });
+        allMeshes.forEach((m) => {
+          if (heaterParts.includes(m) || m.name.toLowerCase().includes('lcd'))
+            return;
+          m.material = on ? xrayMat : originalMaterials.get(m.uuid);
+        });
+      };
+
+      const cameraTargets = {
+        door: { pos: [0.3, 0.2, -0.4], target: [0, 0.2, -0.1] },
+        chamber: { pos: [0.0, 0.2, -0.6], target: [0, 0.18, 0.05] },
+        controller: { pos: [0.0, 0.45, -0.15], target: [0, 0.38, 0.0] },
+        chimney: { pos: [0.1, 0.5, 0.4], target: [0, 0.38, 0.15] },
+      };
+
+      window.focusFeature = function (name) {
+        const t = cameraTargets[name];
+        if (!t) return;
+        autoRotate = false;
+        document.getElementById('btn-autorotate').classList.remove('active');
+        const startPos = camera.position.clone();
+        const endPos = new THREE.Vector3(...t.pos);
+        const endTarget = new THREE.Vector3(...t.target);
+        let progress = 0;
+        function animateCamera() {
+          progress += 0.02;
+          if (progress >= 1) return;
+          camera.position.lerpVectors(startPos, endPos, progress);
+          controls.target.lerp(endTarget, 0.02);
+          controls.update();
+          requestAnimationFrame(animateCamera);
+        }
+        animateCamera();
+
+        if (name === 'chamber') {
+          document.getElementById('door-slider').value = 60;
+          updateDoor(60);
+        } else if (name === 'door') {
+          document.getElementById('door-slider').value = 20;
+          updateDoor(20);
+        } else {
+          document.getElementById('door-slider').value = 0;
+          updateDoor(0);
+        }
+      };
+
+      // Toast message helper
+      function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.style.opacity = '1';
+        setTimeout(() => {
+          t.style.opacity = '0';
+        }, 2000);
+      }
+
+      // ── 3D BUTTON INTERACTION ──
+      const raycaster = new THREE.Raycaster();
+      const mouse = new THREE.Vector2();
+      window.addEventListener('click', (event) => {
+        // Ignore clicks on UI elements
+        if (
+          event.target.tagName === 'BUTTON' ||
+          event.target.tagName === 'INPUT' ||
+          event.target.closest('.side-panel')
+        )
+          return;
+
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+
+        const intersects = raycaster.intersectObjects(allMeshes, false);
+        if (intersects.length > 0) {
+          const obj = intersects[0].object;
+          const nm = obj.name.toLowerCase();
+
+          let acted = false;
+
+          if (nm.includes('btn_power')) {
+            powerOn = !powerOn;
+            if (!powerOn) isRunning = false;
+            acted = true;
+            showToast(powerOn ? 'Power ON' : 'Power OFF');
+
+            const btn = document.getElementById('html-start-btn');
+            btn.textContent = 'START';
+            btn.style.background = '#22c55e';
+          }
+
+          if (nm.includes('btn_start')) {
+            window.toggleRun();
+            acted = true;
+          }
+
+          if (powerOn) {
+            if (nm.includes('btn_tempup')) {
+              targetTemp = Math.min(1100, targetTemp + 50);
+              acted = true;
+              showToast(`Target: ${targetTemp}°C`);
+            }
+            if (nm.includes('btn_tempdn')) {
+              targetTemp = Math.max(20, targetTemp - 50);
+              acted = true;
+              showToast(`Target: ${targetTemp}°C`);
+            }
+            if (nm.includes('btn_timeup')) {
+              timerSeconds += 300;
+              if (!isRunning) remainingSeconds = timerSeconds;
+              acted = true;
+              showToast(`Timer: ${timerSeconds / 60} min`);
+            }
+            if (nm.includes('btn_timedn')) {
+              timerSeconds = Math.max(60, timerSeconds - 300);
+              if (!isRunning) remainingSeconds = timerSeconds;
+              acted = true;
+              showToast(`Timer: ${timerSeconds / 60} min`);
+            }
+          }
+
+          if (acted) {
+            // Button animation
+            const origY = obj.position.y;
+            obj.position.y -= 0.005;
+            setTimeout(() => {
+              obj.position.y = origY;
+            }, 100);
+            updateLCD();
+          }
+        }
+      });
+
+      const clock = new THREE.Clock();
+      function animate() {
+        requestAnimationFrame(animate);
+        const delta = clock.getDelta();
+
+        if (autoRotate && model) {
+          model.rotation.y += delta * 0.3;
+        }
+
+        // Furnace logic
+        if (isRunning) {
+          if (remainingSeconds > 0) {
+            remainingSeconds -= delta;
+
+            // Heating up
+            if (currentTemp < targetTemp) {
+              currentTemp += delta * 40; // 40 degrees per second (fast for showcase)
+              if (currentTemp > targetTemp) currentTemp = targetTemp;
+            } else if (currentTemp > targetTemp) {
+              currentTemp -= delta * 15;
+            }
+          } else {
+            isRunning = false;
+            document.getElementById('html-start-btn').textContent = 'START';
+            document.getElementById('html-start-btn').style.background =
+              '#22c55e';
+            showToast('Run Complete');
+          }
+          updateLCD(); // Update fast during runs
+        } else {
+          // Cooling down
+          if (currentTemp > 20) {
+            currentTemp -= delta * 5;
+            if (currentTemp < 20) currentTemp = 20;
+            updateLCD();
+          }
+        }
+
+        document.getElementById('temp-display').textContent =
+          `${Math.round(currentTemp)} °C`;
+
+        // Update Glow effects based on actual chamber temp
+        const glowInt = Math.max(0, (currentTemp - 20) / 1080); // 0 to 1
+        const glowColor = new THREE.Color().setHSL(
+          0.05 + glowInt * 0.05,
+          1.0,
+          0.4 + glowInt * 0.2
+        );
+
+        heaterParts.forEach((p) => {
+          if (p.material.emissive) {
+            p.material.emissive.copy(glowColor);
+            p.material.emissiveIntensity = glowInt * 5.0;
+          }
+        });
+        chamberLight.color.copy(glowColor);
+        chamberLight.intensity = glowInt * 2.0;
+
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    </script>
+  </body>
+</html>

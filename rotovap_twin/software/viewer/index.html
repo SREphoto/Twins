@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BÜCHI Rotavapor R-300 · Rotary Evaporator Twin</title>
+  <link rel="stylesheet" href="style.css?v=20260906-gold" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">BÜCHI</span>
+        <span class="brand-model">Rotavapor R-300</span>
+        <span class="badge-sredesigns">SREdesigns</span>
+        <span class="brand-tag">Rotary Evaporation System Twin</span>
+      </div>
+      <div class="topbar-status">
+        <span id="status-pill" class="pill">STANDBY</span>
+        <span id="status-detail" class="muted">Ready for distillation sequence</span>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <!-- 3D Stage -->
+      <section class="stage">
+        <div class="view-toolbar">
+          <button type="button" class="view-btn" id="btn-explode" title="Separate assemblies">Exploded view</button>
+          <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe">Wireframe</button>
+          <button type="button" class="view-btn" id="btn-auto-rotate" title="Orbit camera automatically">Auto-rotate</button>
+          
+          <label class="orbit-speed-ctrl" title="Auto-orbit speed">
+            <span>Orbit</span>
+            <input type="range" id="orbit-speed" min="0.2" max="4" step="0.1" value="1.0" />
+            <span id="orbit-speed-val">1.0×</span>
+          </label>
+          <label class="orbit-speed-ctrl" title="Camera zoom">
+            <span>Zoom</span>
+            <input type="range" id="camera-zoom" min="0" max="100" step="1" value="45" />
+            <span id="camera-zoom-val">45%</span>
+          </label>
+          <label class="orbit-speed-ctrl" title="Lab lighting intensity">
+            <span>Light</span>
+            <input type="range" id="lab-light" min="0.2" max="2.5" step="0.1" value="1.0" />
+            <span id="lab-light-val">1.0×</span>
+          </label>
+          <button type="button" class="view-btn" id="btn-sfx-mute" title="Mute audio sounds">Mute SFX</button>
+        </div>
+
+        <div id="viewport3d" class="viewport"></div>
+        <div id="hud-tooltip" class="hud-tooltip" style="display: none;"></div>
+        <div class="stage-hint">Orbit: drag · Zoom: scroll/slider · Lift & Rotation: live mechanical animation · Clausius-Clapeyron vapor physics</div>
+      </section>
+
+      <!-- Instrument Controls Panel -->
+      <aside class="instrument panel-collapsible" id="panel-instrument" data-panel="instrument">
+        <div class="panel-header">
+          <h2>R-300 Controls</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="instrument" title="Collapse panel" aria-expanded="true">▾</button>
+        </div>
+        <div class="panel-body">
+          <div style="display: flex; gap: 0.5rem;">
+            <button type="button" class="btn btn-primary" id="btn-lift" style="flex: 1;">Raise Motorized Lift</button>
+            <button type="button" class="btn" id="btn-heat" style="flex: 1;">Turn Heating ON</button>
+          </div>
+
+          <div class="field">
+            <div class="field-header">
+              <span>Flask Rotation Speed</span>
+              <span class="val" id="val-rpm">120 RPM</span>
+            </div>
+            <input type="range" id="slider-rpm" min="0" max="280" step="5" value="120" />
+          </div>
+
+          <div class="field">
+            <div class="field-header">
+              <span>Heating Bath Setpoint</span>
+              <span class="val" id="val-temp">45°C</span>
+            </div>
+            <input type="range" id="slider-temp" min="20" max="95" step="1" value="45" />
+          </div>
+
+          <div class="field">
+            <div class="field-header">
+              <span>Vacuum Pressure Setpoint</span>
+              <span class="val" id="val-vac">175 mbar</span>
+            </div>
+            <input type="range" id="slider-vac" min="20" max="1013" step="5" value="175" />
+          </div>
+
+          <div style="display: flex; gap: 0.5rem;">
+            <button type="button" class="btn" id="btn-preset-40" style="flex: 1;">Auto "Delta 20" Rule</button>
+            <button type="button" class="btn" id="btn-aerate" style="flex: 1;">Aerate / Release</button>
+          </div>
+
+          <div class="metric-box">
+            <span class="metric-title">Laboratory "Delta 20" Rule</span>
+            <p class="hint">
+              Bath at <strong>40°C</strong> · Vapor at <strong>30°C</strong> · Cooling water at <strong>10°C</strong>.<br>
+              Maintains optimal condensation without vapor bypass or solvent loss.
+            </p>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Solvent & Physics Telemetry Panel -->
+      <aside class="lab panel-collapsible" id="panel-lab" data-panel="lab">
+        <div class="panel-header">
+          <h2>Solvent & Distillation</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="lab" title="Collapse panel" aria-expanded="true">▾</button>
+        </div>
+        <div class="panel-body">
+          <label class="field">
+            <span>Selected Solvent</span>
+            <select id="solvent-select"></select>
+          </label>
+          <p id="solvent-desc" class="hint"></p>
+
+          <button type="button" class="btn" id="btn-refill">Refill Evaporating Flask</button>
+
+          <div class="metric-box">
+            <span class="metric-title">Thermodynamic Simulation</span>
+            <span class="hint"><strong>Model:</strong> Antoine / Clausius-Clapeyron</span>
+            <span class="hint"><strong>Cooling Surface:</strong> 1500 cm² double helix coil</span>
+            <span class="hint"><strong>Seal Type:</strong> PTFE/PE composite vacuum lip seal</span>
+            <span class="hint"><strong>Evaporating Flask:</strong> 1000 mL pear-shaped NS 29/32</span>
+            <span class="hint"><strong>Receiving Flask:</strong> 1000 mL spherical S 35/20</span>
+          </div>
+
+          <p class="hint">
+            <strong>Operating Steps:</strong><br>
+            1. Select solvent and configure bath temperature.<br>
+            2. Lower motorized lift into bath.<br>
+            3. Start rotation (100–160 RPM) to create climbing film.<br>
+            4. Draw vacuum to boiling point threshold.<br>
+            5. Observe vapor condensation and distillate recovery!
+          </p>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="app.js?v=20260906-buchi3"></script>
+</body>
+</html>

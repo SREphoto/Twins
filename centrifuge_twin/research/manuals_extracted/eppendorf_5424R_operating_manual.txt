@@ -1,0 +1,1728 @@
+
+
+===== PAGE 1 =====
+nual24 REN)g manual
+ 
+ Register your instrument! 
+www.eppendorf.com/myeppendorf
+Centrifuge 5424 R
+Operating manual
+
+===== PAGE 2 =====
+5404 900.040-02/052018 
+Copyright ©2018 All rights reserved, including graphics and images. No part of this publication may be 
+reproduced without the prior permission of the copyright owner.
+Microtainer® is a registered trademark of Becton Dickinson, USA.
+Eppendorf® and the Eppendorf Brand Design are registered trademarks of Eppendorf AG, Germany.
+Eppendorf VisioNize® is a registered trademark of Eppendorf AG, Germany.
+Registered trademarks and protected trademarks are not marked in all cases with ® or ™ in this manual. 
+U.S. Patents are listed on www.eppendorf.com/ip
+
+===== PAGE 3 =====
+3
+Table of contents
+Centrifuge 5424 R
+English (EN)
+Table of contents
+1 Operating instructions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+1.1 Using this manual . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+1.2 Danger symbols and danger levels . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+1.2.1 Danger symbols. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+1.2.2 Danger levels. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+1.3 Symbols used  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+1.4 Abbreviations used . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+2 Safety. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7
+2.1 Intended use . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7
+2.2 User profile . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7
+2.3 Information on product liability  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7
+2.4 Application limits  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8
+2.4.1 Declaration concerning the ATEX directive (2014/34/EU) . . . . . . . . . . . . . . . . . . . . . . . 8
+2.5 Warnings for intended use . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8
+2.5.1 Personal injury or damage to device. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8
+2.5.2 Incorrect handling of the centrifuge . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+2.5.3 Incorrect handling of the rotors  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+2.5.4 Extreme strain on the centrifugation tubes  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+2.5.5 Aerosol-tight centrifugation  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+2.6 Safety instructions on device and accessories . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+3 Product description  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15
+3.1 Product overview. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15
+3.2 Delivery package. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16
+3.3 Features. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16
+3.4 Name plate  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17
+4 Installation  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19
+4.1 Selecting the location . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19
+4.2 Preparing installation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20
+4.3 Installing the instrument. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 21
+5 Operation. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23
+5.1 Operating controls. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23
+5.2 Navigating in the menu. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 25
+5.3 Menu structure . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 25
+5.4 Switching on the centrifuge . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 27
+5.5 Replacing the rotor . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 27
+5.5.1 Inserting the rotor . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 27
+5.5.2 Removing the rotor . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 27
+5.6 Closing the centrifuge lid . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 27
+5.7 Cooling  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 28
+5.7.1 Temperature adjustment . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 28
+5.7.2 Temperature display . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 28
+5.7.3 Temperature monitoring . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 28
+5.7.4 FastTemp. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 28
+5.7.5 Continuous cooling . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 29
+
+===== PAGE 4 =====
+Table of contents
+Centrifuge 5424 R
+English (EN)
+4
+5.8 Centrifugation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 29
+5.8.1 Centrifuging with preset time . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 30
+5.8.2 Centrifuging in continuous operation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 30
+5.8.3 Short run centrifugation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 31
+5.8.4 Removing the rotor . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 31
+6 Maintenance . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 33
+6.1 Service. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 33
+6.2 Preparing cleaning/disinfection  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 33
+6.3 Cleaning/disinfection  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 34
+6.3.1 Cleaning and disinfecting the device  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 35
+6.3.2 Disinfecting and cleaning the rotor. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 36
+6.4 Additional care instructions for refrigerated centrifuges . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 36
+6.5 Cleaning glass breakage . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 37
+6.6 Fuses . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 37
+6.7 Decontamination before shipment . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 38
+7 Troubleshooting . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 39
+7.1 General errors . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 39
+7.2 Error messages . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 40
+7.3 Emergency release . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 41
+8 Transport, storage and disposal  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 43
+8.1 Transport . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 43
+8.2 Storage  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 43
+8.3 Disposal. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 44
+9 Technical data. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 45
+9.1 Power supply. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 45
+9.2 Ambient conditions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 45
+9.3 Weight/dimensions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 45
+9.4 Noise level. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 46
+9.5 Application parameters . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 46
+9.5.1 Centrifuge 5424 R . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 46
+9.6 Service life for accessories . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 47
+9.7 Rotors  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 48
+9.7.1 rcf display and calculation  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 49
+10 Ordering information . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 51
+10.1 Accessories . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 51
+10.1.1 Rotors and rotor lids . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 51
+10.1.2 Adapter . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 51
+10.1.3 Other accessories  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 52
+10.2 Fuses . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 52
+Certificates . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 53
+
+===== PAGE 5 =====
+5
+Operating instructions
+Centrifuge 5424 R
+English (EN)
+1 Operating instructions
+1.1 Using this manual
+ Read this operating manual completely before using the device for the first time. Observe the 
+instructions for use of the accessories where applicable.
+ This operating manual is part of the product. Please keep it in a place that is easily accessible.
+ Enclose this operating manual when transferring the device to third parties.
+ The current version of the operating manual for all available languages can be found on our webpage 
+www.eppendorf.com/manuals.
+The Centrifuge 5424 R is available in two versions: keypad or rotary knobs. This operating manual 
+generally describes how to operate the keypad version. However, it also applies to the rotary knob version.
+1.2 Danger symbols and danger levels
+1.2.1 Danger symbols
+The safety instructions in this manual have the following danger symbols and danger levels:
+1.2.2 Danger levels
+Biohazard Explosive substances
+Electric shock Risk of crushing
+Hazard point Material damage
+DANGER Will lead to severe injuries or death.
+WARNING May lead to severe injuries or death.
+CAUTION May lead to light to moderate injuries.
+NOTICE May lead to material damage.
+
+===== PAGE 6 =====
+Operating instructions
+Centrifuge 5424 R
+English (EN)
+6
+1.3 Symbols used
+1.4 Abbreviations used
+PCR
+Polymerase Chain Reaction
+PTFE
+Polytetrafluorethylene
+rcf
+Relative centrifugal force :g-force in m/s2
+rpm
+Revolutions per minute
+UV
+Ultraviolet radiation
+Depiction Meaning 
+1.
+2.
+Actions in the specified order
+  Actions without a specified order
+•  List
+Text Display or software texts
+Additional information
+
+===== PAGE 7 =====
+7
+Safety
+Centrifuge 5424 R
+English (EN)
+2 Safety
+2.1 Intended use
+The Centrifuge 5424 R is designed for separating liquid substance mixtures with different densities, in 
+particular, for processing and analyzing samples from the human body in in-vitro diagnostic applications to 
+ensure that the in-vitro diagnostic device can be used according to its intended purpose. This centrifuge 
+including components is an in-vitro diagnostic device according to Directive 98/79/EC of the European 
+Parliament and the Council dated October 27, 1998.
+Eppendorf centrifuges are exclusively intended for indoor use by trained specialists.
+2.2 User profile
+The device and accessories may only be operated by trained and skilled personnel.
+Before using the device, read the operating manual carefully and familiarize yourself with the device's 
+mode of operation.
+2.3 Information on product liability
+In the following cases, the designated protection of the device may be affected. Liability for any resulting 
+damage or personal injury is then transferred to the owner:
+• The device is not used in accordance with the operating manual.
+• The device is used outside of its intended use.
+• The device is used with accessories or consumables that are not recommended by Eppendorf.
+• The device is maintained or repaired by persons not authorized by Eppendorf AG.
+• The user makes unauthorized changes to the device.
+
+===== PAGE 8 =====
+Safety
+Centrifuge 5424 R
+English (EN)
+8
+2.4 Application limits
+2.4.1 Declaration concerning the ATEX directive (2014/34/EU)
+Due to its design and the environmental conditions inside the device, the Centrifuge 5424 R is not suitable 
+for use in a potentially explosive atmosphere.
+The device may only be used in a safe environment, such as in the open environment of a ventilated 
+laboratory or a fume hood. The use of substances that may contribute to a potentially explosive atmosphere 
+is not permitted. The final decision on the risks associated with the use of such substances lies with the 
+user.
+2.5 Warnings for intended use
+2.5.1 Personal injury or damage to device
+DANGER! Risk of explosion.
+ Do not operate the device in areas where explosive substances are handled.
+ Do not use this device to process any explosive or highly reactive substances.
+ Do not use this device to process any substances which may generate an explosive 
+atmosphere.
+WARNING! Electric shock due to damage to the device or mains/power cord.
+ Only switch on the device if the device and mains/power cord are undamaged.
+ Only operate devices which have been installed or repaired properly.
+ In case of danger, disconnect the device from the mains/power supply voltage. Disconnect 
+the mains/power plug from the device or the earth/grounded socket. Use the isolating 
+device intended for this purpose (e.g. the emergency switch in the laboratory).
+WARNING! Lethal voltages inside the device.
+If you touching any parts which are under high voltage you may experience an electric shock. 
+Electric shocks cause injuries to the heart and respiratory paralysis.
+ Ensure that the housing is closed and undamaged.
+ Do not remove the housing.
+ Ensure that no liquids can penetrate the device.
+Only authorized service staff may open the device.
+WARNING! Danger due to incorrect voltage supply.
+ Only connect the device to voltage sources which correspond with the electrical 
+requirements on the name plate.
+ Only use earth/grounded sockets with a protective earth (PE) conductor.
+ Only use the mains/power cord supplied.
+
+===== PAGE 9 =====
+9
+Safety
+Centrifuge 5424 R
+English (EN)
+WARNING! Damage to health due to infectious liquids and pathogenic germs.
+ When handling infectious liquids and pathogenic germs, observe the national regulations, 
+the biosafety level of your laboratory, the material safety data sheets, and the 
+manufacturer's application notes.
+ Wear your personal protective equipment.
+ For comprehensive regulations about handling germs or biological material of risk group II 
+or higher, please refer to the "Laboratory Biosafety Manual" (source: World Health 
+Organization, Laboratory Biosafety Manual, the current edition).
+WARNING! Risk of injury when opening or closing the centrifuge lid.
+There is a risk of crushing your fingers when opening or closing the centrifuge lid.
+ When opening or closing the centrifuge lid, do not reach between the lid and device or into 
+the latching mechanism of the lid.
+ Always open the centrifuge lid completely to prevent it from falling.
+WARNING! Risk of injury from rotating rotor.
+If the emergency release of the lid is operated, the rotor may continue to rotate for several 
+minutes.
+ Wait for the rotor to stop before activating the emergency release.
+ To check, look through the monitoring glass in the centrifuge lid.
+WARNING! Risk of injury from chemically or mechanically damaged accessories.
+Even minor scratches and cracks can lead to severe internal material damage.
+ Protect all accessory parts from mechanical damage.
+ Inspect the accessories for damage before every use. Replace any damaged accessories.
+ Do not use rotors or rotor lids showing signs of corrosion or mechanical damage (e.g. 
+deformations).
+ Do not use any accessories which have exceeded their maximum service life.
+
+===== PAGE 10 =====
+Safety
+Centrifuge 5424 R
+English (EN)
+10
+2.5.2 Incorrect handling of the centrifuge
+2.5.3 Incorrect handling of the rotors
+CAUTION! Poor safety due to incorrect accessories and spare parts.
+The use of accessories and spare parts other than those recommended by Eppendorf may 
+impair the safety, functioning and precision of the device. Eppendorf cannot be held liable or 
+accept any liability for damage resulting from the use of accessories and spare parts other 
+than those recommended, or from the improper use of such equipment.
+ Only use accessories and original spare parts recommended by Eppendorf.
+NOTICE! Damage to the device due to spilled liquids.
+1. Switch off the device.
+2. Disconnect the device from the mains/power supply.
+3. Carefully clean the device and the accessories in accordance with the cleaning and 
+disinfection instructions in the operating manual.
+4. If a different cleaning and disinfecting method is to be used, contact Eppendorf AG to 
+ensure that the intended method will not damage the device.
+NOTICE! Damage to electronic components due to condensation. 
+Condensate may form in the device when it has been transported from a cool environment to a 
+warmer environment.
+ After installing the device, wait for at least 4 h. Only then connect the device to the mains/
+power line.
+NOTICE! Damage from knocking against or moving the device during operation.
+If the rotor hits the rotor chamber wall, it will cause considerable damage to the device and 
+rotor.
+ Do not move or knock against the device during operation.
+WARNING! Risk of injury from improperly attached rotors and rotor lids.
+ Only centrifuge with rotor and rotor lid firmly tightened.
+ If there are any unusual noises when the centrifuge is started up, the rotor or rotor lid may 
+not be attached properly. Immediately press the start/stop key to stop centrifuging.
+
+===== PAGE 11 =====
+11
+Safety
+Centrifuge 5424 R
+English (EN)
+2.5.4 Extreme strain on the centrifugation tubes
+CAUTION! Risk of injury due to asymmetrical loading of a rotor.
+ Load rotors symmetrically with identical tubes.
+ Only load adapters with suitable tubes.
+ Always use the same type of tubes (weight, material/density and volume).
+ Check symmetric loading by balancing the adapters and tubes used with scales.
+CAUTION! Risk of injury from overloaded rotor.
+The centrifuge is designed for the centrifugation of material with a maximum density of 1.2 g/
+mL at maximum speed and filling volume and/or load.
+ Do not exceed the maximum load of the rotor.
+NOTICE! Damage to rotors from aggressive chemicals.
+Rotors are high-quality components which withstand extreme stresses. This stability can be 
+impaired by aggressive chemicals.
+ Avoid using aggressive chemicals such as strong and weak alkalis, strong acids, solutions 
+with mercury ions, copper ions and other heavy metal ions, halogenated hydrocarbons, 
+concentrated saline solutions and phenol.
+ If it is contaminated by aggressive chemicals, clean the rotor and especially the rotor bores 
+immediately using a neutral cleaning agent.
+ Due to the manufacturing process, color variations may occur on PTFE coated rotors. 
+These color variations do not affect the service life or resistance to chemicals.
+CAUTION! Risk of injury from overloaded tubes.
+ Note the loading limits specified by the tube manufacturer.
+ Only use tubes which are approved by the manufacturer for the required g-force (rcf).
+NOTICE! Risk from damaged tubes.
+Damaged tubes must not be used, as this could cause further damage to the device and the 
+accessories and loss of the samples.
+ Visually check all of the tubes for damage before use.
+
+===== PAGE 12 =====
+Safety
+Centrifuge 5424 R
+English (EN)
+12
+2.5.5 Aerosol-tight centrifugation
+NOTICE! Danger from open tube lids.
+Open tube lids may break off during centrifugation and damage both the rotor and the 
+centrifuge.
+ Carefully seal all tube lids before centrifuging.
+NOTICE! Damage to plastic tubes from organic solvents.
+The density of plastic tubes is reduced when organic solvents (e.g., phenol, chloroform) are 
+used, i.e. the tubes could become damaged.
+ Note the manufacturer’s information on the chemical resistance of the tubes.
+WARNING! Risk to health due to limited aerosol tightness with incorrect rotor/rotor lid 
+combination.
+Aerosol-tight centrifugation is guaranteed only if the rotors and rotor lids intended for this 
+purpose are used. The designation of aerosol-tight fixed-angle rotors always starts with FA. 
+The aerosol-tight rotors and rotor lids of this centrifuge are additionally marked with a red 
+ring on the rotor and a red rotor lid screw.
+ Always use rotors and rotor lids marked aerosol-tight together for aerosol-tight 
+centrifugation. The details specifying in which centrifuge you may use the aerosol-tight 
+rotors and rotor lids can be found on the rotor and on the upper side of the rotor lid. 
+ Only use aerosol-tight rotor lids in combination with the rotors that are marked on the 
+rotor lid.
+WARNING! Damage to health due to limited aerosol tightness in the event of incorrect 
+use.
+Mechanical stresses and contamination by chemicals or other aggressive solvents may impair 
+the aerosol tightness of the rotors and rotor lids.Autoclaving at excessive temperatures can 
+lead to vessels, adapters and rotor lids becoming brittle and deformed.
+ Check the integrity of the seals of the aerosol-tight rotor lids or caps before each use.
+ Only use aerosol-tight rotor lids or caps if the seals are undamaged and clean.
+ Do not exceed temperatures of 121°C or a time of more than 20 min. while autoclaving.
+ After each proper autoclaving process (121 °C, 20  min.), thinly brush the threads of the 
+rotor lid screw with pivot grease (order no. Int. 5810 350.050, North America 022634330). 
+ Replace aerosol-tight rotor lids without replaceable seals after 50 autoclaving cycles.
+ For QuickLock rotor lids, only the seal must be replaced after 50 autoclaving cycles.
+ Never store aerosol-tight rotors or buckets closed.
+
+===== PAGE 13 =====
+13
+Safety
+Centrifuge 5424 R
+English (EN)
+2.6 Safety instructions on device and accessories
+Depiction Meaning Location
+NOTICE
+ Observe the safety instructions in the 
+operating manual.
+Right side of the device
+ Observe operating manual. Right side of the device
+Warning: Possible hand injury Upper side of the device 
+ Always tighten the rotor with the enclosed 
+rotor key.
+Upper side of the device, 
+under the centrifuge lid
+Warning of biological risks when handling 
+infectious liquids or pathogenic germs.
+Aerosol-tight fixed-angle 
+rotors: Rotor lid
+
+===== PAGE 14 =====
+Safety
+Centrifuge 5424 R
+English (EN)
+14
+
+===== PAGE 15 =====
+15
+Product description
+Centrifuge 5424 R
+English (EN)
+3 Product description
+3.1 Product overview
+Abb. 3-1: Front and rear view of the Centrifuge 5424 R
+Fig. 3-1: Front and rear view of the Centrifuge 5424 R
+1 Centrifuge lid
+2 Monitoring glass
+Visual control for rotor stop or speed control 
+option using stroboscope
+3 Display
+4 Control panel
+Keys and dials (dependent on the device version) 
+for operating the centrifuge .
+5 Emergency release
+6 Name plate
+7 Mains/power switch
+Switch for switching the centrifuge on and off.
+8 Mains/power connection
+Connection socket for the mains cable supplied.
+9 Fuse holder
+10 Interface for software updates
+Only for authorized service personnel
+11 Condensation water tray
+2
+3
+4
+10
+1
+11
+5
+5
+7
+8 6
+
+===== PAGE 16 =====
+Product description
+Centrifuge 5424 R
+English (EN)
+16
+3.2 Delivery package
+3.3 Features
+The versatile Centrifuge 5424 R has a capacity of 24 × 2  mL and can achieve a maximum speed of 
+21 130 ×  g /  15 000 rpm. You can select from different rotors to centrifuge the following tubes for various 
+applications:
+• Micro test tubes (0.2 mL to 2.0 mL)
+• PCR strips
+• Microtainers (0.6 ml)
+• Spin columns (1.5/2.0 ml)
+The Centrifuge 5424 R has an additional temperature control function for centrifugation between -10°C and 
++40°C. Use the fast temp function to start a temperature control run without samples to bring the rotor 
+chamber incl. rotor, buckets and adapters to the set target temperature quickly.
+The Centrifuge 5424 R can be connected to the Eppendorf VisioNize system.The Eppendorf VisioNize 
+system provides the option to connect the centrifuge to centralized monitoring and data management 
+software.For further information, please refer to the 
+www.eppendorf.com.
+1 Centrifuge 5424 R
+1 Rotor key
+1 Mains/power cord
+1 Directions
+1 Condensation water tray
+ Check whether the delivery is complete.
+ Check all parts for any transport damage.
+ To safely transport and store the device, retain the transport box and packing material.
+
+===== PAGE 17 =====
+17
+Product description
+Centrifuge 5424 R
+English (EN)
+3.4 Name plate
+Abb. 3-2: Eppendorf AG device identification (example)
+Fig. 3-2: Eppendorf AG device identification (example)
+1 Maximum density of the material for 
+centrifuging
+2 Maximum kinetic energy
+3 Maximum speed
+4 Serial number
+5 Product name
+6 Rated voltage
+7 Rated frequency
+8 Maximum rated current
+9 Maximum rated power
+10 Information on the refrigerant (refrigerated 
+centrifuges only)
+11 Data matrix code for serial number
+12 Designation of origin
+13 CE marking
+14 Certification marks and symbols 
+(device-specific)
+15 Address of manufacturer
+16 Manufacturer
+Eppendorf AG 
+Barkhausenweg 1 
+22339 Hamburg 
+Germany 
+Made in 
+Germany 
+5920 R 5948FN101553 
+Current: 
+50–60 Hz 
+1650 W 
+14000 rpm 
+56000 J 
+1.2 g/mL 
+Max. speed: 
+Kinetic energy: 
+Max. density: 12 A 
+Voltage: 230 V 
+Frequency: 
+Power cons.: 
+Type: 
+R134a / 0.45kg / CO2e 0.64t / GWP 1430 / 18bar ﬂuorinated 
+greenhouse gas / hermetically sealed refrigeration system  
+  
+SN16
+15
+5
+6
+7
+8
+9
+10
+11
+1213
+14
+312 4
+
+===== PAGE 18 =====
+Product description
+Centrifuge 5424 R
+English (EN)
+18
+Tab. 3-1: Certification marks and symbols (device-specific)
+Symbol/Certification mark Meaning
+Serial number
+Manufacturer
+In-vitro diagnostic device (Directive 98/79/EC), European Community
+Symbol for waste electrical and electronic equipment (WEEE) according to 
+EU Directive 2012/19/EU, European Community
+UL mark: declaration of conformity, USA
+Conformity mark for electromagnetic compatibility according to the 
+Federal Communications Commission, USA
+China conformity mark – Use of certain hazardous substances in electrical 
+and electronic products (Requirements for Concentration Limits for Certain 
+Hazardous Substances in Electronic Information Products SJ/T 11363-2006), 
+People's Republic of China
+SN
+
+===== PAGE 19 =====
+19
+Installation
+Centrifuge 5424 R
+English (EN)
+4 Installation
+4.1 Selecting the location
+WARNING! Danger due to incorrect voltage supply.
+ Only connect the device to voltage sources which correspond with the electrical 
+requirements on the name plate.
+ Only use earth/grounded sockets with a protective earth (PE) conductor.
+ Only use the mains/power cord supplied.
+NOTICE! If an error occurs, the objects in the immediate proximity of the device may be 
+damaged.
+ In accordance with the recommendations of EN 61010-2-020, leave a safety clearance of 
+30 cm around the device during operation.
+ Please remove all materials and objects from this area.
+NOTICE! Damage due to overheating.
+ Do not install the device near heat sources (e.g. heating, drying cabinet).
+ Do not expose the device to direct sunlight.
+ Ensure unobstructed air circulation. Maintain a clearance of at least 30 cm around all 
+ventilation gaps.
+NOTICE! Radio interference.
+For devices with Class A noise emission in accordance with EN 61326-1/EN 55011, the 
+following applies: This devices has been developed and tested in accordance with CISPR 11 
+Class A. The device may cause radio interference in domestic environments and is not 
+intended for use in residential areas. The device cannot ensure adequate protection of radio 
+reception in residential areas and domestic environments.
+ If necessary, take appropriate measure to eliminate the interferences.
+Mains/power connection for centrifuges: The operation of the centrifuge is only permitted 
+using building installations which comply with the applicable national regulations and 
+standards. In particular, it needs to be ensured that there are no prohibited loads on the 
+supply lines and assemblies that are located before the internal protection of the device. This 
+can be ensured by additional circuit breakers or other suitable fuse elements in the building 
+installation. 
+The mains/power switch and the disconnecting device of the mains/power line must be easily 
+accessible during operation (e.g. a residual current circuit breaker).
+
+===== PAGE 20 =====
+Installation
+Centrifuge 5424 R
+English (EN)
+20
+Select the location of the device according to the following criteria:
+• Mains/power connection in accordance with the name plate
+• Minimum distance to other devices and walls:30 cm
+• Resonance free table with horizontal even work surface
+• The surrounding area must be well ventilated.
+• The location is protected against direct sunlight.
+ Do not use this device near strong electromagnetic sources (e.g. unshielded high frequency sources) as 
+they could impede proper functioning of the device.
+4.2 Preparing installation
+Prerequisites
+The weight of the Centrifuge 5424 R is 21  kg. A second person is needed to unpack and position the device.
+1. Open the packaging box.
+2. Remove accessories.
+3. Reach with your hands under the device and lift the centrifuge from the carton with another person.
+4. Remove the front and back transport protection pads.
+5. Place the centrifuge on a suitable lab bench.
+6. Remove the plastic sleeve.
+
+===== PAGE 21 =====
+21
+Installation
+Centrifuge 5424 R
+English (EN)
+4.3 Installing the instrument
+Prerequisites
+The device is on a suitable lab bench.
+1. Let the device warm up to ambient temperature.
+2. Check that the mains voltage and frequency match the requirements on the device type plate.
+3. Connect the centrifuge to the mains/power line and switch it on at the mains/power switch.
+• The display is active.
+• Lid opens automatically
+4. Only device version with rotor:Turn rotor counterclockwise supplied rotor key and remove rotor 
+towards the top in an upright movement.
+5. Remove the transport protection pad.
+6. Place the rotor vertically on the motor shaft.
+7. Turn the rotor nut using the rotor key clockwise until the rotor nut is tightened.
+8. Insert the condensation water tray into the holder provided .
+WARNING! Danger due to incorrect voltage supply.
+ Only connect the device to voltage sources which correspond with the electrical 
+requirements on the name plate.
+ Only use earth/grounded sockets with a protective earth (PE) conductor.
+ Only use the mains/power cord supplied.
+NOTICE! Damage to electronic components due to condensation. 
+Condensate may form in the device when it has been transported from a cool environment to a 
+warmer environment.
+ After installing the device, wait for at least 4 h. Only then connect the device to the mains/
+power line.
+NOTICE! Compressor damage after improper transport.
+ After installation, wait 4 hh before switching on the centrifuge.
+
+===== PAGE 22 =====
+Installation
+Centrifuge 5424 R
+English (EN)
+22
+
+===== PAGE 23 =====
+23
+Operation
+Centrifuge 5424 R
+English (EN)
+5 Operation
+5.1 Operating controls
+The Centrifuge 5424 R is available in two versions: with keypad (arrow keys) or with rotary knobs. This 
+operating manual describes the operation of the centrifuge with keypad. The centrifuge with rotary knobs 
+is operated in the same manner.
+Abb. 5-1: Operating controls Centrifuge 5424 R
+Fig. 5-1: Operating controls Centrifuge 5424 R
+1 menu/enter key
+Open the menu
+Confirm your selection
+2 rpm/rcf key
+Switch display of centrifugation speed (rpm or 
+rcf)
+3 Display
+4 short key
+Short run centrifugation
+5 open key
+Release the lid
+6 start/stop key
+Start and stop centrifugation
+7 speed arrow keys
+Set the speed of centrifugation
+Keep the arrow key pressed: Quick setting
+8 temp arrow keys
+Setting the temperature
+Keep the arrow key pressed: Quick setting
+9 time arrow keys
+Set the centrifugation time
+Keep the arrow key pressed: Quick setting
+10 fast temp key
+Start fast temp temperature control run
+11 Menu arrow key
+Navigating in the menu
+1 2 3 4 5
+11 10 9 8 7 6
+
+===== PAGE 24 =====
+Operation
+Centrifuge 5424 R
+English (EN)
+24
+Abb. 5-2: Display of theCentrifuge 5424 R
+Fig. 5-2: Display of theCentrifuge 5424 R
+1 Centrifugation time
+2 Status of the key lock (LOCK)
+ Centrifugation parameters cannot be 
+accidentally changed.
+ No key lock.
+6 ATSET function
+Start of time counting when reaching 95% of 
+the preset g force  (rcf) or speed (rpm)
+ Time counting begins immediately.
+4 Temperature
+5 Soft ramp
+ Rotor accelerates and brakes slowly.
+No symbol: Rotor accelerates and brakes rapidly.
+6 g-force  (rcf) or speed (rpm)
+Actual value
+7 Centrifuge status
+ centrifuge lid unlocked.
+ centrifuge lid locked.
+ (flashing): centrifuging in progress.
+8 g-force  (rcf) or speed (rpm)
+rcf: g-force (relative centrifugal acceleration). 
+rpm: Speed (revolutions per minute)
+8 Status of centrifugation speed display
+9 Speaker
+ Speaker switched on.
+ Speaker switched off.
+31 4 5 6 72
+9 8
+
+===== PAGE 25 =====
+25
+Operation
+Centrifuge 5424 R
+English (EN)
+5.2 Navigating in the menu
+5.3 Menu structure
+1. To open the menu, press the menu/enter  key.
+2. Select the menu item with the menu arrow keys.
+3. To confirm your selection, press the menu/enter key.
+4. Change the settings with the menu arrow key.
+5. To confirm your selection, press the menu/enter key.
+ In order to leave a menu level, select BACK and confirm with the menu/enter key.
+Menu level Function Symbol on the 
+displayM I M 2
+SOFT
+Soft rampSoft ramp: Reduce speed of 
+acceleration and braking ramp. Not used 
+for short spin centrifugation.
+ON Rotor accelerates and brakes 
+slowly.
+OFF Rotor accelerates and brakes 
+rapidly.
+LOCK
+Key lock Centrifugation parameters cannot 
+be accidentally changed.
+ON SAFE  will appear in the display 
+when the time, temp or speed 
+keys are pressed.
+OFF
+ATSET
+Setting the start for time counting
+ON Start of time counting when 
+reaching 95  % of the preset g 
+force  (rcf) or speed (rpm) 
+OFF Time counting begins immediately.
+SHORT
+Setting the speed of the short spin 
+centrifugation
+MAX Short run centrifugation at the 
+maximum speed of the inserted 
+rotor.
+SET short spin centrifugation at the 
+selected speed
+TEMP
+Set the time limit for continuous cooling .
+8 h Preset value.
+oo Endless operation of continuous 
+cooling.
+Icing possible! Note that this may 
+reduce the service life of the 
+compressor.
+
+===== PAGE 26 =====
+Operation
+Centrifuge 5424 R
+English (EN)
+26
+ALARM ON Switch on loudspeaker.
+OFF Switch off loudspeaker.
+VOL VOL1 
+… 
+VOL5
+Adjust the speaker volume in 5 
+steps. The loudspeaker must be 
+switched on for the adjustment to 
+be audible.
+SLEEP
+Standby mode
+ON If the centrifuge has not been used 
+for 15 min and the standby mode 
+has been switched on, it switches 
+to standby mode. EP appears in the 
+display.
+To exit standby mode, press any 
+key or close the centrifuge lid.
+OFF Standby mode deactivated.
+Menu level Function Symbol on the 
+displayM I M 2
+
+===== PAGE 27 =====
+27
+Operation
+Centrifuge 5424 R
+English (EN)
+5.4 Switching on the centrifuge
+ Switch the centrifuge on at the mains/power switch.
+• The parameter settings of the last run are displayed.
+• The lid opens.
+5.5 Replacing the rotor
+5.5.1 Inserting the rotor
+1. Place the rotor vertically onto the motor shaft from the top.
+2. Insert the supplied rotor key into the rotor nut.
+3. Turn rotor key clockwise  until the rotor nut is firmly tightened.
+5.5.2 Removing the rotor
+1. Turn the rotor nut counterclockwise using the supplied rotor key.
+2. Lift the rotor out vertically.
+5.6 Closing the centrifuge lid
+ Check correct attachment of rotor and rotor lid.
+ Push down the centrifuge lid until the lid latch engages and the lid is automatically closed.
+The centrifuge will close automatically.
+The open key lights up blue. The display shows the  symbol.
+NOTICE! Material damage due to improper rotor insertion.
+The motor shaft or bearing may get damaged if the rotor falls into the motor shaft guides in an 
+uncontrolled manner when it is inserted.
+ Hold the rotor with both hands.
+ Guide the rotor onto the motor shaft. 
+WARNING! Risk of injury when opening or closing the centrifuge lid.
+There is a risk of crushing your fingers when opening or closing the centrifuge lid.
+ When opening or closing the centrifuge lid, do not reach between the lid and device or into 
+the latching mechanism of the lid.
+ Always open the centrifuge lid completely to prevent it from falling.
+
+===== PAGE 28 =====
+Operation
+Centrifuge 5424 R
+English (EN)
+28
+5.7 Cooling
+5.7.1 Temperature adjustment
+ Select a temperature (-10  °C to +40  °C) using the arrow keys temp.
+The temperature can also be changed during centrifugation.
+5.7.2 Temperature display
+5.7.3 Temperature monitoring
+After the set temperature has been reached, the centrifuge reacts to temperature deviations during 
+centrifugation as follows:
+5.7.4 FastTemp
+With this function, you can immediately start a temperature run without samples, at rotor- or 
+temperature-specific speeds. This will quickly bring the rotor chamber, including rotor and adapter, up to 
+the set target temperature.
+Prerequisites
+• The centrifuge is switched on.
+• The rotor and rotor lid are attached properly.
+• The centrifuge lid is closed.
+• Temperature and g-force  (rcf)/speed (rpm) for the centrifugation are set (see Centrifugation on p. 29).
+1. Press the fast temp key.
+The display shows FT, the current temperature and g-force (rcf)/speed (rpm).
+The temperature control run automatically ends when the set temperature is reached. A periodic signal 
+tone sounds.
+2. Press the start/stop key to end the temperature control run early.
+After the temperature control run has ended, the centrifuge maintains the rotor chamber temperature at the 
+target temperature when the centrifuge lid is closed, if the target temperature is below the ambient 
+temperature. However, independent of the target temperature, 4 °C   must be met via this continuous 
+cooling in order to prevent the rotor chamber from freezing.
+If the rotor is stopped: Set temperature
+During centrifugation: Actual temperature
+Deviation from the target value Action
+ΔT > 3°C Temperature display flashes.
+ΔT > 5°C Display Error 18. Centrifugation is stopped 
+automatically.
+
+===== PAGE 29 =====
+29
+Operation
+Centrifuge 5424 R
+English (EN)
+5.7.5 Continuous cooling
+If the rotor stops, the rotor chamber will be maintained at the target temperature if the following 
+requirements have been met:
+• The centrifuge is switched on.
+• The centrifuge lid is closed.
+• The set temperature is lower than the ambient temperature.
+The following factors apply during the continuous cooling:
+• The target temperature will be displayed.
+• Independent of the target temperature, 4 °C  must be achieved in order to prevent the rotor chamber or 
+sample from freezing and to prevent increased condensation in the device.
+• The temperature adjustment takes longer because the rotor is not rotating.
+Open the centrifuge lid to end continuous cooling.
+If the centrifuge is not used for more than 8 hours, the continuous cooling is switched off automatically. 
+This protects against ice formation in the rotor chamber and the tubes, and against increased condensation 
+in the device.
+The device then switches to standby mode. The display shows EP.
+You can change continuous cooling to endless operation. To do so, enable to 'oo' option in the device menu 
+under TEMP.Note that this may reduce the service life of the compressor.
+5.8 Centrifugation
+Familiarize yourself with the operating controls and the display before using the Centrifuge 5424 R for the 
+first time.
+Each of the centrifuging variants described here must be preceded by the preparation described above .
+Please also note the instructions on cooling (see p. 28).
+CAUTION! Risk from incorrectly-loaded rotors and damaged/overloaded tubes!
+ Before commencing centrifugation, follow the safety instructions relating to risks from 
+asymmetrically loaded and/or overloaded rotors and from overloaded, damaged and/or 
+open tubes .
+WARNING! Risk of injury from improperly attached rotors and rotor lids.
+ Only centrifuge with rotor and rotor lid firmly tightened.
+ If there are any unusual noises when the centrifuge is started up, the rotor or rotor lid may 
+not be attached properly. Immediately press the start/stop key to stop centrifuging.
+
+===== PAGE 30 =====
+Operation
+Centrifuge 5424 R
+English (EN)
+30
+5.8.1 Centrifuging with preset time
+Perform the following steps in the sequence described:
+1. Use time  to set the run time.
+2. Use temp to set the temperature.
+3. Use speed to set the g-force  (rcf) or speed (rpm).
+4. Press start/stop to start centrifuging.
+During centrifugation
+•  flashes in the display while the rotor is running.
+• The current temperature is displayed.
+• The fast temp, open, short as well as the device menu are blocked during centrifugation.
+• You can also terminate the centrifugation before the set run time has elapsed by pressing the start/
+stop key.
+End of centrifugation
+• The centrifuge stops automatically when the set time has elapsed. During braking the elapsed 
+centrifugation time is displayed flashing. When the rotor stops a signal tone is heard.
+• The centrifuge lid remains closed to maintain the sample temperature. You can open it by pressing 
+the open key.
+5. Remove the material for centrifuging.
+5.8.2 Centrifuging in continuous operation
+Perform the following steps in the sequence described:
+1. Use time  to set the continuous run.
+The continuous run function can be set above 9:59 h or below 30  s. The timer shows oo to indicate 
+continuous operation.
+2. Use the temp arrow keys to adjust the temperature.
+3. Use speed to set the g-force  (rcf) or speed (rpm).
+4. Press start/stop to start centrifuging.
+ flashes in the display while the rotor is running.
+Time is counted upwards, first in second increments and then in minute increments from ten minutes.
+5. Press start/stop to end centrifuging after the desired time period.
+• During the braking process, centrifugation time flashes in the display.
+• When the rotor stops a signal tone is heard.
+• The centrifuge lid remains closed to maintain the sample temperature. You can open it by pressing 
+the open key.
+6. Remove the material for centrifuging.
+
+===== PAGE 31 =====
+31
+Operation
+Centrifuge 5424 R
+English (EN)
+5.8.3 Short run centrifugation
+You can carry out a short run with the currently set or with the maximum g-force (rcf) or speed (rpm) of the 
+rotor used. This is set in the device menu (see Menu structure on p. 25) before executing the following steps 
+in the specified sequence:
+5.8.3.1 Performing short spin centrifugation
+1. A short run at current speed/g-force (rcf) or speed (rpm) can be set directly using the speed arrow keys.
+2. Use the temp arrow keys to adjust the temperature.
+3. Start short run: Hold down the short  key.
+•  flashes in the display while the rotor is running.
+• The time is counted upwards in seconds.
+• During short run centrifuging all other keys are blocked.
+4. End short run: Release the short key.
+• During the braking process, centrifugation time flashes in the display.
+5. Remove the material for centrifuging.5.8.4 Removing the rotor
+1. Turn the rotor nut counterclockwise using the supplied rotor key.
+2. Lift the rotor out vertically.
+3. Switch off the centrifuge after use and empty the condensation water tray (remove it from the left side of 
+the device). Leave the centrifuge lid fully open and secure it against closing.
+During the braking process, you can restart the centrifugation up to two times by pressing the 
+short key again.
+The soft ramp does not work during short-spin centrifugation.
+
+===== PAGE 32 =====
+Operation
+Centrifuge 5424 R
+English (EN)
+32
+
+===== PAGE 33 =====
+33
+Maintenance
+Centrifuge 5424 R
+English (EN)
+6 Maintenance
+6.1 Service
+We recommend to have the centrifuge and the associated rotors checked by Technical Service during a 
+service at least every 12 months. Please note the country-specific regulations.
+6.2 Preparing cleaning/disinfection
+ Clean all accessible surfaces of the device and the accessories at least weekly and when contaminated.
+ Clean the rotor regularly. This way the rotor is protected and the durability is prolonged.
+ Furthermore, observe the notes on decontamination (see Decontamination before shipment on p. 38) 
+when the device is sent to the authorized Technical Service for repairs.
+The procedure described in the following chapter applies to the cleaning as well as to the disinfection or 
+decontamination. The table below describes the steps required on top of this:
+WARNING! Risk of fire or electrical shock
+ Have the centrifuge's electrical safety, especially the paths for the protective connections, 
+checked every 12 months by trained and skilled personnel.
+Cleaning Disinfecting/decontamination
+1. Use a mild cleaning fluid to clean the accessible 
+surfaces of the device and the accessories.
+2. Carry out the cleaning as described in the 
+following chapter.
+1. Choose the disinfection method which 
+corresponds to the legal regulations and 
+guidelines in place for your range of application. 
+For example, use alcohol (ethanol, isopropanol) 
+or alcohol-based disinfectants.
+2. Carry out the disinfection or decontamination as 
+described in the following chapter.
+3. Then clean the device and the accessories.
+If you have any further questions regarding the cleaning and disinfection or decontamination 
+or regarding the cleaning fluid to be used, contact the Eppendorf AG Application Support. The 
+contact details are provided on the back of this manual.
+
+===== PAGE 34 =====
+Maintenance
+Centrifuge 5424 R
+English (EN)
+34
+6.3 Cleaning/disinfection
+DANGER! Electric shock due to the ingress of liquid.
+ Switch off the device and disconnect it from the mains/power line before starting cleaning 
+or disinfection.
+ Do not allow any liquids to penetrate the inside of the housing.
+ Do not perform a spray clean/spray disinfection on the housing.
+ Only reconnect the device to the mains/power line when it is completely dry, both inside 
+and outside.
+WARNING! Damage to health due to limited aerosol tightness in the event of incorrect 
+use.
+Mechanical stresses and contamination by chemicals or other aggressive solvents may impair 
+the aerosol tightness of the rotors and rotor lids.Autoclaving at excessive temperatures can 
+lead to vessels, adapters and rotor lids becoming brittle and deformed.
+ Check the integrity of the seals of the aerosol-tight rotor lids or caps before each use.
+ Only use aerosol-tight rotor lids or caps if the seals are undamaged and clean.
+ Do not exceed temperatures of 121°C or a time of more than 20 min. while autoclaving.
+ After each proper autoclaving process (121 °C, 20  min.), thinly brush the threads of the 
+rotor lid screw with pivot grease (order no. Int. 5810 350.050, North America 022634330). 
+ Replace aerosol-tight rotor lids without replaceable seals after 50 autoclaving cycles.
+ For QuickLock rotor lids, only the seal must be replaced after 50 autoclaving cycles.
+ Never store aerosol-tight rotors or buckets closed.
+NOTICE! Damage from the use of aggressive chemicals.
+ Do not use any aggressive chemicals on the device or its accessories, such as strong and 
+weak bases, strong acids, acetone, formaldehyde, halogenated hydrocarbons or phenol.
+ If the device has been contaminated by aggressive chemicals, clean it immediately using a 
+mild cleaning agent.
+NOTICE! Corrosion due to aggressive cleaning agents and disinfectants.
+ Do not use any corrosive cleaning agents, aggressive solvents or abrasive polishes.
+ Do not incubate the accessories in aggressive cleaning agents or disinfectants for longer 
+periods.
+NOTICE! Damage from UV and other high-energy radiation.
+ Do not use UV, beta, gamma, or any other high-energy radiation for disinfection.
+ Avoid storage in areas with strong UV radiation.
+
+===== PAGE 35 =====
+35
+Maintenance
+Centrifuge 5424 R
+English (EN)
+6.3.1 Cleaning and disinfecting the device
+1. Open the lid. Switch the device off at the mains/power switch. Disconnect the mains/power plug from 
+the voltage supply.
+2. Loosen the rotor nut by turning the rotor key counterclockwise.
+3. Remove the rotor.
+4. Clean and disinfect all accessible surfaces on the device including the mains/power cord using a damp 
+cloth and recommended cleaning agents.
+5. Thoroughly clean the rubber seals of the rotor chamber with water.
+6. Rub the dry rubber seals with glycerine or talcum powder to prevent them from becoming brittle. Other 
+components of the device, such as the lid latch, motor shaft and rotor cone, must not be lubricated.
+7. Clean the motor shaft with a soft, dry, lint-free cloth. Do not grease the motor shaft.
+8. Check the motor shaft for damage.
+9. Check the device for corrosion and damage.
+10.Leave the centrifuge lid open when the device is not being used.
+11.Only connect the device to the power supply if it is fully dry inside and out.
+Autoclaving
+All rotors, rotor lids and adapters can be autoclaved (121 °C, 20 min).
+Replace the lids on the aerosol-tight rotors after a maximum of 50 autoclaving cycles.
+Aerosol tightness
+Check that the seals are intact before use.
+Replace the rotor lids with screw cap when the sealing rings on the lid screw and in the lid 
+groove become worn. 
+Regular care of the sealing rings is necessary in order to protect the rotors.
+Never store aerosol-tight rotors with the lid tightened!
+To prevent damage, grease the lid thread on aerosol-tight rotors regularly using a little pivot 
+grease (order no. int.: 5810 350.050/North America: 022634330).
+
+===== PAGE 36 =====
+Maintenance
+Centrifuge 5424 R
+English (EN)
+36
+6.3.2 Disinfecting and cleaning the rotor
+1. Inspect the rotor and accessories for damage and corrosion. Do not use any damaged rotors or 
+accessories.
+2. Clean and disinfect the rotors and accessories using the recommended cleaning agents.
+3. Clean and disinfect the rotor bores using a bottle brush.
+4. Rinse the rotors and accessories thoroughly with distilled water. Rinse the rotor bores of fixed-angle 
+rotors particularly thoroughly.
+5. Place the rotors and accessories on a towel to dry. Place fixed-angle rotors with the rotor bores facing 
+downwards to allow the bores to also dry.
+6. Clean the rotor cone with a soft, dry, lint-free cloth. Do not lubricate the rotor cone.
+7. Inspect the rotor cone for damage.
+8. Place the dry rotor onto the motor shaft.
+9. Tighten the rotor nut firmly by turning it clockwise  with the rotor key.
+10.Leave the rotor lid open when the rotor is not being used.
+6.4 Additional care instructions for refrigerated centrifuges
+ Empty and clean the condensation water tray regularly and especially after liquid spillage in the rotor 
+chamber. Pull out the condensation water tray at the front right under the device.
+ Regularly free the rotor chamber from ice formations by thawing, by either leaving the centrifuge lid 
+open or by performing a short temperature control run at approx. 30 °C.
+ Wipe up the condensation water in the rotor chamber. Use a soft, absorbent cloth for this.
+ No later than every 6 months, remove any dust deposits from the ventilation slits of the centrifuge using 
+a brush or swab. First switch off the device and remove the power plug.
+Do not immerse the rotor in liquid as liquid can enter through the openings when doing so.
+
+===== PAGE 37 =====
+37
+Maintenance
+Centrifuge 5424 R
+English (EN)
+6.5 Cleaning glass breakage
+When using glass tubes there is a risk of glass breakage in the rotor chamber. The resulting glass splinters 
+are swirled around in the rotor chamber during centrifugation and have a sandblasting effect on the rotor 
+and accessories. Smallest glass particles become lodged in the rubber parts (e.g., the motor sleeve, the 
+rotor chamber seal, and the rubber mats of adapters).
+Effects of glass breakage in the rotor chamber:
+• Fine black metal abrasion dust in the rotor chamber (in metal rotor bowls).
+• The surfaces of the rotor chamber and accessories are scratched.
+• The chemical resistance of the rotor chamber is reduced.
+• Contamination of samples.
+• Wear on rubber parts.
+How to proceed in case of glass breakage
+1. Remove all splinters and glass powder from the rotor chamber and accessories.
+2. Thoroughly clean the rotor and rotor chamber. Thoroughly clean the bores of the fixed-angle rotors, in 
+particular.
+3. If required, replace the adapters to prevent any further damage.
+4. Regularly check the rotor bores for deposits and damage.
+6.6 Fuses
+The fuse holder is located to the right of the mains switch.
+1. Disconnect the mains/power plug.
+2. Remove the fuse holder.
+Both fuses are now accessible and can be replaced.
+NOTICE! Glass breakage in the rotor chamber
+Glass tubes in the rotor chamber may break if the g-force is too high. Broken glass can 
+damage the rotor, accessories and samples.
+ Please note the manufacturer's information on the recommended centrifugation 
+parameters (load and speed).
+
+===== PAGE 38 =====
+Maintenance
+Centrifuge 5424 R
+English (EN)
+38
+6.7 Decontamination before shipment
+If you are shipping the device to the authorized Technical Service for repairs or to your authorized dealer 
+for disposal please note the following:
+WARNING! Risk to health from contaminated device.
+1. Observe the information in the decontamination certificate. It is available as a PDF 
+document on our webpage (www.eppendorf.com/decontamination).
+2. Decontaminate all the parts you are going to dispatch.
+3. Include the fully completed decontamination certificate in the shipment.
+
+===== PAGE 39 =====
+39
+Troubleshooting
+Centrifuge 5424 R
+English (EN)
+7 Troubleshooting
+If you cannot remedy an error with the recommended measures, please contact your local Eppendorf 
+partner. The contact addresses can be found on the Internet at www.eppendorf.com.
+7.1 General errors
+Problem Cause Solution
+No display. No mains/power connection.  Check the mains/power connection.
+Mains/power outage.  Check the fuse of the centrifuge.
+ Check the mains/power fuse of the 
+lab.
+The centrifuge lid 
+cannot be opened.
+Rotor is still running.
+ Wait for the rotor to stop.
+Mains/power outage. 1. Check the fuse of the centrifuge.
+2. Check the mains/power fuse of the 
+lab.
+3. Activate the emergency lid release.
+The centrifuge 
+cannot be started.
+Centrifuge lid is not closed.
+ Close the centrifuge lid.
+Centrifuge shakes 
+when it starts up.
+Rotor loaded asymmetrically. 1. Stop the centrifuge and load 
+symmetrically.
+2. Re-start the centrifuge.
+Centrifuge brakes 
+during a short run 
+centrifugation, 
+although the short 
+key is pressed.
+The short key was released briefly more 
+than twice (protective function for the 
+drive).
+ Press the short key continuously 
+during a short run centrifugation.
+Temperature 
+display flashes.
+Temperature deviation from set value: 
+±3 °C.
+ Check the settings.
+ Check unhindered air circulation 
+through the air slots.
+ Thaw ice or switch off the centrifuge 
+and allow it to cool down.
+
+===== PAGE 40 =====
+Troubleshooting
+Centrifuge 5424 R
+English (EN)
+40
+7.2 Error messages
+If one of the following error messages appears, proceed as follows:
+1. Remove fault (see Remedies).
+2. If necessary, repeat centrifugation.
+Problem Cause Solution
+LID ERROR Centrifuge lid cannot be locked.  Try again to close centrifuge lid.
+LID ERROR Centrifuge lid cannot be released. 1. Switch the centrifuge off and back on.
+ 
+If the error occurs again:
+1. Switch off the centrifuge.
+2. Activate the emergency lid release .
+LID ERROR Centrifuge lid must not be released 
+during a run.
+ Wait for the rotor to stop.
+LID LIFT Centrifuge lid has not been opened wide 
+enough.
+ Open the centrifuge lid wider by 
+hand.
+INT Mains/power failure during a run.
+ Check the mains/power connection.
+NO RPM Error in the speed measuring system or 
+drive overheated.
+ Leave the device switched on until the 
+error message disappears (10 s or 6 
+min).
+Err 6 Drive fault.
+ Repeat the run.
+ If this error message appears again, 
+switch centrifuge off and back on 
+again after >20 s.
+Err 6 Drive overheated. 
+ Allow the drive to cool down for at 
+least 15 min.
+Err 7 Major deviation in the speed check. 1. Wait for the rotor to stop.
+2. Tighten the rotor.
+Err 8 Drive fault. 1. Wait for the rotor to stop.
+2. Repeat the run.
+Err 9 to 17 Electronics error.  Switch centrifuge off and back on 
+again after >20 s.
+Err 18 Too high temperature deviation from set 
+value in the rotor chamber.
+ Check the settings.
+ Check unhindered air circulation 
+through the air slots.
+ Thaw ice or switch off the centrifuge 
+and allow it to cool down.
+Err 19 Cooling circuit is overheated.
+ Check unhindered air circulation 
+through the air slots and allow the 
+centrifuge to cool down.
+
+===== PAGE 41 =====
+41
+Troubleshooting
+Centrifuge 5424 R
+English (EN)
+7.3 Emergency release
+If the centrifuge lid cannot be opened, you can activate the emergency release manually.
+1. Disconnect the mains/power plug.
+2. Remove the plastic cover for the emergency release on the right side of the device.Turn the plastic cover 
+90° counterclockwise using an appropriate tool (e.g., screwdriver) and remove it.
+3. Insert the centrifuge rotor key in the rear hexagonal opening until a noticeable resistance is felt.
+4. Slightly press and turn the rotor key counterclockwise.
+This will release the centrifuge lid.
+5. Open the centrifuge lid.
+6. Remove the rotor key or turn the plastic covers back on.
+Turn the plastic cover using an appropriate tool (e.g., screwdriver) by 90° in a clockwise direction.
+Err 20 Temperature sensor in rotor chamber is 
+faulty.
+ Switch centrifuge off and back on 
+again after >20 s.
+Err 21 The temperature sensor on the 
+condenser is faulty.
+ Switch centrifuge off and back on 
+again after >20 s.
+Err 24 Cooling unit fault, e.g. overheated.
+ Allow the centrifuge to cool down and 
+repeat the run.
+WARNING! Risk of injury from rotating rotor.
+If the emergency release of the lid is operated, the rotor may continue to rotate for several 
+minutes.
+ Wait for the rotor to stop before activating the emergency release.
+ To check, look through the monitoring glass in the centrifuge lid.
+Use the rotor key delivered with the Centrifuge 5424 R for the emergency release.
+Problem Cause Solution
+
+===== PAGE 42 =====
+Troubleshooting
+Centrifuge 5424 R
+English (EN)
+42
+
+===== PAGE 43 =====
+43
+Transport, storage and disposal
+Centrifuge 5424 R
+English (EN)
+8 Transport, storage and disposal
+8.1 Transport
+ Remove the rotor from the centrifuge before transport.
+ Use the original packing for transport.
+8.2 Storage
+CAUTION! Risk of injury due to lifting and carrying of heavy loads
+The device is heavy. Lifting and carrying the device can lead to back injuries.
+ Transport and lift the device with an adequate number of helpers only.
+ Use a transport aid for transporting the device.
+Air temperature Relative humidity Atmospheric pressure
+General transport -25  °C – 60  °C 10  % – 75 %3 0  kPa – 106 kPa
+Air freight -20  °C – 55  °C 10  % – 75 %3 0  kPa – 106 kPa
+Air temperature Relative humidity Atmospheric pressure
+In transport packing -25  °C  – 55 °C 10  % – 75 %7 0  kPa  – 106 kPa
+Without transport 
+packing
+-5 °C – 45 °C 10  % – 75 %7 0  kPa  – 106 kPa
+
+===== PAGE 44 =====
+Transport, storage and disposal
+Centrifuge 5424 R
+English (EN)
+44
+8.3 Disposal
+If the product needs to be disposed of, the relevant legal regulations must be observed. 
+Information on the disposal of electrical and electronic devices in the European Community:
+Within the European Community, the disposal of electrical devices is regulated by national regulations 
+based on EU Directive 2012/19/EU pertaining to waste electrical and electronic equipment (WEEE). 
+According to these regulations, any devices supplied after August 13, 2005, in the business-to-business 
+sphere, to which this product is assigned, may no longer be disposed of in municipal or domestic waste. To 
+document this, they have been marked with the following marking:
+Because disposal regulations may differ from one country to another within the EU, please contact your 
+supplier if necessary. 
+
+===== PAGE 45 =====
+45
+Technical data
+Centrifuge 5424 R
+English (EN)
+9 Technical data
+9.1 Power supply
+Centrifuge 5424 R
+9.2 Ambient conditions
+9.3 Weight/dimensions
+Centrifuge 5424 R
+Mains/power connection 230  V, 50  to  60 Hz
+120 V, 50  to  60 Hz
+100 V, 50  to  60 Hz
+Current consumption 1.6 A (230 V)
+3.2 A (120 V)
+3.4 A (100 V)
+Power consumption max. 350  W
+EMC: Interference emitted (radio interference) 230  V: EN 61326-1/EN 55011 – Class A
+120  V: CFR 47 FCC Part 15 – Class B
+100  V: EN 61326-1/EN 55011 – Class B
+EMC: Interference resistance EN 61326-1
+Overvoltage category II
+Fuses – 230 V
+Fuses – 120 V
+Fuses – 100 V
+3.15 AT  HBC 250  V
+6.3 AT  250 V
+6.3 AT  250 V
+Environment: For indoor use only.
+Ambient temperature: 10 to 40 °C
+Max. relative humidity: 10 75  %, no condensing humidity
+Atmospheric pressure: 79.5 kPa  – 106 kPa
+Degree of pollution: 2
+Dimensions: Width: 290 mm (11.42 in.)
+Depth: 480 mm (18.90 in.)
+Height: 260 mm (10.24 in.)
+Weight without rotor: 21.0 kg (46.3 lb)
+Rotor weights:
+FA-45-24-11 800 g
+FA-45-24-11-Special 1 600 g
+FA-45-18-11-Kit 650 g
+F-45-32-5-PCR 460 g
+
+===== PAGE 46 =====
+Technical data
+Centrifuge 5424 R
+English (EN)
+46
+9.4 Noise level 
+The noise level was measured according to DIN EN ISO 3745 frontally in a sound measuring room with 
+accuracy class 1 at a distance of 1 m from the device and at lab bench height.
+9.5 Application parameters
+9.5.1 Centrifuge 5424 R
+Tab. 9-1: Acceleration time and braking time according to DIN 58 970
+These values were calculated for 230 V at 23°C.
+Noise level < 54  dB(A)
+Rotor Without soft ramp With soft ramp SOFT
+Acceleration time Deceleration time Acceleration time Deceleration time
+FA-45-24-11 15 s 16 s 26 s2 8 s
+Cycle time 30  s - 9:59  h, as well as infinity (oo),
+up to 10  min cycle time adjustable in 0.5 min 
+increments, then in 1 min increments
+Temperature -10°C - 40°C 
+Relative centrifugal force (RCF) 1 × g – 21 130  ×  g, adjustable in 50 ×  g increments.
+Rotational speed: 100  rpm – 15 000  rpm, adjustable in 50 rpm 
+increments.
+Maximum load 24 micro test tubes of 2.0 mL each
+Maximum kinetic energy 4070 J
+Compulsory test log book No
+Allowable density of the material for centrifuging 
+(at maximum g-force/speed and maximum load)
+1.2 g/mL
+
+===== PAGE 47 =====
+47
+Technical data
+Centrifuge 5424 R
+English (EN)
+9.6 Service life for accessories
+Eppendorf states the maximum service life of the rotors and accessories both in years and in the maximum 
+number of cycles. The decisive factor for the service life is which case occurs first, usually this is the 
+number of years in operation.
+Each centrifugation run in which the rotor is accelerated and braked is counted as a cycle, independent of 
+the speed and the duration of the centrifugation run.
+All other rotors and rotor lids can be used during the entire service life of the centrifuge if the following 
+conditions are met:
+• Proper use
+• Recommended maintenance
+• Undamaged condition
+The date of manufacture is stamped on the rotors and buckets in the format 03/15 or 03/2015 (= March 
+2015). On the inside of the plastic-rotor lids and aerosol-tight caps, the date of manufacture is stamped in 
+the form of a clock . 
+Measures to ensure aerosol tightness:
+ Replace the seal of QuickLock rotor lids after 50 autoclaving cycles.
+ Exchange aerosol-tight rotor lid without replaceable seals after 50 autoclaving cycles. 
+CAUTION! Danger due to material fatigue.
+When the service life is exceeded, it cannot be guaranteed that the material of the rotors and 
+the accessories will withstand the stresses during centrifugation.
+ Do not use any accessories which have exceeded their maximum service life.
+Accessories Maximum service life after initial setup
+Rotor lid of polycarbonate (PC), 
+polypropylene (PP) or 
+polyetherimide (PEI)
+– 3 years
+Aerosol-tight rotor lid, without 
+replaceable seals
+50 autoclaving cycles –
+QuickLock rotor lid 3 years
+Seals in the QuickLock rotor lid 50 autoclaving cycles –
+Adapters – 1 year
+
+===== PAGE 48 =====
+Technical data
+Centrifuge 5424 R
+English (EN)
+48
+9.7 Rotors
+Please note the manufacturer’s information on the centrifugation resistance of the sample tubes used 
+(maximum g-force).
+For ordering information, refer to the English and German version of the operating manual.
+(1) Maximum load per rotor bore for adapter + tube + contents.
+(2) Aerosol tightness tested and certified by the Centre of Emergency Preparedness and Response, Health 
+Protection Agency, Porton Down (UK) (see certificates at the end of this operating manual).
+Eppendorf centrifuges may only be operated with rotors that are intended for use with the 
+corresponding centrifuge.
+ Only use rotors that are intended for use with the corresponding centrifuge.
+Max. capacity Max. g-force  (rcf) 
+or speed (rpm) 
+without adapter
+Notes
+Max. load per 
+rotor bore(1)
+Rotor
+FA-45-24-11
+24 micro test tubes of 1.5/2.0 ml 
+each or spin columns.
+With adapters:
+• 0.2  mL PCR tubes
+• 0.4 ml/0.5 ml micro test tubes
+• 0.6 mL Microtainers
+21.130 x g/
+15.000 rpm
+• Aerosol-tight
+(2) rotor lid 
+(aluminum).
+• Spin columns available, 
+better with rotor 
+FA-45-18-11-kit.
+3.75 g
+Rotor
+FA-45-24-11- 
+Special
+24 micro test tubes of 1.5/2.0 ml 
+each or spin columns.
+With adapters:
+• 0.2  mL PCR tubes
+• 0.4 ml/0.5 ml micro test tubes
+• 0.6 mL Microtainers
+21.130 x g/
+15.000 rpm
+• Aerosol-tight
+(2) rotor lid 
+(aluminum).
+• PTFE-coated (particularly 
+resistant to chemicals), 
+marked:coated.
+• Spin columns available, 
+better with rotor 
+FA-45-18-11-kit.
+3.75 g
+Rotor
+F-45-18-11-Kit
+18 spin columns or 1.5/2.0 ml 
+tubes.
+With adapters:
+• 0.2  mL PCR tubes
+• 0.4 ml/0.5 ml micro test tubes
+• 0.6 mL Microtainers
+18.111 x g/
+15.000 rpm
+• Uniquely high edge, for 
+all commercial spin 
+columns.  Also observe 
+the note on centrifugation 
+with open tube lids (see 
+Extreme strain on the 
+centrifugation tubes on 
+p. 11).
+3.75 g
+Rotor
+F-45-32-5-PCR
+Four PCR strips (5/8) or 32 0.2 ml 
+PCR vials.
+18.615 x g/
+15.000 rpm
+3.5 g
+
+===== PAGE 49 =====
+49
+Technical data
+Centrifuge 5424 R
+English (EN)
+For the rotors and rotor lids labeled coated, color fluctuations may occur as a result of the production 
+process. These fluctuations have no effect on service life or resistance to chemicals.
+9.7.1 rcf display and calculation
+To determine the g-force (rcf) for a special adapter, you can perform a calculation according to DIN 58 970 
+with the following formula:
+rcf = 1.118 · 10-5 · n2 · rmax
+n: Revolutions per minute (rpm)
+rmax: Max. centrifugation radius in cm
+Example:
+In Rotor FA-45-24-11, the 0.5 ml adapter has a maximum radius of 7.3 cm. At 7,000 rpm, a maximum 
+g-force of 4,000 x g is achieved.
+Use the rpm/rcf key to switch the display of centrifugation speed between g-force (rcf) 
+and speed (rpm).Ensure that the g-force displayed during switching is standardized to 
+suit the rotor in question without an adapter. When adapters are used, the following 
+maximum g-forces (rcf) can be achieved at maximum speed:
+Rotor Adapter Max. centrifugation 
+radius r
+max [cm]
+Max. g-force (rcf)
+FA-45-24-11,
+FA-45-24-11-Special
+Without adapter 8.4 21.130
+0.2 mL 6.3 15.848
+0.4 mL 8.4 21.130
+0.5 mL 7.3 18.363
+0.6 mL 8.4 21.130
+F-45-18-11-Kit Without adapter 7.2 18.111
+0.2 mL 5.1 12.829
+0.4 mL 7.2 18.111
+0.5 mL 6.1 15.345
+0.6 mL 7.2 18.111
+FA-45-32-5-PCR Without adapter 7.4 18.615
+Rotor code:
+All Eppendorf® rotors are identiﬁed
+using a simple, alphanumeric
+format that represents the technical
+speciﬁcations in a uniform series of
+letters and numbers.
+A 45 30 11
+Aerosol-tight
+version
+F
+Fixed-angle
+rotor
+Angle of
+bores
+Ø of
+bores (mm)
+Number of
+bores
+A
+Swing-bucket
+rotor
+4 81
+Ø of
+buckets (mm)
+Number of
+buckets
+
+===== PAGE 50 =====
+Technical data
+Centrifuge 5424 R
+English (EN)
+50
+
+===== PAGE 51 =====
+51
+Ordering information
+Centrifuge 5424 R
+English (EN)
+10 Ordering information
+10.1 Accessories
+10.1.1 Rotors and rotor lids
+*) Aerosol impermeability tested and certified by the Centre of Emergency Preparedness and Response, 
+Health Protection Agency, Porton Down (UK).
+10.1.2 Adapter
+Order no. 
+(International)
+Description
+Rotor FA-45-24-11
+5424 702.007 aerosol-tight, aluminum, 45° angle, 24 places, max. tube diameter 11  mm, 
+incl.  rotor lid (aluminum)
+Replacement lid for rotor FA-45-24-11
+5424 703.003 aerosol-tight, aluminum
+Rotor FA-45-24-11-Special
+5424 700.004 aerosol-tight, aluminum, PTFE-coated, 45° angle, 24 places, max. tube diameter 
+11 mm, incl. rotor lid (aluminum)
+Replacement lid for rotor FA-45-24-11-Special 
+5424 701.000 aerosol-tight, aluminum, PTFE-coated
+Rotor F-45-18-11-Kit
+5424 706.002 aluminum, 45° angle, 18 places, max. tube diameter 11 mm, incl.  rotor lid 
+(polypropylene)
+Spare lid for rotor F-45-18-11-Kit
+5424 707.009 Polypropylene
+Rotor F-45-32-5-PCR
+5424 704.000 incl. rotor lid (aluminum)
+Spare lid for rotor F-45-32-5-PCR
+5424 708.005 aluminum
+Order no. 
+(International)
+Description
+Adapter
+used in FA-45-24-11, FA-45-24-11-Special and F-45-18-11-Kit
+5425 715.005 for 1 PCR tube (0.2 mL, max.  Ø  6  mm), set of  6
+5425 717.008 for 1 micro test tube (0.4 mL, max.  Ø  6  mm), set of  6 
+5425 716.001 for 1 sample tube (0.5 mL, max.  Ø  6  mm) or 1 Microtainer (0.6 mL, max.  Ø  8  mm), 
+set of  6 
+
+===== PAGE 52 =====
+Ordering information
+Centrifuge 5424 R
+English (EN)
+52
+10.1.3 Other accessories
+10.2 Fuses
+Order no. 
+(International)
+Description
+Rotor key
+5416 301.001 Standard
+5404 850.085 Tray for condensation water
+Order no. 
+(International)
+Description
+Fuse
+5424 852.122 3,15  A  T (230 V),  set of  2
+5424 852.130 6,3  A  T (120 V/100 V), set  of  2
+
+===== PAGE 53 =====
+Certificates
+
+
+===== PAGE 54 =====
+
+
+===== PAGE 55 =====
+
+
+===== PAGE 56 =====
+
+
+===== PAGE 57 =====
+
+
+===== PAGE 58 =====
+
+
+===== PAGE 59 =====
+
+
+===== PAGE 60 =====
+
+
+===== PAGE 61 =====
+
+
+===== PAGE 62 =====
+Evaluate Your Manual
+Give us your feedback.
+www.eppendorf.com/manualfeedback
+Your local distributor: www.eppendorf.com/contact
+eppendorf@eppendorf.com · www.eppendorf.com
+Eppendorf AG
+Barkhausenweg 1
+22339 Hamburg
+Germany

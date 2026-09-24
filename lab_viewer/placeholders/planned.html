@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Machine planned</title>
+  <style>
+    :root {
+      --bg: #0c1016;
+      --text: #e6edf5;
+      --muted: #8b9bb0;
+      --cyan: #00d4e8;
+      --border: #2a3545;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .card {
+      max-width: 28rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem 1.75rem;
+      background: #141b26;
+    }
+    h1 { font-size: 1.15rem; margin: 0 0 0.5rem; }
+    .tag { color: var(--cyan); font-size: 0.75rem; letter-spacing: 0.08em; font-weight: 700; }
+    p { color: var(--muted); font-size: 0.92rem; line-height: 1.5; margin: 0.75rem 0 0; }
+    code { color: var(--text); font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="tag">PLANNED TWIN</div>
+    <h1 id="title">Machine</h1>
+    <p>
+      This instrument is registered on the lab desk but not built yet.
+      Scaffold a package with the New Build Agent (NBA) as
+      <code>Twins/&lt;name&gt;_twin/</code> using
+      <code>.master/HOW_TO_BUILD_A_MACHINE.md</code>.
+    </p>
+    <p id="detail"></p>
+  </div>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const id = params.get("id") || "unknown";
+    const labels = {
+      balance: "Analytical balance",
+      hotplate: "Hotplate stirrer",
+      spectrophotometer: "Spectrophotometer",
+    };
+    document.getElementById("title").textContent = labels[id] || id;
+    document.getElementById("detail").textContent =
+      "Registry id: " + id + " · status: planned";
+  </script>
+</body>
+</html>

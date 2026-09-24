@@ -1,0 +1,2419 @@
+
+
+===== PAGE 1 =====
+  Part Number 679060 
+  Rev. AA 
+ 
+ 
+ 
+ 
+ 
+ 
+   
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ALLEGRA X-12/R, X-15R 
+ 
+                            Service Manual 
+
+===== PAGE 2 =====
+COPYRIGHT INFORMATION 
+ 
+ 
+ 
+This Service Manual is copyrighted and Beckman Coulter reserves all rights.  This 
+document may not, in whole or part, be copied, photocopied, reproduced, translated, or 
+reduced to any electronic medium or machine-readable form without prior consent, in 
+writing, from Beckman Coulter, Inc. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGE 3 =====
+ 
+ 
+ 
+RELATED DOCUMENTS 
+ 
+ 
+This service Manual does not include the Operator's Manual for this instrument.  The 
+Operator's Manual contains instructions for proper operation of the instrument, 
+information regarding the limitations, specifications, precautions and hazards associated 
+with its use. 
+ 
+To obtain a copy of the Operator's Manual(s), please order it through any Beckman 
+Coulter Sales and Service Office. 
+ 
+ Part Number Description 
+ 
+ GX-IM-1   Allegra X-12/R Instruction Manual 
+ GXR-IM-1   Allegra X-15R Instruction  Manual 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGE 4 =====
+ 
+ 
+ 
+SAFETY REMINDERS 
+ 
+ 
+ 
+The following pages summarize cautionary 
+information basic to the safe operation of this 
+instrument. However, it is strongly recommended that 
+the user read the entire manual carefully before 
+attempting to service the instrument.  In addition, be 
+sure to heed all NOTES, CAUTIONS, and 
+WARNINGS, which are specifically defined as 
+follows: 
+ 
+ 
+NOTE:   Used to make a procedure easier or clearer.  To disregard it may cause  
+    inconvenience, but not mechanical damage or personal injury. 
+ 
+ 
+CAUTION:   Used to prevent equipment damage.  To disregard the caution may   
+cause mechanical damage, however, personal injury is not likely. 
+ 
+ 
+ WARNING:  Used whenever an action or circumstance may potentially cause  
+personal injury or loss of life. Mechanical damage may also result. 
+ 
+ 
+ 
+Specified Warnings: 
+ 
+ 
+WARNING:  The use of parts not designed or documented for this product is not  
+authorized.  The use of non-Beckman Coulter parts may cause damage to 
+the product or personal injury to operating personnel.  The use of these 
+parts will also void any warranty. 
+ 
+ 
+ 
+WARNING:  The bolts for the anchoring bracket are critical and classified as  
+Class 10. Only those bolts are allowed to use. 
+
+===== PAGE 5 =====
+IMPORTANT NOTICE 
+ 
+ 
+This Service Manual is designed solely for the use of Beckman Coulter Field Service 
+Representatives who have had training and experience in the servicing of Beckman 
+Coulter products.  To improve product performance, Beckman Coulter may have made 
+changes in the product to which this Service Manual relates.  Such changes may not be 
+reflected in this manual.  Accordingly, Beckman Coulter makes no representation or 
+warranty, either express or implied, that the information contained in this Service Manual 
+is complete or accurate with respect to the particular product to which this manual 
+pertains, and the purchaser must assume all risks in the use of this manual for the purpose 
+of performing service upon such product. 
+ 
+Because of the possible hazards involved to an inexperienced person in servicing the 
+product, Beckman Coulter recommends that servicing of your product be 
+performed only by Beckman Coulter Field Service Representatives.  
+ 
+Do not replace any centrifuge components with parts not specified for use on this 
+instrument. 
+ 
+Components of this instrument which are considered user serviceable are discussed in 
+detail in the instrument's instruction manual. 
+ 
+CAUTION: 
+The use of parts not designed or documented for this product is not  
+authorized.  The use of non-Beckman Coulter parts may cause damage to the 
+product or personal injury to operating personnel.  The use of these parts will also 
+void any warranty. 
+ 
+WARNING: 
+The bolts for the anchoring bracket are critical and classified as Class 10.  
+Only those bolts are allowed to use. 
+
+===== PAGE 6 =====
+ 
+MECHANICAL SAFETY 
+ 
+ 
+Good mechanical safety practices are  
+more important than ever now that  
+microprocessors are taking control of  
+mechanical devices.  Yet, the area of  
+mechanical safety is often overlooked  
+during instrument servicing.  We may be  
+able to change this situation if you heed  
+the following safety tips: 
+ 
+ 
+ l. Remember to keep clothing and fingers  away from rotating or moving components. 
+It is easy to slip, lose a tie, or get cut while working near one of these devices. 
+ 
+ 2. Unless it is absolutely essential, never run mechanical components without the 
+protective guards in place. 
+ 
+ 3. Always use the tools specifically recommended for the job.  This not only reduces 
+the chances of injury, it minimizes damage to the instrument. 
+ 
+4. Although not always possible, it is recommended that mechanical devices be 
+adjusted or calibrated with the power turned OFF.  This is especially important if 
+you are working with a microprocessor-controlled instrument, which can start 
+running without notice or user intervention. 
+ 
+ 5. After the mechanical repairs have been completed, always check that all mounting 
+hardware and safety shields are in place and secure. By doing so, you will not only 
+ensure safe operation of the instrument, but may reduce callbacks. 
+ 
+As you can appreciate, all it takes is good common sense, plus good safety techniques 
+that are basic and easy to remember. With this is mind, you should have no trouble 
+servicing mechanical devices safely. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGE 7 =====
+ 
+ 
+ELECTRICAL SAFETY 
+ 
+ 
+It is shocking but true.  Many people service 
+instruments without giving much thought to 
+electrical safety.  Unfortunately, this can be a 
+dangerous mistake. 
+ 
+It pays to take a few precautions before and 
+during servicing to avoid injury from electrical 
+shock. Here are a few safety tips that can help 
+keep you on the job without a sudden vacation: 
+ 
+ l. Avoid standing on damp floors! People have been shocked simply by standing on a 
+wet floor and then working on live equipment. 
+ 
+2. Be sure to disconnect the power cord before working on any high voltage circuitry! 
+As power switches disappear from new equipment, this precaution is very easy to 
+overlook. Attach probes for checking voltage and current with power off! 
+ 
+3. Read and heed ALL caution labels!  They are posted for YOUR safety. 
+ 
+4. Take care of test equipment. Be sure to use the right probes for the right job. 
+Measuring high voltages, for example, requires a well-insulated, high voltage probe. 
+Damaged probes and cables are dangerous and should not be used. Also, be cautious 
+around test equipment such as an oscilloscope. The oscilloscope case may become 
+live if you connect the cable ground to a live circuit. Avoid this dangerous situation 
+at all times! 
+ 
+ 5.  Always treat cathode ray tubes (CRTs) and uncased photomultiplier tubes (PMTs) 
+with special care.  When carrying them, wear eyeglasses and protective gloves.  If 
+these devices are dropped or struck with a sharp object, they can implode violently 
+and scatter glass. 
+ 
+These basic tips regarding good electrical safety practices are easy to remember. 
+Combined with good common sense, they should keep you on the job for a long time to 
+come. 
+
+===== PAGE 8 =====
+ELECTROSTATIC DISCHARGE 
+ 
+ 
+Static electricity is an electrical charge which 
+can damage circuitry and components. 
+Listed below are important Electrostatic 
+Discharge guidelines for handling electronic 
+components.  Following these guidelines will 
+avoid needless damage to circuit cards and 
+components on them.  
+ 
+• Keep paper, non-conductive plastic, plastic foams or cardboard away from circuit 
+boards and components and static-free work areas. 
+ 
+• Keep hand creams and food away from the conductive work surfaces.  If spilled on the 
+bench top, these materials contaminate and increase the resistivity of the work area. 
+ 
+• Be especially careful when using soldering guns around conductive work surfaces.  
+Solder spills and heat from the gun may melt and damage the conductive mat. 
+ 
+• Check the grounding connections on wrist strap and static mats.  (Mat must have proper 
+ground.)  Make certain they fit snugly before starting work with the components and 
+printed circuit cards. 
+ 
+• Touch the conductive work surfaces before starting work. 
+ 
+• Know the ESD caution symbols. 
+ 
+• Do not allow anyone not grounded to touch ESD sensitive components in the work area.  
+To be grounded, they must be standing on the conductive floor mat and must touch the 
+conductive bench top mat before touching the components or printed circuit cards. 
+ 
+• Do not place ESD-sensitive components on work areas that are not grounded properly. 
+ 
+• Do not touch the component by the pins or leads since the most damage is done at these 
+points by ESD.  Handle the components by the cap edges or body and the printed circuit 
+cards by the edges. 
+ 
+• Do not handle components or printed circuit cards during transport between work 
+stations.  Components or cards must not be directly handled by anyone not grounded. 
+ 
+• Do not use Refrigerant or other chlorinated cleaners at the work area. Use conductive or 
+anti-static bags and containers for storage and transportation of components or circuit 
+boards. 
+
+===== PAGE 9 =====
+HIGH VOLTAGE REMINDER 
+ 
+When you have removed the front panel and/or the rear panel from the instrument and 
+have the circuit breaker on, there is high voltage (>200VAC/ 300VDC) on some 
+components.  This voltage is there even though the instrument is not running. 
+ 
+ 
+ 
+
+===== PAGE 10 =====
+REFRIGERATION SYSTEM SAFETY
+ 
+ 
+Working with refrigeration systems requires special equipment and training.  If you are 
+not familiar with the operational theory for refrigeration systems and the special 
+requirements for performing service on a system, do NOT attempt it.  Use the following 
+precautions for working with refrigeration systems in Beckman instruments. 
+ 
+1. Always use protective glasses and clothing. 
+ 
+2. Do NOT inhale refrigerant.  It has an intoxicating effect and is harmful to your health. 
+ 
+3. Refrigerant can easily cause "frostbite".  Be especially careful with liquid refrigerant. 
+ 
+4. Use caution when replacing a burnt out compressor.  The oil in the compressor may 
+be very caustic or acidic.  Use protective gloves. 
+ 
+5. Charge refrigeration systems with gas from the low side only.  High side charging 
+may damage the compressor. 
+ 
+6. Do NOT run a compressor without refrigerant in the system.  Compressors are cooled 
+by the refrigerant and will burn out if there is no cooling. 
+
+===== PAGE 11 =====
+BRAZING SAFETY PRECAUTIONS
+ 
+Brazing requires the use of a high-temperature "MAPP Gas" torch and as such many 
+potential safety hazards exist.  Always follow the guidelines below when brazing. 
+ 
+1. Wear safety glasses. 
+ 
+2. Work in a ventilated area. 
+ 
+3. Know fire extinguisher location. 
+ 
+4. Heat sink, shield components. 
+ 
+5. All refrigerant removed from the system (no pressure). 
+ 
+6. Do not invert turbo-torch (flame-thrower). 
+ 
+7. Fit and brace parts. 
+ 
+8. Check to see if smoke detectors are present--move your operation. 
+ 
+9. Always insure that heated parts have cooled completely before handling them. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGE 12 =====
+ALLEGRA X12 &12R, X-15R 
+ 
+ 
+Main Table of Contents 
+ 
+ 
+ 
+INTRODUCTION         1 - 1  
+ 
+ 
+ 
+SYSTEM INSTALLATION       2 - 1  
+ 
+ 
+ 
+SERVICE PROCEDURES        3 - 1  
+ 
+ 
+ 
+S C H E M A T I C S          4  -  1  
+ 
+ 
+ 
+P A R T S           5  -  1  
+ 
+ 
+ 
+ACCESSORIES & MISCELLANEOUS      6 - 1  
+ 
+ 
+ 
+APPLICATIONS              7 - 1  
+ 
+ 
+ 
+S E R V I C E  M E M O S          8  -  1  
+ 
+ 
+ 
+ 
+ 
+
+===== PAGE 13 =====
+ 
+SECTION 1 
+ 
+INTRODUCTION
+ 
+ 
+ 
+1.1  ALLEGRA X-12/R, X-15R PERFORMANCE SPECIFICATION  1 - 1 
+ 
+1.2  GENERAL DESCRIPTION       1 - 3 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGE 14 =====
+ 
+SECTION 2 
+ 
+SYSTEM INSTALLATION 
+ 
+ 
+ 
+2.1   SAFETY  NOTICE        2 - 1 
+ 
+2.2  PREINSTALLATION REQUIREMENTS     2 - 3 
+ 
+2.3  CUSTOMER TRAINING       2 - 6 
+ 
+ 
+ 
+
+===== PAGE 15 =====
+ 
+SECTION 3 
+ 
+SERVICE PROCEDURES 
+ 
+ 
+ 
+3.1  MECHANICAL  SYSTEMS       3 - 1 
+ 
+3.2  TEMPERATURE CONTROL SYSTEM     3 - 8 
+ 
+3.3 TROUBLESHOOTING        3 - 15 
+ 
+3.4  PREVENTIVE MAINTENANCE      3 - 20 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGE 16 =====
+ 
+SECTION 4 
+ 
+SCHEMATICS  
+  
+ 
+ 
+4.1  ALLEGRA X-12/R, X-15R CIRCUIT DESCRIPTION   4 - 1 
+ 
+  4.2  SCHEMATICS  X – 12/R          4 – 5 
+  
+         SCHEMATICS X – 15R        4 - 18 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGE 17 =====
+ 
+ 
+SECTION 5 
+ 
+PARTS 
+ 
+ 
+5.1  REPLACEMENT PARTS LIST      5 – 1 
+ 
+5.2 TABULATION DRAWING X-12/R      5  - 5 
+ 
+      TABULATION DRAWING X-15R      5 - 13 
+ 
+ 
+ 
+ 
+
+===== PAGE 18 =====
+ 
+SECTION 6 
+ 
+ACCESSORIES & MISCELLANEOUS 
+ 
+ 
+NO MATERIAL AVAILABLE AT THIS TIME 
+ 
+
+===== PAGE 19 =====
+ 
+ 
+SECTION 7 
+ 
+APPLICATIONS 
+ 
+NO MATERIAL AVAILABLE AT THIS TIME 
+ 
+
+===== PAGE 20 =====
+ 
+SECTION 8 
+ 
+SERVICE MEMOS 
+ 
+ 
+ 
+ISSUED DURING TRAINING CLASS 
+
+===== PAGE 21 =====
+                                                                                                                                                  Section 1: Introduction 
+  
+1.1 Allegra X-12/R Specifications 
+Only values with tolerances or limits are guaranteed data. Values without tolerances are informative data, 
+without guarantee. 
+Speed 
+Set speed . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 200 to 10 200 rpm in 10-rpm increments 
+Speed display. . . . . . . . . . . . . . . . . . . . . . . . . . . . .actual rotor speed in 10-rpm increments 
+          
+Time 
+Set time . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .to 99 hours 59 minutes  
+         or continuous (hold) 
+Time display 
+Timed run . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . indicates run time remaining 
+Continuous (hold) or pulse run . . . . . . . . . . . . . . . . . . . . . . . . . . . . . indicates elapsed time 
+Temperature 
+Set temperature  
+Allegra X-12R . . . . . . .. . . . . . . . . . . . . . . . . . . . . . . . . . . . .–10 to +40°C in 1° increments 
+Allegra X-12 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .factory set at 20°C 
+Temperature control (after equilibration) 
+Allegra X-12R . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .±2°C of set temperature* 
+Allegra X-12. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .±2°C of the 20°C set temperature 
+Temperature display (after equilibration) . . . . . . . . chamber temperature in 1° increments 
+Ambient temperature range. . . . . . . . . . . . . . . . . . . . . . . . . . . .10 to 35°C 
+Ambient temperature range for optimum operation . . . . . . . . .10 to 25°C  
+Humidity restrictions. . . . . . . . . . . . . . . . . . . . . . . .<75% (noncondensing) 
+ 
+Acceleration . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10 acceleration profiles 
+Deceleration . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11 deceleration profiles 
+ 
+Dimensions 
+Width . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  . 76.2 cm (30.0 in.) 
+Depth . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  62.2 cm (24.5 in.) 
+Height, door open. . . . . . . . . . . . . . . . . . . . . . .  96.5 cm (38.0 in.) 
+Height, door closed . . . . . . . . . . . . . . . . . . . .  . 34.3 cm (13.5 in.) 
+Weight . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  . . . . . .  121 kg (267 lb) 
+         
+Ventilation clearances (sides and rear) . . . . . . . . . . . . . . . . 7.6 cm (3.0 in.) 
+ 
+Finishes 
+Control panel . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . coated polycarbonate 
+Housing surfaces . . . . . . . . . . . . . . . . . . . . . . . . . . .acrylic baking enamel 
+Electrical requirements 
+208-V, 60-Hz instrument . . . . . . . . . . . . . . . . 187–229 VAC, 9 A, 60 Hz 
+200-V, 50/60-Hz instrument . . . . . . . . . . . . 190–220 VAC, 10 A, 50/60 Hz 
+230-V, 50-Hz instrument . . . . . . . . . . . . . . . . . 207–253 VAC, 8 A, 50 Hz 
+Maximum heat dissipation into room under 
+steady-state conditions . . . . . . . . . . . . . . . . . . . . . . . .  4100Btu/hr (1.2kW) 
+Noise level 0.91 m (3 ft) in front of centrifuge . . . . . . . . . . . . . . .≤.68 dBa 
+Installation category . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .II 
+Allegra X-12/R/ X-15R Service Manual 07/04    1-1  
+ 
+Pollution degree. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .2  
+
+
+===== PAGE 22 =====
+Section 1: Introduction 
+1.2 Allegra X-15R Specifications 
+Only values with tolerances or limits are guaranteed data. Values without tolerances are informative data, 
+without guarantee. 
+Speed 
+Set speed . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 200 to 10 200 rpm in 10-rpm increments 
+Speed display. . . . . . . . . . . . . . . . . . . . . . . . . . . . .actual rotor speed in 10-rpm increments 
+          
+Time 
+Set time . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .to 99 hours 59 minutes  
+         or continuous (hold) 
+Time display 
+Timed run . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . indicates run time remaining 
+Continuous (hold) or pulse run . . . . . . . . . . . . . . . . . . . . . . . . . . . . . indicates elapsed time 
+ 
+Temperature 
+Set temperature . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .–10 to +40°C in 1° increments 
+Temperature control (after equilibration) . . . . . . . . . . . . . . . . . . .±2°C of set temperature* 
+ 
+Temperature display (after equilibration) . . . . . . . . chamber temperature in 1° increments 
+Ambient temperature range. . . . . . . . . . . . . . . . . . . . . . . . . . . .10 to 35°C 
+Ambient temperature range for optimum operation . . . . . . . . .10 to 25°C  
+Humidity restrictions. . . . . . . . . . . . . . . . . . . . . . . .<75% (noncondensing) 
+ 
+Acceleration . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10 acceleration profiles 
+Deceleration . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11 deceleration profiles 
+ 
+Dimensions 
+Width . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  . 76.2 cm (30.0 in.) 
+Depth . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  62.2 cm (24.5 in.) 
+Height, door closed . . . . . . . . . . . . . . . . . . . .  . 34.3 cm (13.5 in.) 
+Weight . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  . . 128 kg (283lb) 
+Ventilation clearances (sides and rear) . . . . . . . . . . . . . . . . 7.6 cm (3.0 in.) 
+ 
+Finishes 
+Control panel . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . coated polycarbonate 
+Housing surfaces . . . . . . . . . . . . . . . . . . . . . . . . . . .acrylic baking enamel 
+Electrical requirements 
+208-V, 60-Hz instrument . . . . . . . . . . . . . . . . 187–229 VAC, 12 A, 60 Hz 
+200-V, 50/60-Hz instrument . . . . . . . . . . . . 190–220 VAC, 12 A, 50/60 Hz 
+230-V, 50-Hz instrument . . . . . . . . . . . . . . . . . 207–253 VAC, 12 A, 50 Hz 
+Maximum heat dissipation into room under 
+steady-state conditions . . . . . . . . . . . . . . . . . . . . . . . . . .6800 Btu/hr (2 kW) 
+Noise level 0.91 m (3 ft) in front of centrifuge . . . . . . . . . . . . . . .≤.68 dBa 
+Installation category . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .II 
+Pollution degree. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .2 
+ 
+ 
+ 
+ 
+1-2                                                                                              Allegra X-12/R, X-15R Service Manual 07/04 
+
+===== PAGE 23 =====
+                                                                                                                                                  Section 1: Introduction 
+  
+ 
+ 
+1.3  Allegra X-12/R, X-15R General Description 
+ 
+CENTRIFUGE FUNCTION 
+ 
+The Beckman Coulter Allegra X-12R, X-15R (refrigerated) or Allegra X-12 (constant controlled 
+temperature) centrifuge (see Figure 1-1) is a benchtop centrifuge that generates centrifugal forces 
+required for a wide variety of applications. Together with the Beckman Coulter rotors designed 
+for use in this centrifuge, the centrifuge applications include: 
+ 
+• Routine processing such as sample preparations, pelleting, extractions, purifications,   
+  concentrations, phase separations, receptor binding, and column centrifugations. 
+ 
+• Cell isolation. 
+ 
+• Binding studies and separation of whole blood. 
+ 
+• Processing large numbers of small-volume samples in multiwell plates for concentrating tissue-   
+  culture cells, cloning and replicate studies, in-vitro cytotoxicity studies, receptor binding, and   
+  genetic engineering experimentation. 
+ 
+• Rapid sedimentation of protein precipitates, large particles, and cell debris. 
+   
+The Allegra X-12/R and X-15R are microprocessor-controlled, providing interactive operation. 
+The instrument design features a brushless asynchronous motor, automatic rotor identification 
+system, program memory that enables repeated run conditions, temperature control system, and a 
+choice of acceleration and deceleration rates. 
+User messages alert the operator to conditions that may need attention.    
+ 
+ 
+ 
+Allegra X-12/R/ X-15R Service Manual 07/04    1-3  
+
+===== PAGE 24 =====
+Section 1: Introduction 
+ 
+ 
+ 
+Available Rotors 
+ 
+The following Beckman Coulter rotors can be used in the Allegra 
+X-12 series centrifuge. The rotors are described in individual manuals 
+that accompany each rotor.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+1-4                                                                                              Allegra X-12/R, X-15R Service Manual 07/04 
+
+===== PAGE 25 =====
+                                                                                                                                                  Section 1: Introduction 
+  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Allegra X-12/R/ X-15R Service Manual 07/04    1-5  
+
+===== PAGE 26 =====
+Section 1: Introduction 
+ 
+ 
+ 
+ 
+ 
+ 
+CENTRIFUGE CHASSIS 
+ 
+HOUSING 
+The centrifuge housing is made of sheet steel and structural foam and is finished with acrylic 
+baking enamel paint. The control panel overlay is made of coated polystyrene copolymer. The 
+right and left side front panels are made of high-impact polystyrene structural foam coated with 
+enamel. 
+ 
+DOOR 
+The aluminum and structural foam door is secured to the housing by solid hinges. A window in 
+the center allows strobe viewing. When the door is closed, the locking system engages. The door 
+is locked when a run is in progress and can be opened only when the rotor is stopped and the 
+LED next to the [Door] key is lit. If there is a power failure, the door lock can be manually 
+tripped for sample recovery (see Section 4, Troubleshooting). 
+ 
+ROTOR CHAMBER 
+The aluminum rotor chamber is coated with a chemical resistant epoxy finish. The chamber is 
+sealed by a labyrinth of four rubber gaskets.  
+ 
+TEMPERATURE SENSING AND CONTROL 
+With the power on, the temperature control system is activated when the door is closed and 
+locked. A sensor in the rotor chamber continuously monitors chamber temperature. The 
+microprocessor calculates the required chamber temperature to maintain the selected rotor 
+temperature. Run temperature in the Allegra X-12R, X-15R can be set between –10 and +40°C. 
+Temperature in the Allegra X-12 is factory set at 20°C, and is maintained at between 18 and 22°C 
+to prevent sample heating.. 
+ 
+NOTE    To avoid chamber icing, refrigeration is off when the door is open.  
+The centrifuge door must be closed and locked for the refrigeration system to 
+begin operating. 
+ 
+DRIVE 
+The asynchronous direct-drive motor is brushless for clean, quiet operation. The resilient 
+suspension ensures that loads will not be disturbed by vibration, and prevents damage to the drive 
+shaft if an imbalance occurs during centrifugation. Maximum acceleration and deceleration may 
+be selected to allow fast processing of samples; alternately, delicate gradients may be preserved 
+using slower acceleration and deceleration. 
+ 
+SAFETY FEATURES 
+Saftey features include the following: 
+ 
+PROTECTIVE RING 
+A structural steel ring surrounding the rotor chamber provides full operator protection. 
+ 
+1-6                                                                                              Allegra X-12/R, X-15R Service Manual 07/04 
+
+===== PAGE 27 =====
+                                                                                                                                                  Section 1: Introduction 
+  
+IMBALANCE DETECTOR 
+An imbalance detector monitors the rotor during the run, causing automatic shutdown if rotor 
+loads are severely out of balance. At low speeds, an incorrectly loaded rotor can cause an 
+imbalance. Rotor instability can also occur if the instrument is moved, or if it is not resting level 
+on the table (see Section 4, TROUBLESHOOTING). 
+ 
+ 
+ 
+OVERSPEED AND ROTOR IDENTIFICATION SYSTEM 
+A rotor identification system prevents the installed rotor from running above its maximum rated 
+speed. During acceleration the microprocessor checks the magnetic rotor identification. If the 
+system identifies a rotor different than the one entered by the user, the system shuts down the run 
+and displays an error message. Speed is limited to the maximum safe speed of the identified rotor. 
+ 
+Allegra X-12/R/ X-15R Service Manual 07/04    1-7  
+
+===== PAGE 28 =====
+  Section 2: Installation 
+!
+    2.1 SAFETY NOTICE 
+ 
+This safety notice summarizes information basic to the safe operation of the equipment 
+described in this manual. The international symbol displayed above is a reminder that all 
+safety instructions should be read and understood before installation, operation, 
+maintenance, or repair of this centrifuge. When you see the symbol on other pages, pay  
+special attention to the safety information presented. Observance of safety precautions  
+will also help to avoid actions that could damage or adversely affect the performance of the 
+centrifuge. 
+ 
+Safety During Installation and/or Maintenance 
+ 
+The centrifuges X-12/R weighs 121 kg ( 267 lb), X-15R weighs 128 kg (283). Do not attempt to 
+lift or move it without assistance. 
+ 
+Any servicing of this equipment that requires removal of any covers can expose parts that 
+involve the risk of electric shock or personal injury. Make sure that the power switch is off 
+and the centrifuge is disconnected from the main power source, and refer such servicing to 
+qualified personnel. 
+ 
+Do not replace any centrifuge components with parts not specified for use on this instrument. 
+ 
+Electrical Safety 
+ 
+To reduce the risk of electrical shock, this equipment uses a three-wire electrical cord and 
+plug to connect the centrifuge to earth-ground. To preserve this safety feature: 
+ 
+•  Make sure that the matching wall outlet receptacle is properly wired and earth-grounded. 
+   Check that the line voltage agrees with the voltage listed on the name-rating plate affixed to 
+the   
+   centrifuge. 
+ 
+•  Never use a three-to-two wire plug adapter. 
+ 
+•  Never use a two-wire extension cord or a two-wire non-grounding type of multiple-outlet 
+   receptacle strip. 
+ 
+Do not place containers holding liquid on or near the chamber door. If they spill, liquid 
+may get into the centrifuge and damage electrical or mechanical components. 
+ 
+Safety Against Risk of Fire 
+ 
+This centrifuge is not designed for use with materials capable of developing flammable or 
+explosive vapors. Do not centrifuge such materials (such as chloroform or ethyl alcohol) 
+Allegra X-12, X-15R Service Manual 1/07  2-1  
+
+===== PAGE 29 =====
+  Section 2: Installation 
+in this centrifuge nor handle or store them within the 30-cm (1-ft) area surrounding the 
+centrifuge. 
+ 
+Mechanical Safety 
+ 
+For safe operation of the equipment, observe the following: 
+ 
+• Use only the rotors and accessories designed for use in this centrifuge. 
+ 
+• Do not exceed the maximum rated speed of the rotor in use. 
+ 
+• NEVER attempt to slow or stop the rotor by hand. 
+ 
+• Do not lift or move the centrifuge while the rotor is spinning. 
+ 
+• NEVER attempt to override the door interlock system while the rotor is spinning. 
+ 
+• Maintain a 7.6-cm (3-in.) clearance envelope around the centrifuge while it is running.During    
+  operation you should come within the envelope only to adjust instrument controls, if 
+necessary.   
+  Never bring any flammable substances within the 30-cm (1-ft) area surrounding the 
+centrifuge.  
+  Never lean on the centrifuge or place items on the centrifuge while it is operating. 
+ 
+Chemical and Biological Safety 
+ 
+Normal operation may involve the use of solutions and test samples that are pathogenic, 
+toxic, or radioactive. Such materials should not be used in this centrifuge, however, unless 
+all necessary safety precautions are taken. 
+ 
+• Observe all cautionary information printed on the original solution containers prior to 
+  their use. 
+ 
+• Handle body fluids with care because they can transmit disease. No known test offers 
+  complete assurance that they are free of micro-organisms. Some of the most virulent— 
+  Hepatitis (B and C) and HIV (I–V) viruses,  atypical mycobacteria, and certain systemic 
+  fungi—further emphasize the need for aerosol protection. Handle other infectious 
+  samples according to good laboratory procedures and methods to prevent spread of 
+  disease. Because spills may generate aerosols, observe proper safety precautions for 
+  aerosol containment. Do not run toxic, pathogenic, or radioactive materials in this 
+  centrifuge without taking appropriate sa fety precautions. Biosafe containment should 
+  be used when Risk Group II materials (as identified in the World Health Organization 
+  Laboratory Biosafety Manual) are handled; materials of a higher group require more 
+  than one level of protection. 
+ 
+• Dispose of all waste solutions according to appropriate environmental health and safety 
+2-2  Allegra X-12/R, X-15R Service Manual 01/07 
+
+===== PAGE 30 =====
+  Section 2: Installation 
+  guidelines. 
+ 
+It is your responsibility to decontaminate the centrifuge and accessories before 
+requesting service by Beckman Coulter. 
+ 
+ 
+ 
+2.2 Allegra X-12/R, X-15R Installation Requirements  
+ 
+The Allegra X-12/R, X-15R model centrifuge is customer installed. Installation requirements for 
+power and location are described below. 
+ 
+Warning    
+  Do not place the centrifuge near areas containing 
+  flammable reagents or combustible fluids. Vapors 
+  from these materials could enter the centrifuge 
+  air system and be ignited by the motor. 
+              
+ 
+SPACE REQUIREMENTS      
+• Select a location away from heat- 
+producing labaratory  equipment,  
+with sufficient ventilation to allow     
+for heat dissipation.  
+ 
+• Position the centrifuge on a level 
+surface such as a sturdy table or 
+labaratory bench that can support the  
+weight of the centrifugeX-12/R (121 kg/  
+267 lb) or X-15R 128 (283) and resist  
+vibration. 
+ 
+• Relative humidity should not exceed 
+75% (noncondensing) 
+ 
+• In addition to space for the centrifuge  
+itself, allow 7.6 cm (3 in) clearances 
+at the sides and back of the centrifuge 
+to ensure sufficient air circulation. 
+( See Figure 1) 
+ 
+ 
+ 
+ 
+Allegra X-12, X-15R Service Manual 1/07  2-3  
+
+===== PAGE 31 =====
+  Section 2: Installation 
+To reduce the risk of electrical shock, this centrifuge uses 2.5m (8 ft) three-wire electrical cord 
+(attachedto the power connector at the rear of the instrument) and plug for use in North America 
+is the NEMA 6-15P; a NEMA 6-15R socket should be available. (Contact your local Beckman 
+Coulter office for specific information regarding  local requirements). To preserve this safety 
+feature: 
+ 
+• Make sure that the matching wall outlet receptacle is properly wired and earth-grounded. 
+Check that the line voltage agrees with the voltage listed on the name rating  plate affixed to 
+the centrifuge.  
+ 
+• Never use a three-to-two wire plug adapter 
+ 
+• Never use a three-to-two-wire extension cord or a two-wire non-grounding type of multiple-
+outlet 
+receptacle strip. 
+ 
+• If there is any question about voltage, have a qualified service person measure it under load 
+while the drive is operating. 
+ 
+ 
+To ensure safety the centrifuge should be wired to a remote emergency switch (preferably 
+outside the room where the centrifuge is housed, or adjacent to the exit from that room), in order 
+to disconnect the instrument from the main power source in case of a malfunction.
+ 
+ 
+ 
+Rotor Attachment 
+ 
+It is extremely important for a safe centrifuge operation that the rotor attachment to the drive 
+shaft is free of play.  Otherwise shifts between drive and rotor can develop.  Consequences of 
+this are bent shafts as well as damage to rotors, rotor chamber, etc. 
+ 
+Allegra X-12/R, X-15R centrifuges avoid this by using a conical seat and an additional 
+expanding connection at the drive shaft.  The conical seat is located above the bearing plate, 
+and the cross-slit end of the shaft with inner cone is the expanding connection.  The counterpart 
+is the boring of the rotor, which is conical at the bottom end. 
+ 
+The rotor is placed onto the drive shaft and the handle is being used to tighten the rotor onto the 
+shaft.  When tightening the spring washers packet is compressed as far as physically possible.  
+The resulting tension load forces the rotor onto the cone and thus ensures that the bottom end of 
+the rotor boring is free of play.  When tightening the handle  further, the cone at the screw 
+spreads the upper end of the cross-slit shaft apart and thus also presses it against the upper end of 
+the rotor boring. 
+ 
+Be sure to inform the user of the importance of a secure seating of the rotor and the principle of 
+the attachment. 
+2-4  Allegra X-12/R, X-15R Service Manual 01/07 
+
+===== PAGE 32 =====
+  Section 2: Installation 
+ 
+ Caution:   Warn the user against possible handling errors and  
+      their consequences! 
+ 
+Centrifuge Anchoring Kit for Allegra X-12/R, X-15R 
+ 
+SECURING THE CENTRIFUGE TO THE BENCH 
+ 
+Allegra X-12/R, X-15R centrifuges are certified to meet the requirements of the European CE 
+mark. To meet these requirements, the centrifuge must be secured to the bench using the 
+anchoring hardware shipped with the instrument. This will prevent the centrifuge from moving 
+in 
+the unlikely event of a rotor mishap.Complete instructions for installing the anchoring kit are 
+packaged with hardware, which is shipped with the centrifuge. The instructions (publication GX-
+TB-002A) include a full-size template to be used as a guide for drilling holes in the bench. Refer 
+to this document for additional installation instructions. 
+ 
+2.3 Customer Training and Instrument Demo      
+ 
+The following check list is useful when customer training is required. 
+ 
+Refer to User's Manual for all of the following: 
+ 
+Explain: 
+ 
+Rotors   This instrument allows use of three different rotors: 
+SX 4750 Swinging bucket Aries and non Aries/ Round bucket and  
+microtiter plates (non Aries only) 
+   FX 6100 Fixed angle rotor with 6x 100 ml. 
+ 
+Warranty      Rotor warranty is 1 year. 
+ 
+Maintenance  Cleaning and lubricating as required. 
+ 
+Responsibility  Customer is responsible to maintain and prevent rotor from corrosion  
+and damage. 
+Cautions Always use all four buckets or 2 buckets and 2 carriers and balance the 
+loads accordingly. 
+ 
+Descriptions of instrument 
+Functions  Explain overall functions.  
+Controls  Describe control function of each individual key, program mode. 
+Indicators  Show the different disp lays and explain audible alerts. 
+Rotor chamber  Instruct to clean and dry chamber after spill and between runs. 
+ 
+Allegra X-12, X-15R Service Manual 1/07  2-5  
+
+===== PAGE 33 =====
+  Section 2: Installation 
+ 
+Temperatures sensing and control  
+Explain that the system is measuring chamber  
+temperature not sample temperature. 
+Drive  Explain drive is Induction drive and does not require maintenance.        
+Safety features Explain door lock and rotor Id, barrier and imbalance features, 
+Name rating plate, serial number 
+ 
+Test Run 
+ 
+ NOTE:   The instrument must be plugged in and the power switch turned to on  
+  position (1) before the door can be opened. 
+ 
+We recommend that you make a test run to ensure that the instrument is in proper operating 
+condition following shipment. 
+ 
+Run the instrument 
+ 
+1.  Open the chamber door. 
+2. Enter speed of 3,000 RPM 
+3. Enter Temp 20C 
+4. Enter Time 30 min. 
+5. Perform a test run to verify parameter input.  
+6. Verify the temperature and speed control are functioning. 
+7. If the test run is satisfactory then proceed to instruct the customer on proper operation of the 
+instrument. 
+ 
+Show the customer how to setup a simple run. Observe the customer as they setup the run. 
+Explain: 
+Troubleshooting 
+ 
+Customer maintenance items 
+ 
+Beckman Coulter Field Service, service agreements, etc. 
+ 
+Accessories and options that are available for the instrument 
+ 
+How to get applications support from Beckman Coulter Inc. 
+2-6  Allegra X-12/R, X-15R Service Manual 01/07 
+
+===== PAGE 34 =====
+  Section 3:  Service Procedures 
+3.1 Mechanical Systems  
+ 
+Warning:   Unplug the centrifuge or turn off and lock out the main wall circuit 
+breaker before removing an instrument panel. 
+Warning: As long as the yellow LED on the Motor driver board is lit, the Bus 
+Voltage is still present. Wait until LED is off. 
+3.1.1 Front Panel Replacement 
+ 
+A. Open lid, TURN POWER SWITCH OFF AND DISCONNECT POWER CORD. 
+B. Remove the four screws on top housing and open the front panel. 
+C. Disconnect all harness connections. 
+D. Remove Control board, driver board and VFD display by removing attached 
+hardware. 
+ E.  Remove the four screws that attach the hinges to the front panel. 
+E. Remove the screws that hold the cable in place. 
+F. Remove front panel. 
+G. Reverse the above steps to replace the control panel. 
+ 
+Warning:   Unplug the centrifuge or turn off and lock out the main wall circuit 
+breaker before removing an instrument panel. 
+Warning: As long as the yellow LED on the Motor driver board is lit, the Bus 
+Voltage is still present. Wait until LED is off. 
+ 
+3.1.2 Drive Motor Replacement Allegra X-12 series 
+ 
+**Materials needed:  Silicone RTV 108 (342778) 
+ 
+A. Open lid, TURN POWER SWITCH OFF AND DISCONNECT POWER CORD. 
+B. Remove four screws on the top housing to open the front panel. 
+C. Disconnect the drive connector J16 from the Motor Driver board and remove from 
+the cable holder.  
+D. Disconnect the ground connector from the motor housing. 
+E. Disconnect the tach sensor connector J10, Rotor ID connector J8 and Motor Overtemp connector 
+J11 from the Control Board and remove the cables from the cable holder. 
+F. Remove the boot from the bowl. 
+G. Remove two screws on top of the drive that hold the imbalance flag bracket in place. 
+H. Remove four motor mounting lock-nuts by holding the Philips screws underneath the 
+suspension plate with a 900 angle Philips screwdriver in place. 
+I. Remove washers, grommets and screws 
+Allegra X-12/R, X-15R  Service Manual  07/07  3-1
+   
+
+===== PAGE 35 =====
+Section 3:  Service Procedures 
+J. Pull drive upward, including the white support ring, while feeding the motor harness 
+through the opening. To ease the removal of the brass cone use a screwdriver to 
+widen the slit and pull the cone of the shaft. 
+K. Remove three Phillips screws that attach the Rotor ID sensor plate and retain three 
+spacers, remove the rotor ID sensor.  
+L. To reinstall drive, feed harness through the drive opening.  
+M. Make sure the white ring lines up with the mounting holes in the suspension plate. 
+N. Carefully set drive down on the suspension plate and ensure the harness is not 
+pinched.   
+O. Lightly coat the four new grommets with vacuum grease. 
+P. Place grommets, washers and nuts on top of drive, make sure screws stay in place and 
+being held with angled Philips screwdriver while tightening the nuts. 
+Q. Tighten the four lock-nuts until the specified dimension between the suspension    
+  plate and top of the wh ite ring equals 5/8 inch.  
+ Q.  Reinstall Rotor ID and cone. 
+R. Reconnect all connectors and lock in the cable in the cable holders. 
+S. Reinstall imbalance bracket.  
+ ** Remove silicone sealant from chamber lip and clean boot outer groove of cured   
+      silicone. Apply small bead of GE Silicone #108 to the outer groove of the boot.  
+T.   Reinstall boot. 
+U. Reinstall front panel. 
+ 
+NOTE:   The boot must remain completely seated down around the motor cover to  
+ prevent contact with the rotor. 
+ 
+Warning:   Unplug the centrifuge or turn off and lock out the main wall circuit 
+breaker before removing an instrument panel. 
+Warning: As long as the yellow LED on the Motor driver board is lit, the Bus Voltage is 
+still present. Wait until LED is off. 
+3.1.3 Drive Motor Replacement Allegra X-15R 
+ 
+**Materials needed:  Silicone RTV 108 (342778) 
+ 
+A. Open lid, TURN POWER SWITCH OFF AND DISCONNECT POWER CORD. 
+B. Remove four screws on the top housing to open the front panel. 
+C. Disconnect the drive connector J16 from the Motor Driver board and remove the 
+cable from the cable holder. 
+D. Disconnect the tach sensor connector J10, Rotor ID connector J8 and motor overtemp connector 
+J11 from the Control Board.  
+E. Disconnect the ground wire and remove the cables from the cable holder. 
+F. Remove the boot from the bowl. 
+G. Remove four motor mounting nuts. 
+H. Pull drive upward while feeding the motor harness through the opening. 
+3-2  Allegra X-12/R, X-15R Service Manual 07/07 
+
+===== PAGE 36 =====
+  Section 3:  Service Procedures 
+I. To ease the removal of the brass cone use a screwdriver to widen the slit and pull the 
+cone of the shaft. 
+J. Remove three Phillips screws that attach the Rotor ID sensor plate and retain three 
+spacers, remove rotor ID sensor.  
+K. To reinstall drive, feed harness through the drive opening.  
+L. Carefully set the drive down on the suspension plate and ensure that the harness is not 
+pinched.   
+M. Insure that the four silicon sleeves are in place. 
+J. Tighten the four nuts  
+K. Reinstall Rotor ID sensor and cone. 
+L. Reconnect all connectors and lock the cable in the cable holders. 
+ ** Remove silicone sealant from chamber lip. Apply small bead of GE Silicone #108   
+      to the outer groove of a new boot. Reinstall boot. 
+M. Reinstall front panel. 
+ 
+NOTE:   The boot must remain completely seated down around the motor cover to  
+ prevent contact with the rotor. 
+ 
+Warning:   Unplug the centrifuge or turn off and lock out the main wall circuit 
+breaker before removing an instrument panel. 
+Warning: As long as the yellow LED on the Motor driver board is lit, the Bus Voltage is 
+still present. Wait until LED is off. 
+3.1.4 Housing Removal 
+ 
+NOTE: A second person might be needed to support the lifting of the housing 
+ 
+A. Remove front panel per step 3.1.1. 
+B. Remove the refrigeration front cover by removing two screws on top and two screws 
+on the bottom. 
+C. If the instrument is anchored, remove the four screws attaching the anchor brackets to 
+the frame. 
+D. Remove four hex screws that fasten the housing to the chassis on each side and also 
+remove two screws in the front where the housing is attached to the base plate.   
+E. Remove five screws in the back and another six screws that hold the electrical    
+            panel in place. 
+F. Disconnect the harness attached to the circuit breaker 
+G. Pull the emergency release cable out of the base plate. 
+H. Make sure the door is closed when you lift the housing of the instrument. 
+I. Disconnect harness attached to the left and right hand latch assembly. 
+J. Reverse the above steps to reinstall the housing and electrical panel. 
+ 
+ 
+ 
+Allegra X-12/R, X-15R  Service Manual  07/07  3-3
+   
+
+===== PAGE 37 =====
+Section 3:  Service Procedures 
+Warning:   Unplug the centrifuge or turn off and lock out the main wall circuit 
+breaker before removing an instrument panel. 
+Warning: As long as the yellow LED on the Motor driver board is lit, the Bus 
+Voltage is still present. Wait until LED is off. 
+3.1.4 Door Latch 392330, 392329 Replacement X-12/R 
+ 
+     **Materials needed: Cord, D acron (978139), Adhesive, Loctite 416 (6000808). 
+A. Open front panel as described in 3.1.1. 
+B. Remove harness from latch assembly. 
+C. Remove the emergency release string from the latch by cutting the cord knot located 
+in the plug in the base of the instrument. 
+D. Remove three nuts that hold the latch assembly in place. 
+E. Remove latch 
+F. Tie cord onto latch pivot bracket and secure it with Loctite. 
+G. Replace latch, refer to BCI drawing number 392300 for adjustment of the latch. 
+H. Tie both latch cords together so that both cords are the same length.  
+I. Reinstall the latch cords in the plug in the base of the instrument. 
+J. Make sure that the emergency release is functioning. 
+ 
+Warning:   Unplug the centrifuge or turn  off and lock out the main wall circuit 
+breaker before removing an instrument panel. 
+Warning: As long as the yellow LED on the Motor driver board is lit, the Bus 
+Voltage is still present. Wait until LED is off. 
+ 
+3.1.5 Door Latch 392900 Replacement X-15R 
+ 
+**Materials needed: Tether (392998), Door release, Adhesive, Loctite 416 (6000808). 
+K. Open front panel as described in 3.1.1. 
+L. Remove harness from latch assembly. 
+M. Remove the emergency release string from the latch by cutting the cord knot located 
+in the plug in the base of the instrument. 
+N. Remove two nuts that hold the latch assembly in place. 
+O. Remove latch 
+P. Tie cord onto latch pivot bracket and secure it with Loctite. 
+Q. When installing the new latch it needs to be moved all the way to the left before 
+closing the door and adjusting the gap of .09 between latch and striker(BCI drawing 
+number 392930). 
+R. Tie both latch cords together so that both cords are the same length.  
+S. Reinstall the latch cords in the plug in the base of the instrument. 
+T. Make sure that the emergency release is functioning. 
+ 
+ 
+ 
+3-4  Allegra X-12/R, X-15R Service Manual 07/07 
+
+===== PAGE 38 =====
+  Section 3:  Service Procedures 
+ 
+ 
+3.1.6  Hinge or Door Replacement 
+ 
+A.  Open door completely. 
+ C. Remove electrical panel. 
+ D.  Remove the three hex screws attaching the hinges to th e back of                                                            
+       the instrument housing. 
+ E .  While supporting the door, remove (4) nuts attached inside the housing 
+ F. Remove door from housing and place on a flat surface. 
+H. Replace hinges on the left or right side while door is off unit. 
+I. Reinstall the door by installing all screws in place. 
+I.    Adjust striker (door locking eye bolt) to maintain a good seal between the door and    
+      the bowl gaskets. The top of the striker to top of door skin distance is “1.500  
+      +/- .050” Refer to BCI drawing 392300. 
+J.   Tighten the locking nut to prevent rotation of the striker. 
+ 
+NOTE:  Door hinges are nonadjustable.  
+ 
+If door won’t stay at angle when open install spacer 393045 by removing two nuts on each 
+hinge and slide shim into place. Tie nuts accordingly, see attached picture. 
+ 
+ 
+ 
+Warning:   Unplug the centrifuge or turn  off and lock out the main wall circuit 
+breaker before removing an instrument panel. 
+Warning: As long as the yellow LED on the Motor driver board is lit, the Bus 
+Voltage is still present. Wait until LED is off. 
+ 
+ 
+ 
+ 
+ 
+Allegra X-12/R, X-15R  Service Manual  07/07  3-5
+   
+
+===== PAGE 39 =====
+Section 3:  Service Procedures 
+3.1.7 Brake Resistor, EMI Filter or Receptacle Replacement 
+ 
+A. Remove the electrical panel by removing 8 button head screws attached in the back of 
+the instrument. 
+B. Remove two screws that hold the brake resistor bracket in place. 
+C. Replace brake resistor 
+D. Remove two screws that are attached to the EMI filter and replace filter. 
+E. Remove two screws that are attached to the receptacle and replace receptacle. 
+ 
+3.1.8 Imbalance Adjustment and Calibration Allegra X-12 series 
+  
+Imbalance Calibration:  The centrifuge is calibrated for imbalance prior to shipment. The 
+calibration value can be reentered by pressing “ENTER”, “613”for each individual rotor. 
+Recalibration is required if the optical flag is replaced, moved  or if a new control board or 
+motor is installed. To run a rotor a calibration value is needed. The rotors used for 
+calibration depend on the library of rotors present in the customer’s lab.   
+    
+ Flag needs to be adjusted at .6 inch.  
+ 
+A. Refer to the table below to determine which rotor and loads to be used for calibration. 
+B. From the centrifuge rotor table, select the appropriate rotor. 
+C. Install the appropriate test loads per the table below. 
+D. Press “ENTER”, “611” “ENTER”, “START”. 
+E. The centrifuge will run the rotor to speed and brake to a stop. 
+F. Press “CE” when prompted by the centrifuge. 
+G. Repeat steps A through F as required. 
+ 
+ 
+ 
+ 
+ 
+  
+Calibration Rotors Customer Rotor Library Loads to be used 
+SX4750  SX4750   2x 700g pos 1&2+2x 750g (1.2d) Pos 3&4 
+SX4750A   SX4750A  2x 750g pos 1&2 +2x 625g (1.2d) Pos 3&4
+FX6100    FX6100 5x 47ml + 1x 62ml (water) 
+ 
+ 
+3-6  Allegra X-12/R, X-15R Service Manual 07/07 
+
+===== PAGE 40 =====
+  Section 3:  Service Procedures 
+Warning:   Unplug the centrifuge or turn  off and lock out the main wall circuit 
+breaker before removing an instrument panel. 
+Warning: As long as the yellow LED on the Motor driver board is lit, the Bus 
+Voltage is still present. Wait until LED is off.  
+ 
+ 
+3.1.9 Imbalance Calibration Allegra X-15R  
+ 
+Note: 
+To reenter calibration value after clearing S1, S2, S7 diagnostics use ENTER 616. 
+A calibration is necessary when changing the optical flag, optical sensor, motor or motor 
+mounts.  
+Sensor Calibration 
+ 
+A.   Turn Instrument Power off. 
+B.   Remove four screws and open front panel. 
+C.   Locate the optical flag and move it out of the light path of the optical sensor, or a   
+       second method would be to loosen the two screws that hold the sensor bracket in place   
+       and pull the sensor bracket all the way to the front of the instrument. 
+D.   Make sure the light path of the optical sensor is clear of any object during calibration. 
+E.   Close front panel. 
+F.    Turn instrument power back on. 
+G.   Use sequence ENTER 615 to calibrate the sensor.  
+H.   The calibration value can be displayed by pressing ENTER 614. 
+ 
+ Note: 
+An SX4750 rotor needs to be installed before adjusting the voltage below. 
+Before proceedings with adjustments make sure the flag is free of scratches. 
+ 
+    Flag Calibration 
+ 
+A.   Open the front panel. 
+B.    Ensure the optical flag is in position within the optical sensor.  
+C.   Connect a DVM between TP 19 and TP 30. 
+D     Loosen two screws and move the sensor bracket all the way toward the drive to read < 1.5 VDC.  
+E     Pull the bracket very slowly towards the front of the instrument until a reading of   
+        2.5 +/- 0.1 Volts DC is established. The sensor should be positioned in the middle of the flag. If     
+        the bracket is pulled to far a second 2.5 V is measurable and the sensor is positioned at the edge   
+        of the flag which is incorrect and will cause I6 diagnostics.  
+F.    Push the rotor to the 12’o clock position and release it. 
+G.    After the rotor moved back to its center position check for 2.5 Volts DC again and   
+        adjust bracket if necessary. 
+H..  Pull the rotor to the 6 o’clock position and release it. 
+I.    After the rotor moved back to its center position check for 2.5 Volts DC again and   
+       adjust bracket if necessary. 
+Allegra X-12/R, X-15R  Service Manual  07/07  3-7
+   
+
+===== PAGE 41 =====
+Section 3:  Service Procedures 
+J.    If voltage is within 2.5 +/- .1Volts DC after moving the rotor in both directions tie    
+      down the bracket. 
+K.  Perform a test run with a balanced rotor load and empty rotor. Monitor the 2.5 V DC 
+L.   If the Voltage is within  2.5+/- .1V between a loaded or empty rotor the calibration is   
+       complete.  
+M.  If it isn’t within the tolerance perform steps E to L again.   
+ 
+Typically, 10-15 g should cause imbalance error I1. 
+ 
+ 
+ 
+ 
+ 
+3.2 Temperature Control Systems  
+ 
+Warning:   Unplug the centrifuge or turn off and lock out the main wall circuit 
+breaker before removing an instrument panel. 
+Warning: As long as the yellow LED on the Motor driver board is lit, the Bus 
+Voltage is still present. Wait until LED is off. 
+ 
+3.2.1 Refrigeration System Safety  
+ 
+Warning:  Refer to the safety notices in the front of this manual for cautionary notes  
+   when working with refrigeration system.  Read all brazing safety   
+   notes.  Always recover the refrigerant. 
+ 
+3.2.2 Refrigeration Functional Test 
+ 
+A.  The SX4750 swinging bucket rotor is recommended for this test.  Replace loaded buckets 
+with empty buckets. Temperature measurements are performed by using 40ml of 
+glycerol in two of the opposing buckets.  
+ 
+B. To precool the rotor and chamber, set temperature to -2° C, speed  to 2000 RPM and time 
+for 30 minutes. 
+3-8  Allegra X-12/R, X-15R Service Manual 07/07 
+
+===== PAGE 42 =====
+  Section 3:  Service Procedures 
+ 
+C. After precool, set the temperature to -10 °C and increase speed to 3750 RPM. Set the time 
+for 15 minutes. 
+ 
+D.  At the instant the time shuts off, record the indicated temperature.  The reading should be 
+-1° C or colder for 60 Hz units and + 1° C or colder for 50 Hz units. 
+ 
+E.  When the rotor stops use a temperature meter to measure the actual temperature of  the 
+sample (glycerol) and then record the reading. 
+ 
+F.  The difference between D and E should be within +/-2° C. 
+ 
+ If functional test fails, proceed to 3.2.3   
+ 
+3.2.3 Checking the Refrigerant Charge 
+ 
+A.  Open front panel as described in 3.1.1 and remove four screws and the right front cover.  
+ 
+B. Connect charging manifold (“Access” control valves, P/N 964411, simplify connection 
+to Shrader service valves) and refrigerant supply as shown in Figure 3-1. 
+ 
+C. Before opening the Shrader valves, purge the charging manifold and hoses of air with 
+R404a refrigerant supply at the low-side and high-side service valves. 
+ 
+D. Precool Chamber to –10 °C and install rotor SX 4750. Run the rotor at 3750RPM for   
+     ten minutes and then take pressure readings.  
+ 
+F. Compare the pressures to be as shown in Graph 1A or 1B. 
+ 
+G. If system pressures are low, add refriger ant R404a as a liquid at the low-side until the 
+required pressure is indicated.  Proceed to step 3.2.4 to check for leaks. 
+ 
+H. After removing refrigeration manifold, and access valves, ensure the service valve caps 
+are replaced and tightened. Insulate the low-side service valve with “Presstite” insulation 
+tape. 
+ 
+ 
+ 
+Allegra X-12/R, X-15R  Service Manual  07/07  3-9
+   
+
+===== PAGE 43 =====
+Section 3:  Service Procedures 
+ 
+Figure 3-1 
+ 
+  
+  
+                                       Allegra X-12R 
+3-10  Allegra X-12/R, X-15R Service Manual 07/07 
+
+===== PAGE 44 =====
+  Section 3:  Service Procedures 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Allegra X-12/R, X-15R  Service Manual  07/07  3-11
+   
+
+===== PAGE 45 =====
+Section 3:  Service Procedures 
+                                  Allegra X-15R 
+ 
+  
+ 
+ 
+3-12  Allegra X-12/R, X-15R Service Manual 07/07 
+
+===== PAGE 46 =====
+  Section 3:  Service Procedures 
+      F i g u r e  3 - 2  
+ 
+3.2.4 Leak Test and Evacuation 
+ 
+ LEAK TEST  
+ 
+A. Remove front panel and instrument housing as outlined in the mechanical systems 
+section. 
+B. Connect the charging manifold per step 3.2.2. 
+C. Purge charging manifold and hoses of ai r before adding refrigerant to the system. 
+D. If system pressures are low, add refriger ant R404a as a liquid to the low-side with 
+compressor running. 
+E. Turn main power off.  Allow pressures to equi librate then test for leaks.  (Requires a leak 
+detector that will detect R404a). 
+F. Correct all leaks found in the system. 
+ 
+ 
+EVACUATION 
+ 
+A. Evacuate the system to 50 microns by using an evacuation manifold and a high capacity 
+vacuum pump, as shown in figure 3-3.  After a vacuum is obtained turn compressor on 
+for about 2-3 seconds to remove moisture trapped in compressor, turn compressor off and 
+allow system to achieve 50 microns of vacuum. 
+B. Close both access service valves at the co mpressor while the vacuum pump continues to 
+run.  Once the valves are closed, turn off the vacuum pump and remove the evacuation 
+manifold. 
+B.  Connect charging manifold and R404a refrigerant supply per procedure in step 3.2.3. 
+ 
+ 
+  
+Vacuum Monitor
+    (338866)
+High Vacuum
+    Pump
+Evacuation Manifold
+         (341676)
+Compressor
+ High Side
+Service Valve
+Compressor
+  Low side
+Service Valve
+ 
+ 
+FIGURE 3 - 3 
+Allegra X-12/R, X-15R  Service Manual  07/07  3-13
+   
+
+===== PAGE 47 =====
+Section 3:  Service Procedures 
+3.2.5 Chamber Bowl Replacement (Refrigerated) 
+ 
+A.  Remove control panel, per step 3.1.1. 
+ 
+B. Remove housing, per step 3.1.3. 
+ 
+C. Disconnect harnesses in brazing area a nd position them to avoid heat damage. 
+ 
+D. Recover refrigerant from system. 
+ 
+E. Remove Shrader valves prior to brazing. 
+ 
+CAUTION:  Do not damage or cut the capillary tube located inside the 1/4 inch tubing. 
+ 
+G. Observe brazing precautions. Unbraze both refrigeration chamber lines . 
+H. Remove chamber support mounting hardware from bottom side of chassis. 
+I. Remove the barrier if necessary by removing two screws attached to each barrier bracket. 
+J. Remove chamber. 
+K. Re-assemble the chamber, by performing the above steps in reverse order.   
+      DO NOT CUT OR DAMAGE THE CAPILLARY TUBE.  Evacuate, charge and   
+      leak test the refrigeration system per step 3.2.3. 
+ 
+ 
+NOTE:   Ensure chamber gasket and door form a good seal prior to performing 
+ refrigeration tests. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+3.2.6  Temperature Sensor Check 
+3-14  Allegra X-12/R, X-15R Service Manual 07/07 
+
+===== PAGE 48 =====
+  Section 3:  Service Procedures 
+1. Turn power off and open the front panel. 
+ 
+2. Remove P7 on the control board for the Thermistor. 
+ 
+3. Connect your VOM across P7  pins 1&2. 
+ 
+4. The value displayed on the meter should match the value given in the chart below. 
+ 
+ 
+ 
+Resistance versus Temperature 
+  
+10 K at 25 C       
+Temp. C Res.  Temp. C Res.  Temp. C Res.  Temp. C Res.  
+-50 441.3K 0 29.49K 20 12.26K 40 5592 
+-40 239.8K 1 28.15K 21 11.77K 41 5389 
+-30 135.2K 2 26.89K 22 11.29K 42 5193 
+-20 78.91K 3 25.69K 23 10.84K 43 5006 
+-10 47.54K 4 24.55K 24 10.41K 44 4827 
+-1 30.89K 5 23.46K 25 10.00K 45 4655 
+  6 22.43K 26 9605 46 4480 
+  7 21.45K 27 9227 47 4331 
+  8 20.52K 28 8867 48 4179 
+  9 19.63K 29 8523 49 4033 
+  10 18.79K 30 8194 50 3893 
+  11 17.89K 31 7880 51 3758 
+  12 17.22K 32 7579 52 3629 
+60 2760 13 16.49K 33 7291 53 3504 
+70 1990 14 15.79K 34 7016 54 3385 
+80 1458 15 15.13K 35 6752 55 3270 
+90 1084 16 14.50K 36 6500 56 3160 
+100 816.8 17 13.90K 37 6258 57 3054 
+110 623.5 18 13.33K 38 6026 58 2952 
+120 481.8 19 12.79K 39 5805 59 2854 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+3.3 Troubleshooting 
+Allegra X-12/R, X-15R  Service Manual  07/07  3-15
+   
+
+===== PAGE 49 =====
+Section 3:  Service Procedures 
+ 
+3.3.1 Component Resistance Checks  
+ 
+ 208V Compressor 
+  Common to Run  5.7 ohm 
+  Common to Start 2.5 ohm 
+       Drive 4.2 ohm    
+ 
+3.3.2 Diagnostic Messages 
+ 
+There are 9 key categories of diagnostics in the Allegra X-12 series centrifuge. 
+ 
+ • System  ( S. EPROM, RAM, Software problem) 
+ • Power  (P . Power failure) 
+ • Door  ( L. Door open, Unlatched, Interlock malfunction) 
+ • Imbalance (I. Imbalanced rotor) 
+ • Rotor  (R .Dynamic rotor ID) 
+ • Drive  ( D. Driver board failure, Board overtemp, Over bus voltage, 
+Communication problem) 
+ • Speed  ( H. Overspeed, Speed not controlling, No Tach present) 
+ • Temp  ( T.Overtemp) 
+ • Refrigeration ( C. Temperature control) 
+ 
+ 
+System Diagnostics  
+ 
+All System diagnostics are only checked during power up, When a System diagnostic occurs, the user 
+must call the filed service and cannot clear the diagnostic by pressing the [CE] key.  
+ 
+Diag. 
+# 
+Description     Action taken          When issued            Display 
+   S1 Program in FLASH ROM  
+changed 
+Shutdown, no brake On power up/ reset S-1 System error,  
+call Service 
+   S5 Software Exception  Shutdown, no brake Any time S-5 System error,  
+call Service 
+   S7 Battery backed Ram data changed Shutdown, no brake On power up/ reset S-7 System error,  
+call Service 
+ 
+ 
+  
+  
+  
+ 
+ 
+Power Diagnostics  
+3-16  Allegra X-12/R, X-15R Service Manual 07/07 
+
+===== PAGE 50 =====
+  Section 3:  Service Procedures 
+Momentary power outage will not terminate the run.  A Power diagnostic will be given for a power 
+failure at power glitch or outage. When a Power diagnostic occurs, all program parameters will be 
+saved and the Power diagnostic will be displayed on the VFD. 
+ 
+Diag. 
+# 
+Description     Action taken            When issued Display 
+   P1 Hardware power failure 
+ indication 
+Shutdown with brake On power up/ reset after  
+any power glitch or outage 
+P-1 Power failure  
+occurred, see manual 
+ 
+Door Diagnostics  
+ 
+Diag 
+# 
+Description     Action taken            When issued Display 
+    L1 Both door strikers not in place  Shutdown, no brake When running or stopping 
+ only 
+L-1 Door Latch,  
+call Service 
+    L2 Left striker is not in place  Shutdown, no brake When running, stopping or 
+pressing ENTER START 
+L-2 Door Latch,  
+call service 
+ 
+    L3 Right striker is not in place  Shutdown, no brake When running, stopping or 
+pressing ENTER START 
+L-3 Door Latch,  
+call Service 
+    L4 Both door latches are open  Shutdown, no brake When running, stopping or 
+pressing ENTER START 
+L-4 Door Latch,  
+call Service 
+    L5 Left door latch open  Shutdown, no brake When running, stopping or 
+pressing ENTER START 
+L-5 Door Latch,  
+call Service 
+    L6 Right door latch open  Shutdown, no brake When running, stopping or 
+pressing ENTER START 
+L-6 Door Latch,  
+call Service 
+    L7 Cannot open the door No action When running, stopping or 
+pressing ENTER START 
+L-7 Can’t Open Door, 
+see manual 
+ 
+Imbalance Diagnostics  
+ 
+The Allegra X-12/R, X-15R centrifuge has a rotor imbalance detector as used in the Allegra 25/64R.  
+In a situation where an imbalanced rotor is being used an Imbalance diagnostic will be generated and 
+the instrument will brake the run to a stop.  The system reports imbalance diagnostic if the sensor 
+reading is positive and the door is closed.  
+Temp Diagnostics  
+Diag. 
+# 
+Description     Action taken When issued            Display 
+    I1 Imbalanced rotor.  Shutdown with brake  I-1 Imbalance, see manual
+    I2 Bad imbalance detector Shutdown with brake Issued when imbalance  
+A/D does not change 
+ (Connector not attached) 
+I-2 Imbalance Error, 
+call Service 
+    I3 Imbalance not calibrated Shutdown with brake Issued when Imbalance  
+calibration value for rotor 
+ is set to 0. This is the default 
+ value when not calibrated. 
+I-3 Imbalance Error, 
+Call Service 
+ 
+ 
+   I4 Imbalance sensor not calibrated Run will not start Issued when enter/start 
+pressed 
+I4 -Imbalance Error,  
+call Service 
+   I5 Imbalance flag failure Run will not start Issued when enter/start 
+pressed 
+I5 -Imbalance Error, call 
+Service 
+   I6 Imbalance flag calibration error Run will not start Issued when enter/start 
+pressed 
+I6 -Imbalance Error, call 
+Service 
+Allegra X-12/R, X-15R  Service Manual  07/07  3-17
+   
+
+===== PAGE 51 =====
+Section 3:  Service Procedures 
+When the software detects the chamber temperature (thermistor) exceeds  50°C, or the software reads 
+the can over temp sensor it will generate an Over temp diagnostic and shutdown the instrument by 
+coasting.  There is no minimum chamber temperature requirement or diagnostic.  
+    
+Diag # Description     Action taken When issued            Display 
+    T1 Max temperature exceeded Shutdown no brake, 
+ door locked for 45 min
+When thermistor reading  
+exceeds 50C 
+T-1 Temp, door locks for 
+45 minutes, call Service 
+    T2 Chamber overtemp Shutdown no brake, 
+ lock door 45 minutes
+HW sends signal to  
+control board 
+T-2 Temp, door locks for 
+45 minutes, call Service 
+    T3 Motor over temp Shutdown, no brake HW sends signal to 
+control board 
+T-3 Temp, door locks for 
+45 minutes, see manual 
+ 
+Refrigeration Diagnostics 
+When the software detects the set temperature is not controlled within a temperature range an error will 
+be displayed 
+ 
+Diag # Description     Action taken When issued            Display 
+    C1 Temp exceeds 5C above set No action If reached temp and 4C  
+over set  
+C-1 Rotor temp exceeds  
+4C above set 
+    C2 Temp exceeds 8C above set Shutdown no brake, 
+  
+If reached temp and 8C  
+above set  
+C-2Rotor temp exceeds 8C
+ above set, call Service 
+    C3 Temperature not controlled Shutdown with brake Not trending towards  
+set temp 
+C-3 Temp Error,  
+call Service 
+    C5 Temperature bad reading Shutdown with brake Software read an  
+ambiguous temperature 
+ reading 
+C-5 Temp Error,  
+call Service 
+Drive Diagnostics  
+ 
+Diag # Description     Action taken When issued            Display 
+    D1 Fault not cleared Shutdown no brake Driver board issues fault;  
+SW cannot clear 
+D-1 Drive error,  
+call Service 
+    D2 Fault limit exceeded Shutdown no brake More than 2 driver faults 
+occurred during run 
+D2-Drive Error, call 
+Service 
+ 
+    D4 Bus voltage limit exceeded Shutdown, no brake SW detects bus voltage 
+over maximum allowed 
+voltage 435 Volt 
+D-4 Drive error, call 
+Service 
+    D5 Driver not powered Shutdown, no brake Drive power lost during 
+run 
+D-5 Drive Error, call 
+Service 
+    D6 Driver over temperature  Shutdown, no brake Signal from driver board 
+indicates an over temp  
+D-6 Drive Error, call 
+Service 
+   D7 Driver not enabled Shutdown, no brake Driver not enabled after  
+turning On 
+D-7 Drive Error, call 
+Service 
+   D8 Driver not established Shutdown, no brake Driver not established 
+after turning Off 
+D-8 Drive Error, call 
+Service 
+   D9 Driver not connected Shutdown, no brake Driver board not 
+connected 
+D-9 Drive Error, call 
+Service 
+ 
+ 
+ 
+ 
+Speed Diagnostics 
+3-18  Allegra X-12/R, X-15R Service Manual 07/07 
+
+===== PAGE 52 =====
+  Section 3:  Service Procedures 
+ 
+Diag. # Description     Action taken When issued            Display 
+     H1 Speed not controlled Shutdown with brake Speed varies up and down 
+ 
+H-1 Speed error, 
+call Service  
+     H2 Speed exceeded Shutdown, with brake Set speed exceeded by 200 
+ 
+H-2 Speed error,  
+call Service 
+     H3  Lost Tach Shutdown, no brake 
+Door locked for 45 min
+Any time during run H-3 Speed Error,  
+call Service 
+     H4 Set speed not reached Shutdown with brake The user set speed took  
+more than reasonable 
+time to reach set speed 
+H-4 Speed Error,  
+call Service 
+     H5 Lost Tach Shutdown, no brake 
+Door locked for 45 min
+Bad value from TPU  
+reading 
+H-5 Speed error,  
+call Service 
+     H6 Overspeed rotor magnet  
+verification 
+Shutdown, no brake 
+Door locked for 45 min
+Issued when speed read 
+From rotor magnets is 100 
+RPM more than maximum 
+Speed for the rotor. 
+H-6 Speed Error, door 
+locks for 45 min.,  
+Call Service 
+ 
+Rotor Diagnostics 
+ 
+Diag. # Description     Action taken           When Issued  Display 
+    R1 No index pulse found  Shutdown, with brake When running, stopping,  
+or pressing ENTER START
+ R-1 Rotor ID problem, 
+call Service 
+    R2 No code pulse found Shutdown, with brake When running, stopping,  
+or pressing ENTER START
+R-2 Rotor ID problem, 
+call Service 
+    R3 Setup rotor does not  match the 
+ chamber rotor 
+Shutdown, with brake When running, stopping,  
+or pressing ENTER START
+R-3 Rotor ID mismatch, 
+check rotor 
+ 
+ 
+    R4 
+ 
+No Rotor ID X-12/R only 
+ 
+Shutdown with brake
+ 
+When system does not  
+detect any Magnets  
+R-4 No Rotor Match, 
+see Manual 
+    R5 
+ 
+Unknown Rotor in chamber 
+ 
+Shutdown with brake
+ 
+Magnets detected, but  
+pattern is not one of  
+Allegra X-12 R rotors 
+R-5 No Rotor Match, 
+see Manual 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+3.3.4 Emergency Access 
+ 
+Allegra X-12/R, X-15R  Service Manual  07/07  3-19
+   
+
+===== PAGE 53 =====
+Section 3:  Service Procedures 
+If facility power fails you will have to restart the run when the power is restored. In the event 
+of an extended power failure, it may be necessary to trip the door-locking mechanism 
+manually to remove the rotor and retrieve your sample. 
+ 
+1. Press the POWER switch to OFF and unplug the power cord from the power source.   
+    No displays or LED’s are lit. 
+ 
+2. Make sure that the rotor is not spinning. No sound or vibration comes from the   
+    centrifuge. 
+! WARNING 
+Never attempt to override the door interlock system while the rotor is spinning. 
+ 
+3. Locate the release device cap underneath the bottom center of the centrifuge (not    
+    visible from the centrifuge front). 
+ 
+4. Use a flat-blade screwdriver to pry the cap loose. 
+ 
+5. Insert the screwdriver through the two cords and pull to release. The latch releases and   
+    the door opens. If the rotor is still spinning, close the door and wait until it stops before     
+    attempting to remove it. 
+ 
+! WARNING 
+Never attempt to slow or stop the rotor by hand. 
+ 
+6. Reinstall the cap in the opening after sample retrieval. 
+ 
+ 
+3.4 Preventive Maintenance 
+3-20  Allegra X-12/R, X-15R Service Manual 07/07 
+
+===== PAGE 54 =====
+  Section 3:  Service Procedures 
+Preliminary 
+ 
+Contact the customer prior to making the call. Ask about any current problems, and  
+de
+ad
+ 
+ Instrument safe to work on (safe positioning and decontamination if necessary).  
+contamination of the instrument if necessary.  Order any potentially required parts in 
+vance. 
+3.4
+ 
+ Centrifuge identification legible. 
+.1 After Arrival 
+ 
+ 
+ Rotors and accessories safe and usable. 
+ 
+ 
+ Run Max. RPM test to check for normal operation. 
+ 
+ Update instrument to latest revision. Check latest Service INFO’s for updates & kits. 
+  
+ 
+ 
+  Test operation (This is not a certification). 
+ 
+ 
+ 
+ 
+ 
+ 
+  Safety inspection. 
+Speed Set____________________Checked______________________ 
+Temp Set____________________Checked______________________ 
+Run time Set_________________Checked______________________ 
+ 
+ 
+ 
+-Wires, Connectors, Boards, Fans 
+-Vibration mounts 
+-Labels 
+-Door, Fuses 
+-Refrigeration (labels correct etc.) 
+-Power cord 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+3.4.2  Rotors 
+Allegra X-12/R, X-15R  Service Manual  07/07  3-21
+   
+
+===== PAGE 55 =====
+Section 3:  Service Procedures 
+          Lubricate the rotor Tie-down bolt with Spinkote, O-rings with vacuum grease.  
+         Replace damaged or missing O-rings. 
+   Check that buckets on swinging bucket rotors swing freely. Clean and apply 
+appropriate lubrication to all friction points. 
+ 
+3.4.3 Drive  
+ 
+  Vibration mounts not sagging or cracked. 
+  Check fan and blower wiring insulation for cracking/flaking. Replace if needed. 
+  Clean condenser fan and motor for function. 
+  Clean condenser fins. In severe cases, high-pressure air may have to be used to free 
+ compacted dirt. 
+  Check latch and door for alignment. 
+  Tighten door screws. 
+  Verify line voltage  
+ 
+3.4.4 Electrical and Functional Tests  
+    Perform all needed updates. 
+   Final test run (NOTE: This is not a Certification) 
+ Speed Set_____________________Checked________________________ 
+ Temp. Set_____________________Checked________________________ 
+ Run time Set___________________Checked________________________  
+  Check refrigerant level during run only if instrument fails test run when set at lowest 
+temperature of rotor used while controlling at max. speed for the rotor. 
+  Replace all panels, clean exterior. 
+  Notify customer upon completion and inform him/her of any problems found 
+and corrected. 
+3-22  Allegra X-12/R, X-15R Service Manual 07/07 
+
+===== PAGE 56 =====
+  Section 4: Schematics 
+4.1  ALLEGRA X-12/R, X-15R CIRCUIT DESCRIPTION 
+ 
+Control Driver Board 
+ 
+General 
+ 
+The Control Driver Board (CDB) is a Motorola 68332 based board providing all 
+instrument control. 
+ 
+Power Supply 
+ 
+A single power supply generates 3 voltages; +24V (LD62), +5V (LD63), and +3.3V 
+(LD65).  The +24V supply is not regulated, however the +5V U34 and +3.3V U35 
+supplies are regulated.  The output of the+5V supply feeds the +3.3V regulator.  A 2A 
+fuse is in series with the primary winding of the transformer for protection. 
+ 
+VREF is the analog +5 VDC reference.  VREF is generated from +24VDC via ZR1, 
+LM4040 a precision voltage reference.  This voltage is used for the A/D Converter U25, 
+the Imbalance Circuit, and the Motor Driver Board. 
+ 
+The Power Fail circuit sends a fault signal to the microprocessor if the supply falls below 
+20V DC. 
+ 
+Driver Board Control 
+Via J21 
+The microprocessor generates PWM signals that are fed to the Driver Board.  Other 
+control and status signals such as Drive Enable, Brake and, Fault detection are interfaced 
+to the Driver Board through this connector. 
+ 
+A/D Circuit 
+The Analog to Digital Conversion is achieved by using a MCP 3208, 12 bit 8 channel SPI 
+Serial Interface, A/D Converter U25.  The A/D converter is referenced to VREF and 
+converts the following signals:  DC-Link, Current, Thermistor and Imbalance. 
+ 
+Thermistor 
+Via J7 
+Termistor is buffered through Op Amp U36A to the A/D Converter U25. 
+ 
+Tach Input 
+Via J10 
+The Tach signal is fed into the microprocessor via TPU6.   
+ 
+Door Interlock Circuit 
+The Door Interlock is controlled by LM2917 U106, a Frequency to Voltage Converter, 
+using the TACH Signal as its input. 
+Allegra X-12/R, X-15R Service Manual 7/04  4-1 
+ 
+
+===== PAGE 57 =====
+Section 4: Schematics 
+ 
+ 
+Motor Temperature 
+Via J11 
+Motor Temp signal is routed to logic and the data bus through J11. 
+ 
+ 
+Sensors 
+Via J12 
+Door Latch, Striker Status, and CAN TMP signals are routed to logic and the data bus 
+through connector J12.  Two  +24VDC fans are also powered through J12. 
+ 
+ 
+Door Latches 
+J4 & J5 
+Door Latches are controlled by the microprocessor and the status of the Door Interlock 
+circuit.  Signals are driven by BTS428 High-Side Power Switches. 
+ 
+Compressor and Fans 
+The Condenser fan J2, Compressor (wiring harness from relay), and the two +24V DC 
+fans, J12, are controlled by the microprocessor.  Signals are driven by BSP550 High-Side 
+Power Switches. 
+ 
+Rotor ID 
+Via J8 
+Index and Code pulses from the Hall Effect Sensor are filtered and connected to the 
+microprocessors TPU12 and TPU10 channels 
+ 
+Imbalance 
+Via J9 
+U36XZY 
+The imbalance circuit detects drive displacement.  A flag, which is a grayscale image 
+printed on a piece of transparent plastic, is mounted to a bracket that is attached to the 
+drive.  Any movement of the drive displaces the flag, which passes through a photo-
+interrupter.  The circuit, biased at +2.5VDC, detects and holds the peak signal from the 
+photo-interrupter.  This value is fed to the A/D converter U25 where software determines 
+if a gross imbalance is present. 
+ 
+Keypad 
+Via J1 
+Keypad decoding is achieved with the common Row and Column technique. 
+ 
+Display 
+Via J3 
+A vacuum fluorescent display, driven by the microprocessor, displays the instruments 
+status and run parameters. 
+4-2  Allegra X-12 Service Manual 7/04   
+
+===== PAGE 58 =====
+  Section 4: Schematics 
+Motor Driver Board 
+ 
+General 
+ 
+The Motor Driver Board (MDB) provides the necessary power handling components to 
+drive a three phase induction motor. These components can be organized into 5 sections: 
+Power Supplies, Interface, Timing, IGBT Drive, Power Module, and Fault Detection. All 
+circuits are referenced to the A.C. line input. Care should be exercised when connecting 
+test equipment. 
+ 
+Power Supplies 
+ 
+There are two power supply circuits: a high voltage power supply (HVPS), and a low 
+voltage power supply (LVPS). The HVPS converts the rectified A.C. line voltage to 400 
+volts D.C. The supply has soft start, over voltage and over current protection. The major 
+components of the HVPS are L4, C14 & 15, QF 24 & 27, and U22. The LVPS converts 
+the 400 volt output of the HVPS to +5 and +15 volts D.C. for use on the MDB. The 
+major components of the LVPS are T1 and U15. 
+ 
+Interface 
+ 
+Control and status signals are communicated between the Motor Driver Board and the 
+Control Board via opto-isolators located on the MDB. The inputs to the MDB are 
+three digital pulse width modulated (PWM) signals for controlling motor current, 
+drive enable  for energizing the IGBT drive, brake, and fault clear (U5, 8, 9, 14, 17 & 
+18). The output signals are drive fault, drive on, over temperature, and an analog 
+voltage of the 400 volt supply referenced to logic ground (U6, 23, 24 & 25). 
+ 
+Timing 
+ 
+Components U2 and 19 delay the activation of the IGBT drivers to insure that the 
+high side drive does not conduct while the low side is still on. The delay is in the 
+order of 1.2 micro-seconds.  
+ 
+IGBT Drive 
+ 
+U20 translates the 5 volt level PWM signals to 400 volt amplitude. It provides the 
+necessary gate drive voltages for the IGBT bridge and some fault detection. It also 
+provides the gate drive voltage to drive a Brake Drive IGBT.  
+ 
+Allegra X-12/R, X-15R Service Manual 7/04  4-3 
+ 
+
+===== PAGE 59 =====
+Section 4: Schematics 
+ 
+Power Module 
+ 
+The Power Module contains six IGBTs forming a three-phase bridge circuit, a Brake 
+Drive IGBT, a full wave bridge rectifier, and a thermistor for monitoring heat sink 
+temperature.  
+ 
+Fault Detection 
+ 
+Besides the fault detection provided by the IGBT driver, the current through the IGBT 
+bridge is monitored by U12 & 13. If the current should exceed 20 amperes the drive fault 
+signal will activate, disabling the IGBT drive. Also the thermistor within the power 
+module is monitored and the fault signal activated if the maximum temperature of the 
+module is exceeded. The drive over temperature status line is also activated. 
+ 
+Indicators 
+ 
+There are three LED indicators on the MDB. LD1 is green and indicates that the drive is 
+enabled. LD2 is red and indicates that the fault signal is active. LD3 is yellow and 
+indicates that high voltage is present. It should be noted that dangerous voltages are 
+present on the MDB while LD3 is illuminated. It will remain illuminated after power is 
+removed until the HVPS discharges. 
+ 
+Normal Operation 
+ 
+Before a run is made, only the yellow LED is illuminated. When the run begins both the 
+yellow and green LED's are illuminated. The green LED is extinguished at the end of the 
+run. The red LED should never be illuminated. Also, the Brake resistor will get hot 
+during deceleration and is electrically connected to the HVPS. Therefore contact with the 
+Brake Resistor should be avoided. 
+ 
+ 
+ 
+ 
+4-4  Allegra X-12 Service Manual 7/04   
+
+===== PAGE 60 =====
+
+
+===== PAGE 61 =====
+
+
+===== PAGE 62 =====
+
+
+===== PAGE 63 =====
+
+
+===== PAGE 64 =====
+
+
+===== PAGE 65 =====
+
+
+===== PAGE 66 =====
+
+
+===== PAGE 67 =====
+
+
+===== PAGE 68 =====
+
+
+===== PAGE 69 =====
+
+
+===== PAGE 70 =====
+
+
+===== PAGE 71 =====
+
+
+===== PAGE 72 =====
+
+
+===== PAGE 73 =====
+
+
+===== PAGE 74 =====
+
+
+===== PAGE 75 =====
+
+
+===== PAGE 76 =====
+
+
+===== PAGE 77 =====
+
+
+===== PAGE 78 =====
+
+
+===== PAGE 79 =====
+
+
+===== PAGE 80 =====
+
+
+===== PAGE 81 =====
+
+
+===== PAGE 82 =====
+
+
+===== PAGE 83 =====
+
+
+===== PAGE 84 =====
+
+
+===== PAGE 85 =====
+
+
+===== PAGE 86 =====
+
+
+===== PAGE 87 =====

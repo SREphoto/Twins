@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lab Systems · Lab viewer</title>
+  <link rel="stylesheet" href="style.css?v=20260725-lab" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">LAB</span>
+        <span class="brand-model">Systems</span>
+        <span class="brand-tag">Multi-machine training lab</span>
+      </div>
+
+      <div class="machine-picker">
+        <label for="machine-select">Machine</label>
+        <select id="machine-select" aria-label="Choose lab machine"></select>
+      </div>
+
+      <div class="topbar-status">
+        <span id="status-pill" class="pill">READY</span>
+        <span id="status-detail" class="muted">Select a machine</span>
+      </div>
+    </header>
+
+    <div class="stage-shell">
+      <div id="switch-banner" class="switch-banner" aria-live="polite"></div>
+      <!-- Shared lab desk (visible during machine switches) -->
+      <div id="transition-host" aria-hidden="true"></div>
+      <!-- Full interactive twin for the selected machine -->
+      <iframe
+        id="machine-frame"
+        class="is-hidden"
+        title="Machine twin"
+        allow="autoplay"
+      ></iframe>
+    </div>
+
+    <footer class="footer-hint">
+      <strong>Lab desk:</strong> choose a machine above.
+      Ready twins load their own control panels and 3D.
+      Switching slides the current instrument off the desk, then loads the next.
+      Gold sample: <code>centrifuge_twin</code> · process: <code>.master/</code>
+    </footer>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="app.js?v=20260725-lab"></script>
+</body>
+</html>

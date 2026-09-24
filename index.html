@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SREdesigns · Laboratory Digital Twins</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070a0f;
+      --card-bg: rgba(18, 25, 38, 0.75);
+      --card-border: rgba(42, 53, 69, 0.7);
+      --card-hover: rgba(28, 38, 58, 0.9);
+      --cyan: #00d4e8;
+      --cyan-glow: rgba(0, 212, 232, 0.35);
+      --green: #3dd68c;
+      --amber: #f0b429;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --font: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+      --mono: 'IBM Plex Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image: 
+        radial-gradient(ellipse at 50% 0%, rgba(0, 212, 232, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 90%, rgba(61, 214, 140, 0.08) 0%, transparent 50%);
+    }
+
+    /* Header */
+    header {
+      background: rgba(10, 14, 20, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .brand-badge {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(6, 182, 212, 0.2));
+      border: 1px solid rgba(245, 158, 11, 0.6);
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #fbbf24;
+      text-transform: uppercase;
+    }
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .brand-title span { color: var(--cyan); }
+    .hub-pill {
+      font-size: 0.72rem;
+      font-family: var(--mono);
+      padding: 0.3rem 0.65rem;
+      border-radius: 999px;
+      background: rgba(61, 214, 140, 0.15);
+      border: 1px solid rgba(61, 214, 140, 0.4);
+      color: var(--green);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .hub-pill::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
+
+    /* Container */
+    main {
+      flex: 1;
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    /* Hero Banner */
+    .hero-card {
+      background: linear-gradient(135deg, rgba(14, 28, 48, 0.9), rgba(10, 18, 30, 0.85));
+      border: 1px solid rgba(0, 212, 232, 0.4);
+      box-shadow: 0 0 30px rgba(0, 212, 232, 0.12);
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-card::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(0, 212, 232, 0.15), transparent 70%);
+      pointer-events: none;
+    }
+    .hero-tag {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--cyan);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .hero-heading {
+      font-size: 1.45rem;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+    .hero-desc {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.5;
+      max-width: 680px;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 0.25rem;
+    }
+    .btn-hero {
+      background: var(--cyan);
+      color: #050b14;
+      font-weight: 700;
+      font-size: 0.92rem;
+      padding: 0.75rem 1.4rem;
+      border-radius: 10px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 0 20px var(--cyan-glow);
+      transition: all 0.2s ease;
+    }
+    .btn-hero:hover {
+      background: #38bdf8;
+      transform: translateY(-1px);
+    }
+
+    /* Section Title */
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .section-title span { color: var(--muted); font-size: 0.85rem; font-weight: 400; }
+
+    /* Grid of Twin Cards */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .twin-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1rem;
+      transition: all 0.25s ease;
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+    }
+    .twin-card:hover {
+      background: var(--card-hover);
+      border-color: rgba(0, 212, 232, 0.45);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 16px rgba(0, 212, 232, 0.1);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    .twin-type {
+      font-size: 0.75rem;
+      font-family: var(--mono);
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+    .status-badge {
+      font-size: 0.68rem;
+      font-family: var(--mono);
+      font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      letter-spacing: 0.05em;
+    }
+    .status-badge.ready {
+      background: rgba(61, 214, 140, 0.15);
+      border: 1px solid rgba(61, 214, 140, 0.4);
+      color: var(--green);
+    }
+    .status-badge.gold {
+      background: rgba(245, 158, 11, 0.18);
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      color: #fbbf24;
+    }
+    .status-badge.planned {
+      background: rgba(148, 163, 184, 0.15);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      color: var(--muted);
+    }
+
+    .twin-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-top: 0.2rem;
+    }
+    .twin-tag {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 0.15rem;
+      line-height: 1.4;
+    }
+    .twin-specs {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      line-height: 1.45;
+      padding-top: 0.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 0.5rem;
+    }
+    .open-btn {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--cyan);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .twin-card:hover .open-btn {
+      color: #38bdf8;
+      gap: 0.55rem;
+    }
+
+    /* Footer */
+    footer {
+      background: #090e15;
+      border-top: 1px solid var(--card-border);
+      padding: 1.25rem;
+      text-align: center;
+      font-size: 0.78rem;
+      color: #64748b;
+    }
+    footer a { color: var(--cyan); text-decoration: none; }
+
+    @media (max-width: 640px) {
+      header { padding: 0.75rem 1rem; }
+      .brand-title { font-size: 1rem; }
+      .hero-card { padding: 1.2rem; }
+      .hero-heading { font-size: 1.25rem; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="brand-wrap">
+      <div class="brand-badge">SREdesigns</div>
+      <div class="brand-title">LAB <span>Twins</span></div>
+    </div>
+    <div class="hub-pill">11 READY TWINS</div>
+  </header>
+
+  <!-- Main Showcase -->
+  <main>
+    <!-- Featured Hero Card: Unified Multi-Machine Lab Desk -->
+    <div class="hero-card">
+      <div class="hero-tag">Unified Training Environment</div>
+      <h1 class="hero-heading">Multi-Machine Digital Lab Desk</h1>
+      <p class="hero-desc">
+        Interactive 3D laboratory desk. Seamlessly switch between analytical instruments with animated transitions, live procedural LCD displays, authentic audio synthesis, and real-time physical simulation.
+      </p>
+      <div class="hero-actions">
+        <a href="lab_viewer/index.html" class="btn-hero">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          Launch Lab Desk Viewer
+        </a>
+      </div>
+    </div>
+
+    <!-- Machine Twins Showcase Grid -->
+    <div class="section-title">
+      Instrument Catalog <span>(11 Operational Twins · Touch-Ready)</span>
+    </div>
+
+    <div class="grid">
+
+      <!-- 1. Hotplate Stirrer -->
+      <a href="hotplate_twin/software/viewer/index.html" class="twin-card">
+        <div>
+          <div class="card-top">
+            <span class="twin-type">Hotplate Stirrer</span>
+            <span class="status-badge gold">GOLD TIER</span>
+          </div>
+          <div class="twin-name">STIR-HEAT 500-D</div>
+          <div class="twin-tag">Digital Magnetic Hotplate Stirrer with PT1000 ATC</div>
+          <div class="twin-specs">
+            Ceramic heating plate (310°C), magnetic vortex dynamics, thermal ODE + PID controller, and residual heat warning.
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="open-btn">Launch Twin ➔</span>
+        </div>
+      </a>
+
+      <!-- 2. Analytical Balance -->
+      <a href="balance_twin/software/viewer/index.html" class="twin-card">
+        <div>
+          <div class="card-top">
+            <span class="twin-type">Analytical Balance</span>
+            <span class="status-badge gold">GOLD TIER</span>
+          </div>
+          <div class="twin-name">METTLER XSE204</div>
+          <div class="twin-tag">0.1 mg Precision Analytical Balance with EMFR Cell</div>
+          <div class="twin-specs">
+            Motorized 3-door glass draft shield, internal calibration, spirit level fluid meniscus, and GLP tare routines.
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="open-btn">Launch Twin ➔</span>
+        </div>
+      </a>
+
+      <!-- 3. Centrifuge -->
+      <a href="centrifuge_twin/software/viewer/index.html" class="twin-card">
+        <div>
+          <div class="card-top">
+            <span class="twin-type">Microcentrifuge</span>
+            <span class="status-badge gold">GOLD TIER</span>
+          </div>
+          <div class="twin-name">MICRO 5424-R</div>
+          <div class="twin-tag">Refrigerated High-Speed Benchtop Microcentrifuge</div>
+          <div class="twin-specs">
+            Rotor aerodynamics (15,000 RPM), lid safety interlock, multi-layer fluid separation, and tactile keypad.
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="open-btn">Launch Twin ➔</span>
+        </div>
+      </a>
+
+      <!-- 4. Rotary Evaporator -->
+      <a href="rotovap_twin/software/viewer/index.html" class="twin-card">
+        <div>
+          <div class="card-top">
+            <span class="twin-type">Rotary Evaporator</span>
+            <span class="status-badge gold">GOLD TIER</span>
+          </div>
+          <div class="twin-name">Rotary Evaporator</div>
+          <div class="twin-tag">Motorized Lift Rotovap with Heating Bath</div>
+          <div class="twin-specs">
+            Borosilicate condenser coil, Clausius-Clapeyron thermodynamic boiling curves, and motorized elevator lift.
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="open-btn">Launch Twin ➔</span>
+        </div>
+      </a>
+
+      <!-- 5. Diaphragm Vacuum Pump -->
+      <a href="vacuum_pump_twin/software/viewer/index.html" class="twin-card">
+        <div>
+          <div class="card-top">
+            <span class="twin-type">Vacuum Pump</span>
+            <span class="status-badge gold">GOLD TIER</span>
+          </div>
+          <div class="twin-name">Laboratory Vacuum Pump</div>
+          <div class="twin-tag">Chemical-Resistant Dual-Head Diaphragm Pump</div>
+          <div class="twin-specs">
+            Dual PTFE diaphragm pump heads, vacuum dial gauge, gas ballast valve, and acoustic motor synthesizer.
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="open-btn">Launch Twin ➔</span>
+        </div>
+      </a>
+
+      <!-- 6. High Pressure Reactor -->
+      <a href="high_pressure_reactor_twin/software/viewer/index.html" class="twin-card">
+        <div>
+          <div class="card-top">
+            <span class="twin-type">Reactor</span>
+            <span class="status-badge ready">READY</span>
+          </div>
+          <div class="twin-name">Parr 4560 Reactor</div>
+          <div class="twin-tag">600 mL 200-Bar Stirred Mini-Reactor</div>
+          <div class="twin-specs">
+            6-bolt heavy flange head, SmCo magnetic drive coupler, burst disc safety vent, and temperature controller.
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="open-btn">Launch Twin ➔</span>
+        </div>
+      </a>
+
+      <!-- 7. Muffle Furnace -->
+      <a href="muffle_furnace_twin/software/viewer/index.html" class="twin-card">
+        <div>
+          <div class="card-top">
+            <span class="twin-type">Furnace</span>
+            <span class="status-badge ready">READY</span>
+          </div>
+          <div class="twin-name">Muffle Furnace</div>
+          <div class="twin-tag">9L 1200°C High-Temp Ceramic Fibre Furnace</div>
+          <div class="twin-specs">
+            MoSi2 heating rods, thermal radiation chamber glow, PID ramp/soak program, and door cutoff interlock.
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="open-btn">Launch Twin ➔</span>
+        </div>
+      </a>
+
+      <!-- 8. pH Meter -->
+      <a href="ph_meter_twin/software/viewer/index.html" class="twin-card">
+        <div>
+          <div class="card-top">
+            <span class="twin-type">Electrochemistry</span>
+            <span class="status-badge ready">READY</span>
+          </div>
+          <div class="twin-name">Benchtop pH Meter</div>
+          <div class="twin-tag">Dual pH/mV Meter with Automatic Temp Compensation</div>
+          <div class="twin-specs">
+            Combination glass electrode, ATC thermistor probe, Nernst slope calculation, and 3-point buffer calibration.
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="open-btn">Launch Twin ➔</span>
+        </div>
+      </a>
+
+      <!-- 9. Ultrasonic Cleaner -->
+      <a href="ultrasonic_cleaner_twin/software/viewer/index.html" class="twin-card">
+        <div>
+          <div class="card-top">
+            <span class="twin-type">Ultrasonics</span>
+            <span class="status-badge ready">READY</span>
+          </div>
+          <div class="twin-name">Ultrasonic Cleaner</div>
+          <div class="twin-tag">Acoustic Cavitation Cleaning Bath</div>
+          <div class="twin-specs">
+            Dual piezoelectric transducers, acoustic cavitation particle shader, degas pulse mode, and bath PID heater.
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="open-btn">Launch Twin ➔</span>
+        </div>
+      </a>
+
+      <!-- 10. Vortex Mixer -->
+      <a href="vortex_mixer_twin/software/viewer/index.html" class="twin-card">
+        <div>
+          <div class="card-top">
+            <span class="twin-type">Mixing</span>
+            <span class="status-badge ready">READY</span>
+          </div>
+          <div class="twin-name">Vortex Mixer</div>
+          <div class="twin-tag">Touch & Continuous Test Tube Mixer</div>
+          <div class="twin-specs">
+            Rubber mixing cup eccentric orbital motion, touch-start pressure switch, and orbital speed control.
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="open-btn">Launch Twin ➔</span>
+        </div>
+      </a>
+
+      <!-- 11. Glove Box -->
+      <a href="glove_box_twin/software/viewer/index.html" class="twin-card">
+        <div>
+          <div class="card-top">
+            <span class="twin-type">Inert Atmosphere</span>
+            <span class="status-badge ready">READY</span>
+          </div>
+          <div class="twin-name">Inert Glove Box</div>
+          <div class="twin-tag">Inert Atmosphere Glove Box with Vacuum Antechamber</div>
+          <div class="twin-specs">
+            Evacuation/purge cycle, butyl glove kinematics, O2/H2O trace ppm monitoring, and gas purifier circulation.
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="open-btn">Launch Twin ➔</span>
+        </div>
+      </a>
+
+      <!-- 12. Spectrophotometer (Planned) -->
+      <div class="twin-card" style="opacity: 0.65; cursor: default;">
+        <div>
+          <div class="card-top">
+            <span class="twin-type">Spectroscopy</span>
+            <span class="status-badge planned">PLANNED</span>
+          </div>
+          <div class="twin-name">Spectrophotometer</div>
+          <div class="twin-tag">UV-Vis Double-Beam Spectrophotometer</div>
+          <div class="twin-specs">
+            Cuvette optical compartment, diffraction grating monochromator, and Beer-Lambert absorbance simulation.
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="open-btn" style="color: var(--muted);">Next In Queue</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>SRE Laboratory Systems · Digital Twin Engineering Division · Zero-Fidelity Compromise</p>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "format": "prettier --write . && markdownlint --fix --dot .",
+    "format:check": "prettier --check . && markdownlint --dot .",
+    "format:md": "prettier --write '**/*.md' && markdownlint --fix --dot '**/*.md'"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.6"
+  },
+  "dependencies": {
+    "@google/gemini-cli": "^0.53.0"
+  }
+}

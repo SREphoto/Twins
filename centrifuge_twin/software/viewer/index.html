@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MICRO 5424-R · Centrifuge App</title>
+  <link rel="stylesheet" href="style.css?v=20260724-zoom-light" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">MICRO</span>
+        <span class="brand-model">5424-R</span>
+        <span class="brand-tag">Refrigerated microcentrifuge twin</span>
+      </div>
+      <div class="topbar-status">
+        <span id="status-pill" class="pill">LID OPEN</span>
+        <span id="status-detail" class="muted">Ready to load samples</span>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <!-- 3D -->
+      <section class="stage">
+        <div class="view-toolbar">
+          <button type="button" class="view-btn" id="btn-explode" title="Separate major assemblies">Exploded view</button>
+          <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe">Wireframe</button>
+          <button type="button" class="view-btn" id="btn-auto-rotate" title="Orbit camera automatically">Auto-rotate</button>
+          <label class="orbit-speed-ctrl" title="Auto-orbit speed">
+            <span>Orbit</span>
+            <input type="range" id="orbit-speed" min="0.2" max="4" step="0.1" value="1.1" />
+            <span id="orbit-speed-val">1.1×</span>
+          </label>
+          <label class="orbit-speed-ctrl" title="Camera zoom (distance to instrument)">
+            <span>Zoom</span>
+            <input type="range" id="camera-zoom" min="0" max="100" step="1" value="45" />
+            <span id="camera-zoom-val">45%</span>
+          </label>
+          <label class="orbit-speed-ctrl light-ctrl" title="Overall lab brightness">
+            <span>Light</span>
+            <input type="range" id="lab-light" min="0.15" max="2.2" step="0.05" value="1" />
+            <span id="lab-light-val">1.0×</span>
+          </label>
+          <label class="orbit-speed-ctrl light-ctrl" title="Lighting mood">
+            <span>Mood</span>
+            <select id="lab-light-mood" aria-label="Lighting mood">
+              <option value="neutral" selected>Neutral</option>
+              <option value="bright">Bright</option>
+              <option value="dim">Dim</option>
+              <option value="cool">Cool</option>
+              <option value="warm">Warm</option>
+            </select>
+          </label>
+          <button type="button" class="view-btn btn-story" id="btn-tube-story" title="Follow one tube fill → spin → layers">
+            Tube story
+          </button>
+          <button type="button" class="view-btn btn-showcase" id="btn-full-showcase" title="Full demo: run cycles + part highlights + keypad tour">
+            Full showcase
+          </button>
+          <button type="button" class="view-btn" id="btn-music" title="Play / mute music">Music</button>
+          <button type="button" class="view-btn" id="btn-music-chat" title="Text chat to change style and instruments">Music chat</button>
+          <button type="button" class="view-btn" id="btn-view-reset" title="Reset camera">Reset view</button>
+          <button type="button" class="view-btn" id="btn-sfx-mute" title="Mute soft button sounds">Mute SFX</button>
+        </div>
+        <div id="viewport3d" class="viewport"></div>
+        <div id="music-chat" class="music-chat" hidden>
+          <div class="music-chat-head">
+            <div>
+              <div class="music-chat-title">Music director</div>
+              <div class="music-chat-sub" id="music-chat-status">Say “make it jazz” or “add drums”</div>
+            </div>
+            <button type="button" class="music-chat-close" id="btn-music-chat-close" title="Close">×</button>
+          </div>
+          <div id="music-chat-log" class="music-chat-log" aria-live="polite"></div>
+          <div class="music-chat-chips" id="music-chat-chips"></div>
+          <form id="music-chat-form" class="music-chat-form">
+            <input id="music-chat-input" type="text" autocomplete="off" placeholder="make it lo-fi · add strings · calmer…" />
+            <button type="submit" class="btn">Send</button>
+          </form>
+        </div>
+        <div id="tube-story-card" class="tube-story-card" hidden>
+          <div class="tube-story-kicker" id="tube-story-kicker">TUBE STORY</div>
+          <h3 id="tube-story-title">—</h3>
+          <p id="tube-story-body">—</p>
+          <div id="tube-story-layers" class="tube-story-layers"></div>
+          <div class="tube-story-progress">
+            <div id="tube-story-bar" class="tube-story-bar"></div>
+          </div>
+          <button type="button" class="btn" id="btn-tube-story-stop">Stop story</button>
+        </div>
+        <div id="showcase-banner" class="showcase-banner" hidden>
+          <span id="showcase-banner-text">Full showcase</span>
+        </div>
+        <p id="viewport-status" class="viewport-caption">Loading model…</p>
+        <div class="stage-hint">Drag to orbit · Zoom / Light sliders · scroll to zoom · rack left · click keys</div>
+      </section>
+
+      <!-- Instrument control panel -->
+      <aside class="instrument panel-collapsible" id="panel-instrument" data-panel="instrument">
+        <div class="panel-head">
+          <h2 class="panel-title">Control panel</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="instrument" title="Collapse panel" aria-expanded="true">▾</button>
+        </div>
+        <div class="panel-body">
+          <div class="instrument-frame">
+            <canvas id="lcd" width="1024" height="512" class="lcd" aria-label="Instrument display"></canvas>
+
+            <div class="keypad keypad-train" role="group" aria-label="Centrifuge keys">
+              <div class="rocker-row">
+                <div class="key-cluster rocker">
+                  <span class="cluster-label">speed · hold to ramp</span>
+                  <button type="button" class="key key-rock" data-key="speed-up" title="Hold to ramp speed up">▲</button>
+                  <button type="button" class="key key-rock" data-key="speed-down" title="Hold to ramp speed down">▼</button>
+                </div>
+                <div class="key-cluster rocker">
+                  <span class="cluster-label">time · hold to ramp</span>
+                  <button type="button" class="key key-rock" data-key="time-up" title="Hold to increase time">▲</button>
+                  <button type="button" class="key key-rock" data-key="time-down" title="Hold to decrease time">▼</button>
+                </div>
+                <div class="key-cluster rocker">
+                  <span class="cluster-label">temp · hold to ramp</span>
+                  <button type="button" class="key key-rock" data-key="temp-up" title="Hold to increase temp">▲</button>
+                  <button type="button" class="key key-rock" data-key="temp-down" title="Hold to decrease temp">▼</button>
+                </div>
+              </div>
+
+              <div class="action-row">
+                <button type="button" class="key key-power" data-key="power" title="Mains power">POWER</button>
+                <button type="button" class="key" data-key="rpmrcf" title="Toggle rpm / rcf display">rpm / rcf</button>
+                <button type="button" class="key key-hold" data-key="short" id="btn-short" title="Hold for momentary spin">short</button>
+                <button type="button" class="key" data-key="open" title="Open lid">open</button>
+                <button type="button" class="key key-primary key-start" data-key="start" title="Start / stop run">start / stop</button>
+                <button type="button" class="key key-cool" data-key="fast-temp" title="Precool-style moderate run">fast cool</button>
+              </div>
+            </div>
+
+            <div class="instrument-actions">
+              <button type="button" class="btn" data-key="close-lid">Close lid</button>
+              <button type="button" class="btn btn-demo" id="btn-demo-spin">Quick demo run</button>
+              <button type="button" class="btn btn-demo" id="btn-demo-loop" title="Continuous sample runs only">
+                Continuous demo
+              </button>
+              <button type="button" class="btn btn-demo btn-showcase" id="btn-full-showcase-panel" title="Runs + part highlights + keypad lights">
+                Full showcase
+              </button>
+              <button type="button" class="btn btn-danger" data-key="imbalance">Imbalance fault</button>
+            </div>
+            <p id="demo-loop-status" class="demo-loop-status muted" hidden></p>
+
+            <p class="instrument-note">
+              <strong>Full showcase</strong> cycles a run, then zooms a part, then the next run —
+              while the keypad lights up like a guided demo.
+            </p>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Part explorer -->
+      <aside class="parts panel-collapsible" id="parts-panel" data-panel="parts">
+        <div class="panel-head">
+          <h2 class="panel-title">Part explorer</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="parts" title="Collapse panel" aria-expanded="true">▾</button>
+        </div>
+        <div class="panel-body">
+          <p class="hint">
+            All named assemblies and hardware. Click to isolate (others wireframe), zoom, and orbit.
+          </p>
+          <button type="button" class="btn" id="btn-parts-clear">Clear focus</button>
+          <p id="parts-focus-status" class="lab-status muted">No part focused</p>
+          <p id="parts-count" class="hint"></p>
+          <div id="parts-list" class="parts-list" role="list"></div>
+        </div>
+      </aside>
+
+      <!-- Lab bench -->
+      <aside class="lab panel-collapsible" id="panel-lab" data-panel="lab">
+        <div class="panel-head">
+          <h2 class="panel-title">Lab bench</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="lab" title="Collapse panel" aria-expanded="true">▾</button>
+        </div>
+        <div class="panel-body">
+          <label class="field">
+            <span>Sample material</span>
+            <select id="material-select"></select>
+          </label>
+          <p id="material-desc" class="hint"></p>
+
+          <div class="lab-btns">
+            <button type="button" class="btn" id="btn-load-pair">Load balanced pair → rotor</button>
+            <button type="button" class="btn" id="btn-unload-all">Unload all → rack</button>
+            <button type="button" class="btn" id="btn-remix">Remix selected tube</button>
+          </div>
+          <p class="hint">
+            <strong>Student workflow:</strong> pick sample → load rack tube → close lid → start/stop.
+          </p>
+          <p id="lab-status" class="lab-status"></p>
+
+          <div class="lab-boards">
+            <div>
+              <h3>Rotor (24)</h3>
+              <div id="rotor-grid" class="tube-grid rotor-grid"></div>
+            </div>
+            <div>
+              <h3>Rack (24)</h3>
+              <div id="rack-grid" class="tube-grid rack-grid"></div>
+            </div>
+          </div>
+
+          <div class="lab-bottom">
+            <div>
+              <h3>Tube preview</h3>
+              <canvas id="tube-preview" width="240" height="300"></canvas>
+              <p id="tube-preview-label" class="hint">Select a tube</p>
+            </div>
+            <div>
+              <h3>Separation log</h3>
+              <pre id="sep-log" class="sep-log">No run yet.</pre>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="app.js?v=20260724-zoom-light"></script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>METTLER TOLEDO XSE204 · Analytical Balance Twin</title>
+  <link rel="stylesheet" href="style.css?v=20260906-gold" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">METTLER TOLEDO</span>
+        <span class="brand-model">XSE204</span>
+        <span class="badge-sredesigns">SREdesigns</span>
+        <span class="brand-tag">0.1 mg Precision Analytical Balance Twin</span>
+      </div>
+      <div class="topbar-status">
+        <span id="status-pill" class="pill run">STABLE</span>
+        <span id="status-detail" class="muted">Ready to tare / weigh</span>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <!-- 3D Stage -->
+      <section class="stage">
+        <div class="view-toolbar">
+          <button type="button" class="view-btn" id="btn-explode" title="Separate assemblies">Exploded view</button>
+          <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe">Wireframe</button>
+          <button type="button" class="view-btn" id="btn-auto-rotate" title="Orbit camera automatically">Auto-rotate</button>
+          
+          <label class="orbit-speed-ctrl" title="Auto-orbit speed">
+            <span>Orbit</span>
+            <input type="range" id="orbit-speed" min="0.2" max="4" step="0.1" value="1.0" />
+            <span id="orbit-speed-val">1.0×</span>
+          </label>
+          <label class="orbit-speed-ctrl" title="Camera zoom">
+            <span>Zoom</span>
+            <input type="range" id="camera-zoom" min="0" max="100" step="1" value="45" />
+            <span id="camera-zoom-val">45%</span>
+          </label>
+          <label class="orbit-speed-ctrl" title="Lab lighting intensity">
+            <span>Light</span>
+            <input type="range" id="lab-light" min="0.2" max="2.5" step="0.1" value="1.0" />
+            <span id="lab-light-val">1.0×</span>
+          </label>
+          <button type="button" class="view-btn" id="btn-sfx-mute" title="Mute audio sounds">Mute SFX</button>
+        </div>
+
+        <div id="viewport3d" class="viewport"></div>
+        <div id="hud-tooltip" class="hud-tooltip" style="display: none;"></div>
+        <div class="stage-hint">Interactive 3D Twin: click touchscreen buttons, doors, boat, weights, rear power switch, leveling feet to operate</div>
+      </section>
+
+      <!-- Instrument Controls Panel -->
+      <aside class="instrument panel-collapsible" id="panel-instrument" data-panel="instrument">
+        <div class="panel-header">
+          <h2>Terminal & Controls</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="instrument" title="Collapse panel" aria-expanded="true">▾</button>
+        </div>
+        <div class="panel-body">
+          <div class="btn-grid">
+            <button type="button" class="btn btn-primary" id="btn-tare">TARE (Net)</button>
+            <button type="button" class="btn" id="btn-zero">ZERO</button>
+            <button type="button" class="btn" id="btn-unit">CYCLE UNITS</button>
+            <button type="button" class="btn" id="btn-cal">proFACT CAL</button>
+          </div>
+
+          <div class="btn-grid">
+            <button type="button" class="btn" id="btn-doors">Open Draft Doors</button>
+            <button type="button" class="btn" id="btn-print">PRINT GLP</button>
+          </div>
+
+          <div class="btn-grid">
+            <button type="button" class="btn" id="btn-power">Standby (ON/OFF)</button>
+            <button type="button" class="btn" id="btn-level">Adjust Level Feet</button>
+          </div>
+
+          <p class="hint">
+            <strong>Touchless Sensor:</strong> High-precision optical SmartSensors allow hands-free taring to eliminate draft and vibration.
+          </p>
+
+          <div class="metric-box">
+            <span class="metric-title">Sensor Technology</span>
+            <span class="metric-val">EMFR Voice Coil</span>
+            <p class="hint" style="margin-top: 4px;">Electromagnetic Force Restoration with monolithic flexure guidance and optical null detector.</p>
+          </div>
+
+          <div class="metric-box">
+            <span class="metric-title">Metrological Specs</span>
+            <span class="hint"><strong>Capacity:</strong> 220.0000 g</span>
+            <span class="hint"><strong>Readability:</strong> 0.0001 g (0.1 mg)</span>
+            <span class="hint"><strong>Repeatability:</strong> 0.08 mg (s)</span>
+            <span class="hint"><strong>Linearity:</strong> ±0.15 mg</span>
+            <span class="hint"><strong>Draft Shield:</strong> Motorized / Manual 3-door glass chamber</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Laboratory Sample Handling & GLP Output Panel -->
+      <aside class="lab panel-collapsible" id="panel-lab" data-panel="lab">
+        <div class="panel-header">
+          <h2>Lab Workflow & Samples</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="lab" title="Collapse panel" aria-expanded="true">▾</button>
+        </div>
+        <div class="panel-body">
+          <label class="field">
+            <span>Select Reagent Sample</span>
+            <select id="sample-select"></select>
+          </label>
+          <p id="sample-desc" class="hint"></p>
+
+          <div class="btn-grid">
+            <button type="button" class="btn" id="btn-boat">Place Weigh Boat on Pan</button>
+            <button type="button" class="btn" id="btn-sample" disabled>Add Powder via Spatula</button>
+          </div>
+
+          <button type="button" class="btn" id="btn-cal-weight">Test 100.0000g Class E2 Weight</button>
+
+          <p class="hint">
+            <strong>Standard Protocol:</strong><br>
+            1. Open draft door & place weigh boat on pan.<br>
+            2. Press <strong>TARE</strong> to zero boat mass.<br>
+            3. Transfer sample powder with micro-spatula.<br>
+            4. Close all draft doors — air draft settles in ~1.5s.<br>
+            5. When <strong>STABLE</strong> chime sounds, click <strong>PRINT GLP</strong>.
+          </p>
+
+          <div class="field">
+            <span>GLP Compliance Log</span>
+            <pre class="glp-log" id="glp-log">Ready for analytical weighing record...</pre>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="app.js?v=20260922-cleanchamber10"></script>
+</body>
+</html>

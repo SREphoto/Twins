@@ -1,0 +1,34 @@
+# Virtualenvs (recreate from requirements*.txt)
+.venv/
+.venv-cq/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# OS / editor
+.DS_Store
+*.swp
+*~
+
+# Cad / Blender backups
+*.blend1
+*.FCStd1
+*.FCBak
+
+# Generated bulk CAD (keep scripts; rebuild STEP/mesh when needed)
+export/step/parts/
+export/step/*.step
+export/mesh/*.stl
+export/stl/*.stl
+
+# Optional large GLB regenerates — keep software/viewer/models/ committed when possible
+export/glb/*.glb
+
+# Local research photos (keep .gitkeep)
+research/photos/*
+!research/photos/.gitkeep
+!research/photos/sre_badge_reference.png

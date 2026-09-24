@@ -1,0 +1,373 @@
+
+
+===== PAGE 1 =====
+DRUCKER DIAGNOSTICS 
+HORIZON 24 SERVICE MANUAL 
+SM016 
+REV B 
+1 
+ 
+ 
+ 
+200 Shadylane Drive 
+Philipsburg, PA 16866 
+www.druckerdiagnostics.com 
+ 
+Service Manual 
+HORIZON 24 Centrifuge 
+ 
+ 
+  
+
+
+===== PAGE 2 =====
+DRUCKER DIAGNOSTICS 
+HORIZON 24 SERVICE MANUAL 
+SM016 
+REV B 
+2 
+ 
+ 
+Contents 
+ 
+1. PREFACE 3 
+2. GENERAL DESCRIPTION OF MAJOR COMPONENTS 3 
+3. WARRANTY INFORMATION 3 
+4. SPECIFICATIONS 3 
+5. TROUBLESHOOTING 4 
+6. SERVICE INSTRUCTIONS 5 
+7. WIRING DIAGRAM 11 
+8. SPARE PARTS LIST 12 
+  
+ 
+  
+
+===== PAGE 3 =====
+DRUCKER DIAGNOSTICS 
+HORIZON 24 SERVICE MANUAL 
+SM016 
+REV B 
+3 
+ 
+1. PREFACE 
+1.1. The purpose of this manual is to provide the service technician with information for 
+troubleshooting, testing, and repair of laboratory centrifuge model HORIZON 24. Only 
+qualified technically trained personnel should attempt any of the servicing described in 
+this document. Failure to follow the procedures in this document may result in personal 
+injury or instrument damage. Drucker Diagnostics will not be held liable for any injury or 
+damage because of improper servicing. 
+1.2. Information contained within this manual is subject to change without notice. 
+2. GENERAL DESCRIPTION OF MAJOR COMPONENTS 
+2.1. Motor: Brushless DC Motor 
+2.2. Printed Circuit Board: The PCB is the microcontroller-based control center of the 
+centrifuge. All control signals are generated in the PCB.  
+2.3. Lid Locking Tray Assembly: The lid tray assembly contains a solenoid and limit switch that 
+are used to determine the state of the lid (Open or Closed) and to keep the lid locked 
+during centrifugation cycles. 
+2.4. Rotor: The centrifuge rotor is the main component that spins in the centrifuge. The rotor 
+is loaded with tube holders, and the samples are placed into the tube holders for 
+processing. 
+3. WARRANTY INFORMATION 
+3.1. Drucker Diagnostics warrants its centrifuges to be free from defects in workmanship and 
+parts for two years. 
+4. SPECIFICATIONS 
+Maximum Speed  3400 RPM 
+Maximum RCF 2000 
+Dimensions (in) 9.0 (H) x 15 (W) x 17 (L) 
+Environmental Operating Range 16-32 deg C 
+Typical Noise Level (At Maximum Speed) < 59 dB A 
+  
+Electrical Rating 95-253 VAC 
+ 
+  
+
+===== PAGE 4 =====
+DRUCKER DIAGNOSTICS 
+HORIZON 24 SERVICE MANUAL 
+SM016 
+REV B 
+4 
+ 
+5. TROUBLESHOOTING 
+PROBLEM POSSIBLE CAUSE SOLUTION 
+The lid does not open. 
+No Power Check removable line cord or wall outlet. 
+Lid knob is ajar Rotate the lid knob fully clockwise before pressing the 
+‘UNLOCK’ button 
+Lid lock is active (Unlock timed out) Press the ‘UNLOCK’ button to de-activate the lid 
+Lid tray is unplugged from PCB or 
+defective Requires service 
+PCB is damaged Requires service 
+ 
+To gain access to the rotor - Remove the label directly in 
+front of the lid knob and slide the lid latch lever toward 
+the front of the centrifuge. This will unlock the lid.  
+   
+PROBLEM POSSIBLE CAUSE SOLUTION 
+Excessive vibration  
+Rotor improperly loaded 
+Load equally filled tubes symmetrically in the rotor. All 
+carriers and/or tube holders must be present in the 
+rotor, whether loaded, or empty. 
+Debris lodged within the rotor or 
+tube carriers 
+Carefully inspect all rotor pockets, tube holders and 
+crevasses for debris.  
+Centrifuge housing is loose Requires service 
+Missing/damaged feet Requires service 
+Motor failure Requires service 
+Rotor damaged Replacement required 
+   
+PROBLEM POSSIBLE CAUSE SOLUTION 
+Rotor does not spin 
+No Power Check removable line cord 
+No Power Check circuit breaker on underside of centrifuge. 
+No Power Check wall outlet 
+Lid not properly latched Press down firmly on lid and rotate lid knob fully 
+clockwise. 
+Internal connection failure Requires service 
+PCB failure Requires service  
+Motor Failure Requires service  
+   
+PROBLEM POSSIBLE CAUSE SOLUTION 
+Clicking noise during braking Rotor is loose Tighten rotor screw per section 7-2 
+   
+PROBLEM POSSIBLE CAUSE SOLUTION 
+Whistling noise while running Debris in air intake / exhaust ports  Remove power before clearing debris. 
+Gasket failure Requires service 
+  
+
+===== PAGE 5 =====
+DRUCKER DIAGNOSTICS 
+HORIZON 24 SERVICE MANUAL 
+SM016 
+REV B 
+5 
+ 
+   
+PROBLEM POSSIBLE CAUSE SOLUTION 
+Cycle ends prematurely. The centrifuge reports 
+the error in a repeating BUZZ / BEEP sequence    
+BALANCE ERROR 
+1 ERROR BUZZ + 2 REPEATING BEEPS 
+Rotor improperly loaded Load equally filled tubes symmetrically in the rotor.  
+Debris lodged within the rotor or 
+tube carriers 
+Carefully inspect all rotor pockets, tube holders and 
+crevasses for debris.  
+Rotor damaged Replacement required 
+LOW SPEED ERROR 
+2 ERROR BUZZES + 2 REPEATING BEEPS 
+Rotor Speed is under set speed for 
+too long. 
+Check the lid and guard bowl gaskets. Voids in the rotor 
+chamber gaskets change the airflow, resulting in 
+increased stress on the motor drive 
+OVERCURRENT ERROR 
+3 ERROR BUZZES + 3 REPEATING BEEPS Motor or PCB failure Service Required  
+NO RPM ERROR 
+6 ERROR BUZZES + 4 REPEATING BEEPS  
+Sensor not connected to PCB Check connections 
+Sensor failure Replace motor 
+Locked rotor Service Required 
+EEPROM ERROR 
+2 ERROR BUZZES + 6 REPEATING BEEPS  PCB failure Replace PCB 
+ACCELEROMETER ERROR 
+2 ERROR BUZZES + 7 REPEATING BEEPS PCB failure Replace PCB 
+MOTOR DRIVE ERROR 
+2 ERROR BUZZES + 9 REPEATING BEEPS PCB failure Replace PCB 
+ 
+6. SERVICE INSTRUCTIONS 
+6.1. Cleaning  
+• The cabinet, rotor and accessories can be cleaned using soap and water, isopropyl 
+alcohol, or a 10% (5500 PPM) bleach solution  
+• Apply cleaning solutions with a towel or cloth. Do not submerge the centrifuge in 
+water or other cleaning solutions as this will cause damage and void the warranty. 
+• Under no circumstances should any of the following be used: TBQ Germicidal 
+Products, Fully/Partially Halogenated Hydrocarbons, Ketones or Esters.  
+• The use of any chemicals not prescribed by the manufacturer may cause damage 
+to the rotor and tube carriers and shall not be used. 
+6.2. Removing the Rotor 
+• Use a 1/8” hex key to loosen the center rotor screw (turn counter-clockwise). 
+• Lift the rotor straight up and out of the rotor chamber. 
+• To install the rotor, reverse steps A and B above. Take care to align the shaft cross-
+pin with the rotor hub. Tighten the rotor screw to 3.5 Nm. 
+6.3. Maintaining the Rotor 
+• Keep the rotor clean, any corrosive materials must not be allowed contact with the 
+rotor and should be cleaned immediately. 
+• The rotor should be checked periodically for signs of wear.  
+• Remove the rotor from service if any of the following are found: cracks, deep 
+scratches, corrosion or discoloring. 
+6.4. Rotor Screw 
+• If the rotor screw needs to be tightened, use a 1/8” hex key and tighten to 3.5 Nm. 
+ 
+
+===== PAGE 6 =====
+DRUCKER DIAGNOSTICS 
+HORIZON 24 SERVICE MANUAL 
+SM016 
+REV B 
+6 
+ 
+6.5. Speed Calibration 
+• Check the centrifuge speed periodically, every two years is recommended. 
+• Important: When verifying rotor speed, make certain that all carriers are installed 
+in the rotor.  
+• No calibration adjustment of speed can be made, only a verification of rotor speed. 
+6.6. Removing the Cabinet (Upper Housing) 
+• There are eight screws that fasten the centrifuge cabinet to the base. 
+• Begin by unplugging the centrifuge. 
+• Use a 3/32 hex key to remove the cabinet screws (three on left and right sides, two 
+in the rear) 
+• The cabinet control panel is attached to the base internally with cable harnesses. 
+Be careful not to stress the cables when removing the cabinet. 
+• Stand directly in front of the centrifuge and lift the cabinet straight up and off the 
+base, setting it down on its right side. 
+• Gently remove the power supply and motor harnesses from the PCB.  
+6.7. Replacing the Lid Lock Assembly 
+• The lid tray assembly is accessible once the cabinet has been removed. 
+• Gently remove the lid tray wire harness from the PCB. 
+• The lid tray assembly is held in place with two #6 Nylok nuts. Use a 5/16” nut driver 
+to remove the nuts. The tray will slide off the threaded studs. 
+• To install the lid tray, slide it onto the studs, and secure it with two #6 Nylok nuts, 
+hand tight. 
+• Complete the installation by gently plugging the wire harness into the PCB header 
+‘J2’. The header and connector are keyed for proper orientation. 
+6.8. Replacing the PCB 
+• The PCB is accessible once the cabinet has been removed. Make certain that all 
+wire harnesses have been disconnected. Use standard precautions for handling 
+static sensitive components. 
+• The PCB is held in place with six #6 Nylok nuts and plastic insulator washers. Use a 
+5/16” nut driver to remove the nuts. The PCB and washers are now free to slide off 
+the threaded studs. 
+• Beneath the PCB are six plastic standoffs. If they are crushed, replace them before 
+reassembly. 
+• To install the PCB, make certain that six plastic standoffs are present on the control 
+panel studs. 
+• Slide the board onto the studs 
+• Install six plastic washers onto the studs securing the circuit card. 
+• The six nuts should be tightened only until the buttons on the control panel click 
+when pressed – do not over tighten. Each nut sets the height of a separate control 
+
+===== PAGE 7 =====
+DRUCKER DIAGNOSTICS 
+HORIZON 24 SERVICE MANUAL 
+SM016 
+REV B 
+7 
+ 
+panel button. Too low, and they cannot be actuated, too high and they jam against 
+the front panel label and are always in the ‘ON’ state. Tighten each nut a ¼ turn in 
+succession, trying each corresponding button as you go. 
+• Once each control panel button clicks when pressed, installation is complete. 
+6.9. Removing the motor 
+• Remove the cabinet assembly by following 7.8 
+• Cut and remove all wire harness zip ties. 
+• Flip the base assembly up-side down and remove the three exhaust air channel 
+screws with a #2 Phillips driver. 
+• Set the exhaust cover aside 
+• The guard bowl is held in place with six #8 screws. Remove them with a #2 Phillips 
+driver.  
+• Lift the base assembly off the guard bowl and set it aside. 
+• The motor assembly is held in place with 3 #8 Nylok nuts and fender washers. 
+Remove the nuts with an 11/32” nut driver. 
+• Remove the three fender washers. 
+• Lift the motor assembly up and off the studs. 
+• The motor is secured to the mounting plate with 4 #8 screws. Use a # 2 Philips 
+driver to remove the screws. 
+6.10. Replacing the motor 
+ 
+  
+Fig 1     Fig 2 
+• Place the motor onto the motor mount plate and thread the motor wires into the 
+cutout as shown (fig 1). 
+• Attach the motor to the motor mount plate with four #8 screws and torque to 18 
+in-lbs (Fig 2). 
+• Secure the motor wire harness with a zip tie as shown. Snip the tag end of the zip 
+tie flush when complete. 
+
+
+===== PAGE 8 =====
+DRUCKER DIAGNOSTICS 
+HORIZON 24 SERVICE MANUAL 
+SM016 
+REV B 
+8 
+ 
+   
+Fig 3    Fig 4    Fig 5 
+• Insert the Elastomer bushings into the motor mount plate as shown (fig 4). 
+• Push the grommets onto the bushings as shown (fig 5). 
+
+
+===== PAGE 9 =====
+DRUCKER DIAGNOSTICS 
+HORIZON 24 SERVICE MANUAL 
+SM016 
+REV B 
+9 
+ 
+   
+Fig 6    Fig 7    Fig 8 
+• Place one Aluminum spacer 30-000112 onto each stud as shown (fig 6). 
+• Install the motor mount assembly onto the guard bowl studs so that the motor 
+wire tiedown is positioned opposite of the guard bowl splice (fig 7).  
+• Install one fender washer onto each stud (fig 8). 
+• Finish the assembly with one Nylok nut on each stud, and tighten to 13 in-lbs 
+  
+Fig 9    Fig 10 
+• Place the base assembly onto the guard bowl assembly 02-003-0-0052 with the 
+guard bowl splice positioned as shown (fig 9). 
+• Feed the motor wire harness into the base passthrough so that the wire harness is 
+not pinched between the base and the guard bowl (fig 10). 
+Tiedown 
+SPLICE  
+SPLICE 
+THIS SIDE 
+
+===== PAGE 10 =====
+DRUCKER DIAGNOSTICS 
+HORIZON 24 SERVICE MANUAL 
+SM016 
+REV B 
+10 
+ 
+  
+Fig 11    Fig 12 
+• Secure the base with six #8 screws torqued to 10 in-lbs. (fig 11). 
+• Install the exhaust cover and secure with three #8 screws torqued to 10 in-lbs. (fig 
+12). 
+6.11. Power Connections and Final Assembly  
+• Plug the power harness into J17 
+• Plug the motor harness into J10 (Hall Sensors) and J14 (Motor power) 
+• Plug the lid lock harness into J2 
+• Plug the cycle counter harness into J3 
+• Carefully place the cabinet onto the base taking care not to pinch any wires 
+between the two. 
+• Complete the assembly by replacing the eight #8 screws with a 3/32 hex key. 
+  
+
+
+===== PAGE 11 =====
+DRUCKER DIAGNOSTICS 
+HORIZON 24 SERVICE MANUAL 
+SM016 
+REV B 
+11 
+ 
+ 
+7. WIRING DIAGRAM 
+ 
+  
+
+
+===== PAGE 12 =====
+DRUCKER DIAGNOSTICS 
+HORIZON 24 SERVICE MANUAL 
+SM016 
+REV B 
+12 
+ 
+ 
+8. SPARE PARTS LIST 
+ 

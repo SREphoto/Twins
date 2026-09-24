@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ULTRASONIC 3000-PRO · Acoustic Cavitation Bath Twin</title>
+  <link rel="stylesheet" href="style.css?v=20260725-gold" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">ULTRASONIC</span>
+        <span class="brand-model">3000-PRO</span>
+        <span class="brand-tag">Acoustic cavitation cleaning bath twin</span>
+      </div>
+      <div class="topbar-status">
+        <span id="status-pill" class="pill">POWER OFF</span>
+        <span id="status-detail" class="muted">Press POWER to start</span>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <!-- 3D Stage -->
+      <section class="stage">
+        <div class="view-toolbar">
+          <button type="button" class="view-btn" id="btn-explode" title="Separate major assemblies">Exploded view</button>
+          <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe">Wireframe</button>
+          <button type="button" class="view-btn" id="btn-auto-rotate" title="Orbit camera automatically">Auto-rotate</button>
+          <label class="orbit-speed-ctrl" title="Auto-orbit speed">
+            <span>Orbit</span>
+            <input type="range" id="orbit-speed" min="0.2" max="4" step="0.1" value="1.1" />
+            <span id="orbit-speed-val">1.1×</span>
+          </label>
+          <label class="orbit-speed-ctrl" title="Camera zoom">
+            <span>Zoom</span>
+            <input type="range" id="camera-zoom" min="0" max="100" step="1" value="45" />
+            <span id="camera-zoom-val">45%</span>
+          </label>
+          <label class="orbit-speed-ctrl light-ctrl" title="Overall lab brightness">
+            <span>Light</span>
+            <input type="range" id="lab-light" min="0.15" max="2.2" step="0.05" value="1" />
+            <span id="lab-light-val">1.0×</span>
+          </label>
+          <label class="orbit-speed-ctrl light-ctrl" title="Lighting mood">
+            <span>Mood</span>
+            <select id="lab-light-mood" aria-label="Lighting mood">
+              <option value="neutral" selected>Neutral</option>
+              <option value="bright">Bright</option>
+              <option value="dim">Dim</option>
+              <option value="cool">Cool</option>
+              <option value="warm">Warm</option>
+            </select>
+          </label>
+          <button type="button" class="view-btn btn-showcase" id="btn-full-showcase" title="Full demo: run cycles + part highlights + keypad tour">
+            Full showcase
+          </button>
+          <button type="button" class="view-btn" id="btn-view-reset" title="Reset camera">Reset view</button>
+          <button type="button" class="view-btn" id="btn-sfx-mute" title="Mute audio sounds">Mute SFX</button>
+        </div>
+        <div id="viewport3d" class="viewport"></div>
+        <p id="viewport-status" class="viewport-caption">Loading CAD model…</p>
+        <div class="stage-hint">Drag to orbit · Zoom / Light sliders · click keypads / parts</div>
+      </section>
+
+      <!-- Instrument control panel -->
+      <aside class="instrument panel-collapsible" id="panel-instrument" data-panel="instrument">
+        <div class="panel-head">
+          <h2 class="panel-title">Control panel</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="instrument" title="Collapse panel">▾</button>
+        </div>
+        <div class="panel-body">
+          <div class="instrument-frame">
+            <canvas id="lcd" width="1024" height="512" class="lcd" aria-label="Instrument display"></canvas>
+
+            <div class="keypad keypad-train" role="group" aria-label="Ultrasonic keys">
+              <div class="rocker-row">
+                <div class="key-cluster rocker">
+                  <span class="cluster-label">temp °C</span>
+                  <button type="button" class="key key-rock" id="btn-temp-up">▲</button>
+                  <button type="button" class="key key-rock" id="btn-temp-down">▼</button>
+                </div>
+                <div class="key-cluster rocker">
+                  <span class="cluster-label">time min</span>
+                  <button type="button" class="key key-rock" id="btn-time-up">▲</button>
+                  <button type="button" class="key key-rock" id="btn-time-down">▼</button>
+                </div>
+                <div class="key-cluster rocker">
+                  <span class="cluster-label">power %</span>
+                  <button type="button" class="key key-rock" id="btn-power-up">▲</button>
+                  <button type="button" class="key key-rock" id="btn-power-down">▼</button>
+                </div>
+              </div>
+
+              <div class="action-row">
+                <button type="button" class="key key-power" id="btn-power">POWER</button>
+                <button type="button" class="key" id="btn-degas">degas</button>
+                <button type="button" class="key key-primary" id="btn-start">start / stop</button>
+                <button type="button" class="key" id="btn-heat">heater</button>
+              </div>
+            </div>
+
+            <div class="instrument-actions" style="margin-top: 10px;">
+              <button type="button" class="btn" id="btn-open-lid">Open Lid (65° Hinge)</button>
+              <button type="button" class="btn" id="btn-lower-basket">Lower basket into bath</button>
+              <button type="button" class="btn btn-demo" id="btn-quick-clean">Quick 3-min clean</button>
+              <button type="button" class="btn btn-demo btn-showcase" id="btn-showcase-panel">Full showcase</button>
+              <button type="button" class="btn btn-danger" id="btn-dry-run">Dry-run fault</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Part explorer -->
+      <aside class="parts panel-collapsible" id="parts-panel" data-panel="parts">
+        <div class="panel-head">
+          <h2 class="panel-title">Part explorer</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="parts" title="Collapse panel">▾</button>
+        </div>
+        <div class="panel-body">
+          <p class="hint">
+            All CAD sub-assemblies. Click to isolate, zoom, and inspect engineering functions.
+          </p>
+          <button type="button" class="btn" id="btn-parts-clear">Clear focus</button>
+          <p id="parts-focus-status" class="muted">No part focused</p>
+          <p id="parts-count" class="hint"></p>
+          <div id="parts-list" class="parts-list" role="list"></div>
+        </div>
+      </aside>
+
+      <!-- Lab bench -->
+      <aside class="lab panel-collapsible" id="panel-lab" data-panel="lab">
+        <div class="panel-head">
+          <h2 class="panel-title">Lab bench</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="lab" title="Collapse panel">▾</button>
+        </div>
+        <div class="panel-body">
+          <p class="hint">Select a contaminant sample to test acoustic cavitation cleaning forces.</p>
+          <div class="lab-btns" style="display:flex; flex-direction:column; gap:8px; margin-top:12px;">
+            <button type="button" class="btn" id="btn-sample-grease">Load Beaker (Grease)</button>
+            <button type="button" class="btn" id="btn-sample-flux">Load PCB (Flux)</button>
+            <button type="button" class="btn" id="btn-sample-residue">Load Cuvette (Residue)</button>
+          </div>
+          <p id="material-desc" class="hint" style="margin-top:12px; font-weight:bold;"></p>
+          <p class="hint" style="margin-top:8px; font-style:italic; color:#60a5fa;">
+            💡 Physics Mode: You can physically drag and drop items into the basket, and drag the basket into the machine!
+          </p>
+          <div class="lab-btns" style="display:flex; flex-direction:column; gap:6px; margin-top:8px;">
+            <button type="button" class="btn" id="btn-move-basket">Move Basket to Machine</button>
+            <button type="button" class="btn" id="btn-lift-basket" style="display:none;">Lower Basket into Bath</button>
+          </div>
+          <pre id="clean-log" class="clean-log" style="margin-top:8px;">Bath initialized. Press POWER to start.</pre>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="app.js?v=20260725-gold"></script>
+</body>
+</html>

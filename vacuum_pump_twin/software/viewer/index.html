@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Laboport N820 · Vacuum Pump Twin</title>
+  <link rel="stylesheet" href="style.css?v=20260729-2" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">KNF</span>
+        <span class="brand-model">Laboport N820</span>
+        <span class="brand-tag">Diaphragm vacuum pump twin</span>
+      </div>
+      <div class="topbar-status">
+        <span id="status-pill" class="pill">OFF</span>
+        <span id="status-detail" class="muted">Ready for operation</span>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <!-- 3D Stage -->
+      <section class="stage">
+        <div class="view-toolbar">
+          <button type="button" class="view-btn" id="btn-explode" title="Separate major assemblies">Exploded view</button>
+          <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe">Wireframe</button>
+          
+          <label class="orbit-speed-ctrl" title="Auto-orbit speed">
+            <span>Orbit</span>
+            <input type="range" id="orbit-speed" min="0" max="4" step="0.1" value="0" />
+            <span id="orbit-speed-val">0.0×</span>
+          </label>
+          <label class="orbit-speed-ctrl" title="Camera zoom (distance to instrument)">
+            <span>Zoom</span>
+            <input type="range" id="camera-zoom" min="0" max="100" step="1" value="45" />
+            <span id="camera-zoom-val">45%</span>
+          </label>
+          <label class="orbit-speed-ctrl light-ctrl" title="Overall lab brightness">
+            <span>Light</span>
+            <input type="range" id="lab-light" min="0.15" max="2.2" step="0.05" value="1" />
+            <span id="lab-light-val">1.0×</span>
+          </label>
+          <label class="orbit-speed-ctrl light-ctrl" title="Lighting mood">
+            <span>Mood</span>
+            <select id="lab-light-mood" aria-label="Lighting mood">
+              <option value="neutral" selected>Neutral</option>
+              <option value="bright">Bright</option>
+              <option value="dim">Dim</option>
+              <option value="cool">Cool</option>
+              <option value="warm">Warm</option>
+            </select>
+          </label>
+
+          <button type="button" class="view-btn btn-showcase" id="btn-demo" title="Run educational demo">
+            Educational Demo
+          </button>
+          <button type="button" class="view-btn" id="btn-fault" title="Trigger thermal overload">Simulate Overheat</button>
+        </div>
+        
+        <div id="canvas-container" class="viewport"></div>
+        <p id="viewport-status" class="viewport-caption">Loading full procedural CAD model…</p>
+        <div class="stage-hint">Drag to orbit · Zoom / Light sliders · scroll to zoom · interact with physical buttons or panel</div>
+      </section>
+
+      <!-- Instrument control panel -->
+      <aside class="instrument panel-collapsible" id="panel-instrument" data-panel="instrument">
+        <div class="panel-header">
+          <h2>Pump Controls</h2>
+        </div>
+        <div class="panel-content">
+          <div class="lcd" id="lcd-main">
+            <div class="lcd-row">
+              <span class="lcd-label">VACUUM (mbar)</span>
+              <span class="lcd-value" id="disp-vacuum">1013</span>
+            </div>
+            <div class="lcd-row">
+              <span class="lcd-label">MOTOR RPM</span>
+              <span class="lcd-value" id="disp-rpm">0</span>
+            </div>
+            <div class="lcd-row">
+              <span class="lcd-label">TEMP (°C)</span>
+              <span class="lcd-value" id="disp-temp">22.0</span>
+            </div>
+            <div class="lcd-row">
+              <span class="lcd-label">BALLAST</span>
+              <span class="lcd-value" id="disp-ballast">CLOSED</span>
+            </div>
+          </div>
+          
+          <div class="lab-btns">
+            <button type="button" class="btn btn-key" id="key-power">POWER TOGGLE</button>
+            <button type="button" class="btn btn-key" id="key-ballast">TOGGLE BALLAST</button>
+          </div>
+          
+          <div class="chart-container" style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
+            <p style="font-size: 0.8rem; color: var(--muted); margin-bottom: 8px;">Vacuum History (mbar)</p>
+            <canvas id="pressure-graph" width="300" height="150" style="width: 100%; height: auto; background: var(--panel-surface); border: 1px solid var(--border); border-radius: 4px;"></canvas>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Import maps polyfill -->
+  <script async src="https://unpkg.com/es-module-shims@1.8.0/dist/es-module-shims.js"></script>
+  <!-- Import map for Three.js -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script type="module" src="app.js?v=20260729-2"></script>
+</body>
+</html>

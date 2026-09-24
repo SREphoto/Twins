@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SREdesigns — Vortex Mixer Pro 3D Showcase</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #050608;
+        --panel-bg: rgba(13, 17, 23, 0.9);
+        --accent: #22d3ee;
+        --text-main: #e2e8f0;
+        --text-dim: #94a3b8;
+        --glass-border: rgba(255, 255, 255, 0.08);
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg);
+        color: var(--text-main);
+        overflow: hidden;
+        height: 100vh;
+      }
+
+      /* ── HEADER ── */
+      header {
+        position: absolute;
+        top: 24px;
+        left: 24px;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .logo {
+        width: 48px;
+        height: 48px;
+        background: var(--accent);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        color: #000;
+        font-size: 24px;
+        box-shadow: 0 0 30px rgba(34, 211, 238, 0.4);
+      }
+      .title-group h1 {
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.5px;
+      }
+      .title-group p {
+        font-size: 13px;
+        color: var(--text-dim);
+      }
+
+      /* ── BUTTONS ── */
+      .top-right {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        z-index: 100;
+        display: flex;
+        gap: 10px;
+      }
+      button {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        color: var(--text-main);
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        cursor: pointer;
+        backdrop-filter: blur(10px);
+        transition: 0.2s ease;
+      }
+      button:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+      button.active {
+        background: var(--accent);
+        color: #000;
+        font-weight: 600;
+      }
+
+      /* ── CONTROL PANEL ── */
+      .controls {
+        position: absolute;
+        top: 100px;
+        right: 24px;
+        width: 280px;
+        background: var(--panel-bg);
+        border: 1px solid var(--glass-border);
+        padding: 24px;
+        border-radius: 20px;
+        backdrop-filter: blur(20px);
+        z-index: 90;
+      }
+      .control-group {
+        margin-bottom: 24px;
+      }
+      .control-group label {
+        display: block;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--text-dim);
+        margin-bottom: 12px;
+      }
+      .flex {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      /* Toggle */
+      .toggle {
+        width: 44px;
+        height: 24px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        position: relative;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+      .toggle::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 20px;
+        height: 20px;
+        background: #fff;
+        border-radius: 50%;
+        transition: 0.3s;
+      }
+      .toggle.on {
+        background: var(--accent);
+      }
+      .toggle.on::after {
+        left: 22px;
+      }
+
+      input[type='range'] {
+        width: 100%;
+        accent-color: var(--accent);
+        cursor: pointer;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+      input[type='range']::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 14px;
+        height: 14px;
+        background: #fff;
+        border-radius: 50%;
+      }
+
+      /* ── FEATURE CARDS ── */
+      .features {
+        position: absolute;
+        bottom: 40px;
+        right: 24px;
+        width: 280px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
+        padding: 14px;
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+      }
+      .card h3 {
+        font-size: 13px;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .card p {
+        font-size: 11px;
+        color: var(--text-dim);
+        line-height: 1.5;
+      }
+
+      /* ── STATUS BAR ── */
+      .status {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        padding: 12px 24px;
+        border-top: 1px solid var(--glass-border);
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        text-transform: uppercase;
+        color: var(--text-dim);
+      }
+      .status b {
+        color: var(--text-main);
+        margin-left: 4px;
+      }
+      .dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background: #10b981;
+        border-radius: 50%;
+        margin-right: 8px;
+        box-shadow: 0 0 10px #10b981;
+      }
+
+      #container {
+        width: 100%;
+        height: 100%;
+      }
+
+      /* Loading */
+      #loader {
+        position: fixed;
+        inset: 0;
+        background: #050608;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: 0.5s;
+      }
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(34, 211, 238, 0.2);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      #loader.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loader">
+      <div class="spinner"></div>
+      <p style="margin-top: 20px; font-size: 12px; color: #475569">
+        Initializing High-Fidelity Scene…
+      </p>
+    </div>
+
+    <header>
+      <div class="logo">V</div>
+      <div class="title-group">
+        <h1>ChemLab Vortex Mixer</h1>
+        <p>Pro-Fidelity v5.1 — Enhanced Lighting & Ergonomics</p>
+      </div>
+    </header>
+
+    <div class="top-right">
+      <button id="wireframeBtn">Wireframe</button>
+      <button id="explodeBtn">Explode View</button>
+      <button id="rotateBtn" class="active">Auto Rotate</button>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <div class="flex">
+          <label>Vibrate Drive</label>
+          <div id="vibrateToggle" class="toggle on"></div>
+        </div>
+      </div>
+      <div class="control-group">
+        <label>Mixing Speed</label>
+        <input type="range" id="speedSlider" min="0" max="100" value="70" />
+      </div>
+      <div class="control-group">
+        <div class="flex">
+          <label>X-Ray Interior</label>
+          <div id="xrayToggle" class="toggle"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="features">
+      <div class="card">
+        <h3>🎨 Pyramidal Teal Body</h3>
+        <p>High-fidelity tapered squircle housing with metallic finish.</p>
+      </div>
+      <div class="card">
+        <h3>🏋️ Weighted Base</h3>
+        <p>Weighted flared base in matte charcoal for total stability.</p>
+      </div>
+      <div class="card">
+        <h3>🎛️ Ergonomic Panel</h3>
+        <p>
+          Precision-tilted control area positioned for maximum operator
+          visibility.
+        </p>
+      </div>
+    </div>
+
+    <div id="container"></div>
+
+    <div class="status">
+      <span><i class="dot"></i>System <b>Ready</b></span>
+      <span>RPM: <b id="rpmLabel">2,400</b></span>
+      <span>Mode: <b>Continuous</b></span>
+    </div>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
+
+    <script type="module">
+      import * as THREE from 'three';
+      import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+      import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+      let scene, camera, renderer, controls, model;
+      let isVibrating = true,
+        speed = 0.7,
+        isXray = false;
+      let clock = new THREE.Clock();
+
+      function init() {
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0a0a0c); // Slightly lighter background
+        scene.fog = new THREE.Fog(0x0a0a0c, 100, 1200);
+
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.8; // Boosted exposure
+        document.getElementById('container').appendChild(renderer.domElement);
+
+        camera = new THREE.PerspectiveCamera(
+          35,
+          window.innerWidth / window.innerHeight,
+          1,
+          2000
+        );
+        camera.position.set(0, 180, 420);
+
+        controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.target.set(0, 45, 0);
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.5;
+
+        // ── LIGHTING UPGRADE ──
+        const ambient = new THREE.AmbientLight(0xffffff, 0.7); // Toned down for matte materials
+        scene.add(ambient);
+
+        // Key Light
+        const keyLight = new THREE.DirectionalLight(0xffffff, 2.5);
+        keyLight.position.set(200, 400, 200);
+        scene.add(keyLight);
+
+        // Front Panel Light (Main Spot)
+        const panelLight = new THREE.SpotLight(0xffffff, 18000);
+        panelLight.position.set(0, 150, 400);
+        panelLight.angle = 0.6;
+        panelLight.penumbra = 0.8;
+        panelLight.target.position.set(0, 40, 0);
+        scene.add(panelLight);
+        scene.add(panelLight.target);
+
+        // Secondary Fill (Warm)
+        const fillLight = new THREE.DirectionalLight(0xffeedd, 1.5);
+        fillLight.position.set(-100, 50, 200);
+        scene.add(fillLight);
+
+        // Rim Lights (Cyan / Orange)
+        const rim1 = new THREE.PointLight(0x22d3ee, 40, 800);
+        rim1.position.set(-200, 200, 150);
+        scene.add(rim1);
+
+        const rim2 = new THREE.PointLight(0xffa500, 30, 800);
+        rim2.position.set(200, 200, -150);
+        scene.add(rim2);
+
+        // Ground reflector (Brighter grid)
+        const floor = new THREE.GridHelper(2000, 100, 0x334155, 0x1e293b);
+        floor.position.y = -1;
+        scene.add(floor);
+
+        // Load Model
+        const loader = new GLTFLoader();
+        loader.load(`./models/vortex_mixer.glb?v=${Date.now()}`, (gltf) => {
+          model = gltf.scene;
+
+          // Scale up (script uses meters, scene setup uses mm units usually)
+          model.scale.set(1000, 1000, 1000);
+
+          // Center
+          const box = new THREE.Box3().setFromObject(model);
+          const center = box.getCenter(new THREE.Vector3());
+          model.position.sub(new THREE.Vector3(center.x, box.min.y, center.z));
+
+          model.traverse((child) => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+
+              const nm = child.name.toLowerCase();
+              if (
+                nm.includes('cup') ||
+                nm.includes('lip') ||
+                nm.includes('neck')
+              ) {
+                child.userData.isMovable = true;
+              }
+              if (nm.includes('knob')) {
+                child.userData.isKnob = true;
+              }
+
+              if (nm.includes('teal')) {
+                child.material.roughness = 0.12;
+                child.material.metalness = 0.85;
+              }
+              if (nm.includes('grey')) {
+                child.material.roughness = 0.5;
+              }
+            }
+          });
+
+          scene.add(model);
+          document.getElementById('loader').classList.add('hidden');
+        });
+
+        animate();
+      }
+
+      function animate() {
+        requestAnimationFrame(animate);
+        const dt = clock.getDelta();
+        const time = clock.getElapsedTime();
+
+        if (controls.update) controls.update();
+
+        if (model) {
+          if (isVibrating && speed > 0) {
+            const vibFreq = speed * 100;
+            const vibAmp = speed * 1.5;
+
+            model.traverse((child) => {
+              if (child.userData.isMovable) {
+                // Orbital vibration in X-Z plane
+                child.position.x = Math.sin(time * vibFreq) * (vibAmp / 500);
+                child.position.z = Math.cos(time * vibFreq) * (vibAmp / 500);
+                child.rotation.y = Math.sin(time * vibFreq * 0.5) * 0.04;
+              }
+              if (child.userData.isKnob) {
+                child.rotation.y = speed * 0.8 * Math.PI * 2;
+              }
+            });
+            const rpm = Math.round(speed * 3200);
+            document.getElementById('rpmLabel').innerText =
+              rpm.toLocaleString();
+          } else {
+            document.getElementById('rpmLabel').innerText = '0';
+          }
+        }
+
+        renderer.render(scene, camera);
+      }
+
+      // UI
+      document.getElementById('vibrateToggle').onclick = (e) => {
+        isVibrating = !isVibrating;
+        e.target.classList.toggle('on', isVibrating);
+      };
+      document.getElementById('speedSlider').oninput = (e) => {
+        speed = e.target.value / 100;
+      };
+      document.getElementById('rotateBtn').onclick = (e) => {
+        controls.autoRotate = !controls.autoRotate;
+        e.target.classList.toggle('active', controls.autoRotate);
+      };
+      document.getElementById('wireframeBtn').onclick = (e) => {
+        const active = e.target.classList.toggle('active');
+        model.traverse((c) => {
+          if (c.isMesh) c.material.wireframe = active;
+        });
+      };
+      document.getElementById('explodeBtn').onclick = (e) => {
+        const active = e.target.classList.toggle('active');
+        model.traverse((c) => {
+          if (
+            c.isMesh &&
+            !c.name.includes('Body') &&
+            !c.name.includes('Base')
+          ) {
+            if (!c.userData.origY) c.userData.origY = c.position.y;
+            c.position.y = active ? c.userData.origY + 0.15 : c.userData.origY;
+          }
+        });
+      };
+      document.getElementById('xrayToggle').onclick = (e) => {
+        isXray = !isXray;
+        e.target.classList.toggle('on', isXray);
+        model.traverse((c) => {
+          if (c.isMesh) {
+            c.material.transparent = isXray;
+            c.material.opacity = isXray ? 0.3 : 1.0;
+          }
+        });
+      };
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      init();
+    </script>
+  </body>
+</html>
