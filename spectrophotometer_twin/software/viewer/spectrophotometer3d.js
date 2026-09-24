@@ -103,6 +103,114 @@ function createUSBPort() {
 }
 
 /**
+ * Official SREdesigns Brand Badge (Strict DIAG-001 & DIAG-002 Compliance)
+ */
+export function makeSREdesignsBadge(scale = 0.55) {
+  const group = new THREE.Group();
+  group.name = 'Badge_SREdesigns';
+
+  const plateW = 1.15 * scale;
+  const plateH = 0.31 * scale;
+  const plateD = 0.012;
+
+  // Outer bezel frame
+  const bezel = new THREE.Mesh(
+    new THREE.BoxGeometry(plateW + 0.015, plateH + 0.015, plateD),
+    MAT_CHASSIS_DARK
+  );
+  group.add(bezel);
+
+  // Brushed aluminum backing plate
+  const plate = new THREE.Mesh(
+    new THREE.BoxGeometry(plateW, plateH, plateD * 0.9),
+    MAT_ALUM_ANODIZED
+  );
+  plate.position.z = plateD * 0.05;
+  group.add(plate);
+
+  // 4 Corner Micro-fasteners (M1 hex bolts)
+  for (const sx of [-1, 1]) {
+    for (const sy of [-1, 1]) {
+      const screw = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.007, 0.007, 0.006, 6),
+        MAT_CHROME
+      );
+      screw.rotation.x = Math.PI / 2;
+      screw.position.set(sx * (plateW / 2 - 0.02), sy * (plateH / 2 - 0.02), plateD / 2 + 0.003);
+      group.add(screw);
+    }
+  }
+
+  // Canvas texture badge face
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 144;
+  const ctx = canvas.getContext('2d');
+
+  // Background gradient
+  const bgGrad = ctx.createLinearGradient(0, 0, 512, 144);
+  bgGrad.addColorStop(0, '#0f172a');
+  bgGrad.addColorStop(0.5, '#1e293b');
+  bgGrad.addColorStop(1, '#0f172a');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, 512, 144);
+
+  // Outer cyan accent border
+  ctx.strokeStyle = '#06b6d4';
+  ctx.lineWidth = 6;
+  ctx.strokeRect(6, 6, 500, 132);
+
+  // Three teal enamel tiles for S - R - E
+  const tiles = ['S', 'R', 'E'];
+  tiles.forEach((char, i) => {
+    const tx = 28 + i * 56;
+    const ty = 24;
+    ctx.fillStyle = '#0891b2';
+    ctx.beginPath();
+    ctx.roundRect(tx, ty, 48, 48, 8);
+    ctx.fill();
+    ctx.strokeStyle = '#22d3ee';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 34px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(char, tx + 24, ty + 26);
+  });
+
+  // Typography
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#38bdf8';
+  ctx.font = '700 34px sans-serif';
+  ctx.fillText('UV-1900i', 215, 52);
+
+  ctx.fillStyle = '#f59e0b';
+  ctx.font = '700 24px sans-serif';
+  ctx.fillText('DUAL-BEAM', 380, 52);
+
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '600 20px monospace';
+  ctx.fillText('SREdesigns.com · LAB SYSTEMS', 215, 102);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.needsUpdate = true;
+
+  const badgeFaceGeo = new THREE.PlaneGeometry(plateW - 0.015, plateH - 0.015);
+  const badgeFaceMat = new THREE.MeshBasicMaterial({
+    map: tex,
+    side: THREE.DoubleSide,
+  });
+  const faceMesh = new THREE.Mesh(badgeFaceGeo, badgeFaceMat);
+  faceMesh.position.z = plateD / 2 + 0.004;
+  group.add(faceMesh);
+
+  return group;
+}
+
+/**
  * Converts wavelength in nm to RGB hex color for probe beam visualization.
  */
 export function wavelengthToRGB(nm) {
@@ -214,15 +322,33 @@ export function createSpectrophotometerModel(options = {}) {
   const chassisGroup = new THREE.Group();
   chassisGroup.name = 'Body_Chassis';
 
-  // Lower chassis main block
-  const lowerBlock = new THREE.Mesh(
-    new THREE.BoxGeometry(4.36, 1.1, 4.76),
+  // Lower chassis rear block (optics bay foundation)
+  const lowerRearBlock = new THREE.Mesh(
+    new THREE.BoxGeometry(4.36, 1.1, 2.38),
     MAT_CHASSIS
   );
-  lowerBlock.position.set(0, BASE_Y + 0.12 + 0.55, 0);
-  lowerBlock.castShadow = true;
-  lowerBlock.receiveShadow = true;
-  chassisGroup.add(lowerBlock);
+  lowerRearBlock.position.set(0, BASE_Y + 0.12 + 0.55, 1.19);
+  lowerRearBlock.castShadow = true;
+  lowerRearBlock.receiveShadow = true;
+  chassisGroup.add(lowerRearBlock);
+
+  // Lower chassis front-right block (under sloped console)
+  const lowerFrontRight = new THREE.Mesh(
+    new THREE.BoxGeometry(2.18, 1.1, 2.38),
+    MAT_CHASSIS
+  );
+  lowerFrontRight.position.set(-1.09, BASE_Y + 0.12 + 0.55, -1.19);
+  lowerFrontRight.castShadow = true;
+  lowerFrontRight.receiveShadow = true;
+  chassisGroup.add(lowerFrontRight);
+
+  // Front-left chamber sub-base casting plate
+  const chamberSubBase = new THREE.Mesh(
+    new THREE.BoxGeometry(2.18, 0.10, 2.38),
+    MAT_CHASSIS
+  );
+  chamberSubBase.position.set(1.09, BASE_Y + 0.12 + 0.05, -1.19);
+  chassisGroup.add(chamberSubBase);
 
   // Upper rear deck block (optics housing)
   const upperRear = new THREE.Mesh(
@@ -235,88 +361,117 @@ export function createSpectrophotometerModel(options = {}) {
   chassisGroup.add(upperRear);
 
   // Upper front right slope block (for ergonomic display console)
+  // Cross-section in Z-Y: slopes down from rear upper deck (Z = 0.0, Y = 0.85) to front lip (Z = -2.36, Y = 0.15)
+  // Positioned on operator's right (-X side from -2.16 to -0.02)
   const consoleSlopeShape = new THREE.Shape();
-  consoleSlopeShape.moveTo(0, 0);
-  consoleSlopeShape.lineTo(2.36, 0);
-  consoleSlopeShape.lineTo(2.36, 0.85);
-  consoleSlopeShape.lineTo(0.3, 0.85);
-  consoleSlopeShape.lineTo(0, 0.2);
+  consoleSlopeShape.moveTo(0.0, 0.0);
+  consoleSlopeShape.lineTo(2.36, 0.0);
+  consoleSlopeShape.lineTo(2.36, 0.15);
+  consoleSlopeShape.lineTo(0.0, 0.85);
   consoleSlopeShape.closePath();
 
-  const consoleExtrudeSettings = { depth: 2.16, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: 0.04, bevelThickness: 0.04 };
+  const consoleExtrudeSettings = { depth: 2.14, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: 0.03, bevelThickness: 0.03 };
   const consoleSlopeGeo = new THREE.ExtrudeGeometry(consoleSlopeShape, consoleExtrudeSettings);
   const consoleSlopeMesh = new THREE.Mesh(consoleSlopeGeo, MAT_CHASSIS);
-  consoleSlopeMesh.rotation.y = Math.PI;
-  consoleSlopeMesh.position.set(2.18, BASE_Y + 1.22, 1.18);
+  consoleSlopeMesh.rotation.y = Math.PI / 2;
+  consoleSlopeMesh.position.set(-2.16, BASE_Y + 1.22, 0.0);
   consoleSlopeMesh.castShadow = true;
+  consoleSlopeMesh.receiveShadow = true;
   chassisGroup.add(consoleSlopeMesh);
 
-  // Recessed pocket for touchscreen display (DIAG-001 & DIAG-002: seated in pocket)
-  const bezelPocket = new THREE.Mesh(
-    new THREE.BoxGeometry(1.9, 0.06, 1.4),
+  // 4. Sloped Console Assembly & Recessed Bezel (DIAG-001 & DIAG-002: seated in pocket)
+  const slopeAngle = Math.atan2(0.70, 2.36); // ~0.2885 rad (~16.53°)
+  const bezelGroup = new THREE.Group();
+  bezelGroup.name = 'Assembly_SlopedConsole';
+  bezelGroup.position.set(-1.09, BASE_Y + 1.22 + 0.50 + 0.02, -1.18);
+  bezelGroup.rotation.x = -slopeAngle; // Tilts face up and forward toward operator at -Z
+  chassisGroup.add(bezelGroup);
+
+  // Recessed pocket tray
+  const bezelTray = new THREE.Mesh(
+    new THREE.BoxGeometry(1.86, 0.04, 1.52),
     MAT_BEZEL
   );
-  bezelPocket.position.set(1.02, BASE_Y + 1.88, -0.15);
-  bezelPocket.rotation.x = 0.38; // ~22° ergonomic viewing angle
-  chassisGroup.add(bezelPocket);
+  bezelTray.name = 'Pocket_Bezel';
+  bezelTray.position.set(0, 0.015, 0);
+  bezelTray.castShadow = true;
+  bezelTray.receiveShadow = true;
+  bezelGroup.add(bezelTray);
 
-  // 4. Dynamic LCD Display (UI_LCD)
-  // Dedicated flat UV-mapped quad seated in pocket with positive Z clearance (0.01)
-  const lcdGeo = new THREE.PlaneGeometry(1.72, 1.08);
-  // Guarantee proper left-to-right UV mapping without inversion
+  // Brushed chrome accent trim wrapping around bezel perimeter (DIAG-003: zero top-overlap)
+  const trimW = 0.018;
+  const trimH = 0.025;
+  const edgeTop = new THREE.Mesh(new THREE.BoxGeometry(1.86 + trimW * 2, trimH, trimW), MAT_CHROME);
+  edgeTop.position.set(0, 0.02, 1.52 / 2 + trimW / 2);
+  bezelGroup.add(edgeTop);
+
+  const edgeBot = new THREE.Mesh(new THREE.BoxGeometry(1.86 + trimW * 2, trimH, trimW), MAT_CHROME);
+  edgeBot.position.set(0, 0.02, -1.52 / 2 - trimW / 2);
+  bezelGroup.add(edgeBot);
+
+  const edgeLeft = new THREE.Mesh(new THREE.BoxGeometry(trimW, trimH, 1.52), MAT_CHROME);
+  edgeLeft.position.set(-1.86 / 2 - trimW / 2, 0.02, 0);
+  bezelGroup.add(edgeLeft);
+
+  const edgeRight = new THREE.Mesh(new THREE.BoxGeometry(trimW, trimH, 1.52), MAT_CHROME);
+  edgeRight.position.set(1.86 / 2 + trimW / 2, 0.02, 0);
+  bezelGroup.add(edgeRight);
+
+  // 5. Dynamic LCD Display (UI_LCD)
+  // Dedicated flat UV-mapped quad seated in upper bezel with positive Z clearance (DIAG-002: ZERO occlusion)
+  const lcdW = 1.64;
+  const lcdH = 0.94;
+  const lcdGeo = new THREE.PlaneGeometry(lcdW, lcdH);
+  // DIAG-005: Invert horizontal UV coordinates directly on the buffer to fix mirroring while strictly preserving flipY = false
+  const uvAttr = lcdGeo.attributes.uv;
+  for (let i = 0; i < uvAttr.count; i++) {
+    uvAttr.setX(i, 1.0 - uvAttr.getX(i));
+  }
+  uvAttr.needsUpdate = true;
+
   const lcdMat = new THREE.MeshBasicMaterial({
     color: 0xffffff,
-    side: THREE.FrontSide,
+    side: THREE.DoubleSide,
   });
   const lcdMesh = new THREE.Mesh(lcdGeo, lcdMat);
   lcdMesh.name = 'UI_LCD';
   lcdMesh.rotation.x = -Math.PI / 2;
-  lcdMesh.position.set(0, 0.035, 0.05);
-  bezelPocket.add(lcdMesh);
+  // Seated proudly above bezel tray with positive clearance
+  lcdMesh.position.set(0, 0.038, 0.18);
+  bezelGroup.add(lcdMesh);
   animTargets.lcdMesh = lcdMesh;
 
   // Touchscreen interactive helper quad for raycasting
   lcdMesh.userData = { name: 'UI_LCD_TOUCH', role: 'Display' };
   interactiveObjects.push(lcdMesh);
 
-  // 5. Physical Control Buttons (seated in bezel below display)
+  // 6. Physical Control Buttons (seated in lower bezel in front of screen)
   const buttonConfigs = [
-    { id: 'Btn_Power', label: 'PWR', x: -0.68, z: 0.58, mat: MAT_KEY_DARK, role: 'Power standby' },
-    { id: 'Btn_Zero', label: 'ZERO', x: -0.34, z: 0.58, mat: MAT_KEY_PRIMARY, role: 'Auto-zero baseline' },
-    { id: 'Btn_Scan', label: 'SCAN', x: 0.0, z: 0.58, mat: MAT_KEY_SCAN, role: 'Spectrum scan' },
-    { id: 'Btn_Mode', label: 'MODE', x: 0.34, z: 0.58, mat: MAT_KEY_DARK, role: 'Cycle measurement mode' },
-    { id: 'Btn_CellNext', label: 'CELL', x: 0.68, z: 0.58, mat: MAT_KEY_DARK, role: 'Advance carousel cell' },
+    { id: 'Btn_Power', label: 'PWR', x: -0.64, z: -0.50, mat: MAT_KEY_DARK, role: 'Power standby' },
+    { id: 'Btn_Zero', label: 'ZERO', x: -0.32, z: -0.50, mat: MAT_KEY_PRIMARY, role: 'Auto-zero baseline' },
+    { id: 'Btn_Scan', label: 'SCAN', x: 0.0, z: -0.50, mat: MAT_KEY_SCAN, role: 'Spectrum scan' },
+    { id: 'Btn_Mode', label: 'MODE', x: 0.32, z: -0.50, mat: MAT_KEY_DARK, role: 'Cycle measurement mode' },
+    { id: 'Btn_CellNext', label: 'CELL', x: 0.64, z: -0.50, mat: MAT_KEY_DARK, role: 'Advance carousel cell' },
   ];
 
   buttonConfigs.forEach((cfg) => {
     const btnMesh = new THREE.Mesh(
-      new THREE.BoxGeometry(0.26, 0.05, 0.16),
+      new THREE.BoxGeometry(0.26, 0.045, 0.16),
       cfg.mat.clone()
     );
     btnMesh.name = cfg.id;
-    btnMesh.position.set(cfg.x, 0.035, cfg.z);
+    btnMesh.position.set(cfg.x, 0.042, cfg.z);
     btnMesh.castShadow = true;
     btnMesh.userData = { name: cfg.id, action: cfg.label, role: cfg.role };
-    bezelPocket.add(btnMesh);
+    bezelGroup.add(btnMesh);
     interactiveObjects.push(btnMesh);
   });
 
-  // 6. SREdesigns Brand Emblem Badge (Badge_SREdesigns)
-  const badgePocket = new THREE.Mesh(
-    new THREE.BoxGeometry(0.9, 0.22, 0.02),
-    MAT_CHASSIS_DARK
-  );
-  badgePocket.position.set(1.02, BASE_Y + 0.95, -2.385);
-  badgePocket.rotation.y = Math.PI;
-  chassisGroup.add(badgePocket);
-
-  const badgePlate = new THREE.Mesh(
-    new THREE.BoxGeometry(0.84, 0.18, 0.02),
-    MAT_CHROME
-  );
-  badgePlate.name = 'Badge_SREdesigns';
-  badgePlate.position.set(0, 0, 0.01);
-  badgePocket.add(badgePlate);
+  // 7. SREdesigns Brand Emblem Badge (Badge_SREdesigns, DIAG-001 & DIAG-002)
+  const badge = makeSREdesignsBadge(0.55);
+  badge.position.set(-1.09, BASE_Y + 0.70, -2.385);
+  badge.rotation.y = Math.PI; // Faces -Z forward towards operator and front camera
+  chassisGroup.add(badge);
 
   // Front air intake louvers
   for (let i = 0; i < 6; i++) {
@@ -324,55 +479,121 @@ export function createSpectrophotometerModel(options = {}) {
       new THREE.BoxGeometry(1.6, 0.02, 0.04),
       MAT_CHASSIS_DARK
     );
-    louver.position.set(1.02, BASE_Y + 0.35 + (i * 0.08), -2.382);
+    louver.position.set(-1.09, BASE_Y + 0.25 + (i * 0.065), -2.382);
     chassisGroup.add(louver);
   }
 
   explodedShellGroup.add(chassisGroup);
 
-  // 7. Light-Tight Sample Chamber Basin & Walls
-  const CHAMBER_CENTER_X = -1.05;
-  const CHAMBER_CENTER_Z = -0.05;
+  // 7. Light-Tight Hollow Sample Chamber Basin & Walls (Operator Left: +X)
+  const CHAMBER_CENTER_X = 1.05;
+  const CHAMBER_CENTER_Z = -1.18;
   const CHAMBER_FLOOR_Y = BASE_Y + 0.22;
 
-  const chamberWell = new THREE.Mesh(
-    new THREE.BoxGeometry(1.75, 1.25, 2.0),
+  // Chamber cavity outer perimeter structural walls
+  const wallLeft = new THREE.Mesh(new THREE.BoxGeometry(0.18, 1.25, 2.38), MAT_CHASSIS);
+  wallLeft.position.set(CHAMBER_CENTER_X + 0.98, CHAMBER_FLOOR_Y + 0.625, CHAMBER_CENTER_Z);
+  explodedShellGroup.add(wallLeft);
+
+  const linerLeft = new THREE.Mesh(new THREE.BoxGeometry(0.02, 1.20, 2.16), MAT_CHAMBER_INNER);
+  linerLeft.position.set(CHAMBER_CENTER_X + 0.88, CHAMBER_FLOOR_Y + 0.625, CHAMBER_CENTER_Z);
+  explodedShellGroup.add(linerLeft);
+
+  // Low front sill (allows cuvette loading from front when L-shaped door opens)
+  const frontSill = new THREE.Mesh(new THREE.BoxGeometry(2.14, 0.18, 0.18), MAT_CHASSIS);
+  frontSill.position.set(1.09, CHAMBER_FLOOR_Y + 0.09, -2.29);
+  explodedShellGroup.add(frontSill);
+
+  const wallRight = new THREE.Mesh(new THREE.BoxGeometry(0.18, 1.25, 2.38), MAT_CHASSIS);
+  wallRight.position.set(CHAMBER_CENTER_X - 0.98, CHAMBER_FLOOR_Y + 0.625, CHAMBER_CENTER_Z);
+  explodedShellGroup.add(wallRight);
+
+  const linerRight = new THREE.Mesh(new THREE.BoxGeometry(0.02, 1.20, 2.16), MAT_CHAMBER_INNER);
+  linerRight.position.set(CHAMBER_CENTER_X - 0.88, CHAMBER_FLOOR_Y + 0.625, CHAMBER_CENTER_Z);
+  explodedShellGroup.add(linerRight);
+
+  const wallBack = new THREE.Mesh(new THREE.BoxGeometry(2.14, 1.25, 0.18), MAT_CHASSIS);
+  wallBack.position.set(1.09, CHAMBER_FLOOR_Y + 0.625, -0.09);
+  explodedShellGroup.add(wallBack);
+
+  const linerBack = new THREE.Mesh(new THREE.BoxGeometry(1.78, 1.20, 0.02), MAT_CHAMBER_INNER);
+  linerBack.position.set(CHAMBER_CENTER_X, CHAMBER_FLOOR_Y + 0.625, -0.19);
+  explodedShellGroup.add(linerBack);
+
+  // Matte black interior floor lining (DIAG-004: authentic light-absorbing chamber cavity)
+  const chamberLinerFloor = new THREE.Mesh(
+    new THREE.BoxGeometry(1.78, 0.02, 2.02),
     MAT_CHAMBER_INNER
   );
-  chamberWell.position.set(CHAMBER_CENTER_X, CHAMBER_FLOOR_Y + 0.625, CHAMBER_CENTER_Z);
-  root.add(chamberWell);
+  chamberLinerFloor.position.set(CHAMBER_CENTER_X, CHAMBER_FLOOR_Y + 0.01, CHAMBER_CENTER_Z);
+  chamberLinerFloor.receiveShadow = true;
+  explodedShellGroup.add(chamberLinerFloor);
 
-  // 8. Sample Chamber Hinged Door (Pivot_ChamberLid)
+  // Beam aperture entry collimator ring (light enters from monochromator at right/-X)
+  const enterAperture = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.06, 0.06, 0.04, 16),
+    MAT_CHROME
+  );
+  enterAperture.rotation.z = Math.PI / 2;
+  enterAperture.position.set(CHAMBER_CENTER_X - 0.87, CHAMBER_FLOOR_Y + 0.60, CHAMBER_CENTER_Z);
+  explodedShellGroup.add(enterAperture);
+
+  // Beam aperture exit lens bezel (transmitted light exits toward photodiode at left/+X)
+  const exitAperture = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.06, 0.06, 0.04, 16),
+    MAT_CHROME
+  );
+  exitAperture.rotation.z = Math.PI / 2;
+  exitAperture.position.set(CHAMBER_CENTER_X + 0.87, CHAMBER_FLOOR_Y + 0.60, CHAMBER_CENTER_Z);
+  explodedShellGroup.add(exitAperture);
+
+  // 8. Sample Chamber Hinged L-Shaped Door (Pivot_ChamberLid)
   // Kinematic pivot origin at rear top edge of sample chamber
   const chamberLidPivot = new THREE.Group();
   chamberLidPivot.name = 'Pivot_ChamberLid';
   chamberLidPivot.position.set(CHAMBER_CENTER_X, CHAMBER_FLOOR_Y + 1.25, CHAMBER_CENTER_Z + 1.0);
-  root.add(chamberLidPivot);
+  explodedShellGroup.add(chamberLidPivot);
   animTargets.chamberLidPivot = chamberLidPivot;
 
-  // Door main plate
+  // Top horizontal door plate
   const doorPlate = new THREE.Mesh(
-    new THREE.BoxGeometry(1.82, 0.14, 2.05),
+    new THREE.BoxGeometry(1.82, 0.08, 2.05),
     MAT_CHASSIS
   );
-  doorPlate.position.set(0, 0.07, -1.02);
+  doorPlate.position.set(0, 0.04, -1.02);
   doorPlate.castShadow = true;
   chamberLidPivot.add(doorPlate);
 
-  // Rubber perimeter seal on underside
-  const seal = new THREE.Mesh(
-    new THREE.BoxGeometry(1.72, 0.025, 1.95),
+  // Front vertical door apron (swings up and back with top plate, exposing front of chamber)
+  const doorFrontApron = new THREE.Mesh(
+    new THREE.BoxGeometry(1.82, 1.07, 0.14),
+    MAT_CHASSIS
+  );
+  doorFrontApron.position.set(0, -0.495, -2.00);
+  doorFrontApron.castShadow = true;
+  chamberLidPivot.add(doorFrontApron);
+
+  // Rubber perimeter seals on underside and inside of front apron
+  const sealTop = new THREE.Mesh(
+    new THREE.BoxGeometry(1.72, 0.02, 1.95),
     MAT_CHAMBER_INNER
   );
-  seal.position.set(0, -0.015, -1.02);
-  chamberLidPivot.add(seal);
+  sealTop.position.set(0, -0.01, -1.02);
+  chamberLidPivot.add(sealTop);
 
-  // Ergonomic finger pull handle at front edge
+  const sealFront = new THREE.Mesh(
+    new THREE.BoxGeometry(1.72, 1.00, 0.02),
+    MAT_CHAMBER_INNER
+  );
+  sealFront.position.set(0, -0.495, -1.92);
+  chamberLidPivot.add(sealFront);
+
+  // Ergonomic finger pull handle mounted on front apron
   const handle = new THREE.Mesh(
     new THREE.BoxGeometry(0.5, 0.06, 0.12),
     MAT_ALUM_ANODIZED
   );
-  handle.position.set(0, 0.16, -1.95);
+  handle.position.set(0, -0.15, -2.10);
   handle.castShadow = true;
   handle.userData = { name: 'Btn_Lid', action: 'Toggle Chamber Door' };
   chamberLidPivot.add(handle);
@@ -398,10 +619,10 @@ export function createSpectrophotometerModel(options = {}) {
   // 9. 6-Position Motorized Cuvette Carousel (Pivot_CellCarousel)
   const carouselPivot = new THREE.Group();
   carouselPivot.name = 'Pivot_CellCarousel';
-  carouselPivot.position.set(CHAMBER_CENTER_X, CHAMBER_FLOOR_Y + 0.12, CHAMBER_CENTER_Z);
+  carouselPivot.position.set(CHAMBER_CENTER_X, CHAMBER_FLOOR_Y + 0.28, CHAMBER_CENTER_Z);
   root.add(carouselPivot);
   animTargets.carouselPivot = carouselPivot;
-  animTargets.explodedParts.push({ obj: carouselPivot, originY: CHAMBER_FLOOR_Y + 0.12, deltaY: 0.6 });
+  animTargets.explodedParts.push({ obj: carouselPivot, originY: CHAMBER_FLOOR_Y + 0.28, deltaY: 0.6 });
 
   // Central rotary hub disk
   const hubDisk = new THREE.Mesh(
@@ -488,7 +709,7 @@ export function createSpectrophotometerModel(options = {}) {
   const probeBeam = new THREE.Mesh(beamGeo, beamMat);
   probeBeam.name = 'Beam_Monochromatic';
   probeBeam.rotation.z = Math.PI / 2;
-  probeBeam.position.set(CHAMBER_CENTER_X, CHAMBER_FLOOR_Y + 0.44, CHAMBER_CENTER_Z);
+  probeBeam.position.set(CHAMBER_CENTER_X, CHAMBER_FLOOR_Y + 0.60, CHAMBER_CENTER_Z);
   root.add(probeBeam);
   animTargets.probeBeam = probeBeam;
   animTargets.probeBeamMat = beamMat;
@@ -504,7 +725,7 @@ export function createSpectrophotometerModel(options = {}) {
     new THREE.BoxGeometry(1.4, 0.8, 1.2),
     MAT_CHASSIS_DARK
   );
-  monoBox.position.set(0.4, BASE_Y + 0.65, 1.2);
+  monoBox.position.set(-0.4, BASE_Y + 0.65, 1.2);
   monoBox.castShadow = true;
   opticsGroup.add(monoBox);
 
@@ -513,7 +734,7 @@ export function createSpectrophotometerModel(options = {}) {
     new THREE.CylinderGeometry(0.2, 0.2, 0.12, 24),
     MAT_ALUM_ANODIZED
   );
-  monoStepper.position.set(0.4, BASE_Y + 1.11, 1.2);
+  monoStepper.position.set(-0.4, BASE_Y + 1.11, 1.2);
   opticsGroup.add(monoStepper);
 
   // Deuterium UV Arc Lamp Housing
@@ -521,14 +742,14 @@ export function createSpectrophotometerModel(options = {}) {
     new THREE.CylinderGeometry(0.18, 0.18, 0.65, 20),
     MAT_ALUM_ANODIZED
   );
-  d2Housing.position.set(1.5, BASE_Y + 0.65, 1.3);
+  d2Housing.position.set(-1.5, BASE_Y + 0.65, 1.3);
   opticsGroup.add(d2Housing);
 
   const d2Bulb = new THREE.Mesh(
     new THREE.SphereGeometry(0.09, 16, 16),
     new THREE.MeshBasicMaterial({ color: 0xa855f7 })
   );
-  d2Bulb.position.set(1.5, BASE_Y + 0.65, 1.3);
+  d2Bulb.position.set(-1.5, BASE_Y + 0.65, 1.3);
   opticsGroup.add(d2Bulb);
   animTargets.deuteriumLampGlow = d2Bulb;
 
@@ -537,24 +758,24 @@ export function createSpectrophotometerModel(options = {}) {
     new THREE.CylinderGeometry(0.12, 0.12, 0.45, 16),
     MAT_ALUM_ANODIZED
   );
-  wHousing.position.set(1.5, BASE_Y + 0.55, 0.5);
+  wHousing.position.set(-1.5, BASE_Y + 0.55, 0.5);
   opticsGroup.add(wHousing);
 
   const wBulb = new THREE.Mesh(
     new THREE.SphereGeometry(0.07, 16, 16),
     new THREE.MeshBasicMaterial({ color: 0xfbbf24 })
   );
-  wBulb.position.set(1.5, BASE_Y + 0.55, 0.5);
+  wBulb.position.set(-1.5, BASE_Y + 0.55, 0.5);
   opticsGroup.add(wBulb);
   animTargets.tungstenLampGlow = wBulb;
 
-  // Silicon Photodiode Optical Detector Bay
+  // Silicon Photodiode Optical Detector Bay (captures transmitted beam exiting chamber)
   const detectorHousing = new THREE.Mesh(
     new THREE.CylinderGeometry(0.12, 0.12, 0.35, 20),
     MAT_ALUM_ANODIZED
   );
   detectorHousing.rotation.z = Math.PI / 2;
-  detectorHousing.position.set(CHAMBER_CENTER_X - 0.95, CHAMBER_FLOOR_Y + 0.44, CHAMBER_CENTER_Z);
+  detectorHousing.position.set(CHAMBER_CENTER_X + 0.92, CHAMBER_FLOOR_Y + 0.60, CHAMBER_CENTER_Z);
   root.add(detectorHousing);
 
   // 12. Genuine 3D Fasteners (Rule 1: Exhaustive Procedural Detail)

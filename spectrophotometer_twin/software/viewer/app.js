@@ -242,7 +242,7 @@ const container = document.getElementById('viewport3d');
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(38, container.clientWidth / container.clientHeight, 0.1, 100);
-camera.position.set(4.8, 3.8, 4.8);
+camera.position.set(5.6, 4.2, -7.2);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
 renderer.setSize(container.clientWidth, container.clientHeight);
@@ -254,19 +254,24 @@ renderer.toneMappingExposure = 1.05;
 container.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(0, 1.2, 0);
+controls.target.set(0.0, 1.15, -0.2);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
 controls.maxPolarAngle = Math.PI / 2 + 0.05; // Prevent dipping beneath lab table
 controls.minDistance = 1.5;
-controls.maxDistance = 12.0;
+controls.maxDistance = 14.0;
 
-// Lighting Setup
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+window.camera = camera;
+window.controls = controls;
+
+// Studio Lighting Setup (illuminates front console, touchscreen, buttons, badge, and sample chamber)
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
 scene.add(ambientLight);
 
-const dirLight = new THREE.DirectionalLight(0xfff8ee, 1.7);
-dirLight.position.set(5, 12, 6);
+const dirLight = new THREE.DirectionalLight(0xfff8ee, 1.6);
+dirLight.position.set(4.5, 12.0, -6.0);
+dirLight.target.position.set(0.0, 1.1, -0.2);
+scene.add(dirLight.target);
 dirLight.castShadow = true;
 dirLight.shadow.mapSize.width = 2048;
 dirLight.shadow.mapSize.height = 2048;
@@ -275,8 +280,8 @@ dirLight.shadow.camera.far = 25;
 dirLight.shadow.bias = -0.0005;
 scene.add(dirLight);
 
-const fillLight = new THREE.DirectionalLight(0x90b0e0, 0.65);
-fillLight.position.set(-6, 8, -5);
+const fillLight = new THREE.DirectionalLight(0x90b0e0, 0.55);
+fillLight.position.set(-6, 8, 6);
 scene.add(fillLight);
 
 // Build 3D Spectrophotometer Model
@@ -417,7 +422,7 @@ function handleAdvanceCell() {
 
 function handleToggleDoor() {
   state.chamberOpen = !state.chamberOpen;
-  state.targetLidAngle = state.chamberOpen ? -1.35 : 0.0;
+  state.targetLidAngle = state.chamberOpen ? 1.35 : 0.0;
   sfx.lid();
 
   const doorBtn = document.getElementById('btn-door-toggle');
@@ -656,28 +661,53 @@ window.addEventListener('click', (e) => {
 });
 
 // --- Standard Camera Presets (Mandatory Visual QA Gate) ---
+const CAMERA_PRESETS = {
+  iso: {
+    pos: new THREE.Vector3(5.6, 4.2, -7.2),
+    target: new THREE.Vector3(0.0, 1.15, -0.2),
+  },
+  front: {
+    pos: new THREE.Vector3(0.0, 1.6, -8.2),
+    target: new THREE.Vector3(0.0, 1.15, -0.2),
+  },
+  side: {
+    pos: new THREE.Vector3(8.6, 1.8, -0.1),
+    target: new THREE.Vector3(0.0, 1.1, -0.1),
+  },
+  top: {
+    pos: new THREE.Vector3(0.0, 11.2, -0.21),
+    target: new THREE.Vector3(0.0, 1.0, -0.2),
+    up: new THREE.Vector3(0.0, 0.0, 1.0),
+  },
+  exploded: {
+    pos: new THREE.Vector3(6.5, 5.5, -8.5),
+    target: new THREE.Vector3(0.0, 1.6, -0.2),
+  },
+};
+
 window.setCameraPreset = function(preset) {
   controls.autoRotate = false;
   document.getElementById('btn-auto-rotate')?.classList.remove('active');
-  const target = new THREE.Vector3(0, 1.2, 0);
-  controls.target.copy(target);
-
-  switch (preset) {
-    case 'iso':
-      camera.position.set(4.8, 3.8, 4.8);
-      break;
-    case 'front':
-      camera.position.set(0, 1.6, 5.0);
-      break;
-    case 'side':
-      camera.position.set(5.2, 1.5, 0);
-      break;
-    case 'top':
-      camera.position.set(0, 5.8, 0.2);
-      break;
+  const p = CAMERA_PRESETS[preset];
+  if (!p) return;
+  if (p.up) {
+    camera.up.copy(p.up);
+  } else {
+    camera.up.set(0, 1, 0);
   }
+  camera.position.copy(p.pos);
+  controls.target.copy(p.target);
   controls.update();
+
+  ['iso', 'front', 'side', 'top'].forEach((k) => {
+    document.getElementById(`btn-cam-${k}`)?.classList.toggle('active', k === preset);
+  });
 };
+
+document.getElementById('btn-cam-iso')?.addEventListener('click', () => window.setCameraPreset('iso'));
+document.getElementById('btn-cam-front')?.addEventListener('click', () => window.setCameraPreset('front'));
+document.getElementById('btn-cam-side')?.addEventListener('click', () => window.setCameraPreset('side'));
+document.getElementById('btn-cam-top')?.addEventListener('click', () => window.setCameraPreset('top'));
 
 // Window resize handler
 window.addEventListener('resize', () => {
