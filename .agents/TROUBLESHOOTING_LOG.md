@@ -113,21 +113,32 @@ Cause Analysis, and Mathematical Fixes_
 
 ---
 
-### DIAG-005: Chamber Cantilever Overhang (Chamber Floor Overhanging Sloped LCD)
+### DIAG-005: Dynamic Canvas LCD Inversion & Horizontal Mirroring (UI_LCD Orientation)
 
-- **Visual Symptom**: The perforated grid floor of the draft shield extends forward past the glass wall and hangs out
-  over the operator's touchscreen in mid-air.
-- **Root Cause**: The unibody flat horizontal deck ends at $Z = -0.60$ and slopes down to $Z = -1.95$. The draft shield
-  and chamber floor ($D = 2.40$) were erroneously centered at $Z = 0.20$, projecting forward to $Z = -1.00$
-  ($40\text{ cm}$ cantilever into empty air).
-- **Physical Machine Reality**: In metrology, an overhanging chamber floor destroys draft resistance and thermal
-  stability. The weighing chamber must sit strictly on the rear flat deck ($Z \in [-0.60, 1.80]$).
+- **Visual Symptom**: Dynamic digital display text (e.g. `SREdesigns STIR-HEAT 500-D`, `SAFE: 320°C`, `HEATER`, `STIRRER`)
+  renders upside down, or when rotated $180^\circ$ renders mirrored right-to-left.
+- **Why It Occurred**:
+  1. A manual compensation `lcdMesh.rotation.z = Math.PI` was applied to the display quad. This flipped both axes in
+     screen space, causing the text to render completely upside-down.
+  2. Standard Three.js canvas texturing requires `flipY = false` to avoid vertical GPU inversion. However, when mounted
+     on a sloped chamfer console with rotated local coordinates, the horizontal UV coordinates mapped right-to-left.
+  3. Naively applying negative scaling (`scale.x = -1`) inverts the matrix determinant, reversing triangle winding order
+     which causes backface culling failures, inverted surface normals, and inaccurate pointer raycasting.
+- **Enforced Rule (AGENTS.md & CAD Protocol)**:
+  - Dynamic canvas textures bound to `UI_LCD` must explicitly set `flipY = false` at creation.
+  - Never use negative scale matrices (`scale.x = -1`) to flip textures on solid interactive meshes.
+  - Invert horizontal UV coordinates directly on the buffer geometry attribute:
+    $$U_{\text{corrected}} = 1.0 - U_{\text{original}}$$
 - **Code Fix**:
   ```javascript
-  // Center all chamber assemblies squarely on flat deck plate (Z = 0.65)
-  emfrGroup.position.set(0, baseY + 0.47, 0.65);
-  panGroup.position.set(0, baseY + 0.88, 0.65);
-  draftShieldGroup.position.set(0, baseY + 0.88, 0.65);
+  // hotplate3d.js
+  const lcdGeo = new THREE.PlaneGeometry(bezelW - 0.08, bezelH - 0.08);
+  // Invert UV X coordinate directly on the buffer to fix horizontal mirroring while strictly preserving flipY = false
+  const uvAttr = lcdGeo.attributes.uv;
+  for (let i = 0; i < uvAttr.count; i++) {
+    uvAttr.setX(i, 1.0 - uvAttr.getX(i));
+  }
+  uvAttr.needsUpdate = true;
   ```
 
 ---

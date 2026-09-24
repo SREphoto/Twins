@@ -54,11 +54,22 @@ lab world), with zero bench clipping or side overhang.
 standard components (e.g., `<aside class="instrument panel-collapsible">`, CSS variables like `--bg: #0c1016`). Do not
 generate generic minimal HTML/CSS shells.
 
-## 7. Closed-Loop Visual QA Gate
+## 7. Closed-Loop Multi-Angle Visual QA Gate (Mandatory for Every Build)
 
-Before marking any part or twin complete, the agent must run the local server, execute the `/verify-twin` 4-camera audit
-with `browser_subagent`, and visually inspect the assembly for zero clipping, upright typography, and correct mechanical
-clearances.
+**Every twin build must execute the standardized 6-viewpoint visual audit before signoff.** Refer to `.agents/skills/twin-visual-qa/SKILL.md`.
+
+Before marking any part or twin complete, the agent must:
+1. Start the local server (`http://127.0.0.1:8765`).
+2. Run the automated CDP/browser verification script capturing all 6 standardized viewpoints:
+   - `CAM_ISO`: 3/4 isometric perspective, bench clearance ($Y = 9.0$), seamless room walls.
+   - `CAM_FRONT`: Upright typography, zero knob/control display occlusion, brand badge containment.
+   - `CAM_SIDE`: Profile silhouette, flush switches/connectors, zero floating parts.
+   - `CAM_TOP`: Plate/chamber/rotor layout, genuine 3D fasteners, sample vessel centering.
+   - `CAM_EXPLODED`: Vertical separation of assemblies along clean kinematic axes.
+   - `STATE_ACTIVE`: Live dynamic state (thermal glow, active RPM counters, parabolic meniscus vortex).
+3. Save and visually audit all high-resolution screenshot artifacts (`view_file`).
+4. Ensure zero browser console exceptions (`Total exceptions: 0`).
+5. Run Python controller unit tests (`python3 <twin>/software/controller/test_controller.py`) with 100% pass rate.
 
 ## 8. Diagnostic & Troubleshooting Log Adherence
 
@@ -67,4 +78,5 @@ All agents must strictly cross-reference `.agents/TROUBLESHOOTING_LOG.md` before
 - **DIAG-002 (Mesh Occlusion)**: Ensure decorative and canvas planes have positive relative Z clearance over backing boxes.
 - **DIAG-003 (Coplanar Z-Fighting)**: No two solid meshes may share an identical planar coordinate. All edge trims must wrap outer perimeters.
 - **DIAG-004 (Industrial Fidelity)**: Recreate authentic real-world instrument lineage (e.g. through-panel buttons without fabricated fantasy labels).
+- **DIAG-005 (Dynamic Canvas LCD Orientation)**: Canvas textures must set `flipY = false`. Text inverted? Invert UV coordinates on buffer geometry (`uv.setX(i, 1.0 - uv.getX(i))`). Never apply negative scale matrices (`scale.x = -1`).
 

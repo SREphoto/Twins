@@ -104,6 +104,7 @@ lcdCanvas.height = 220;
 const lcdCtx = lcdCanvas.getContext('2d');
 const lcdTexture = new THREE.CanvasTexture(lcdCanvas);
 lcdTexture.colorSpace = THREE.SRGBColorSpace;
+lcdTexture.flipY = false;
 
 // ---------------------------------------------------------------------------
 // Dynamic LCD Renderer
@@ -362,38 +363,80 @@ function updateStatusPill() {
 // ---------------------------------------------------------------------------
 // 3D Scene Initialization
 // ---------------------------------------------------------------------------
+const CAM0 = { x: 2.8, y: BENCH.sy + 2.2, z: -3.6 };
+const TGT0 = { x: 0.0, y: BENCH.sy + 0.95, z: -0.15 };
+
+const CAMERA_PRESETS = {
+  iso: {
+    pos: new THREE.Vector3(2.8, BENCH.sy + 2.2, -3.6),
+    target: new THREE.Vector3(0.0, BENCH.sy + 0.95, -0.15),
+  },
+  front: {
+    pos: new THREE.Vector3(0.0, BENCH.sy + 1.8, -3.8),
+    target: new THREE.Vector3(0.0, BENCH.sy + 0.75, -0.40),
+  },
+  side: {
+    pos: new THREE.Vector3(-4.0, BENCH.sy + 1.6, 0.0),
+    target: new THREE.Vector3(0.0, BENCH.sy + 0.95, 0.0),
+  },
+  top: {
+    pos: new THREE.Vector3(0.0, BENCH.sy + 4.6, 0.35),
+    target: new THREE.Vector3(0.0, BENCH.sy + 0.95, 0.35),
+  },
+};
+
+let targetCamPos = null;
+let targetControlsTarget = null;
+let camLerpFactor = 0.08;
+
+export function setCameraPreset(presetName) {
+  const p = CAMERA_PRESETS[presetName];
+  if (!p) return;
+  targetCamPos = p.pos.clone();
+  targetControlsTarget = p.target.clone();
+
+  ['iso', 'front', 'side', 'top'].forEach((k) => {
+    document.getElementById(`btn-cam-${k}`)?.classList.toggle('active', k === presetName);
+  });
+}
+
 function init3D() {
   const w = viewportEl.clientWidth || window.innerWidth;
   const h = viewportEl.clientHeight || window.innerHeight;
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x0c1016);
-  scene.fog = new THREE.Fog(0x0c1016, 12, 35);
+  scene.background = new THREE.Color(0xd0d8e0);
+  scene.fog = new THREE.Fog(0xd0d8e0, 25, 60);
 
-  camera = new THREE.PerspectiveCamera(40, w / h, 0.05, 50);
-  camera.position.set(0.0, BENCH.sy + 2.4, 3.8);
+  camera = new THREE.PerspectiveCamera(38, w / h, 0.05, 50);
+  camera.position.set(CAM0.x, CAM0.y, CAM0.z);
 
-  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
   renderer.setSize(w, h);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMappingExposure = 1.15;
   viewportEl.appendChild(renderer.domElement);
 
   controls = new OrbitControls(camera, renderer.domElement);
-  controls.target.set(0, BENCH.sy + 0.65, 0);
+  controls.target.set(TGT0.x, TGT0.y, TGT0.z);
   controls.enableDamping = true;
   controls.dampingFactor = 0.05;
   controls.maxPolarAngle = Math.PI / 2 - 0.02; // Prevent going below tabletop
+  controls.minDistance = 1.5;
+  controls.maxDistance = 15.0;
+  controls.update();
 
-  // Lighting
-  ambientLight = new THREE.AmbientLight(0xffffff, 0.55);
+  // Balanced Laboratory Studio Lighting
+  ambientLight = new THREE.AmbientLight(0xffffff, 0.45);
   scene.add(ambientLight);
 
-  dirLight = new THREE.DirectionalLight(0xfff8f0, 1.2);
-  dirLight.position.set(3, BENCH.sy + 8, 4);
+  dirLight = new THREE.DirectionalLight(0xfff8f0, 1.15);
+  dirLight.position.set(4, BENCH.sy + 10, -5);
+  dirLight.target.position.set(0, BENCH.sy + 1.0, 0);
+  scene.add(dirLight.target);
   dirLight.castShadow = true;
   dirLight.shadow.mapSize.width = 2048;
   dirLight.shadow.mapSize.height = 2048;
@@ -402,9 +445,13 @@ function init3D() {
   dirLight.shadow.bias = -0.0001;
   scene.add(dirLight);
 
-  fillLight = new THREE.DirectionalLight(0x93c5fd, 0.45);
-  fillLight.position.set(-4, BENCH.sy + 4, -3);
+  fillLight = new THREE.DirectionalLight(0xdbeafe, 0.55);
+  fillLight.position.set(-5, BENCH.sy + 6, -3);
   scene.add(fillLight);
+
+  const topLight = new THREE.DirectionalLight(0xf8fafc, 0.6);
+  topLight.position.set(0, BENCH.sy + 12, 0);
+  scene.add(topLight);
 
   // Laboratory Room
   buildLabRoom(scene);
@@ -413,7 +460,19 @@ function init3D() {
   twin3d = createHotplateModel();
   twin3d.root.position.set(0, BENCH.sy, 0);
   twin3d.setLcdTexture(lcdTexture);
+  twin3d.setSolventColor(SOLVENTS[state.solventKey].color);
   scene.add(twin3d.root);
+
+  // Expose global handles for browser audits & testing
+  window.THREE = THREE;
+  window.__scene = scene;
+  window.__camera = camera;
+  window.__controls = controls;
+  window.__twin3d = twin3d;
+  window.__state = state;
+  window.__CAM0 = CAM0;
+  window.__TGT0 = TGT0;
+  window.setCameraPreset = setCameraPreset;
 
   // Raycaster for 3D interactions
   raycaster = new THREE.Raycaster();
@@ -442,26 +501,33 @@ function onPointerDown(event) {
   if (intersects.length > 0) {
     let obj = intersects[0].object;
     while (obj && obj !== twin3d.root) {
-      if (obj.name === 'Pivot_KnobTemp') {
+      if (obj.name === 'Pivot_KnobTemp' || obj.name === 'Indicator_Temp') {
         toggleHeating();
         playEncoderClick();
         return;
       }
-      if (obj.name === 'Pivot_KnobSpeed') {
+      if (obj.name === 'Pivot_KnobSpeed' || obj.name === 'Indicator_Speed') {
         toggleStirring();
         playEncoderClick();
         return;
       }
-      if (obj.name === 'Btn_Power') {
+      if (obj.name === 'Btn_Power' || obj.name === 'Rocker_Actuator') {
         togglePower();
         return;
       }
-      if (obj.name === 'Glass_Beaker') {
+      if (obj.name === 'Glass_Beaker' || obj.name === 'Fluid_Liquid' || obj.name === 'Pivot_StirBar') {
         toggleBeaker();
         return;
       }
-      if (obj.name === 'Probe_PT1000' || obj.name === 'Clamp_BossHead') {
+      if (obj.name === 'Probe_PT1000' || obj.name === 'Clamp_BossHead' || obj.name === 'Arm_ProbeHolder') {
         toggleProbe();
+        return;
+      }
+      if (obj.name === 'Btn_SafeTemp') {
+        // Step safe limit: 300 -> 310 -> 320 -> 330 -> 280
+        state.safeTempC = state.safeTempC >= 330 ? 280 : state.safeTempC + 10;
+        playEncoderClick();
+        updateUI();
         return;
       }
       obj = obj.parent;
@@ -524,6 +590,7 @@ export function setStirSetpoint(rpm) {
 export function setSolvent(key) {
   if (SOLVENTS[key]) {
     state.solventKey = key;
+    twin3d.setSolventColor(SOLVENTS[key].color);
     updateUI();
   }
 }
@@ -623,8 +690,23 @@ function animate() {
   renderLCD();
   processDemo(dt);
 
+  // Smooth camera preset interpolation
+  if (targetCamPos && targetControlsTarget) {
+    camera.position.lerp(targetCamPos, camLerpFactor);
+    controls.target.lerp(targetControlsTarget, camLerpFactor);
+    if (camera.position.distanceTo(targetCamPos) < 0.02 && controls.target.distanceTo(targetControlsTarget) < 0.02) {
+      camera.position.copy(targetCamPos);
+      controls.target.copy(targetControlsTarget);
+      targetCamPos = null;
+      targetControlsTarget = null;
+    }
+  }
+
   if (state.autoRotate) {
-    twin3d.root.rotation.y += 0.008 * state.orbitSpeed;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 2.0 * state.orbitSpeed;
+  } else {
+    controls.autoRotate = false;
   }
 
   controls.update();
@@ -637,6 +719,12 @@ function animate() {
 window.addEventListener('DOMContentLoaded', () => {
   init3D();
   animate();
+
+  // Camera Viewpoint Presets
+  document.getElementById('btn-cam-iso')?.addEventListener('click', () => setCameraPreset('iso'));
+  document.getElementById('btn-cam-front')?.addEventListener('click', () => setCameraPreset('front'));
+  document.getElementById('btn-cam-side')?.addEventListener('click', () => setCameraPreset('side'));
+  document.getElementById('btn-cam-top')?.addEventListener('click', () => setCameraPreset('top'));
 
   // Control Buttons
   document.getElementById('btn-heat-toggle')?.addEventListener('click', toggleHeating);
@@ -682,10 +770,19 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('orbit-speed-val').textContent = `${state.orbitSpeed.toFixed(1)}×`;
   });
 
+  function zoomPctToDist(pct) {
+    const minD = 1.8;
+    const maxD = 10.0;
+    return maxD - (pct / 100) * (maxD - minD);
+  }
+
   document.getElementById('camera-zoom')?.addEventListener('input', (e) => {
-    const val = parseInt(e.target.value, 10);
-    camera.position.z = 2.0 + (100 - val) * 0.035;
-    document.getElementById('camera-zoom-val').textContent = `${val}%`;
+    const pct = parseInt(e.target.value, 10);
+    const targetDist = zoomPctToDist(pct);
+    const dir = new THREE.Vector3().subVectors(camera.position, controls.target).normalize();
+    camera.position.copy(controls.target).addScaledVector(dir, targetDist);
+    controls.update();
+    document.getElementById('camera-zoom-val').textContent = `${pct}%`;
   });
 
   document.getElementById('lab-light')?.addEventListener('input', (e) => {
