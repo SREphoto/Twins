@@ -36,6 +36,7 @@ const MAT_CHASSIS = new THREE.MeshStandardMaterial({
   color: 0xe6eaf0,
   roughness: 0.38,
   metalness: 0.12,
+  side: THREE.DoubleSide,
 });
 const MAT_CHASSIS_DARK = new THREE.MeshStandardMaterial({
   color: 0x20242b,
@@ -670,11 +671,12 @@ export function createSpectrophotometerModel(options = {}) {
 
   // Center chassis divider wall at X = 0 separating console from sample compartment
   const centerChassisDivider = new THREE.Mesh(
-    new THREE.BoxGeometry(0.04, 1.35, 2.38),
+    new THREE.BoxGeometry(0.04, 1.10, 2.38),
     MAT_CHASSIS
   );
-  centerChassisDivider.position.set(0.0, BASE_Y + 0.12 + 0.675, -1.19);
+  centerChassisDivider.position.set(0.02, BASE_Y + 0.12 + 0.55, -1.19);
   centerChassisDivider.castShadow = true;
+  centerChassisDivider.receiveShadow = true;
   chassisGroup.add(centerChassisDivider);
   chassisMeshes.push(centerChassisDivider);
 
@@ -720,12 +722,12 @@ export function createSpectrophotometerModel(options = {}) {
   shadowGapDivider.position.set(0, BASE_Y + 0.72, -1.19);
   chassisGroup.add(shadowGapDivider);
 
-  // Polished chrome upper ridge runner
+  // Polished chrome upper ridge runner along top crown seam at Z = 0
   const ridgeRunner = new THREE.Mesh(
     new THREE.BoxGeometry(4.38, 0.025, 0.035),
     MAT_CHROME
   );
-  ridgeRunner.position.set(0, BASE_Y + 1.23, 0.0);
+  ridgeRunner.position.set(0, 2.105, 0.0);
   chassisGroup.add(ridgeRunner);
 
   // Brushed aluminum side bumper rails with countersunk M3 hex socket screws
@@ -745,60 +747,82 @@ export function createSpectrophotometerModel(options = {}) {
     }
   }
 
-  // 3D trapezoidal wedge for sloped front console (operator right: X in [-2.18, 0], Z in [-2.36, 0])
-  // Clean BufferGeometry with explicit vertex normals and bounding sphere (eliminates ExtrudeGeometry NaN warning)
-  const wWidth = 2.18;
-  const wDepth = 2.36;
-  const hFront = 0.15;
-  const hRear = 0.85;
+  // 3D trapezoidal solid wedge for sloped front console (operator right: X in [-2.18, 0], Z in [-2.38, 0])
+  // High-precision BufferGeometry with verified counter-clockwise outward normals on all 6 faces
+  const v0 = [-2.18, 1.40, -2.38]; // front-right-bottom
+  const v1 = [ 0.00, 1.40, -2.38]; // front-left-bottom
+  const v2 = [ 0.00, 1.40,  0.00]; // rear-left-bottom
+  const v3 = [-2.18, 1.40,  0.00]; // rear-right-bottom
 
-  const p0 = [0, 0, -wDepth];
-  const p1 = [wWidth, 0, -wDepth];
-  const p2 = [wWidth, 0, 0];
-  const p3 = [0, 0, 0];
-  const p4 = [0, hFront, -wDepth];
-  const p5 = [wWidth, hFront, -wDepth];
-  const p6 = [wWidth, hRear, 0];
-  const p7 = [0, hRear, 0];
+  const v4 = [-2.18, 1.46, -2.38]; // front-right-top
+  const v5 = [ 0.00, 1.46, -2.38]; // front-left-top
+  const v6 = [ 0.00, 2.10,  0.00]; // rear-left-top
+  const v7 = [-2.18, 2.10,  0.00]; // rear-right-top
 
   const wedgePositions = new Float32Array([
-    // Bottom (y = 0)
-    ...p0, ...p2, ...p1,  ...p0, ...p3, ...p2,
-    // Top sloped
-    ...p4, ...p5, ...p6,  ...p4, ...p6, ...p7,
-    // Front (z = -wDepth)
-    ...p0, ...p1, ...p5,  ...p0, ...p5, ...p4,
-    // Rear (z = 0)
-    ...p3, ...p7, ...p6,  ...p3, ...p6, ...p2,
-    // Right (x = 0)
-    ...p0, ...p4, ...p7,  ...p0, ...p7, ...p3,
-    // Left (x = wWidth)
-    ...p1, ...p2, ...p6,  ...p1, ...p6, ...p5,
+    // 1. Top sloped face (outward normal: [0, +0.966, -0.26] pointing up and forward)
+    ...v4, ...v7, ...v6,   ...v4, ...v6, ...v5,
+    // 2. Left cheek wall at X = 0 (outward normal: [+1, 0, 0] pointing into sample chamber)
+    ...v1, ...v6, ...v2,   ...v1, ...v5, ...v6,
+    // 3. Right cheek wall at X = -2.18 (outward normal: [-1, 0, 0] pointing to right exterior)
+    ...v0, ...v3, ...v7,   ...v0, ...v7, ...v4,
+    // 4. Front vertical riser at Z = -2.38 (outward normal: [0, 0, -1] pointing forward)
+    ...v0, ...v5, ...v1,   ...v0, ...v4, ...v5,
+    // 5. Rear vertical bulkhead at Z = 0.0 (outward normal: [0, 0, +1] pointing backward into optics bay)
+    ...v3, ...v2, ...v6,   ...v3, ...v6, ...v7,
+    // 6. Bottom face at Y = 1.40 (outward normal: [0, -1, 0] pointing downward)
+    ...v0, ...v1, ...v2,   ...v0, ...v2, ...v3,
+  ]);
+
+  const wedgeUvs = new Float32Array([
+    // Top
+    0, 0,  1, 1,  0, 1,    0, 0,  1, 0,  1, 1,
+    // Left
+    0, 0,  1, 1,  1, 0,    0, 0,  0, 1,  1, 1,
+    // Right
+    0, 0,  1, 0,  1, 1,    0, 0,  1, 1,  0, 1,
+    // Front
+    0, 0,  1, 1,  1, 0,    0, 0,  0, 1,  1, 1,
+    // Rear
+    0, 0,  1, 0,  1, 1,    0, 0,  1, 1,  0, 1,
+    // Bottom
+    0, 0,  1, 0,  1, 1,    0, 0,  1, 1,  0, 1,
   ]);
 
   const slopeGeo = new THREE.BufferGeometry();
   slopeGeo.setAttribute('position', new THREE.BufferAttribute(wedgePositions, 3));
+  slopeGeo.setAttribute('uv', new THREE.BufferAttribute(wedgeUvs, 2));
   slopeGeo.computeVertexNormals();
+  slopeGeo.computeBoundingBox();
   slopeGeo.computeBoundingSphere();
 
   const consoleSlopeMesh = new THREE.Mesh(slopeGeo, MAT_CHASSIS);
-  consoleSlopeMesh.position.set(-2.18, BASE_Y + 1.22, 0);
+  consoleSlopeMesh.name = 'Chassis_SlopedConsole';
+  consoleSlopeMesh.position.set(0, 0, 0);
   consoleSlopeMesh.castShadow = true;
   consoleSlopeMesh.receiveShadow = true;
   chassisGroup.add(consoleSlopeMesh);
   chassisMeshes.push(consoleSlopeMesh);
 
+  // Front sill accent runner between front apron and sloped deck
+  const frontConsoleTrim = new THREE.Mesh(
+    new THREE.BoxGeometry(2.18, 0.02, 0.03),
+    MAT_CHROME
+  );
+  frontConsoleTrim.position.set(-1.09, 1.46, -2.38);
+  chassisGroup.add(frontConsoleTrim);
+
   // 4. Sloped Console Assembly & Recessed Bezel
-  const slopeAngle = Math.atan2(0.70, 2.36); // ~0.2885 rad (~16.53°)
+  const slopeAngle = Math.atan2(0.64, 2.38); // ~0.2625 rad (~15.04°)
   const bezelGroup = new THREE.Group();
   bezelGroup.name = 'Assembly_SlopedConsole';
-  bezelGroup.position.set(-1.09, BASE_Y + 1.22 + 0.50 + 0.02, -1.18);
+  bezelGroup.position.set(-1.09, 1.78, -1.19);
   bezelGroup.rotation.x = -slopeAngle; // Tilts face up and forward toward operator
   chassisGroup.add(bezelGroup);
 
   // Recessed pocket tray
   const bezelTray = new THREE.Mesh(
-    new THREE.BoxGeometry(1.88, 0.04, 1.54),
+    new THREE.BoxGeometry(1.88, 0.035, 1.54),
     MAT_BEZEL
   );
   bezelTray.name = 'Pocket_Bezel';
@@ -844,7 +868,7 @@ export function createSpectrophotometerModel(options = {}) {
   const lcdMesh = new THREE.Mesh(lcdGeo, lcdMat);
   lcdMesh.name = 'UI_LCD';
   lcdMesh.rotation.x = -Math.PI / 2;
-  lcdMesh.position.set(0, 0.038, 0.18);
+  lcdMesh.position.set(0, 0.034, 0.18);
   bezelGroup.add(lcdMesh);
   animTargets.lcdMesh = lcdMesh;
 
@@ -863,7 +887,7 @@ export function createSpectrophotometerModel(options = {}) {
 
   buttonConfigs.forEach((cfg) => {
     const keyItem = createLabeledKeycap(cfg);
-    keyItem.group.position.set(cfg.x, 0.025, cfg.z);
+    keyItem.group.position.set(cfg.x, 0.024, cfg.z);
     bezelGroup.add(keyItem.group);
     interactiveObjects.push(keyItem.group);
     animTargets.keycaps[cfg.id] = keyItem.capGroup;
@@ -901,8 +925,8 @@ export function createSpectrophotometerModel(options = {}) {
   explodedShellGroup.add(deckCollarLeft);
   chassisMeshes.push(deckCollarLeft);
 
-  const deckCollarRight = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.04, 2.38), MAT_CHASSIS);
-  deckCollarRight.position.set(0.06, BASE_Y + 0.12 + 1.33, -1.19);
+  const deckCollarRight = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.04, 2.38), MAT_CHASSIS);
+  deckCollarRight.position.set(0.065, BASE_Y + 0.12 + 1.33, -1.19);
   deckCollarRight.castShadow = true;
   deckCollarRight.receiveShadow = true;
   explodedShellGroup.add(deckCollarRight);
