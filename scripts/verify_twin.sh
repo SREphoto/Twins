@@ -34,7 +34,12 @@ if [ -d "${VIEWER_DIR}" ]; then
   echo "Running JavaScript syntax checks..."
   for js in "${VIEWER_DIR}"/*.js; do
     if [ -f "${js}" ]; then
-      if node --check "${js}" 2>&1; then
+      if node --experimental-vm-modules -e '
+        import fs from "fs";
+        import vm from "vm";
+        const code = fs.readFileSync(process.argv[1], "utf8");
+        new vm.SourceTextModule(code);
+      ' "${js}" >/dev/null 2>&1; then
         echo "  ✅ Syntax OK: $(basename "${js}")"
       else
         echo "  ❌ SYNTAX ERROR in: $(basename "${js}")"

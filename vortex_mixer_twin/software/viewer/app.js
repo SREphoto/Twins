@@ -76,7 +76,7 @@ const camera = new THREE.PerspectiveCamera(
   1000
 );
 // Default 3/4 Isometric Perspective (CAM_ISO)
-camera.position.set(150, 195, 230);
+camera.position.set(240, 280, 290);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
 renderer.setSize(container.clientWidth, container.clientHeight);
@@ -90,10 +90,10 @@ container.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
-controls.target.set(0, 105, 0); // Focus directly on sample tube and vortex assembly
+controls.target.set(0, 95, -16); // Center framing on machine body, top deck, and sample tube
 controls.maxPolarAngle = Math.PI / 2 - 0.01; // Prevent going below tabletop datum Y = 0
-controls.minDistance = 60;
-controls.maxDistance = 500;
+controls.minDistance = 80;
+controls.maxDistance = 800;
 
 // Lighting Rig
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
@@ -660,20 +660,20 @@ function setCameraView(preset) {
   document.querySelectorAll('.view-btn').forEach((b) => b.classList.remove('active'));
 
   if (preset === 'iso') {
-    camera.position.set(150, 195, 230);
-    controls.target.set(0, 105, 0);
+    camera.position.set(240, 280, 290);
+    controls.target.set(0, 95, -16);
     document.getElementById('btn-cam-iso')?.classList.add('active');
   } else if (preset === 'front') {
-    camera.position.set(0, 120, 290);
-    controls.target.set(0, 105, 0);
+    camera.position.set(0, 115, 410);
+    controls.target.set(0, 95, -16);
     document.getElementById('btn-cam-front')?.classList.add('active');
   } else if (preset === 'side') {
-    camera.position.set(290, 115, 0);
-    controls.target.set(0, 105, 0);
+    camera.position.set(410, 115, -16);
+    controls.target.set(0, 95, -16);
     document.getElementById('btn-cam-side')?.classList.add('active');
   } else if (preset === 'top') {
-    camera.position.set(0, 320, 0.01);
-    controls.target.set(0, 105, 0);
+    camera.position.set(0, 420, -16.01);
+    controls.target.set(0, 95, -16);
     document.getElementById('btn-cam-top')?.classList.add('active');
   }
 }

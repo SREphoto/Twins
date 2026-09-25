@@ -3,21 +3,21 @@
  * High-Fidelity Procedural 3D Model & Mechanical Assembly
  *
  * Semantic Part Taxonomy Compliance:
- * - Body_Chassis: Die-cast zinc unibody lower housing with flared skirt, parting lines & cooling louvers
- * - Body_BasePlate: 1.5 mm galvanized steel bottom closure plate
+ * - Body_Chassis: Die-cast zinc unibody lower housing with flared skirt & seamless tapered profile
+ * - Body_BasePlate: Weighted steel bottom closure plate matching rounded perimeter
  * - Foot_Leveling_FL/FR/RL/RR: 4 vulcanized neoprene suction cup feet resting firmly on Tabletop Datum Y = 0
- * - Pocket_ConsoleBezel: 2.0 mm recessed pocket carved into 25° sloped console face (Anti-Clipping Rule)
- * - Panel_Console: Anodized brushed aluminum faceplate with laser-etched markings
- * - UI_LCD: Flat quad inside pocket receiving live dynamic CanvasTexture (flipY = false)
+ * - Pocket_ConsoleBezel: Recessed pocket carved into 25° sloped console face (Anti-Clipping Rule)
+ * - Body_Panel_Console: Anodized brushed aluminum faceplate with laser-etched markings
+ * - UI_LCD: Flat quad inside pocket receiving live dynamic CanvasTexture (flipY = false, upright)
  * - Btn_Power, Btn_Timer, Btn_Pulse: Tactile momentary switches with mechanical spring travel
  * - Knob_Speed: Fluted optical rotary encoder dial with raised pointer (0° to 270° sweep)
- * - Switch_Mode: 3-position chrome bat toggle switch (-25° TOUCH, 0° OFF, +25° CONT)
- * - LED_PowerRun: Molded Fresnel lens dome with dynamic glow material (Amber = Standby, Green = Active)
+ * - Btn_Switch_Mode: 3-position miniature chrome toggle switch (-20° TOUCH, 0° OFF, +20° CONT)
+ * - Body_LED_PowerRun: Molded Fresnel lens dome with dynamic glow material (Amber = Standby, Green = Active)
  * - Pivot_CupHead: Vulcanized rubber cup head with eccentric orbital kinematics (2 mm radius, 4 mm circle)
  * - Glass_FalconTube, Glass_MicroTube: Refractive borosilicate / optical polypropylene vessels (IOR = 1.52)
- * - Fluid_VortexMeniscus: Dynamic rotational forced-vortex liquid mesh with real-time vertex displacement
+ * - Body_Fluid_FalconTube15mL, Body_Fluid_MicroTube1_5mL: Dynamic rotational forced-vortex liquid mesh
  * - Fastener_HexM3_*: Real 3D DIN 912 / ISO 4762 hex socket head cap screws with counterbored washers
- * - Assembly_PowerInlet: Rear IEC 60320 C14 connector, fuse drawer, and rocker switch
+ * - Body_Assembly_PowerInlet: Rear IEC 60320 C14 connector, fuse drawer, and rocker switch
  * - Badge_SREdesigns: Diamond-cut metallic badge with high-contrast SRE branding
  */
 
@@ -44,7 +44,7 @@ const MAT_CHASSIS_DARK = new THREE.MeshStandardMaterial({
 });
 
 const MAT_BASE_STEEL = new THREE.MeshStandardMaterial({
-  color: 0x3a404a,
+  color: 0x2a303a,
   roughness: 0.45,
   metalness: 0.65,
 });
@@ -125,6 +125,192 @@ const LIQUID_COLORS = {
   blood: 0x991b1b,
 };
 
+/**
+ * Creates a rounded squircle plate with smooth corners and bevel.
+ */
+function createSquirclePlateGeometry(width, depth, height, cornerExp = 3.6, seg = 48) {
+  const halfW = width / 2;
+  const halfD = depth / 2;
+  const e = 2.0 / cornerExp;
+
+  const shape = new THREE.Shape();
+  for (let i = 0; i <= seg; i++) {
+    const theta = (i / seg) * Math.PI * 2;
+    const cosT = Math.cos(theta);
+    const sinT = Math.sin(theta);
+    const x = halfW * Math.sign(cosT) * Math.pow(Math.abs(cosT), e);
+    const z = halfD * Math.sign(sinT) * Math.pow(Math.abs(sinT), e);
+    if (i === 0) shape.moveTo(x, z);
+    else shape.lineTo(x, z);
+  }
+  const extrudeSettings = {
+    steps: 1,
+    depth: height,
+    bevelEnabled: true,
+    bevelThickness: 0.8,
+    bevelSize: 0.8,
+    bevelSegments: 3,
+  };
+  const geo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+  geo.rotateX(Math.PI / 2);
+  geo.computeVertexNormals();
+  return geo;
+}
+
+/**
+ * Procedural continuous unibody casting geometry:
+ * Features a seamless transition from flared skirt to a 25.0° sloped planar front console facet,
+ * vertical rear connector face, and rounded upper motor collar dome.
+ */
+function createVortexChassisGeometry() {
+  const M = 48; // Vertical slices for fine curvature
+  const N = 48; // Radial points per slice
+
+  const positions = [];
+  const uvs = [];
+  const indices = [];
+
+  // 1. Vertical Side Loft (Y: 12 to 120 mm)
+  for (let j = 0; j <= M; j++) {
+    const vNorm = j / M;
+    const y = 12.0 + vNorm * 108.0; // Y from 12 mm to 120 mm
+
+    let halfW, frontZ, rearZ, cornerExp;
+
+    if (y < 24.0) {
+      // Zone 1: Lower flared skirt (Y: 12 to 24 mm)
+      const t = (y - 12.0) / 12.0;
+      halfW = THREE.MathUtils.lerp(58.0, 54.0, t);
+      frontZ = THREE.MathUtils.lerp(60.0, 52.2, t);
+      rearZ = THREE.MathUtils.lerp(-84.0, -80.0, t);
+      cornerExp = 3.6;
+    } else if (y < 90.0) {
+      // Zone 2: Main body with 25.0° sloped front console facet (Y: 24 to 90 mm)
+      const t = (y - 24.0) / 66.0;
+      halfW = THREE.MathUtils.lerp(54.0, 44.0, t);
+      // Sloped front plane: passes through Y=62.0, Z=34.5 with exact 25.0° incline
+      frontZ = 34.5 - 0.4663 * (y - 62.0);
+      // Rear wall: vertical flat face at Z=-80.0 up to Y=52.0 for IEC inlet & switch, then smoothly tapers
+      if (y <= 52.0) {
+        rearZ = -80.0;
+      } else {
+        const tr = (y - 52.0) / (120.0 - 52.0);
+        const smoothR = tr * tr * (3.0 - 2.0 * tr);
+        rearZ = THREE.MathUtils.lerp(-80.0, -48.0, smoothR);
+      }
+      cornerExp = THREE.MathUtils.lerp(3.6, 2.9, t);
+    } else {
+      // Zone 3: Upper transition into broad, elegant top deck (Y: 90 to 120 mm)
+      const t = (y - 90.0) / 30.0;
+      const smoothT = t * t * (3.0 - 2.0 * t);
+      halfW = THREE.MathUtils.lerp(44.0, 40.0, smoothT);
+      // Front face smoothly fillets from the 25° incline into the top deck rim
+      frontZ = THREE.MathUtils.lerp(21.4436, 16.0, smoothT);
+      // Rear face continues its smooth taper to Z = -48.0
+      const tr = (y - 52.0) / (120.0 - 52.0);
+      const smoothR = tr * tr * (3.0 - 2.0 * tr);
+      rearZ = THREE.MathUtils.lerp(-80.0, -48.0, smoothR);
+      cornerExp = THREE.MathUtils.lerp(2.9, 2.5, smoothT);
+    }
+
+    const halfD = (frontZ - rearZ) / 2.0;
+    const centerZ = (frontZ + rearZ) / 2.0;
+
+    for (let i = 0; i <= N; i++) {
+      const uNorm = i / N;
+      const theta = uNorm * Math.PI * 2.0;
+      const cosT = Math.cos(theta);
+      const sinT = Math.sin(theta);
+
+      const e = 2.0 / cornerExp;
+      const x = halfW * Math.sign(cosT) * Math.pow(Math.abs(cosT), e);
+      const zRel = halfD * Math.sign(sinT) * Math.pow(Math.abs(sinT), e);
+      const z = centerZ + zRel;
+
+      positions.push(x, y, z);
+      uvs.push(uNorm, vNorm);
+    }
+  }
+
+  // Create side loft quad indices with outward facing normals
+  for (let j = 0; j < M; j++) {
+    for (let i = 0; i < N; i++) {
+      const a = j * (N + 1) + i;
+      const b = (j + 1) * (N + 1) + i;
+      const c = (j + 1) * (N + 1) + (i + 1);
+      const d = j * (N + 1) + (i + 1);
+
+      indices.push(a, d, b);
+      indices.push(d, c, b);
+    }
+  }
+
+  // 2. Solid Top Deck Surface & Recessed Spindle Well
+  const topSliceStart = M * (N + 1);
+  const K = 3; // 3 intermediate deck rings
+  const collarCenterX = 0;
+  const collarCenterZ = -16.0;
+  const collarRadius = 24.5;
+  const wellY = 118.5;
+
+  let prevRingStart = topSliceStart;
+
+  for (let k = 1; k <= K; k++) {
+    const s = k / K;
+    const curRingStart = positions.length / 3;
+
+    for (let i = 0; i <= N; i++) {
+      const uNorm = i / N;
+      const theta = uNorm * Math.PI * 2.0;
+
+      // Outer point from slice M
+      const outerX = positions[(topSliceStart + i) * 3];
+      const outerZ = positions[(topSliceStart + i) * 3 + 2];
+
+      const innerX = collarCenterX + Math.cos(theta) * collarRadius;
+      const innerZ = collarCenterZ + Math.sin(theta) * collarRadius;
+
+      const x = THREE.MathUtils.lerp(outerX, innerX, s);
+      const z = THREE.MathUtils.lerp(outerZ, innerZ, s);
+      const y = THREE.MathUtils.lerp(120.0, wellY, Math.pow(s, 1.4));
+
+      positions.push(x, y, z);
+      uvs.push(uNorm, 1.0);
+    }
+
+    // Connect prevRing to curRing with upward facing normals
+    for (let i = 0; i < N; i++) {
+      const a = prevRingStart + i;
+      const b = curRingStart + i;
+      const c = curRingStart + (i + 1);
+      const d = prevRingStart + (i + 1);
+
+      indices.push(a, d, b);
+      indices.push(d, c, b);
+    }
+
+    prevRingStart = curRingStart;
+  }
+
+  // 3. Recessed Well Floor (Circle fan at wellY)
+  const centerIdx = positions.length / 3;
+  positions.push(collarCenterX, wellY, collarCenterZ);
+  uvs.push(0.5, 0.5);
+
+  for (let i = 0; i < N; i++) {
+    const a = prevRingStart + i;
+    const b = prevRingStart + (i + 1);
+    indices.push(centerIdx, a, b);
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  geo.setIndex(indices);
+  geo.computeVertexNormals();
+  return geo;
+}
+
 export class VortexMixer3D {
   constructor() {
     this.root = new THREE.Group();
@@ -178,25 +364,25 @@ export class VortexMixer3D {
     // Stage 2: Base Plate & 4 Vulcanized Rubber Suction Cup Feet
     this._buildBaseAndFeet();
 
-    // Stage 3: Die-Cast Zinc Lower Unibody & Cooling Louvers
+    // Stage 3: Die-Cast Unibody Chassis Housing
     this._buildChassisBody();
 
-    // Stage 4: Recessed Bezel Pocket (depth 2.0 mm) & Console Plate
+    // Stage 4: Recessed Sloped Console, LCD, Buttons, Knob, Toggle Switch
     this._buildRecessedConsole();
 
-    // Stage 5: Kinematics & Cup Head Assembly
-    this._buildCupHeadAssembly();
-
-    // Stage 6: Fluidics, Sample Tubes & Dynamic Vortex Meniscus
-    this._buildSampleTubes();
-
-    // Stage 7: Fasteners, Hardware & Power Inlet Socket
-    this._buildHardwareAndFittings();
-
-    // Stage 8: SRE Official Brand Badge
+    // Official SREdesigns Brand Badge
     this._buildBrandBadge();
 
-    // Initial fluid mesh geometry deformation at 0 RPM
+    // Stage 5: Rear Hardware & Electrical Fittings
+    this._buildHardwareAndFittings();
+
+    // Stage 6: Kinematic Cup Head & Spindle Assembly
+    this._buildCupHeadAssembly();
+
+    // Stage 7: Sample Vessels & Parabolic Forced Vortex Dynamics
+    this._buildSampleTubes();
+
+    // Set initial fluid mesh at rest
     this._updateFluidMesh(0, 0);
   }
 
@@ -204,46 +390,47 @@ export class VortexMixer3D {
     const baseGroup = new THREE.Group();
     baseGroup.name = 'Body_Assembly_Base';
 
-    // 1.5 mm galvanized steel bottom cover plate
-    // Placed at Y = 10.0 mm (just above suction feet)
-    const basePlateGeo = new THREE.BoxGeometry(116, 3, 156);
+    // 1. Galvanized steel bottom cover plate with rounded squircle profile
+    // Thickness 2.5 mm, placed at Y = 11.5 mm (above suction feet)
+    const basePlateGeo = createSquirclePlateGeometry(112, 144, 2.5, 3.6, 48);
     const basePlate = new THREE.Mesh(basePlateGeo, MAT_BASE_STEEL);
-    basePlate.position.set(0, 11.5, 0);
+    basePlate.name = 'Body_BasePlate';
+    basePlate.position.set(0, 11.5, -12.0);
     basePlate.castShadow = true;
     basePlate.receiveShadow = true;
     baseGroup.add(basePlate);
 
-    // 4 Vulcanized Neoprene Suction Cup Feet with brass M4 threaded inserts
+    // 2. 4 Vulcanized Neoprene Suction Cup Feet with brass M4 retaining collars
     // Datum check: Bottom flange of suction cup contacts Y = 0.0 mm exactly!
     const footPositions = [
-      { name: 'Foot_Leveling_FL', x: -46, z: 58 },
-      { name: 'Foot_Leveling_FR', x: 46, z: 58 },
-      { name: 'Foot_Leveling_RL', x: -46, z: -58 },
-      { name: 'Foot_Leveling_RR', x: 46, z: -58 },
+      { name: 'Foot_Leveling_FL', x: -44, z: 42 },
+      { name: 'Foot_Leveling_FR', x: 44, z: 42 },
+      { name: 'Foot_Leveling_RL', x: -44, z: -66 },
+      { name: 'Foot_Leveling_RR', x: 44, z: -66 },
     ];
 
     footPositions.forEach((pos) => {
       const foot = new THREE.Group();
       foot.name = pos.name;
 
-      // Concave suction cup base (radius 16 mm, height 6 mm)
-      const cupBaseGeo = new THREE.CylinderGeometry(13, 16, 6, 24);
+      // Concave suction cup base (radius 14 mm, height 5 mm)
+      const cupBaseGeo = new THREE.CylinderGeometry(11, 14, 5, 24);
       const cupBase = new THREE.Mesh(cupBaseGeo, MAT_RUBBER_FEET);
-      cupBase.position.y = 3.0; // Y from 0 to 6 mm
+      cupBase.position.y = 2.5; // Y from 0 to 5 mm
       cupBase.castShadow = true;
       foot.add(cupBase);
 
-      // Conical suction stem (radius 9 mm, height 5 mm)
-      const stemGeo = new THREE.CylinderGeometry(9, 13, 5, 24);
+      // Conical suction stem (radius 8 mm, height 5 mm)
+      const stemGeo = new THREE.CylinderGeometry(8, 11, 5, 24);
       const stem = new THREE.Mesh(stemGeo, MAT_RUBBER_FEET);
-      stem.position.y = 8.5; // Y from 6 to 11 mm
+      stem.position.y = 7.5; // Y from 5 to 10 mm
       stem.castShadow = true;
       foot.add(stem);
 
-      // Central brass M4 retaining collar
-      const brassCollarGeo = new THREE.CylinderGeometry(4.5, 4.5, 3, 16);
+      // Central brass retaining collar
+      const brassCollarGeo = new THREE.CylinderGeometry(4.0, 4.0, 2.5, 16);
       const brassCollar = new THREE.Mesh(brassCollarGeo, MAT_ALUM_BRUSHED);
-      brassCollar.position.y = 11.5;
+      brassCollar.position.y = 10.5;
       foot.add(brassCollar);
 
       foot.position.set(pos.x, 0, pos.z);
@@ -258,63 +445,27 @@ export class VortexMixer3D {
     const chassisGroup = new THREE.Group();
     chassisGroup.name = 'Body_Chassis';
 
-    // 1. Lower flared skirt casting
-    // Bottom flange: Width 122 mm, Depth 165 mm, Height 14 mm (Y: 13 mm to 27 mm)
-    const skirtGeo = new THREE.CylinderGeometry(58, 61, 14, 32);
-    // Scale cylinder into rounded rectangular contour
-    skirtGeo.scale(1.0, 1.0, 1.35);
-    const skirt = new THREE.Mesh(skirtGeo, MAT_CHASSIS_TEAL);
-    skirt.position.set(0, 20, 0);
-    skirt.castShadow = true;
-    skirt.receiveShadow = true;
-    chassisGroup.add(skirt);
+    // 1. Procedural continuous unibody casting (Y: 12 mm to 120 mm)
+    // Tapered squircle with integrated 25.0° front slope and vertical rear face
+    const unibodyGeo = createVortexChassisGeometry();
+    const unibody = new THREE.Mesh(unibodyGeo, MAT_CHASSIS_TEAL);
+    unibody.name = 'Body_Chassis_Unibody';
+    unibody.castShadow = true;
+    unibody.receiveShadow = true;
+    chassisGroup.add(unibody);
 
-    // 2. Main unibody housing body
-    // Center mass: Width ~108 mm, Depth ~145 mm, Height 65 mm (Y: 27 mm to 92 mm)
-    const mainBodyGeo = new THREE.CylinderGeometry(50, 56, 65, 32);
-    mainBodyGeo.scale(1.0, 1.0, 1.3);
-    const mainBody = new THREE.Mesh(mainBodyGeo, MAT_CHASSIS_TEAL);
-    mainBody.position.set(0, 59.5, -2);
-    mainBody.castShadow = true;
-    mainBody.receiveShadow = true;
-    chassisGroup.add(mainBody);
-
-    // 3. Side ergonomic gripping recesses (for lifting 4 kg cast iron body)
-    const gripIndentGeo = new THREE.BoxGeometry(6, 22, 45);
-    const leftGrip = new THREE.Mesh(gripIndentGeo, MAT_CHASSIS_DARK);
-    leftGrip.position.set(-52, 60, -4);
-    chassisGroup.add(leftGrip);
-
-    const rightGrip = new THREE.Mesh(gripIndentGeo, MAT_CHASSIS_DARK);
-    rightGrip.position.set(52, 60, -4);
-    chassisGroup.add(rightGrip);
-
-    // 4. Upper motor collar dome (surrounds motor spindle)
-    // Y: 92 mm to 118 mm
-    const domeGeo = new THREE.CylinderGeometry(36, 48, 26, 32);
-    const dome = new THREE.Mesh(domeGeo, MAT_CHASSIS_TEAL);
-    dome.position.set(0, 105, -2);
-    dome.castShadow = true;
-    dome.receiveShadow = true;
-    chassisGroup.add(dome);
-
-    // 5. Spindle collar rim (anodized black aluminum sealing flange)
-    const collarRimGeo = new THREE.CylinderGeometry(28, 30, 8, 32);
+    // 2. Drive Spindle Collar Flange (machined anodized black aluminum ring in recessed well)
+    const collarRimGeo = new THREE.CylinderGeometry(24.2, 24.2, 4.0, 36);
     const collarRim = new THREE.Mesh(collarRimGeo, MAT_CHASSIS_DARK);
-    collarRim.position.set(0, 122, -2);
+    collarRim.position.set(0, 120.5, -16.0);
     collarRim.castShadow = true;
     chassisGroup.add(collarRim);
 
-    // 6. Rear cooling ventilation louvers (10 horizontal slots)
-    const louverGroup = new THREE.Group();
-    louverGroup.name = 'Body_Ventilation_Louvers';
-    for (let i = 0; i < 8; i++) {
-      const louverGeo = new THREE.BoxGeometry(46, 2, 4);
-      const louver = new THREE.Mesh(louverGeo, MAT_CHASSIS_DARK);
-      louver.position.set(0, 42 + i * 4.5, -78);
-      louverGroup.add(louver);
-    }
-    chassisGroup.add(louverGroup);
+    // 3. Spindle well inner collar ring (machined finish)
+    const collarInnerGeo = new THREE.CylinderGeometry(19.0, 19.0, 4.2, 32);
+    const collarInner = new THREE.Mesh(collarInnerGeo, MAT_ALUM_PANEL);
+    collarInner.position.set(0, 120.5, -16.0);
+    chassisGroup.add(collarInner);
 
     this.root.add(chassisGroup);
     this.explodedParts.push({ group: chassisGroup, offset: new THREE.Vector3(0, 0, 0) });
@@ -324,71 +475,69 @@ export class VortexMixer3D {
     const consoleGroup = new THREE.Group();
     consoleGroup.name = 'Body_Assembly_SlopedConsole';
 
-    // The Anti-Clipping Rule:
-    // Carve a 2.0 mm recessed console pocket on the 25° front slope.
-    // Console center at Z = 42 mm, Y = 62 mm
-    const consoleAngle = THREE.MathUtils.degToRad(-25);
+    // Anti-Clipping Rule (Rule 4 & DIAG-001):
+    // The console face is seated on the 25.0° front slope.
+    // Center at Z = 34.5 mm, Y = 62.0 mm
+    const consoleAngle = THREE.MathUtils.degToRad(-25.0);
+    consoleGroup.position.set(0, 62.0, 34.5);
+    consoleGroup.rotation.x = consoleAngle;
 
     // 1. Recessed Bezel Pocket Backing (Pocket_ConsoleBezel)
-    const pocketGeo = new THREE.BoxGeometry(90, 48, 4);
+    // 66 mm wide x 36 mm high, 1.8 mm deep (recessed into unibody)
+    const pocketGeo = new THREE.BoxGeometry(66, 36, 1.8);
     const pocketBacking = new THREE.Mesh(pocketGeo, MAT_CHASSIS_DARK);
-    pocketBacking.name = 'Body_Pocket_ConsoleBezel';
-    pocketBacking.position.set(0, 62, 42);
-    pocketBacking.rotation.x = consoleAngle;
+    pocketBacking.name = 'Pocket_ConsoleBezel';
+    pocketBacking.position.set(0, 0, -0.6);
     consoleGroup.add(pocketBacking);
 
-    // 2. Anodized Brushed Faceplate (Panel_Console)
-    const plateGeo = new THREE.BoxGeometry(86, 44, 1.5);
+    // 2. Anodized Brushed Faceplate (Body_Panel_Console)
+    // 63 mm wide x 33 mm high, 1.0 mm thick (flush inside pocket)
+    const plateGeo = new THREE.BoxGeometry(63, 33, 1.0);
     const plate = new THREE.Mesh(plateGeo, MAT_ALUM_PANEL);
     plate.name = 'Body_Panel_Console';
-    plate.position.set(0, 62, 43.2);
-    plate.rotation.x = consoleAngle;
+    plate.position.set(0, 0, 0.2);
     plate.receiveShadow = true;
     consoleGroup.add(plate);
 
     // 3. UI_LCD: Dedicated Flat Quad for High-DPI CanvasTexture (flipY = false)
-    // Seated flush inside pocket, offset by +0.8 mm outward along face normal
-    const lcdGeo = new THREE.PlaneGeometry(42, 20);
-    // DIAG-005: Invert horizontal UV coordinates directly on the buffer to fix mirroring while preserving flipY = false
+    // Sits flush in upper half of faceplate: 34 mm wide x 15 mm high
+    const lcdGeo = new THREE.PlaneGeometry(34, 15);
+    // DIAG-005: Correct vertical UV coordinates directly on the buffer so canvas row 0 maps to top
     const uvAttr = lcdGeo.attributes.uv;
     for (let i = 0; i < uvAttr.count; i++) {
-      uvAttr.setX(i, 1.0 - uvAttr.getX(i));
+      uvAttr.setY(i, 1.0 - uvAttr.getY(i));
     }
     uvAttr.needsUpdate = true;
 
-    // Canvas material initialized with dummy placeholder texture
     const lcdMat = new THREE.MeshBasicMaterial({
       color: 0xffffff,
       side: THREE.FrontSide,
     });
     this.uiLcdMesh = new THREE.Mesh(lcdGeo, lcdMat);
     this.uiLcdMesh.name = 'UI_LCD';
-    this.uiLcdMesh.position.set(0, 68, 45.8);
-    this.uiLcdMesh.rotation.x = consoleAngle;
+    this.uiLcdMesh.position.set(0, 6.8, 0.75);
     consoleGroup.add(this.uiLcdMesh);
 
     // 4. Optical Rotary Encoder Dial (Knob_Speed)
-    // Positioned at X = +23 mm on lower portion of console
+    // Seated in lower right: X = +17 mm, Y = -7.0 mm
     const knobGroup = new THREE.Group();
     knobGroup.name = 'Knob_Speed';
-    knobGroup.position.set(23, 53, 52.8);
-    knobGroup.rotation.x = consoleAngle;
+    knobGroup.position.set(17, -7.0, 0.7);
 
     // Knob body with 24 peripheral grip flutes
-    const knobBaseGeo = new THREE.CylinderGeometry(12, 13, 11, 24);
+    const knobBaseGeo = new THREE.CylinderGeometry(9, 9.5, 8.5, 24);
     const knobBase = new THREE.Mesh(knobBaseGeo, MAT_KNOB_ABS);
     knobBase.rotation.x = Math.PI / 2;
     knobBase.castShadow = true;
     knobGroup.add(knobBase);
 
     // Raised white indicator index pointer
-    const pointerGeo = new THREE.BoxGeometry(1.6, 7, 2);
+    const pointerGeo = new THREE.BoxGeometry(1.2, 5.0, 1.6);
     const pointerMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
     const pointer = new THREE.Mesh(pointerGeo, pointerMat);
-    pointer.position.set(0, 6, 6);
+    pointer.position.set(0, 4.5, 4.4);
     knobGroup.add(pointer);
 
-    // Register knob for raycasting and drag rotation
     knobBase.userData = {
       isInteractive: true,
       type: 'knob',
@@ -399,15 +548,14 @@ export class VortexMixer3D {
     this.knobSpeed = knobGroup;
     consoleGroup.add(knobGroup);
 
-    // 5. 3-Position Heavy Chrome Bat Toggle Switch (Btn_Switch_Mode)
-    // Positioned at X = -23 mm on lower portion of console
+    // 5. 3-Position Miniature Chrome Toggle Switch (Btn_Switch_Mode)
+    // Seated in lower left: X = -17 mm, Y = -7.0 mm
     const switchGroup = new THREE.Group();
     switchGroup.name = 'Btn_Switch_Mode';
-    switchGroup.position.set(-23, 53, 52.8);
-    switchGroup.rotation.x = consoleAngle;
+    switchGroup.position.set(-17, -7.0, 0.7);
 
-    // Knurled hex mounting bushing
-    const nutGeo = new THREE.CylinderGeometry(5.5, 5.5, 3.5, 6);
+    // Hex mounting bushing
+    const nutGeo = new THREE.CylinderGeometry(4.0, 4.0, 2.2, 6);
     const nut = new THREE.Mesh(nutGeo, MAT_CHROME);
     nut.rotation.x = Math.PI / 2;
     nut.castShadow = true;
@@ -416,18 +564,17 @@ export class VortexMixer3D {
     // Pivotable chrome bat lever
     const leverGroup = new THREE.Group();
     leverGroup.name = 'Btn_Switch_BatLever';
-    leverGroup.position.set(0, 0, 2);
+    leverGroup.position.set(0, 0, 1.2);
 
-    const leverGeo = new THREE.CylinderGeometry(1.6, 2.4, 14, 16);
+    const leverGeo = new THREE.CylinderGeometry(1.2, 1.8, 8.0, 16);
     const lever = new THREE.Mesh(leverGeo, MAT_CHROME);
-    lever.position.y = 7;
+    lever.position.y = 4.0;
     lever.castShadow = true;
     leverGroup.add(lever);
 
-    // Tip ball on toggle lever
-    const ballGeo = new THREE.SphereGeometry(2.4, 16, 16);
+    const ballGeo = new THREE.SphereGeometry(1.8, 16, 16);
     const ball = new THREE.Mesh(ballGeo, MAT_CHROME);
-    ball.position.y = 14;
+    ball.position.y = 8.0;
     leverGroup.add(ball);
 
     lever.userData = {
@@ -439,26 +586,26 @@ export class VortexMixer3D {
     ball.userData = lever.userData;
     this.interactiveMeshes.push(lever, ball);
 
-    // Default to TOUCH mode (tilted to the left: -25°)
-    leverGroup.rotation.z = THREE.MathUtils.degToRad(-25);
+    // Default to TOUCH mode (tilted left: -20°)
+    leverGroup.rotation.z = THREE.MathUtils.degToRad(-20.0);
     this.switchBatLever = leverGroup;
     switchGroup.add(leverGroup);
     this.switchMode = switchGroup;
     consoleGroup.add(switchGroup);
 
-    // 6. Membrane Push Buttons: Timer, Pulse, Power
+    // 6. Tactile Momentary Buttons: Timer, Pulse, Power
     const btnConfigs = [
-      { name: 'Btn_Timer', x: -28, y: 72, z: 43.8, label: 'TIME', hint: 'Toggle Countdown Timer' },
-      { name: 'Btn_Pulse', x: 28, y: 72, z: 43.8, label: 'PULSE', hint: 'Toggle Pulse Agitation' },
-      { name: 'Btn_Power', x: 0, y: 46, z: 55.8, label: 'POWER', hint: 'Standby Power Toggle' },
+      { name: 'Btn_Timer', x: -24, y: 6.8, z: 0.8, hint: 'Toggle Countdown Timer' },
+      { name: 'Btn_Pulse', x: 24, y: 6.8, z: 0.8, hint: 'Toggle Pulse Agitation' },
+      { name: 'Btn_Power', x: 0, y: -13.0, z: 0.8, hint: 'Standby Power Toggle' },
     ];
 
     btnConfigs.forEach((cfg) => {
-      const btnGeo = new THREE.CylinderGeometry(4.5, 5, 2.5, 20);
+      const btnGeo = new THREE.CylinderGeometry(2.4, 2.8, 1.6, 20);
       const btn = new THREE.Mesh(btnGeo, MAT_BUTTON_MEMBRANE);
       btn.name = cfg.name;
       btn.position.set(cfg.x, cfg.y, cfg.z);
-      btn.rotation.x = consoleAngle + Math.PI / 2;
+      btn.rotation.x = Math.PI / 2;
       btn.castShadow = true;
 
       btn.userData = {
@@ -475,8 +622,8 @@ export class VortexMixer3D {
       if (cfg.name === 'Btn_Power') this.btnPower = btn;
     });
 
-    // 7. Dual-Color LED Status Indicator (LED_PowerRun)
-    const ledDomeGeo = new THREE.SphereGeometry(2.2, 16, 16);
+    // 7. Dual-Color LED Status Indicator (Body_LED_PowerRun)
+    const ledDomeGeo = new THREE.SphereGeometry(1.6, 16, 16);
     this.ledMaterial = new THREE.MeshStandardMaterial({
       color: 0xf59e0b, // Amber standby by default
       emissive: 0xf59e0b,
@@ -486,23 +633,86 @@ export class VortexMixer3D {
     });
     this.ledPowerRun = new THREE.Mesh(ledDomeGeo, this.ledMaterial);
     this.ledPowerRun.name = 'Body_LED_PowerRun';
-    this.ledPowerRun.position.set(0, 56, 51.5);
+    this.ledPowerRun.position.set(0, -7.0, 1.2);
     consoleGroup.add(this.ledPowerRun);
+
+    // 8. 4 DIN 912 M2.5 Fasteners inside faceplate corners
+    const screwPositions = [
+      { x: -28, y: 13 },
+      { x: 28, y: 13 },
+      { x: -28, y: -13 },
+      { x: 28, y: -13 },
+    ];
+    screwPositions.forEach((pos, idx) => {
+      const screw = createHexSocketScrew(1.2, 2.5);
+      screw.name = `Fastener_HexM3_Console_${idx + 1}`;
+      screw.position.set(pos.x, pos.y, 0.7);
+      screw.rotation.x = Math.PI / 2;
+      consoleGroup.add(screw);
+
+      const washer = createWasher(1.3, 2.6, 0.3);
+      washer.position.set(pos.x, pos.y, 0.65);
+      washer.rotation.x = Math.PI / 2;
+      consoleGroup.add(washer);
+    });
 
     this.root.add(consoleGroup);
     this.explodedParts.push({ group: consoleGroup, offset: new THREE.Vector3(0, 15, 25) });
   }
 
+  _buildBrandBadge() {
+    // Official canonical SREdesigns brand badge
+    const badge = makeSREdesignsBadge(26, 7.0);
+    // Positioned on the flared front skirt at Y = 24.0 mm, Z = 54.5 mm, tilted at 18°
+    badge.position.set(0, 24.0, 54.5);
+    badge.rotation.x = THREE.MathUtils.degToRad(-18.0);
+    this.root.add(badge);
+    this.explodedParts.push({ group: badge, offset: new THREE.Vector3(0, 5, 20) });
+  }
+
+  _buildHardwareAndFittings() {
+    // Stage 7: Rear Power Inlet & Rocker Switch
+    const hwGroup = new THREE.Group();
+    hwGroup.name = 'Fastener_Assembly_Hardware';
+
+    // Rear recessed escutcheon panel at Z = -80.0 mm
+    const rearPanelGeo = new THREE.BoxGeometry(54, 26, 1.6);
+    const rearPanel = new THREE.Mesh(rearPanelGeo, MAT_CHASSIS_DARK);
+    rearPanel.position.set(0, 36, -80.0);
+    hwGroup.add(rearPanel);
+
+    // Rear IEC C14 power inlet socket with fuse drawer
+    const iecInlet = createIECInlet();
+    iecInlet.name = 'Body_Assembly_PowerInlet';
+    iecInlet.position.set(-13, 36, -80.5);
+    iecInlet.rotation.y = Math.PI;
+    hwGroup.add(iecInlet);
+
+    // Rear rocker power switch
+    const rocker = createRockerSwitch();
+    rocker.name = 'Btn_Switch_RearPower';
+    rocker.position.set(15, 36, -80.5);
+    rocker.rotation.y = Math.PI;
+    hwGroup.add(rocker);
+
+    this.root.add(hwGroup);
+    this.explodedParts.push({ group: hwGroup, offset: new THREE.Vector3(0, 0, -25) });
+  }
+
   _buildCupHeadAssembly() {
     // Stage 5: Kinematic Assemblies & Mechanical Pivots
-    // Rubber cup head rotates and orbits around motor drive axis
+    // Outer assembly container for exploded separation along clean kinematic axis
+    const cupAssembly = new THREE.Group();
+    cupAssembly.name = 'Body_Assembly_CupHead';
+    cupAssembly.position.set(0, 124, -16.0);
+
+    // Pivot group handles dynamic eccentric rotation and orbit
     const cupGroup = new THREE.Group();
     cupGroup.name = 'Pivot_CupHead';
-    // Pivot axis positioned at mechanical spindle center: (0, 126, -2)
-    cupGroup.position.set(0, 126, -2);
+    cupGroup.position.set(0, 0, 0);
 
     // 1. Spindle drive shaft (hardened steel)
-    const shaftGeo = new THREE.CylinderGeometry(4, 4, 14, 20);
+    const shaftGeo = new THREE.CylinderGeometry(4.5, 4.5, 14, 20);
     const shaft = new THREE.Mesh(shaftGeo, MAT_CHROME);
     shaft.position.y = 5;
     cupGroup.add(shaft);
@@ -513,13 +723,27 @@ export class VortexMixer3D {
     eccentric.position.set(2.0, 7, 0); // 2 mm physical offset
     cupGroup.add(eccentric);
 
-    // 3. Molded vulcanized rubber cup head
-    // Outer fluted cone (Y: 10 to 38 mm relative to pivot)
-    const cupOuterGeo = new THREE.CylinderGeometry(21, 16, 28, 32);
+    // 3. Molded vulcanized rubber cup head with genuine 3D hollow cavity (Rule 1)
+    // Outer fluted cone (Y: 10 to 38 mm relative to pivot axis)
+    const cupOuterGeo = new THREE.CylinderGeometry(21, 16, 28, 32, 1, true);
     const cupOuter = new THREE.Mesh(cupOuterGeo, MAT_RUBBER_CUP);
     cupOuter.position.y = 24;
     cupOuter.castShadow = true;
     cupGroup.add(cupOuter);
+
+    // Bottom solid sealing base of cup head
+    const cupBottomGeo = new THREE.CircleGeometry(16, 32);
+    const cupBottom = new THREE.Mesh(cupBottomGeo, MAT_RUBBER_CUP);
+    cupBottom.rotation.x = Math.PI / 2;
+    cupBottom.position.y = 10;
+    cupGroup.add(cupBottom);
+
+    // Top annular beveled rim connecting outer diameter (42 mm) to cavity mouth (27 mm)
+    const rimGeo = new THREE.RingGeometry(13.5, 21, 32);
+    const rim = new THREE.Mesh(rimGeo, MAT_RUBBER_CUP);
+    rim.rotation.x = -Math.PI / 2;
+    rim.position.y = 38;
+    cupGroup.add(rim);
 
     // Fluted grip ribs on cup exterior (12 vertical ribs)
     for (let i = 0; i < 12; i++) {
@@ -531,16 +755,24 @@ export class VortexMixer3D {
     }
 
     // Inner conical cavity (accepts 0.5 mL to 50 mL tubes)
-    // Stepped inner funnel
-    const cavityUpperGeo = new THREE.CylinderGeometry(13.5, 9, 14, 24);
-    const cavityUpper = new THREE.Mesh(cavityUpperGeo, MAT_CHASSIS_DARK);
+    // Upper funnel (Y: 24 to 38 mm, radius 9 to 13.5 mm)
+    const cavityUpperGeo = new THREE.CylinderGeometry(13.5, 9, 14, 24, 1, true);
+    const cavityUpper = new THREE.Mesh(cavityUpperGeo, MAT_RUBBER_CUP);
     cavityUpper.position.y = 31;
     cupGroup.add(cavityUpper);
 
-    const cavityLowerGeo = new THREE.CylinderGeometry(9, 5, 12, 24);
-    const cavityLower = new THREE.Mesh(cavityLowerGeo, MAT_CHASSIS_DARK);
-    cavityLower.position.y = 20;
+    // Lower funnel well (Y: 14 to 24 mm, radius 4.5 to 9 mm)
+    const cavityLowerGeo = new THREE.CylinderGeometry(9, 4.5, 10, 24, 1, true);
+    const cavityLower = new THREE.Mesh(cavityLowerGeo, MAT_RUBBER_CUP);
+    cavityLower.position.y = 19;
     cupGroup.add(cavityLower);
+
+    // Cavity bottom seat floor (Y: 14 mm, world Y: 138 mm)
+    const cavityFloorGeo = new THREE.CircleGeometry(4.5, 24);
+    const cavityFloor = new THREE.Mesh(cavityFloorGeo, MAT_RUBBER_CUP);
+    cavityFloor.rotation.x = -Math.PI / 2;
+    cavityFloor.position.y = 14;
+    cupGroup.add(cavityFloor);
 
     // Register rubber cup head for interactive touch clicks & tube insertion
     cupOuter.userData = {
@@ -551,9 +783,10 @@ export class VortexMixer3D {
     };
     this.interactiveMeshes.push(cupOuter);
 
+    cupAssembly.add(cupGroup);
     this.pivotCupHead = cupGroup;
-    this.root.add(cupGroup);
-    this.explodedParts.push({ group: cupGroup, offset: new THREE.Vector3(0, 45, 0) });
+    this.root.add(cupAssembly);
+    this.explodedParts.push({ group: cupAssembly, offset: new THREE.Vector3(0, 45, 0) });
   }
 
   _buildSampleTubes() {
@@ -561,21 +794,22 @@ export class VortexMixer3D {
     const tubesContainer = new THREE.Group();
     tubesContainer.name = 'Body_Assembly_SampleTubes';
 
-    // 1. Standard 15 mL Falcon Conical Centrifuge Tube
+    // 1. Standard 15 mL Falcon Conical Centrifuge Tube (seated at Y = 138 mm, resting in rubber cup)
     this.falconTubeGroup = this._createFalconTube15mL();
     this.falconTubeGroup.name = 'Body_Sample_FalconTube15mL';
-    this.falconTubeGroup.position.set(0, 150, -2);
+    this.falconTubeGroup.position.set(0, 138, -16.0);
     tubesContainer.add(this.falconTubeGroup);
 
     // 2. 1.5 mL Microcentrifuge Tube (Eppendorf style)
     this.microTubeGroup = this._createMicroTube1_5mL();
     this.microTubeGroup.name = 'Body_Sample_MicroTube1_5mL';
-    this.microTubeGroup.position.set(0, 150, -2);
+    this.microTubeGroup.position.set(0, 138, -16.0);
     this.microTubeGroup.visible = false; // Falcon tube active by default
     tubesContainer.add(this.microTubeGroup);
 
     this.activeTubeGroup = this.falconTubeGroup;
     this.root.add(tubesContainer);
+    this.explodedParts.push({ group: tubesContainer, offset: new THREE.Vector3(0, 75, 0) });
   }
 
   _createFalconTube15mL() {
@@ -609,7 +843,7 @@ export class VortexMixer3D {
     capMesh.castShadow = true;
     group.add(capMesh);
 
-    // Graduated printed volume rings (1 mL to 14 mL white silkscreen)
+    // Graduated printed volume rings (1 mL to 12 mL white silkscreen)
     const ringMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.65 });
     for (let i = 1; i <= 12; i++) {
       const ringGeo = new THREE.RingGeometry(8.4, 8.6, 24);
@@ -779,152 +1013,6 @@ export class VortexMixer3D {
     return geo;
   }
 
-  _buildHardwareAndFittings() {
-    // Stage 7: Genuine Fasteners (DIN 912) and Rear Connectors
-    const hwGroup = new THREE.Group();
-    hwGroup.name = 'Fastener_Assembly_Hardware';
-
-    // 4 DIN 912 M3 hex socket cap screws securing the console plate
-    const screwOffsets = [
-      { x: -38, y: 79, z: 38 },
-      { x: 38, y: 79, z: 38 },
-      { x: -38, y: 44, z: 54 },
-      { x: 38, y: 44, z: 54 },
-    ];
-
-    screwOffsets.forEach((pos, idx) => {
-      const screw = createHexSocketScrew(1.5, 6);
-      screw.name = `Fastener_HexM3_Console_${idx + 1}`;
-      screw.position.set(pos.x, pos.y, pos.z);
-      screw.rotation.x = THREE.MathUtils.degToRad(65);
-      hwGroup.add(screw);
-
-      const washer = createWasher(1.6, 3.5, 0.5);
-      washer.position.set(pos.x, pos.y, pos.z - 0.2);
-      washer.rotation.x = THREE.MathUtils.degToRad(65);
-      hwGroup.add(washer);
-    });
-
-    // Rear IEC C14 power inlet socket with fuse drawer
-    const iecInlet = createIECInlet();
-    iecInlet.name = 'Body_Assembly_PowerInlet';
-    iecInlet.position.set(0, 36, -82);
-    iecInlet.rotation.y = Math.PI;
-    hwGroup.add(iecInlet);
-
-    // Rear rocker power switch
-    const rocker = createRockerSwitch();
-    rocker.name = 'Btn_Switch_RearPower';
-    rocker.position.set(32, 36, -82);
-    rocker.rotation.y = Math.PI;
-    hwGroup.add(rocker);
-
-    this.root.add(hwGroup);
-    this.explodedParts.push({ group: hwGroup, offset: new THREE.Vector3(0, 0, -25) });
-  }
-
-  _buildBrandBadge() {
-    // Official canonical SREdesigns brand badge
-    const badge = makeSREdesignsBadge(32, 8.5);
-    badge.position.set(0, 35, 62.5);
-    badge.rotation.x = THREE.MathUtils.degToRad(-15);
-    this.root.add(badge);
-  }
-}
-
-/**
- * Official Canonical Brand Nameplate: makeSREdesignsBadge()
- * Standardized across all digital twins for visual QA compliance.
- */
-export function makeSREdesignsBadge(plateW = 32, plateH = 8.5) {
-  const group = new THREE.Group();
-  group.name = 'Badge_SREdesigns';
-
-  const plateD = 1.2;
-
-  // Outer dark trim bezel
-  const bezelGeo = new THREE.BoxGeometry(plateW + 1.2, plateH + 1.2, plateD);
-  const bezelMat = new THREE.MeshStandardMaterial({ color: 0x161a22, roughness: 0.5, metalness: 0.25 });
-  const bezel = new THREE.Mesh(bezelGeo, bezelMat);
-  group.add(bezel);
-
-  // Brushed aluminum backing plate
-  const plateGeo = new THREE.BoxGeometry(plateW, plateH, plateD * 0.9);
-  const plateMat = new THREE.MeshStandardMaterial({ color: 0xa0a8b4, roughness: 0.3, metalness: 0.8 });
-  const plate = new THREE.Mesh(plateGeo, plateMat);
-  plate.position.z = plateD * 0.05;
-  group.add(plate);
-
-  // Canvas texture badge face
-  const canvas = document.createElement('canvas');
-  canvas.width = 512;
-  canvas.height = 144;
-  const ctx = canvas.getContext('2d');
-
-  // Background gradient
-  const bgGrad = ctx.createLinearGradient(0, 0, 512, 144);
-  bgGrad.addColorStop(0, '#0f172a');
-  bgGrad.addColorStop(0.5, '#1e293b');
-  bgGrad.addColorStop(1, '#0f172a');
-  ctx.fillStyle = bgGrad;
-  ctx.fillRect(0, 0, 512, 144);
-
-  // Outer cyan accent border
-  ctx.strokeStyle = '#06b6d4';
-  ctx.lineWidth = 6;
-  ctx.strokeRect(6, 6, 500, 132);
-
-  // Three teal enamel tiles for S - R - E
-  const tiles = ['S', 'R', 'E'];
-  tiles.forEach((char, i) => {
-    const tx = 28 + i * 56;
-    const ty = 24;
-    ctx.fillStyle = '#0891b2';
-    ctx.beginPath();
-    ctx.roundRect(tx, ty, 48, 48, 8);
-    ctx.fill();
-    ctx.strokeStyle = '#22d3ee';
-    ctx.lineWidth = 3;
-    ctx.stroke();
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 34px -apple-system, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(char, tx + 24, ty + 26);
-  });
-
-  // Typography: designs.com
-  ctx.fillStyle = '#f8fafc';
-  ctx.font = 'bold 36px -apple-system, sans-serif';
-  ctx.textAlign = 'left';
-  ctx.fillText('designs.com', 208, 60);
-
-  // Subtitle: LAB SYSTEMS
-  ctx.fillStyle = '#94a3b8';
-  ctx.font = '600 20px -apple-system, sans-serif';
-  ctx.letterSpacing = '2px';
-  ctx.fillText('LAB SYSTEMS · DIGITAL TWIN', 210, 94);
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.flipY = false; // DIAG-005
-  texture.minFilter = THREE.LinearFilter;
-  texture.magFilter = THREE.LinearFilter;
-
-  const faceGeo = new THREE.PlaneGeometry(plateW - 0.4, plateH - 0.4);
-  const uvFace = faceGeo.attributes.uv;
-  for (let i = 0; i < uvFace.count; i++) {
-    uvFace.setX(i, 1.0 - uvFace.getX(i));
-  }
-  uvFace.needsUpdate = true;
-
-  const faceMat = new THREE.MeshBasicMaterial({ map: texture, side: THREE.FrontSide });
-  const face = new THREE.Mesh(faceGeo, faceMat);
-  face.position.z = plateD / 2 + 0.1;
-  group.add(face);
-
-  return group;
-
   // --- Dynamic Runtime Controls & Kinematics ---
 
   setSpeedKnobAngle(normalized0to1) {
@@ -943,11 +1031,11 @@ export function makeSREdesignsBadge(plateW = 32, plateH = 8.5) {
     if (!this.switchBatLever) return;
 
     if (this.modeState === 'TOUCH') {
-      this.switchBatLever.rotation.z = THREE.MathUtils.degToRad(-25);
+      this.switchBatLever.rotation.z = THREE.MathUtils.degToRad(-20.0);
     } else if (this.modeState === 'OFF') {
       this.switchBatLever.rotation.z = 0;
     } else if (this.modeState === 'CONTINUOUS') {
-      this.switchBatLever.rotation.z = THREE.MathUtils.degToRad(25);
+      this.switchBatLever.rotation.z = THREE.MathUtils.degToRad(20.0);
     }
   }
 
@@ -985,14 +1073,17 @@ export function makeSREdesignsBadge(plateW = 32, plateH = 8.5) {
     this.isTouchActive = pressed;
     if (this.activeTubeGroup) {
       // Downward depression travel when tube is pressed into spring-loaded cup (3 mm)
-      const targetY = pressed ? 147.0 : 150.0;
+      const targetY = pressed ? 135.0 : 138.0;
       this.activeTubeGroup.position.y = targetY;
     }
   }
 
   setExploded(progress0to1) {
     this.explodedParts.forEach((part) => {
-      part.group.position.copy(part.offset).multiplyScalar(progress0to1);
+      if (!part.basePosition) {
+        part.basePosition = part.group.position.clone();
+      }
+      part.group.position.copy(part.basePosition).addScaledVector(part.offset, progress0to1);
     });
   }
 
@@ -1004,13 +1095,12 @@ export function makeSREdesignsBadge(plateW = 32, plateH = 8.5) {
       const omega = 2.0 * Math.PI * (rpm / 60.0);
       const theta = omega * timeSec;
 
-      // 1. Orbital circular translation of rubber cup head
+      // 1. Orbital circular translation of rubber cup head (relative to cupAssembly)
       const orbitX = Math.cos(theta) * (this.orbitalRadius * (rpm / 3200.0));
       const orbitZ = Math.sin(theta) * (this.orbitalRadius * (rpm / 3200.0));
 
       if (this.pivotCupHead) {
-        this.pivotCupHead.position.x = orbitX;
-        this.pivotCupHead.position.z = -2 + orbitZ;
+        this.pivotCupHead.position.set(orbitX, 0, orbitZ);
 
         // Dynamic eccentric tilt (slight gyration wobble ~1.5°)
         this.pivotCupHead.rotation.x = Math.sin(theta) * 0.025 * (rpm / 3200.0);
@@ -1019,8 +1109,8 @@ export function makeSREdesignsBadge(plateW = 32, plateH = 8.5) {
 
       // 2. Synchronize active test tube shaking with cup
       if (this.activeTubeGroup) {
-        this.activeTubeGroup.position.x = orbitX * 0.85;
-        this.activeTubeGroup.position.z = -2 + orbitZ * 0.85;
+        const tubeY = this.isTouchActive ? 135.0 : 138.0;
+        this.activeTubeGroup.position.set(orbitX * 0.85, tubeY, -16.0 + orbitZ * 0.85);
         this.activeTubeGroup.rotation.x = Math.sin(theta + 0.3) * 0.035 * (rpm / 3200.0);
         this.activeTubeGroup.rotation.z = Math.cos(theta + 0.3) * 0.035 * (rpm / 3200.0);
       }
@@ -1030,13 +1120,12 @@ export function makeSREdesignsBadge(plateW = 32, plateH = 8.5) {
     } else {
       // Settle back to mechanical center
       if (this.pivotCupHead) {
-        this.pivotCupHead.position.x = 0;
-        this.pivotCupHead.position.z = -2;
+        this.pivotCupHead.position.set(0, 0, 0);
         this.pivotCupHead.rotation.set(0, 0, 0);
       }
       if (this.activeTubeGroup) {
-        this.activeTubeGroup.position.x = 0;
-        this.activeTubeGroup.position.z = -2;
+        const tubeY = this.isTouchActive ? 135.0 : 138.0;
+        this.activeTubeGroup.position.set(0, tubeY, -16.0);
         this.activeTubeGroup.rotation.set(0, 0, 0);
       }
       this._updateFluidMesh(0, 0);
@@ -1142,4 +1231,98 @@ export function makeSREdesignsBadge(plateW = 32, plateH = 8.5) {
     geo.attributes.position.needsUpdate = true;
     geo.computeVertexNormals();
   }
+}
+
+/**
+ * Official Canonical Brand Nameplate: makeSREdesignsBadge()
+ * Standardized across all digital twins for visual QA compliance.
+ */
+export function makeSREdesignsBadge(plateW = 26, plateH = 7.0) {
+  const group = new THREE.Group();
+  group.name = 'Badge_SREdesigns';
+
+  const plateD = 0.8;
+
+  // Outer dark trim bezel
+  const bezelGeo = new THREE.BoxGeometry(plateW + 1.0, plateH + 1.0, plateD);
+  const bezelMat = new THREE.MeshStandardMaterial({ color: 0x161a22, roughness: 0.5, metalness: 0.25 });
+  const bezel = new THREE.Mesh(bezelGeo, bezelMat);
+  group.add(bezel);
+
+  // Brushed aluminum backing plate
+  const plateGeo = new THREE.BoxGeometry(plateW, plateH, plateD * 0.9);
+  const plateMat = new THREE.MeshStandardMaterial({ color: 0xa0a8b4, roughness: 0.3, metalness: 0.8 });
+  const plate = new THREE.Mesh(plateGeo, plateMat);
+  plate.position.z = plateD * 0.05;
+  group.add(plate);
+
+  // Canvas texture badge face
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 144;
+  const ctx = canvas.getContext('2d');
+
+  // Background gradient
+  const bgGrad = ctx.createLinearGradient(0, 0, 512, 144);
+  bgGrad.addColorStop(0, '#0f172a');
+  bgGrad.addColorStop(0.5, '#1e293b');
+  bgGrad.addColorStop(1, '#0f172a');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, 512, 144);
+
+  // Outer cyan accent border
+  ctx.strokeStyle = '#06b6d4';
+  ctx.lineWidth = 6;
+  ctx.strokeRect(6, 6, 500, 132);
+
+  // Three teal enamel tiles for S - R - E
+  const tiles = ['S', 'R', 'E'];
+  tiles.forEach((char, i) => {
+    const tx = 28 + i * 56;
+    const ty = 24;
+    ctx.fillStyle = '#0891b2';
+    ctx.beginPath();
+    ctx.roundRect(tx, ty, 48, 48, 8);
+    ctx.fill();
+    ctx.strokeStyle = '#22d3ee';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 34px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(char, tx + 24, ty + 26);
+  });
+
+  // Typography: designs.com
+  ctx.fillStyle = '#f8fafc';
+  ctx.font = 'bold 36px -apple-system, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('designs.com', 208, 60);
+
+  // Subtitle: LAB SYSTEMS
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '600 20px -apple-system, sans-serif';
+  ctx.letterSpacing = '2px';
+  ctx.fillText('LAB SYSTEMS · DIGITAL TWIN', 210, 94);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.flipY = false; // DIAG-005
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+
+  const faceGeo = new THREE.PlaneGeometry(plateW - 0.4, plateH - 0.4);
+  const uvFace = faceGeo.attributes.uv;
+  for (let i = 0; i < uvFace.count; i++) {
+    uvFace.setY(i, 1.0 - uvFace.getY(i)); // Invert Y so canvas row 0 maps to top!
+  }
+  uvFace.needsUpdate = true;
+
+  const faceMat = new THREE.MeshBasicMaterial({ map: texture, side: THREE.FrontSide });
+  const face = new THREE.Mesh(faceGeo, faceMat);
+  face.position.z = plateD / 2 + 0.05;
+  group.add(face);
+
+  return group;
 }
