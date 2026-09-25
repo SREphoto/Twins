@@ -1,919 +1,143 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SREdesigns — Glove Box 3D Showcase</title>
-    <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SREdesigns UNI-9000 Pro · Inert Atmosphere Glove Box Twin</title>
+  <link rel="stylesheet" href="style.css?v=20260925-gold1" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
       }
-      :root {
-        --bg: #0a0a0f;
-        --surface: #12121a;
-        --surface2: #1a1a26;
-        --accent: #3b82f6;
-        --accent-glow: rgba(59, 130, 246, 0.3);
-        --text: #e4e4e7;
-        --text-dim: #71717a;
-        --border: #27272a;
-        --success: #22c55e;
-        --danger: #ef4444;
-        --mono: 'Courier New', monospace;
-      }
-      body {
-        font-family: 'Inter', sans-serif;
-        background: var(--bg);
-        color: var(--text);
-        overflow: hidden;
-        height: 100vh;
-      }
-      #canvas-container {
-        position: fixed;
-        inset: 0;
-        z-index: 0;
-      }
-      canvas {
-        display: block;
-      }
-
-      .header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 10;
-        padding: 16px 24px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: linear-gradient(
-          180deg,
-          rgba(10, 10, 15, 0.95) 0%,
-          rgba(10, 10, 15, 0) 100%
-        );
-        pointer-events: none;
-      }
-      .header > * {
-        pointer-events: auto;
-      }
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-      .brand-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
-        background: linear-gradient(135deg, var(--accent), #8b5cf6);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-        font-weight: 700;
-        color: white;
-      }
-      .brand h1 {
-        font-size: 16px;
-        font-weight: 600;
-        letter-spacing: -0.3px;
-      }
-      .brand span {
-        font-size: 11px;
-        color: var(--text-dim);
-        display: block;
-        margin-top: 1px;
-      }
-      .header-actions {
-        display: flex;
-        gap: 8px;
-      }
-      .btn {
-        padding: 8px 16px;
-        border-radius: 8px;
-        border: 1px solid var(--border);
-        background: var(--surface);
-        color: var(--text);
-        font-size: 12px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
-        font-family: inherit;
-      }
-      .btn:hover {
-        background: var(--surface2);
-        border-color: var(--accent);
-      }
-      .btn.active {
-        background: var(--accent);
-        border-color: var(--accent);
-        color: white;
-      }
-
-      .side-panel {
-        position: fixed;
-        right: 16px;
-        top: 70px;
-        bottom: 16px;
-        width: 320px;
-        z-index: 10;
-        background: rgba(18, 18, 26, 0.92);
-        backdrop-filter: blur(20px);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        overflow-y: auto;
-        overscroll-behavior: contain;
-        transition: transform 0.3s ease;
-      }
-      .side-panel.collapsed {
-        transform: translateX(340px);
-      }
-      .panel-section {
-        padding: 20px;
-        border-bottom: 1px solid var(--border);
-      }
-      .panel-section:last-child {
-        border-bottom: none;
-      }
-      .section-title {
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--text-dim);
-        margin-bottom: 12px;
-      }
-      .feature-card {
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 12px;
-        margin-bottom: 8px;
-        cursor: pointer;
-        transition: all 0.25s;
-        position: relative;
-        overflow: hidden;
-      }
-      .feature-card::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 3px;
-        background: var(--accent);
-        opacity: 0;
-        transition: opacity 0.2s;
-      }
-      .feature-card:hover {
-        border-color: var(--accent);
-      }
-      .feature-card:hover::before {
-        opacity: 1;
-      }
-      .feature-card.active {
-        border-color: var(--accent);
-        background: rgba(59, 130, 246, 0.08);
-      }
-      .feature-card.active::before {
-        opacity: 1;
-      }
-      .feature-card h3 {
-        font-size: 13px;
-        font-weight: 600;
-        margin-bottom: 4px;
-      }
-      .feature-card p {
-        font-size: 11px;
-        color: var(--text-dim);
-        line-height: 1.5;
-      }
-
-      .control-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 10px;
-      }
-      .control-label {
-        font-size: 12px;
-        color: var(--text-dim);
-      }
-      .toggle {
-        width: 40px;
-        height: 22px;
-        border-radius: 11px;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        cursor: pointer;
-        position: relative;
-        transition: background 0.2s;
-      }
-      .toggle.on {
-        background: var(--accent);
-        border-color: var(--accent);
-      }
-      .toggle::after {
-        content: '';
-        position: absolute;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        background: white;
-        top: 2px;
-        left: 2px;
-        transition: transform 0.2s;
-      }
-      .toggle.on::after {
-        transform: translateX(18px);
-      }
-      input[type='range'] {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 120px;
-        height: 4px;
-        background: var(--border);
-        border-radius: 2px;
-        outline: none;
-      }
-      input[type='range']::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        width: 14px;
-        height: 14px;
-        border-radius: 50%;
-        background: var(--accent);
-        cursor: pointer;
-      }
-
-      .status-bar {
-        position: fixed;
-        bottom: 16px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 10;
-        background: rgba(18, 18, 26, 0.92);
-        backdrop-filter: blur(20px);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 10px 20px;
-        display: flex;
-        gap: 24px;
-        align-items: center;
-        font-size: 11px;
-      }
-      .status-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      }
-      .status-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: var(--success);
-      }
-      .status-dot.pulse {
-        animation: pulse 2s infinite;
-      }
-      @keyframes pulse {
-        0%,
-        100% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.4;
-        }
-      }
-
-      .loader {
-        position: fixed;
-        inset: 0;
-        z-index: 100;
-        background: var(--bg);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        transition: opacity 0.5s;
-      }
-      .loader.hidden {
-        opacity: 0;
-        pointer-events: none;
-      }
-      .loader-spinner {
-        width: 48px;
-        height: 48px;
-        border: 3px solid var(--border);
-        border-top-color: var(--accent);
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-        margin-bottom: 16px;
-      }
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-      .loader p {
-        font-size: 13px;
-        color: var(--text-dim);
-      }
-
-      select {
-        background: var(--surface);
-        color: var(--text);
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        padding: 4px 8px;
-        font-size: 11px;
-        font-family: inherit;
-        outline: none;
-        cursor: pointer;
-      }
-      select:focus {
-        border-color: var(--accent);
-      }
-    </style>
-  </head>
-  <body>
-    <div class="loader" id="loader">
-      <div class="loader-spinner"></div>
-      <p>Loading Glove Box Model...</p>
-    </div>
-    <div id="canvas-container"></div>
-
-    <div class="header">
+    }
+  </script>
+</head>
+<body>
+  <div id="app">
+    <!-- Topbar -->
+    <header class="topbar">
       <div class="brand">
-        <div class="brand-icon">⚖</div>
-        <div>
-          <h1>SREdesigns Glove Box</h1>
-          <span>Pro-Fidelity 3D Model — 74 Components</span>
+        <span class="brand-mark">SREdesigns</span>
+        <span class="brand-model">UNI-9000 PRO</span>
+        <span class="badge-sredesigns">SREdesigns</span>
+        <span class="brand-tag">Inert Atmosphere Workstation with Cylindrical Transfer Antechamber</span>
+      </div>
+      <div class="topbar-status">
+        <span id="status-pill" class="pill purged">INERT PURGED</span>
+        <span id="status-detail" class="muted">Atmosphere < 0.2 ppm O₂/H₂O · Ready for air-sensitive synthesis</span>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <!-- 3D Stage -->
+      <section class="stage">
+        <div class="view-toolbar">
+          <button type="button" class="view-btn active" id="btn-cam-iso" title="Isometric 3/4 view">ISO</button>
+          <button type="button" class="view-btn" id="btn-cam-front" title="Front glove ports and viewing window">Front</button>
+          <button type="button" class="view-btn" id="btn-cam-side" title="Side antechamber and valves">Side</button>
+          <button type="button" class="view-btn" id="btn-cam-top" title="Top overhead view">Top</button>
+          <button type="button" class="view-btn" id="btn-explode" title="Separate assemblies">Exploded</button>
+          <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe">Wireframe</button>
+          <button type="button" class="view-btn" id="btn-auto-rotate" title="Orbit camera automatically">Auto-rotate</button>
+
+          <label class="orbit-speed-ctrl" title="Auto-orbit speed" style="display:flex;align-items:center;gap:0.3rem;font-size:0.75rem;color:var(--muted);margin-left:0.4rem;">
+            <span>Speed</span>
+            <input type="range" id="orbit-speed" min="0.2" max="4" step="0.1" value="1.0" style="width:60px;" />
+            <span id="orbit-speed-val">1.0×</span>
+          </label>
+          <button type="button" class="view-btn" id="btn-sfx-mute" title="Mute audio sounds">Mute SFX</button>
         </div>
-      </div>
-      <div class="header-actions">
-        <button class="btn" id="btn-wireframe">Wireframe</button>
-        <button class="btn" id="btn-explode">Explode View</button>
-        <button class="btn" id="btn-spin">Auto Rotate</button>
-        <button class="btn" id="btn-panel">☰ Features</button>
-      </div>
+
+        <div id="viewport3d" class="viewport"></div>
+        <div class="stage-hint">Interactive 3D Twin: Use orbit controls to inspect glove ports, antechamber doors, and PLC console</div>
+      </section>
+
+      <!-- Instrument Controls Panel -->
+      <aside class="instrument panel-collapsible" id="panel-instrument">
+        <div class="panel-header">
+          <h2>Instrument Controls</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="instrument" title="Collapse panel">▾</button>
+        </div>
+        <div class="panel-body">
+          <div class="btn-grid">
+            <button type="button" class="btn btn-primary" id="btn-purge">PURGE: OFF</button>
+            <button type="button" class="btn btn-primary" id="btn-ante-cycle">3-CYCLE XFER: IDLE</button>
+          </div>
+
+          <div class="btn-grid">
+            <button type="button" class="btn" id="btn-outer-door">OUTER DOOR: SEALED</button>
+            <button type="button" class="btn" id="btn-inner-door">INNER DOOR: SEALED</button>
+          </div>
+
+          <div class="btn-grid">
+            <button type="button" class="btn" id="btn-foot-pedal">PEDAL: IDLE (+P)</button>
+            <button type="button" class="btn" id="btn-gas-type">GAS: ARGON</button>
+          </div>
+
+          <div style="margin-top:0.5rem;">
+            <button type="button" class="btn btn-primary" id="btn-demo" style="width:100%;">Run Classroom Demo</button>
+          </div>
+
+          <!-- Purity Specifications Card -->
+          <div class="control-card">
+            <div class="card-title">
+              <span>Atmosphere Specification</span>
+            </div>
+            <p class="hint">Continuous catalytic closed-loop purification maintaining O₂ &lt; 1.0 ppm and H₂O &lt; 1.0 ppm under argon or nitrogen blanketing.</p>
+          </div>
+
+          <!-- Transfer Procedure Card -->
+          <div class="control-card">
+            <div class="card-title">
+              <span>Antechamber Protocol</span>
+            </div>
+            <p class="hint">Mechanical interlock prevents simultaneous door opening. Automated 3-cycle evacuate (&lt;0.5 mbar) and refill ensures zero air ingress.</p>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Real-time Telemetry Panel -->
+      <aside class="telemetry panel-collapsible" id="panel-telemetry">
+        <div class="panel-header">
+          <h2>Live Telemetry</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="telemetry" title="Collapse panel">▾</button>
+        </div>
+        <div class="panel-body">
+          <div class="telem-row">
+            <span class="telem-label">Chamber Oxygen (O₂)</span>
+            <span class="telem-value highlight" id="telem-o2">0.18 ppm</span>
+          </div>
+          <div class="telem-row">
+            <span class="telem-label">Chamber Moisture (H₂O)</span>
+            <span class="telem-value highlight" id="telem-h2o">0.12 ppm</span>
+          </div>
+          <div class="telem-row">
+            <span class="telem-label">Differential Pressure</span>
+            <span class="telem-value highlight" id="telem-pressure">+3.50 mbar</span>
+          </div>
+          <div class="telem-row">
+            <span class="telem-label">Antechamber Vacuum</span>
+            <span class="telem-value" id="telem-ante">1013 mbar</span>
+          </div>
+          <div class="telem-row">
+            <span class="telem-label">Inert Working Gas</span>
+            <span class="telem-value" id="telem-gas">Argon</span>
+          </div>
+          <div class="telem-row">
+            <span class="telem-label">Circulation Blower</span>
+            <span class="telem-value">150 L/min</span>
+          </div>
+          <div class="telem-row">
+            <span class="telem-label">Catalyst Capacity</span>
+            <span class="telem-value">98.4%</span>
+          </div>
+        </div>
+      </aside>
     </div>
+  </div>
 
-    <div class="side-panel" id="side-panel">
-      <div class="panel-section">
-        <div class="section-title">Balance Controls</div>
-        <div class="control-row">
-          <span class="control-label">Mass (g)</span
-          ><input
-            type="range"
-            id="mass-slider"
-            min="0"
-            max="2200000"
-            value="0"
-            oninput="updateMass(this.value)"
-          />
-        </div>
-        <div class="control-row">
-          <span class="control-label">Unit</span
-          ><select id="unit-select" onchange="updateUnit(this.value)">
-            <option value="g">Grams (g)</option>
-            <option value="mg">Milligrams (mg)</option>
-            <option value="ct">Carats (ct)</option>
-            <option value="oz">Troy Oz (oz t)</option>
-          </select>
-        </div>
-        <div class="control-row">
-          <span class="control-label">Tare</span>
-          <div class="toggle" id="toggle-tare" onclick="toggleTare()"></div>
-        </div>
-        <div class="control-row">
-          <span class="control-label">Internal Cal</span>
-          <div class="toggle" id="toggle-cal" onclick="toggleCal()"></div>
-        </div>
-        <div class="control-row">
-          <span class="control-label">X-Ray Interior</span>
-          <div class="toggle" id="toggle-xray" onclick="toggleXRay()"></div>
-        </div>
-      </div>
-      <div class="panel-section">
-        <div class="section-title">Feature Highlights</div>
-        <div class="feature-card" onclick="focusFeature('display')">
-          <h3>📺 High-Resolution LCD</h3>
-          <p>
-            Front-mounted backlit display with 0.0001g readability. Shows mass,
-            unit, stability, and tare status.
-          </p>
-        </div>
-        <div class="feature-card" onclick="focusFeature('shield')">
-          <h3>🔲 Glass Draft Shield</h3>
-          <p>
-            Three-door borosilicate glass enclosure with anti-static coating.
-            Eliminates air current interference.
-          </p>
-        </div>
-        <div class="feature-card" onclick="focusFeature('pan')">
-          <h3>⚖️ Weighing Pan</h3>
-          <p>
-            80mm diameter stainless steel pan with precision sensor column.
-            0.1mg sensitivity.
-          </p>
-        </div>
-        <div class="feature-card" onclick="focusFeature('buttons')">
-          <h3>🔘 Control Interface</h3>
-          <p>
-            Tare, Calibrate, Print, Mode, and On/Off buttons with tactile
-            feedback.
-          </p>
-        </div>
-        <div class="feature-card" onclick="focusFeature('level')">
-          <h3>🫧 Spirit Level</h3>
-          <p>
-            Front-mounted bubble level indicator for precise instrument
-            leveling. Adjustable feet.
-          </p>
-        </div>
-        <div class="feature-card" onclick="focusFeature('cal')">
-          <h3>🎯 Internal Calibration</h3>
-          <p>
-            Motorized internal calibration weight system. One-button automatic
-            calibration.
-          </p>
-        </div>
-        <div class="feature-card" onclick="focusFeature('ports')">
-          <h3>🔌 Data Ports</h3>
-          <p>
-            USB, RS-232, and auxiliary data connections for lab information
-            management.
-          </p>
-        </div>
-      </div>
-      <div class="panel-section">
-        <div class="section-title">Model Stats</div>
-        <div class="control-row">
-          <span class="control-label">Objects</span><span>74</span>
-        </div>
-        <div class="control-row">
-          <span class="control-label">Materials</span><span>23</span>
-        </div>
-        <div class="control-row">
-          <span class="control-label">File Size</span><span>172 KB</span>
-        </div>
-        <div class="control-row">
-          <span class="control-label">Format</span><span>GLB (glTF 2.0)</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="status-bar">
-      <div class="status-item">
-        <div class="status-dot pulse"></div>
-        <span id="status-state">Ready</span>
-      </div>
-      <div class="status-item">
-        <span style="color: var(--text-dim)">Mass:</span
-        ><strong
-          id="mass-value"
-          style="color: var(--accent); font-family: var(--mono)"
-          >0.0000 g</strong
-        >
-      </div>
-      <div class="status-item">
-        <span style="color: var(--text-dim)">Stability:</span
-        ><span id="stab-value" style="color: var(--success)">●</span>
-      </div>
-      <div class="status-item">
-        <span style="color: var(--text-dim)">Tare:</span
-        ><span id="tare-value">0.0000 g</span>
-      </div>
-      <div class="status-item">
-        <span style="color: var(--text-dim)">Cal:</span
-        ><span id="cal-status" style="color: var(--success)">Passed</span>
-      </div>
-    </div>
-
-    <script type="importmap">
-      {
-        "imports": {
-          "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
-          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
-        }
-      }
-    </script>
-
-    <script type="module">
-      import * as THREE from 'three';
-      import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-      import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-
-      const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x0a0a0f);
-      scene.fog = new THREE.FogExp2(0x0a0a0f, 0.8);
-
-      const camera = new THREE.PerspectiveCamera(
-        40,
-        window.innerWidth / window.innerHeight,
-        0.01,
-        100
-      );
-      camera.position.set(0.4, 0.35, 0.5);
-
-      const renderer = new THREE.WebGLRenderer({
-        antialias: true,
-        alpha: true,
-      });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.2;
-      renderer.outputColorSpace = THREE.SRGBColorSpace;
-      renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-      document
-        .getElementById('canvas-container')
-        .appendChild(renderer.domElement);
-
-      const controls = new OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true;
-      controls.dampingFactor = 0.05;
-      controls.target.set(0, 0.15, 0);
-      controls.minDistance = 0.1;
-      controls.maxDistance = 2;
-
-      scene.add(new THREE.AmbientLight(0x404060, 0.5));
-      const key = new THREE.DirectionalLight(0xffffff, 2.5);
-      key.position.set(2, 3, 2);
-      key.castShadow = true;
-      key.shadow.mapSize.setScalar(2048);
-      key.shadow.bias = -0.001;
-      scene.add(key);
-      const fill = new THREE.DirectionalLight(0x8090ff, 0.8);
-      fill.position.set(-2, 1, -1);
-      scene.add(fill);
-      const rim = new THREE.DirectionalLight(0xffeedd, 1.0);
-      rim.position.set(0, 0.5, -3);
-      scene.add(rim);
-      const bot = new THREE.PointLight(0x3b82f6, 0.4, 2);
-      bot.position.set(0, -0.1, 0.3);
-      scene.add(bot);
-
-      const ground = new THREE.Mesh(
-        new THREE.PlaneGeometry(4, 4),
-        new THREE.MeshStandardMaterial({
-          color: 0x111118,
-          roughness: 0.8,
-          metalness: 0.1,
-        })
-      );
-      ground.rotation.x = -Math.PI / 2;
-      ground.position.y = -0.01;
-      ground.receiveShadow = true;
-      scene.add(ground);
-      scene.add(new THREE.GridHelper(2, 40, 0x1a1a26, 0x1a1a26));
-
-      // LCD Membrane Canvas
-      const lcdCanvas = document.createElement('canvas');
-      lcdCanvas.width = 1024;
-      lcdCanvas.height = 1024;
-      const lcdCtx = lcdCanvas.getContext('2d');
-      const lcdTex = new THREE.CanvasTexture(lcdCanvas);
-      // Important: our new Blender plane maps correctly, no crazy orientation needed.
-      lcdTex.minFilter = THREE.LinearFilter;
-      lcdTex.magFilter = THREE.LinearFilter;
-
-      let model = null,
-        allMeshes = [],
-        panMeshes = [];
-      let autoRotate = false,
-        wireframe = false,
-        xray = false,
-        isExploded = false;
-      let currentMass = 0,
-        currentUnit = 'g',
-        tareValue = 0,
-        tared = false,
-        calActive = false;
-      let originalPositions = new Map(),
-        originalMaterials = new Map();
-
-      function formatMass(val, unit) {
-        const net = tared ? val - tareValue : val;
-        switch (unit) {
-          case 'mg':
-            return (net * 1000).toFixed(1) + ' mg';
-          case 'ct':
-            return (net * 5).toFixed(2) + ' ct';
-          case 'oz':
-            return (net / 31.1035).toFixed(4) + ' oz t';
-          default:
-            return net.toFixed(4) + ' g';
-        }
-      }
-
-      function drawLCD() {
-        const w = lcdCanvas.width,
-          h = lcdCanvas.height;
-        lcdCtx.save();
-
-        // Entire membrane background
-        lcdCtx.fillStyle = '#0a0d14';
-        lcdCtx.fillRect(0, 0, w, h);
-
-        // --- TOP HALF: DIGITAL LCD DISPLAY ---
-        const lcdH = 400;
-        lcdCtx.fillStyle = '#010810';
-        lcdCtx.fillRect(20, 20, w - 40, lcdH);
-        lcdCtx.fillStyle = 'rgba(0,60,140,0.06)';
-        for (let y = 20; y < lcdH + 20; y += 4)
-          lcdCtx.fillRect(20, y, w - 40, 2);
-
-        const net = tared ? currentMass - tareValue : currentMass;
-        const stable = currentMass === 0 || Math.random() > 0.2;
-
-        // Stability indicator
-        lcdCtx.fillStyle = stable ? '#00ff80' : '#f59e0b';
-        lcdCtx.font = 'bold 36px monospace';
-        lcdCtx.textAlign = 'left';
-        lcdCtx.fillText(stable ? '●' : '○', 50, 70);
-
-        // Mass value (huge)
-        lcdCtx.fillStyle = '#ffffff';
-        lcdCtx.font = 'bold 140px monospace';
-        const display = formatMass(currentMass, currentUnit);
-        lcdCtx.fillText(display, 100, 200);
-
-        // Tare indicator
-        if (tared) {
-          lcdCtx.fillStyle = '#40aaff';
-          lcdCtx.font = 'bold 32px monospace';
-          lcdCtx.fillText('NET', 50, 280);
-          lcdCtx.fillStyle = '#8b9bb4';
-          lcdCtx.font = '30px monospace';
-          lcdCtx.fillText('T: ' + tareValue.toFixed(4) + ' g', 150, 280);
-        }
-
-        // Divider inside LCD
-        lcdCtx.fillStyle = '#1060aa';
-        lcdCtx.fillRect(50, 310, w - 100, 5);
-
-        // Cal status & Mode
-        lcdCtx.fillStyle = calActive ? '#f59e0b' : '#60aaff';
-        lcdCtx.font = 'bold 36px monospace';
-        lcdCtx.fillText(calActive ? '● CALIBRATING...' : 'CAL OK', 50, 360);
-        lcdCtx.fillStyle = '#506080';
-        lcdCtx.font = '28px monospace';
-        lcdCtx.fillText('INT CAL | MAX: 220g | d=0.0001g', 50, 400);
-
-        // --- BOTTOM HALF: MEMBRANE BUTTONS ---
-        const btns = [
-          {
-            text: 'TARE',
-            x: 50,
-            y: 500,
-            w: 924,
-            h: 180,
-            bg: '#1c2230',
-            fg: '#ffaa00',
-          },
-          {
-            text: 'CAL',
-            x: 50,
-            y: 720,
-            w: 300,
-            h: 120,
-            bg: '#151a24',
-            fg: '#ffffff',
-          },
-          {
-            text: 'MODE',
-            x: 400,
-            y: 720,
-            w: 200,
-            h: 120,
-            bg: '#151a24',
-            fg: '#ffffff',
-          },
-          {
-            text: 'PRINT',
-            x: 650,
-            y: 720,
-            w: 324,
-            h: 120,
-            bg: '#1c2636',
-            fg: '#40aaff',
-          },
-        ];
-
-        lcdCtx.textAlign = 'center';
-        lcdCtx.textBaseline = 'middle';
-        btns.forEach((b) => {
-          // Button background
-          lcdCtx.fillStyle = b.bg;
-          lcdCtx.beginPath();
-          lcdCtx.roundRect(b.x, b.y, b.w, b.h, 20);
-          lcdCtx.fill();
-          // Button border
-          lcdCtx.strokeStyle = '#2b354ca0';
-          lcdCtx.lineWidth = 4;
-          lcdCtx.stroke();
-          // Label
-          lcdCtx.fillStyle = b.fg;
-          lcdCtx.font = 'bold 50px sans-serif';
-          lcdCtx.fillText(b.text, b.x + b.w / 2, b.y + b.h / 2);
-        });
-
-        // Global Bezel border
-        lcdCtx.strokeStyle = '#2060cc30';
-        lcdCtx.lineWidth = 10;
-        lcdCtx.strokeRect(5, 5, w - 10, h - 10);
-
-        lcdCtx.restore();
-        lcdTex.needsUpdate = true;
-
-        document.getElementById('mass-value').textContent = display;
-        document.getElementById('stab-value').textContent = stable ? '●' : '○';
-        document.getElementById('stab-value').style.color = stable
-          ? 'var(--success)'
-          : '#f59e0b';
-      }
-
-      const loader = new GLTFLoader();
-      loader.load('./models/glove_box.glb', (gltf) => {
-        model = gltf.scene;
-        model.traverse((c) => {
-          if (!c.isMesh) return;
-          c.castShadow = true;
-          c.receiveShadow = true;
-          allMeshes.push(c);
-          originalMaterials.set(c.uuid, c.material.clone());
-          const nm = c.name.toLowerCase();
-          if (nm.includes('weighingpan') || nm.includes('pan_'))
-            panMeshes.push(c);
-          if (nm.includes('lcdscreen') || nm.includes('lcd_screen')) {
-            lcdTex.wrapS = THREE.RepeatWrapping;
-            lcdTex.repeat.x = -1;
-            lcdTex.offset.x = 1;
-            c.material = new THREE.MeshStandardMaterial({
-              map: lcdTex,
-              emissive: new THREE.Color(0xffffff),
-              emissiveMap: lcdTex,
-              emissiveIntensity: 1.5,
-              roughness: 0.1,
-              metalness: 0.1,
-              toneMapped: false,
-            });
-            originalMaterials.set(c.uuid, c.material);
-          }
-        });
-        const box = new THREE.Box3().setFromObject(model);
-        const ctr = box.getCenter(new THREE.Vector3());
-        model.position.sub(new THREE.Vector3(ctr.x, box.min.y, ctr.z));
-        scene.add(model);
-        model.traverse((c) => {
-          if (c.isMesh) originalPositions.set(c.uuid, c.position.clone());
-        });
-        drawLCD();
-        document.getElementById('loader').classList.add('hidden');
-      });
-
-      const clock = new THREE.Clock();
-      function animate() {
-        requestAnimationFrame(animate);
-        const dt = clock.getDelta();
-        controls.update();
-        if (model && autoRotate) model.rotation.y += dt * 0.15;
-        if (Math.random() < dt * 2) drawLCD();
-        renderer.render(scene, camera);
-      }
-      animate();
-
-      const cameraTargets = {
-        display: { pos: [0.05, 0.15, 0.28], target: [0, 0.12, 0.05] },
-        shield: { pos: [0.3, 0.3, 0.3], target: [0, 0.22, 0.03] },
-        pan: { pos: [0.1, 0.28, 0.15], target: [0, 0.2, 0.02] },
-        buttons: { pos: [0.1, 0.13, 0.25], target: [0.02, 0.11, 0.08] },
-        level: { pos: [0.15, 0.1, 0.2], target: [0.08, 0.08, 0.05] },
-        cal: { pos: [0.15, 0.1, -0.15], target: [0.05, 0.08, -0.02] },
-        ports: { pos: [0.1, 0.1, -0.25], target: [0, 0.08, -0.05] },
-      };
-
-      window.updateMass = (v) => {
-        currentMass = parseInt(v) / 10000;
-        drawLCD();
-      };
-      window.updateUnit = (v) => {
-        currentUnit = v;
-        drawLCD();
-      };
-      window.toggleTare = () => {
-        tared = !tared;
-        document.getElementById('toggle-tare').classList.toggle('on');
-        if (tared) tareValue = currentMass;
-        document.getElementById('tare-value').textContent = tared
-          ? tareValue.toFixed(4) + ' g'
-          : '0.0000 g';
-        drawLCD();
-      };
-      window.toggleCal = () => {
-        calActive = !calActive;
-        document.getElementById('toggle-cal').classList.toggle('on');
-        document.getElementById('cal-status').textContent = calActive
-          ? 'Running...'
-          : 'Passed';
-        document.getElementById('cal-status').style.color = calActive
-          ? '#f59e0b'
-          : 'var(--success)';
-        if (calActive)
-          setTimeout(() => {
-            calActive = false;
-            document.getElementById('toggle-cal').classList.remove('on');
-            document.getElementById('cal-status').textContent = 'Passed';
-            document.getElementById('cal-status').style.color =
-              'var(--success)';
-            drawLCD();
-          }, 3000);
-        drawLCD();
-      };
-      window.toggleXRay = () => {
-        xray = !xray;
-        document.getElementById('toggle-xray').classList.toggle('on');
-        const xMat = new THREE.MeshStandardMaterial({
-          color: 0x3b82f6,
-          transparent: true,
-          opacity: 0.15,
-          side: THREE.DoubleSide,
-          depthWrite: false,
-        });
-        allMeshes.forEach((m) => {
-          m.material = xray ? xMat : originalMaterials.get(m.uuid);
-        });
-      };
-
-      window.focusFeature = (name) => {
-        const t = cameraTargets[name];
-        if (!t) return;
-        autoRotate = false;
-        document.getElementById('btn-spin').classList.remove('active');
-        const sp = camera.position.clone(),
-          ep = new THREE.Vector3(...t.pos),
-          et = new THREE.Vector3(...t.target);
-        let p = 0;
-        function a() {
-          p += 0.02;
-          if (p >= 1) return;
-          const e = p * p * (3 - 2 * p);
-          camera.position.lerpVectors(sp, ep, e);
-          controls.target.lerp(et, 0.03);
-          controls.update();
-          requestAnimationFrame(a);
-        }
-        a();
-        document
-          .querySelectorAll('.feature-card')
-          .forEach((c) => c.classList.remove('active'));
-        event?.currentTarget?.classList.add('active');
-      };
-
-      document
-        .getElementById('btn-wireframe')
-        .addEventListener('click', function () {
-          wireframe = !wireframe;
-          this.classList.toggle('active');
-          if (model)
-            model.traverse((c) => {
-              if (c.isMesh && c.material) c.material.wireframe = wireframe;
-            });
-        });
-      document
-        .getElementById('btn-explode')
-        .addEventListener('click', function () {
-          isExploded = !isExploded;
-          this.classList.toggle('active');
-          allMeshes.forEach((m) => {
-            const orig = originalPositions.get(m.uuid);
-            if (!orig) return;
-            if (isExploded) {
-              const dir = orig.clone().normalize();
-              m.position.copy(orig).add(dir.multiplyScalar(0.06));
-            } else m.position.copy(orig);
-          });
-        });
-      document
-        .getElementById('btn-spin')
-        .addEventListener('click', function () {
-          autoRotate = !autoRotate;
-          this.classList.toggle('active');
-        });
-      document.getElementById('btn-panel').addEventListener('click', () => {
-        document.getElementById('side-panel').classList.toggle('collapsed');
-      });
-      window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      });
-    </script>
-  </body>
+  <script type="module" src="app.js?v=20260925-gold1"></script>
+</body>
 </html>

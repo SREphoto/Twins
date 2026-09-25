@@ -4,6 +4,35 @@ Newest first. Template: `templates/conversation_log_entry.md`.
 
 ---
 
+## 2026-09-25 · OGA-CAD & CBA · rebuild-vortex-mixer-twin
+
+| Field   | Value                                                              |
+| ------- | ------------------------------------------------------------------ |
+| Agent   | OGA-CAD & CBA                                                      |
+| Machine | `vortex_mixer_twin`, `lab_viewer`, `workspace`                     |
+
+### User request (paraphrase)
+
+The user noted the installation of the Centrifuge Guild and ChemMate test harness, asked what machine was next, and selected the Vortex Mixer (`vortex_mixer_twin`) for a full rebuild to Gold Standard. The user confirmed designing the Digital Precision configuration (Vortex-Genie 2 Digital / IKA MS 3 Digital class) appropriate for highest-level Tier-1 chemistry research and GLP/GMP laboratory use.
+
+### Decisions
+
+1. **Digital Precision Specification**: Configured the machine with a heavy cast zinc unibody ($122\times 165\times 165\text{ mm}$, Dimensional Freeze Code 4771-CAD) and 4 vulcanized suction feet at Tabletop Datum $Y = 0$, augmented with a digital optical encoder dial ($500\text{--}3200\text{ RPM}$), digital countdown timer ($1\text{ s}$ to $3600\text{ s}$), programmable pulse agitation ($2\text{ s}$ on / $1\text{ s}$ off), and dynamic CanvasTexture LCD (`flipY = false`).
+2. **Real-Time Forced Vortex Mechanics**: Replaced static fluid models with real-time vertex-deforming liquid mesh simulating Navier-Stokes forced vortex parabolic depression ($z(r) \propto \omega^2 r^2 / 2g$) with dynamic viscosity damping for Water, Ethanol, 50% Glycerol, Cell Lysate, and Blood.
+3. **Decoupled Controller State Machine**: Wrote pure Python controller (`vortex_controller.py`) with motor inertia ramping, thermal accumulation, and 100% unit test coverage (`test_controller.py`, 10/10 tests passing).
+4. **Web Audio Soundscape**: Wrote procedural audio synthesizer (`sfx.js`) generating motor vibration hum, AC stator buzz, mechanical toggle switch snaps, dial detents, and tube contact chatter.
+5. **Gold Standard Layout**: Upgraded `index.html` and `style.css` to strict Centrifuge Gold Standard parity with collapsible panels, camera presets (`CAM_ISO`, `CAM_FRONT`, `CAM_SIDE`, `CAM_TOP`), and GLP batch audit trail logger.
+
+### Outcomes
+
+- `bash scripts/test.sh` passed 10/10 unit tests.
+- `bash scripts/verify_twin.sh vortex_mixer_twin` passed with 0 syntax errors.
+- `node scripts/maintenance/twin_pulse.mjs` passed with 12 passes and 0 notices.
+- `node .master/05_PERSONAL_MISC/tools/cad_validator.mjs` passed with 0 violations.
+- Elevated `vortex_mixer_twin` to Gold Standard (`yes`) in `.master/registry/machines.md` and `lab_viewer/machines/registry.js`.
+
+---
+
 ## 2026-09-24 · NBA · build-spectrophotometer-twin
 
 | Field   | Value                  |

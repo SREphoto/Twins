@@ -101,12 +101,12 @@ export const MACHINES = [
   {
     id: "vortex_mixer",
     name: "Vortex Mixer",
-    tag: "Touch & Continuous Test Tube Mixer",
+    tag: "Digital Precision Test Tube Mixer",
     packageDir: "vortex_mixer_twin",
     status: "ready",
     viewerUrl: "../vortex_mixer_twin/software/viewer/",
     transitionKind: "box",
-    panelHint: "Touch/continuous mode switch, speed control knob",
+    panelHint: "Digital tachometer, countdown timer, pulse agitation, dynamic forced-vortex meniscus",
   },
   {
     id: "hotplate",

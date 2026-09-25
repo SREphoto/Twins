@@ -131,29 +131,41 @@ def test_short_spin():
     assert_eq(c.state, State.DECEL)
 
 
+import unittest
+
+class TestCentrifugeController(unittest.TestCase):
+    def test_rcf_at_max(self):
+        test_rcf_at_max()
+
+    def test_cannot_start_lid_open(self):
+        test_cannot_start_lid_open()
+
+    def test_full_run_cycle(self):
+        test_full_run_cycle()
+
+    def test_stop_mid_run(self):
+        test_stop_mid_run()
+
+    def test_open_rejected_while_running(self):
+        test_open_rejected_while_running()
+
+    def test_imbalance(self):
+        test_imbalance()
+
+    def test_rpm_rcf_toggle(self):
+        test_rpm_rcf_toggle()
+
+    def test_nudge_rpm(self):
+        test_nudge_rpm()
+
+    def test_short_spin(self):
+        test_short_spin()
+
+
 def main():
-    tests = [
-        test_rcf_at_max,
-        test_cannot_start_lid_open,
-        test_full_run_cycle,
-        test_stop_mid_run,
-        test_open_rejected_while_running,
-        test_imbalance,
-        test_rpm_rcf_toggle,
-        test_nudge_rpm,
-        test_short_spin,
-    ]
-    failed = 0
-    for t in tests:
-        try:
-            t()
-            print(f"  OK  {t.__name__}")
-        except Exception as e:
-            failed += 1
-            print(f"  FAIL {t.__name__}: {e}")
-    print(f"\n{len(tests) - failed}/{len(tests)} passed")
-    return 1 if failed else 0
+    unittest.main()
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    unittest.main()
+

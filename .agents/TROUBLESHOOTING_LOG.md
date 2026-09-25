@@ -1,7 +1,7 @@
 # Digital Twin Diagnostic & Troubleshooting Log
 
-**SRE Laboratory Systems · Digital Twin Engineering Division** _Authoritative Reference for Rapid Identification, Root
-Cause Analysis, and Mathematical Fixes_
+**SRE Laboratory Systems · Digital Twin Engineering Division** Authoritative Reference for Rapid Identification, Root
+Cause Analysis, and Mathematical Fixes
 
 ---
 
@@ -14,6 +14,7 @@ Cause Analysis, and Mathematical Fixes_
 | **DIAG-003** | Z-Fighting / Depth       | Tabletop flashes black & white zebra stripes on orbit     | Two solid coplanar boxes (`islandTop` & `edge`) at $Y = 9.000$   | 4-sided outer perimeter trim; zero top-face overlap                  |
 | **DIAG-004** | Industrial Architecture  | Power button is an arcade chrome knob with neon halo      | Fabricated button instead of true through-panel design           | Real-life integration through LED panel; unlabelled                  |
 | **DIAG-005** | UV / Projection          | Screen text mirrored / inverted at low angles             | `rotation.z = Math.PI` on plane geometry with inverted normal    | Correct local coordinate mapping & canvas orientation                |
+| **DIAG-006** | Material / Optics        | Fluid inside tube invisible; tube appears solid/opaque    | Three.js transmission pass without PMREM occluding child mesh    | High-clarity MeshStandardMaterial; tube renderOrder=2, fluid=1       |
 | **DIAG-009** | Assembly Containment     | Chamber hangs over LCD; rear white box hovers in air      | Chamber depth $2.40$ exceeded flat deck; floating drive column   | Bound chamber depth to $1.90$; grounded rear unibody tower           |
 | **DIAG-010** | Mechanical Retention     | 45 mm gap above side glass; missing top track capture     | Side glass height $2.31$ reached only $Y=2.355$ (top at $2.40$)  | Extruded U-channel top tracks; captive $2.365$ glass (zero gap)      |
 | **DIAG-011** | Sensor / Logic Inversion | Doors closed says "Air draft detected"; open says "Ready" | Asymptotic lerp float $>0$; `updateUI` not called on stable lerp | Snap lerp $<0.002$; threshold $>0.03$; reactive UI updates           |
@@ -37,6 +38,7 @@ Cause Analysis, and Mathematical Fixes_
   $$\text{Height}_{\text{component}} \le 0.85 \times \text{Height}_{\text{mounting surface}}$$ No component may ever
   intersect bevel transitions or overhang datum edges.
 - **Code Fix**:
+
   ```javascript
   // balance3d.js
   export function makeSREdesignsBadge(scale = 0.32) {
@@ -78,6 +80,7 @@ Cause Analysis, and Mathematical Fixes_
     depth buffer produced severe Z-fighting.
 - **Code Fix**: Replace the solid `edge` box with **4 discrete perimeter trim strips** that wrap around the outside
   borders ($X$ and $Z$ flanks), leaving the top surface exclusively to `islandTop`:
+
   ```javascript
   // Front & Back perimeter trims
   const edgeF = box(ib.sx + 0.15 + trimW * 2, trimT, trimW, matSteel);
@@ -115,8 +118,8 @@ Cause Analysis, and Mathematical Fixes_
 
 ### DIAG-005: Dynamic Canvas LCD Inversion & Horizontal Mirroring (UI_LCD Orientation)
 
-- **Visual Symptom**: Dynamic digital display text (e.g. `SREdesigns STIR-HEAT 500-D`, `SAFE: 320°C`, `HEATER`, `STIRRER`)
-  renders upside down, or when rotated $180^\circ$ renders mirrored right-to-left.
+- **Visual Symptom**: Dynamic digital display text (e.g. `SREdesigns STIR-HEAT 500-D`, `SAFE: 320°C`, `HEATER`,
+  `STIRRER`) renders upside down, or when rotated $180^\circ$ renders mirrored right-to-left.
 - **Why It Occurred**:
   1. A manual compensation `lcdMesh.rotation.z = Math.PI` was applied to the display quad. This flipped both axes in
      screen space, causing the text to render completely upside-down.
@@ -130,6 +133,7 @@ Cause Analysis, and Mathematical Fixes_
   - Invert horizontal UV coordinates directly on the buffer geometry attribute:
     $$U_{\text{corrected}} = 1.0 - U_{\text{original}}$$
 - **Code Fix**:
+
   ```javascript
   // hotplate3d.js
   const lcdGeo = new THREE.PlaneGeometry(bezelW - 0.08, bezelH - 0.08);

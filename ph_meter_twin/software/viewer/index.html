@@ -3,20 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PH-METER 2000 · Benchtop Dual pH/mV Meter Twin</title>
-  <link rel="stylesheet" href="style.css?v=20260725-gold" />
+  <title>SREdesigns PH-7000 Pro · Benchtop Dual pH / mV Meter Twin</title>
+  <link rel="stylesheet" href="style.css?v=20260925-gold1" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
 </head>
 <body>
   <div id="app">
+    <!-- Topbar -->
     <header class="topbar">
       <div class="brand">
-        <span class="brand-mark">PH-METER</span>
-        <span class="brand-model">2000-ATC</span>
-        <span class="brand-tag">Benchtop dual pH/mV meter twin</span>
+        <span class="brand-mark">SREdesigns</span>
+        <span class="brand-model">PH-7000 Pro</span>
+        <span class="badge-sredesigns">SREdesigns</span>
+        <span class="brand-tag">Benchtop Dual pH/mV Meter with ATC & Articulated Stand</span>
       </div>
       <div class="topbar-status">
-        <span id="status-pill" class="pill">PROBE AIR</span>
-        <span id="status-detail" class="muted">Dip probe into beaker</span>
+        <span id="status-pill" class="pill run">ONLINE</span>
+        <span id="status-detail" class="muted">Meter ready; sensor stable</span>
       </div>
     </header>
 
@@ -24,114 +34,121 @@
       <!-- 3D Stage -->
       <section class="stage">
         <div class="view-toolbar">
-          <button type="button" class="view-btn" id="btn-explode" title="Separate major assemblies">Exploded view</button>
+          <button type="button" class="view-btn active" id="btn-cam-iso" title="Isometric 3/4 view">ISO</button>
+          <button type="button" class="view-btn" id="btn-cam-front" title="Front console & display view">Front</button>
+          <button type="button" class="view-btn" id="btn-cam-side" title="Side arm & beaker immersion view">Side</button>
+          <button type="button" class="view-btn" id="btn-cam-top" title="Top overhead view">Top</button>
+          <button type="button" class="view-btn" id="btn-explode" title="Separate assemblies">Exploded view</button>
           <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe">Wireframe</button>
           <button type="button" class="view-btn" id="btn-auto-rotate" title="Orbit camera automatically">Auto-rotate</button>
+
           <label class="orbit-speed-ctrl" title="Auto-orbit speed">
             <span>Orbit</span>
-            <input type="range" id="orbit-speed" min="0.2" max="4" step="0.1" value="1.1" />
-            <span id="orbit-speed-val">1.1×</span>
+            <input type="range" id="orbit-speed" min="0.2" max="4" step="0.1" value="1.0" />
+            <span id="orbit-speed-val">1.0×</span>
           </label>
-          <label class="orbit-speed-ctrl" title="Camera zoom">
-            <span>Zoom</span>
-            <input type="range" id="camera-zoom" min="0" max="100" step="1" value="45" />
-            <span id="camera-zoom-val">45%</span>
-          </label>
-          <label class="orbit-speed-ctrl light-ctrl" title="Overall lab brightness">
-            <span>Light</span>
-            <input type="range" id="lab-light" min="0.15" max="2.2" step="0.05" value="1" />
-            <span id="lab-light-val">1.0×</span>
-          </label>
-          <label class="orbit-speed-ctrl light-ctrl" title="Lighting mood">
-            <span>Mood</span>
-            <select id="lab-light-mood">
-              <option value="neutral" selected>Neutral</option>
-              <option value="bright">Bright</option>
-              <option value="dim">Dim</option>
-              <option value="cool">Cool</option>
-              <option value="warm">Warm</option>
-            </select>
-          </label>
-          <button type="button" class="view-btn btn-showcase" id="btn-full-showcase">Full showcase</button>
-          <button type="button" class="view-btn" id="btn-view-reset">Reset view</button>
+          <button type="button" class="view-btn" id="btn-sfx-mute" title="Mute audio sounds">Mute SFX</button>
         </div>
+
         <div id="viewport3d" class="viewport"></div>
-        <p id="viewport-status" class="viewport-caption">Loading CAD model…</p>
-        <div class="stage-hint">Drag to orbit · Zoom / Light sliders · click keypads / parts</div>
+        <div class="stage-hint">Interactive 3D Twin: Click console keys, electrode arm, beaker, or cap in 3D to interact</div>
       </section>
 
-      <!-- Instrument control panel -->
+      <!-- Instrument Controls Panel -->
       <aside class="instrument panel-collapsible" id="panel-instrument" data-panel="instrument">
-        <div class="panel-head">
-          <h2 class="panel-title">Control panel</h2>
-          <button type="button" class="panel-collapse-btn" data-collapse="instrument">▾</button>
+        <div class="panel-header">
+          <h2>Instrument Controls</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="instrument" title="Collapse panel" aria-expanded="true">▾</button>
         </div>
         <div class="panel-body">
-          <div class="instrument-frame">
-            <canvas id="lcd" width="1024" height="512" class="lcd"></canvas>
+          <!-- Primary Actions -->
+          <div class="btn-grid">
+            <button type="button" class="btn btn-primary" id="btn-read">READ: ACTIVE</button>
+            <button type="button" class="btn btn-primary" id="btn-cal">CALIBRATE BUFFER</button>
+          </div>
 
-            <div class="keypad">
-              <div class="action-row">
-                <button type="button" class="key key-primary" id="btn-mode">pH / mV Mode</button>
-                <button type="button" class="key" id="btn-calib">Calibrate 7.00</button>
-                <button type="button" class="key" id="btn-calib-4">Calibrate 4.01</button>
-                <button type="button" class="key" id="btn-calib-10">Calibrate 10.01</button>
+          <div class="btn-grid">
+            <button type="button" class="btn" id="btn-mode">MODE: pH</button>
+            <button type="button" class="btn" id="btn-hold">HOLD</button>
+          </div>
+
+          <div class="btn-grid">
+            <button type="button" class="btn" id="btn-power">POWER: ON</button>
+            <button type="button" class="btn" id="btn-demo">Run Classroom Demo</button>
+          </div>
+
+          <!-- Hardware & Kinematics Control -->
+          <div class="control-card">
+            <div class="card-title">
+              <span>Electrode Arm & Storage Cap</span>
+            </div>
+            <div class="btn-grid" style="margin-top: 0.5rem;">
+              <button type="button" class="btn" id="btn-arm">ARM: LOWERED</button>
+              <button type="button" class="btn" id="btn-cap">CAP: REMOVED</button>
+            </div>
+            <p class="hint">Lower arm to immerse glass bulb and ATC thermistor into beaker.</p>
+          </div>
+
+          <!-- Solution Selection -->
+          <div class="control-card">
+            <div class="card-title">
+              <span>Reaction Solution / Buffer</span>
+            </div>
+            <select id="select-solution" class="select-ctrl">
+              <option value="ph7" selected>Standard Buffer pH 7.00 (Zero Cal)</option>
+              <option value="ph4">Standard Buffer pH 4.01 (Acid Slope)</option>
+              <option value="ph10">Standard Buffer pH 10.01 (Base Slope)</option>
+              <option value="vinegar">Household Vinegar (CH3COOH, pH 2.85)</option>
+              <option value="tapWater">Municipal Tap Water (pH 7.42)</option>
+              <option value="ammonia">Dilute Ammonia Solution (NH3, pH 11.15)</option>
+            </select>
+            <p class="hint">Swaps beaker solution, updating real-time color and electrochemistry.</p>
+          </div>
+
+          <!-- Temperature & ATC -->
+          <div class="control-card">
+            <div class="card-title">
+              <span>Sample Temperature</span>
+              <span class="card-val" id="val-temp">25.0°C</span>
+            </div>
+            <div class="slider-ctrl">
+              <input type="range" id="slider-temp" min="0" max="100" step="0.5" value="25" />
+            </div>
+            <div style="margin-top: 0.4rem;">
+              <button type="button" class="btn btn-sm" id="btn-atc-toggle">ATC: ON</button>
+            </div>
+            <p class="hint">Nernstian slope compensates automatically: S = 2.303·R·T / F.</p>
+          </div>
+
+          <!-- Telemetry Specs -->
+          <div class="control-card">
+            <div class="card-title">
+              <span>Electrode Health & Specs</span>
+            </div>
+            <div class="spec-grid">
+              <div class="spec-item">
+                <span class="spec-label">Model Target</span>
+                <span class="spec-val">Mettler S470 / Oakton 700</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Range</span>
+                <span class="spec-val">-2.00 to 16.00 pH</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Resolution</span>
+                <span class="spec-val">0.01 pH / 0.1 mV</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">ATC Sensor</span>
+                <span class="spec-val">Class A PT1000 Thermistor</span>
               </div>
             </div>
-
-            <div class="instrument-actions" style="margin-top:10px">
-              <button type="button" class="btn" id="btn-dip-probe">Dip Probe → Solution</button>
-              <button type="button" class="btn btn-demo" id="btn-showcase-panel">Full showcase</button>
-            </div>
           </div>
-        </div>
-      </aside>
-
-      <!-- Part explorer -->
-      <aside class="parts panel-collapsible" id="parts-panel" data-panel="parts">
-        <div class="panel-head">
-          <h2 class="panel-title">Part explorer</h2>
-          <button type="button" class="panel-collapse-btn" data-collapse="parts">▾</button>
-        </div>
-        <div class="panel-body">
-          <button type="button" class="btn" id="btn-parts-clear">Clear focus</button>
-          <p id="parts-focus-status" class="muted">No part focused</p>
-          <p id="parts-count" class="hint"></p>
-          <div id="parts-list" class="parts-list" role="list"></div>
-        </div>
-      </aside>
-
-      <!-- Lab bench -->
-      <aside class="lab panel-collapsible" id="panel-lab" data-panel="lab">
-        <div class="panel-head">
-          <h2 class="panel-title">Lab bench</h2>
-          <button type="button" class="panel-collapse-btn" data-collapse="lab">▾</button>
-        </div>
-        <div class="panel-body">
-          <label class="field">
-            <span>Buffer / Sample Solution</span>
-            <select id="solution-select">
-              <option value="7.00">pH 7.00 Neutral Buffer</option>
-              <option value="4.01">pH 4.01 Acidic Buffer</option>
-              <option value="10.01">pH 10.01 Basic Buffer</option>
-              <option value="2.50">Unknown Acid Sample (0.003M HCl)</option>
-              <option value="11.80">Unknown Base Sample (0.006M NaOH)</option>
-            </select>
-          </label>
-          <pre id="clean-log" class="clean-log">Meter initialized. Dip probe to measure.</pre>
         </div>
       </aside>
     </div>
   </div>
 
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-    }
-  }
-  </script>
-  <script type="module" src="app.js?v=20260725-gold"></script>
+  <script type="module" src="app.js?v=20260925-gold1"></script>
 </body>
 </html>

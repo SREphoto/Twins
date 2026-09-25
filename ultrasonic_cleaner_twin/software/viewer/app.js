@@ -65,6 +65,7 @@ const mouse = new THREE.Vector2();
 
 // Dynamic LCD Canvas Texture
 const lcdTexture = new THREE.CanvasTexture(lcdCanvas);
+lcdTexture.flipY = false; // MANDATORY CAD GOVERNANCE RULE
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 
@@ -278,7 +279,7 @@ function createPowerCord(outletPos, surfaceY) {
   const cordMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.8 });
   const cordMesh = new THREE.Mesh(cordGeo, cordMat);
   cordMesh.castShadow = true;
-  cordMesh.name = "Power_Cord";
+  cordMesh.name = "Body_PowerCord";
   scene.add(cordMesh);
 
   // Molded IEC C13 plug at machine end
@@ -287,7 +288,7 @@ function createPowerCord(outletPos, surfaceY) {
     new THREE.MeshStandardMaterial({ color: 0x0f0f10, roughness: 0.6 })
   );
   iecPlug.position.copy(iecWorld).add(new THREE.Vector3(0, 0, 0.04));
-  iecPlug.name = "IEC_Plug";
+  iecPlug.name = "Body_IECPlug";
   scene.add(iecPlug);
 
   // Wall outlet plug
@@ -296,7 +297,7 @@ function createPowerCord(outletPos, surfaceY) {
     new THREE.MeshStandardMaterial({ color: 0x0a0a0b, roughness: 0.6 })
   );
   plug.position.set(outletPos.x, outletPos.y - 0.05, outletPos.z - 0.08);
-  plug.name = "Wall_Plug";
+  plug.name = "Body_WallPlug";
   scene.add(plug);
 }
 
@@ -344,7 +345,7 @@ function rebuild3DSample(type) {
     contaminantMesh = new THREE.Mesh(new THREE.SphereGeometry(0.17, 32, 16), greaseMat);
     contaminantMesh.scale.set(1, 0.4, 1);
     contaminantMesh.position.y = 0.06;
-    contaminantMesh.name = "Contaminant_Grease";
+    contaminantMesh.name = "Body_ContaminantGrease";
     sampleGroup.add(contaminantMesh);
 
   } else if (type === 'flux') {
@@ -376,7 +377,7 @@ function rebuild3DSample(type) {
       fluxBlob.position.set(pos[0], 0.025, pos[1]);
       contaminantMesh.add(fluxBlob);
     });
-    contaminantMesh.name = "Contaminant_Flux";
+    contaminantMesh.name = "Body_ContaminantFlux";
     sampleGroup.add(contaminantMesh);
 
   } else if (type === 'residue') {
@@ -408,7 +409,7 @@ function rebuild3DSample(type) {
     });
     
     contaminantMesh = new THREE.Group(); // Group for 3 residue chunks
-    contaminantMesh.name = "Contaminant_Residue";
+    contaminantMesh.name = "Body_ContaminantResidue";
 
     [-0.12, 0, 0.12].forEach(x => {
       // Glass Tube

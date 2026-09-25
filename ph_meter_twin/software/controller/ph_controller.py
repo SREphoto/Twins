@@ -1,96 +1,282 @@
 """
 pH Meter Controller State Engine
-Pure Python state machine for laboratory benchtop dual pH/mV meter with ATC.
+High-fidelity Python state machine for laboratory benchtop dual pH/mV meter with ATC.
+Models Nernstian electrochemistry, temperature compensation, multi-point calibration,
+sensor stability detection, and safety/fault interlocks.
 """
 
 import math
 from enum import Enum, auto
+from typing import Dict, List, Optional, Set, Tuple
+
 
 class PHMeterState(Enum):
-    IDLE = auto()
+    OFF = auto()
+    STANDBY = auto()
+    READY = auto()
     MEASURING = auto()
+    STABLE = auto()
     CALIBRATING = auto()
     HOLD = auto()
     FAULT_PROBE_DISCONNECTED = auto()
     FAULT_CALIBRATION_ERROR = auto()
+    FAULT_TEMP_OUT_OF_RANGE = auto()
+
+
+class MeasureMode(Enum):
+    PH = auto()
+    MV = auto()
+
+
+class StandardBuffer:
+    PH_4_01 = 4.01
+    PH_7_00 = 7.00
+    PH_10_01 = 10.01
+
 
 class PHMeterController:
-    # Physical constants for Nernst equation
-    R = 8.3144626   # Gas constant (J / mol K)
-    F = 96485.3321  # Faraday constant (C / mol)
+    """
+    Simulated Mettler Toledo SevenExcellence / Oakton pH 700 Benchtop Meter.
+    Implements true electrochemical Nernst equation:
+      E_cell = E0 - (2.302585 * R * T / F) * (pH - 7.00)
+    """
 
-    def __init__(self):
-        self.state = PHMeterState.IDLE
-        self.probe_connected = True
-        self.probe_immersed = True
-        
-        self.current_temp_c = 25.0
-        self.solution_ph_real = 7.00
-        
-        # Display readings
-        self.measured_ph = 7.00
-        self.measured_mv = 0.0
-        
-        # Calibration state (slope % and offset mV)
-        self.calib_offset_mv = 0.0
-        self.calib_slope_percent = 100.0
-        self.calibrated_buffers = set()
+    # Physical Constants
+    R = 8.314462618   # Molar gas constant (J / mol K)
+    F = 96485.33212   # Faraday constant (C / mol)
+    LN10 = 2.302585092994046
+
+    # Operational Limits
+    MIN_TEMP_C = -5.0
+    MAX_TEMP_C = 105.0
+    MIN_SLOPE_PERCENT = 90.0
+    MAX_SLOPE_PERCENT = 105.0
+    MAX_OFFSET_MV = 45.0  # Max acceptable asymmetry potential
+
+    def __init__(self, probe_slope_pct: float = 98.5, probe_offset_mv: float = 2.1):
+        self.state: PHMeterState = PHMeterState.STANDBY
+        self.mode: MeasureMode = MeasureMode.PH
+        self.power_on: bool = True
+
+        # Physical Hardware Connections
+        self.probe_connected: bool = True
+        self.atc_connected: bool = True
+        self.probe_immersed: bool = False
+        self.storage_cap_on: bool = True
+
+        # Electrode physical characteristics (simulated real probe)
+        self.actual_slope_pct: float = probe_slope_pct
+        self.actual_offset_mv: float = probe_offset_mv
+
+        # Solution Under Test
+        self.solution_ph_real: float = 7.00
+        self.current_temp_c: float = 25.0
+        self.manual_temp_c: float = 25.0
+
+        # Calibrated model parameters in meter memory
+        self.calib_offset_mv: float = 0.0
+        self.calib_slope_percent: float = 100.0
+        self.calibrated_buffers: Dict[float, float] = {}  # {nominal_ph: recorded_mv}
+        self.last_cal_error: Optional[str] = None
+
+        # Display and telemetry readings
+        self.measured_ph: float = 7.00
+        self.measured_mv: float = 0.0
+        self.stability_counter: int = 0
+        self.recent_ph_readings: List[float] = []
+
+    def set_power(self, power: bool):
+        self.power_on = power
+        if not power:
+            self.state = PHMeterState.OFF
+            self.recent_ph_readings.clear()
+        else:
+            self.state = PHMeterState.STANDBY
+
+    def set_mode(self, mode: MeasureMode):
+        self.mode = mode
 
     def set_probe_connected(self, connected: bool):
         self.probe_connected = connected
-        if not connected:
+        if not connected and self.state != PHMeterState.OFF:
             self.state = PHMeterState.FAULT_PROBE_DISCONNECTED
+
+    def set_atc_connected(self, connected: bool):
+        self.atc_connected = connected
 
     def set_probe_immersed(self, immersed: bool):
         self.probe_immersed = immersed
+        if immersed:
+            self.storage_cap_on = False
+            self.stability_counter = 0
+
+    def set_storage_cap(self, cap_on: bool):
+        self.storage_cap_on = cap_on
+        if cap_on:
+            self.probe_immersed = False
+
+    def set_temperature(self, temp_c: float):
+        if not (self.MIN_TEMP_C <= temp_c <= self.MAX_TEMP_C):
+            self.state = PHMeterState.FAULT_TEMP_OUT_OF_RANGE
+            return False
+        self.current_temp_c = temp_c
+        return True
 
     def nernst_slope_mv(self, temp_c: float) -> float:
-        """Calculate ideal Nernst slope: -2.303 * R * T / F in mV per pH unit."""
+        """
+        Calculates theoretical Nernst slope in mV per pH unit at temperature T.
+        S(T) = (2.302585 * R * T / F) * 1000 mV/pH.
+        At 25°C (298.15 K), S = 59.16 mV / pH.
+        """
         temp_k = temp_c + 273.15
-        slope_v = (2.302585 * self.R * temp_k) / self.F
-        return slope_v * 1000.0  # ~ -59.16 mV / pH at 25°C
+        return (self.LN10 * self.R * temp_k / self.F) * 1000.0
 
-    def start_measurement(self):
+    def calculate_raw_probe_mv(self) -> float:
+        """Calculates actual voltage generated by physical electrode."""
+        if not self.probe_connected:
+            return 0.0
+        if not self.probe_immersed:
+            # Open circuit / dry in air: unstable floating potential around 0 mV
+            return 15.0 + 5.0 * math.sin(self.stability_counter * 0.7)
+
+        # E_cell = Offset - Slope * (pH - 7.00)
+        slope_mv = self.nernst_slope_mv(self.current_temp_c) * (self.actual_slope_pct / 100.0)
+        return self.actual_offset_mv - (self.solution_ph_real - 7.00) * slope_mv
+
+    def start_measurement(self) -> bool:
+        if not self.power_on:
+            return False
         if not self.probe_connected:
             self.state = PHMeterState.FAULT_PROBE_DISCONNECTED
             return False
+
         self.state = PHMeterState.MEASURING
+        self.stability_counter = 0
         return True
 
     def hold_measurement(self):
-        if self.state == PHMeterState.MEASURING:
+        if self.state in (PHMeterState.MEASURING, PHMeterState.STABLE):
             self.state = PHMeterState.HOLD
 
-    def calibrate_buffer(self, buffer_ph: float):
-        if not self.probe_connected or not self.probe_immersed:
-            self.state = PHMeterState.FAULT_CALIBRATION_ERROR
+    def resume_measurement(self):
+        if self.state == PHMeterState.HOLD:
+            self.state = PHMeterState.MEASURING
+
+    def calibrate_buffer(self, buffer_ph: float) -> bool:
+        """
+        Performs 1-point, 2-point, or 3-point calibration with buffer pH.
+        Validates buffer window and slope efficiency.
+        """
+        if not self.power_on or not self.probe_connected:
+            self.state = PHMeterState.FAULT_PROBE_DISCONNECTED
+            self.last_cal_error = "PROBE_DISCONNECTED"
             return False
-            
+
+        if not self.probe_immersed or self.storage_cap_on:
+            self.state = PHMeterState.FAULT_CALIBRATION_ERROR
+            self.last_cal_error = "PROBE_NOT_IMMERSED"
+            return False
+
+        # Validate buffer range mismatch (e.g. attempting to calibrate 7 buffer with pH 4)
+        if abs(self.solution_ph_real - buffer_ph) > 1.5:
+            self.state = PHMeterState.FAULT_CALIBRATION_ERROR
+            self.last_cal_error = "ERR_BUFF_MISMATCH"
+            return False
+
         self.state = PHMeterState.CALIBRATING
-        # Ideal mV at this buffer value relative to pH 7.00 (isopotential)
-        ideal_mv = (7.00 - buffer_ph) * self.nernst_slope_mv(self.current_temp_c)
-        self.calib_offset_mv = ideal_mv - (7.00 - self.solution_ph_real) * self.nernst_slope_mv(self.current_temp_c)
-        self.calibrated_buffers.add(round(buffer_ph, 2))
+        measured_raw_mv = self.calculate_raw_probe_mv()
+        self.calibrated_buffers[round(buffer_ph, 2)] = measured_raw_mv
+
+        # If zero buffer (pH 7.00), determine asymmetry potential (zero offset)
+        if abs(buffer_ph - 7.00) < 0.2:
+            self.calib_offset_mv = measured_raw_mv
+            if abs(self.calib_offset_mv) > self.MAX_OFFSET_MV:
+                self.state = PHMeterState.FAULT_CALIBRATION_ERROR
+                self.last_cal_error = "ERR_HIGH_OFFSET"
+                return False
+
+        # If 2 or more buffers calibrated, calculate slope efficiency
+        if len(self.calibrated_buffers) >= 2:
+            buffers = sorted(self.calibrated_buffers.keys())
+            # Use span between lowest and highest buffer
+            low_b = buffers[0]
+            high_b = buffers[-1]
+            delta_ph = high_b - low_b
+            if delta_ph > 1.0:
+                delta_mv = self.calibrated_buffers[low_b] - self.calibrated_buffers[high_b]
+                theor_slope = self.nernst_slope_mv(self.current_temp_c)
+                theor_delta_mv = delta_ph * theor_slope
+                calculated_slope_pct = (delta_mv / theor_delta_mv) * 100.0
+
+                if not (self.MIN_SLOPE_PERCENT <= calculated_slope_pct <= self.MAX_SLOPE_PERCENT):
+                    self.state = PHMeterState.FAULT_CALIBRATION_ERROR
+                    self.last_cal_error = "ERR_SLOPE"
+                    return False
+
+                self.calib_slope_percent = calculated_slope_pct
+
         self.state = PHMeterState.MEASURING
+        self.last_cal_error = None
         return True
 
     def tick(self, dt_sec: float = 1.0):
-        """Simulate electrode stabilization and temperature compensation."""
+        """Simulate electrode stabilization, ATC calculation, and stability lock."""
+        if not self.power_on:
+            self.state = PHMeterState.OFF
+            return
+
         if not self.probe_connected:
             self.state = PHMeterState.FAULT_PROBE_DISCONNECTED
             return
 
-        if self.state in (PHMeterState.MEASURING, PHMeterState.HOLD):
+        effective_temp = self.current_temp_c if self.atc_connected else self.manual_temp_c
+        slope = self.nernst_slope_mv(effective_temp) * (self.calib_slope_percent / 100.0)
+
+        if self.state in (PHMeterState.MEASURING, PHMeterState.STABLE):
             if not self.probe_immersed:
                 # Open circuit noise
-                self.measured_ph = 7.00
-                self.measured_mv = 0.0
+                target_mv = 10.0 + 8.0 * math.sin(self.stability_counter * 0.3)
+                target_ph = 7.00 + 0.15 * math.cos(self.stability_counter * 0.4)
+                self.stability_counter = 0
             else:
-                # Calculate real mV output from Nernst equation
-                ideal_slope = self.nernst_slope_mv(self.current_temp_c) * (self.calib_slope_percent / 100.0)
-                raw_mv = (7.00 - self.solution_ph_real) * ideal_slope + self.calib_offset_mv
-                
-                # Smooth sensor convergence
-                self.measured_mv += (raw_mv - self.measured_mv) * min(1.0, 2.0 * dt_sec)
-                calc_ph = 7.00 - (self.measured_mv - self.calib_offset_mv) / ideal_slope
-                self.measured_ph += (calc_ph - self.measured_ph) * min(1.0, 2.0 * dt_sec)
+                target_mv = self.calculate_raw_probe_mv()
+                # Calculated pH using calibrated zero offset and slope
+                target_ph = 7.00 - ((target_mv - self.calib_offset_mv) / slope)
+
+            # First-order low pass filter settling
+            alpha = min(1.0, 2.5 * dt_sec)
+            self.measured_mv += (target_mv - self.measured_mv) * alpha
+            self.measured_ph += (target_ph - self.measured_ph) * alpha
+
+            # Maintain recent readings for stability convergence check
+            self.recent_ph_readings.append(round(self.measured_ph, 4))
+            if len(self.recent_ph_readings) > 5:
+                self.recent_ph_readings.pop(0)
+
+            # Check stability
+            if len(self.recent_ph_readings) >= 4 and self.probe_immersed:
+                spread = max(self.recent_ph_readings) - min(self.recent_ph_readings)
+                if spread < 0.006:
+                    self.stability_counter += 1
+                    if self.stability_counter >= 3:
+                        self.state = PHMeterState.STABLE
+                else:
+                    self.stability_counter = 0
+                    self.state = PHMeterState.MEASURING
+
+    def get_telemetry(self) -> Dict:
+        """Returns complete digital telemetry packet."""
+        return {
+            "state": self.state.name,
+            "mode": self.mode.name,
+            "measured_ph": round(self.measured_ph, 2),
+            "measured_mv": round(self.measured_mv, 1),
+            "temperature_c": round(self.current_temp_c, 1),
+            "atc_active": self.atc_connected,
+            "is_stable": self.state == PHMeterState.STABLE,
+            "calib_slope_pct": round(self.calib_slope_percent, 1),
+            "calib_offset_mv": round(self.calib_offset_mv, 1),
+            "calibrated_points": list(self.calibrated_buffers.keys()),
+            "probe_immersed": self.probe_immersed,
+            "last_error": self.last_cal_error,
+        }

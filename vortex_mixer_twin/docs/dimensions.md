@@ -1,69 +1,40 @@
-# Dimensions — Vortex Mixer
+# Dimensions — Digital Precision Vortex Mixer
 
-For 3D model construction. Based on Scientific Industries Vortex-Genie 2 (primary) and IKA MS 3 Digital.
+1:1 metric specifications for 3D procedural solid model construction. Based on Scientific Industries Vortex-Genie 2 Digital and IKA MS 3 Digital.
 
-## Primary Model Target: Vortex-Genie 2
+## Overall Spatial Dimensions
+| Dimension | Imperial | Metric (mm) | Tolerance | Datum Alignment |
+| :--- | :--- | :--- | :--- | :--- |
+| **Width ($X$)** | $4.80\text{ in}$ | $122.0\text{ mm}$ | $\pm 0.5\text{ mm}$ | Centered at $X = 0$ ($-61.0\text{ mm}$ to $+61.0\text{ mm}$) |
+| **Depth ($Z$)** | $6.50\text{ in}$ | $165.0\text{ mm}$ | $\pm 0.5\text{ mm}$ | Front apron at $Z = +65.0\text{ mm}$, rear at $Z = -100.0\text{ mm}$ |
+| **Height ($Y$)** | $6.50\text{ in}$ | $165.0\text{ mm}$ | $\pm 0.5\text{ mm}$ | Suction feet at $Y = 0$, top cup rim at $Y = 165.0\text{ mm}$ |
+| **Chassis Height** | $4.50\text{ in}$ | $115.0\text{ mm}$ | $\pm 0.5\text{ mm}$ | Main die-cast body |
+| **Net Weight** | $8.8\text{ lb}$ | $4.0\text{ kg}$ | — | Cast zinc alloy unibody |
 
-Standard laboratory vortex mixer, 1000–3200 rpm.
+## Sub-Assembly & Component Dimensions
 
-## Overall Dimensions
+### 1. Base & Suction Cup Feet
+- **Foot Diameter**: $32.0\text{ mm}$
+- **Foot Height**: $10.0\text{ mm}$ (datum $Y = 0$ to $Y = 10.0\text{ mm}$)
+- **Foot Spacing**: Width $96.0\text{ mm}$ ($X = \pm 48.0\text{ mm}$), Depth $120.0\text{ mm}$ ($Z = -60.0\text{ mm}, +60.0\text{ mm}$)
+- **Material**: Vulcanized neoprene rubber with central brass threaded M4 bushing
 
-| Parameter        | Imperial | Metric  | Source / Notes   |
-| ---------------- | -------- | ------- | ---------------- |
-| Width            | ~4.5 in  | ~114 mm | Housing diameter |
-| Height           | ~5.0 in  | ~127 mm | With cup head    |
-| Height (no head) | ~4.5 in  | ~114 mm |                  |
-| Weight           | ~10 lb   | ~4.5 kg |                  |
+### 2. Die-Cast Lower Unibody & Sloped Console
+- **Base Skirt**: Flared perimeter rim, $8.0\text{ mm}$ high, $3.0\text{ mm}$ draft angle
+- **Console Slope**: $25.0^\circ$ incline from horizontal
+- **Console Recessed Bezel Pocket**: Width $84.0\text{ mm}$, Height $48.0\text{ mm}$, Carved depth $2.0\text{ mm}$
+- **Display Quad (`UI_LCD`)**: Width $48.0\text{ mm}$, Height $24.0\text{ mm}$
+- **Optical Encoder Knob**: Diameter $28.0\text{ mm}$, Height $16.0\text{ mm}$, 24 flutes, raised pointer
+- **Mode Toggle Switch**: Chrome bat lever length $18.0\text{ mm}$, $6.0\text{ mm}$ knurled locking nut
+- **LED Indicator**: $5.0\text{ mm}$ dome lens at $X = 0$, $Y = 82.0\text{ mm}$
 
-## IKA MS 3 Digital
+### 3. Cup Head & Spindle
+- **Outer Diameter**: $42.0\text{ mm}$ at fluted lip, $32.0\text{ mm}$ at neck
+- **Total Height**: $36.0\text{ mm}$
+- **Cavity Inner Diameter**: $26.0\text{ mm}$ tapering to $14.0\text{ mm}$ at bottom (accepts 0.5–50 mL tubes)
+- **Cavity Depth**: $20.0\text{ mm}$
+- **Eccentric Orbital Radius**: $2.0\text{ mm}$ ($4.0\text{ mm}$ total peak-to-peak orbit)
 
-| Parameter | Imperial    | Metric      | Source / Notes |
-| --------- | ----------- | ----------- | -------------- |
-| Width     | ~4.0 in     | ~102 mm     |                |
-| Depth     | ~5.5 in     | ~140 mm     |                |
-| Height    | ~4.5 in     | ~114 mm     |                |
-| Weight    | ~8 lb       | ~3.6 kg     |                |
-| Display   | Digital LED | Digital LED | Speed in rpm   |
-
-## Cup Head
-
-| Parameter             | Imperial | Metric | Notes          |
-| --------------------- | -------- | ------ | -------------- |
-| Diameter              | ~1.5 in  | ~38 mm | Rubber cup     |
-| Cup depth             | ~0.75 in | ~19 mm |                |
-| Material              | Rubber   | Rubber | ~40-60 Shore A |
-| Insert depth for tube | ~0.5 in  | ~12 mm |                |
-
-## Flat Head (Optional Accessory)
-
-| Parameter | Imperial | Metric | Notes    |
-| --------- | -------- | ------ | -------- |
-| Width     | ~3.0 in  | ~76 mm | Foam pad |
-| Depth     | ~3.0 in  | ~76 mm |          |
-| Height    | ~0.5 in  | ~12 mm |          |
-| Material  | Foam     | Foam   |          |
-
-## Controls
-
-| Control       | Location     | Type                             |
-| ------------- | ------------ | -------------------------------- |
-| Speed knob    | Top or front | Rotary potentiometer             |
-| Mode switch   | Top          | 3-position toggle (touch/off/on) |
-| Power switch  | Rear         | Rocker switch                    |
-| Speed display | Front (IKA)  | Digital LED                      |
-
-## Base / Feet
-
-| Parameter      | Imperial | Metric  | Notes              |
-| -------------- | -------- | ------- | ------------------ |
-| Foot diameter  | ~1.2 in  | ~30 mm  | Rubber suction cup |
-| Number of feet | 4        | 4       |                    |
-| Base width     | ~5.0 in  | ~127 mm | Including feet     |
-
-## Notes
-
-- Vortex-Genie 2 dimensions are typical for standard lab vortex mixer
-- IKA MS 3 has slightly smaller footprint with digital display
-- Cup head is removable and interchangeable with flat head accessory
-- Housing is typically die-cast metal or high-impact plastic
-- Suction feet provide stability on bench surface
+### 4. Sample Vessels
+- **15 mL Falcon Conical Tube**: Outer diameter $17.0\text{ mm}$, Length $120.0\text{ mm}$, $22.0\text{ mm}$ threaded cap
+- **1.5 mL Microcentrifuge Tube**: Outer diameter $10.8\text{ mm}$, Length $40.0\text{ mm}$, flip snap cap

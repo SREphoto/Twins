@@ -241,11 +241,11 @@ function onDocumentClick(event) {
   if (intersects.length > 0) {
     let obj = intersects[0].object;
     while (obj && obj !== pumpModel) {
-      if (obj.name === "switch_power") {
+      if (obj.name === "Btn_Power" || obj.name === "switch_power") {
         togglePower();
         break;
       }
-      if (obj.name === "knob_ballast") {
+      if (obj.name === "Knob_GasBallast" || obj.name === "knob_ballast") {
         toggleBallast();
         break;
       }

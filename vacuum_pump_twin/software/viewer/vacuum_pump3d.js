@@ -232,14 +232,14 @@ function buildHousing() {
   const switchBox = box(20, 12, 15, matHousing);
   switchBox.position.set(-40, 86, 122);
   switchBox.rotation.x = -15 * THREE.MathUtils.DEG2RAD;
-  switchBox.name = "switch_power";
+  switchBox.name = "Btn_Power";
   housing.add(switchBox);
 
   // Ballast Knob
   const ballast = cyl(10, 10, 10, matHousing, 16);
   ballast.rotation.x = Math.PI / 2;
   ballast.position.set(40, 86, 122);
-  ballast.name = "knob_ballast";
+  ballast.name = "Knob_GasBallast";
   housing.add(ballast);
 
   // Analog Gauge

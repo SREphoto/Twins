@@ -43,7 +43,10 @@ class VacuumPumpController:
                 self.state = VacuumPumpState.STOPPING
         else:
             if self.state == VacuumPumpState.OFF:
-                self.state = VacuumPumpState.IDLE
+                if self.motor_temp_c >= self.overheat_temp_c:
+                    self.state = VacuumPumpState.FAULT_OVERHEAT
+                else:
+                    self.state = VacuumPumpState.IDLE
                 
     def set_target_rpm(self, rpm: float):
         # Speed dial clamping

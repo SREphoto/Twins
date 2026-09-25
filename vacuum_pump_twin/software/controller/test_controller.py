@@ -173,5 +173,14 @@ class TestVacuumPumpController(unittest.TestCase):
         self.assertIn("target_rpm", snap)
         self.assertEqual(snap["state"], "OFF")
 
+    def test_power_on_while_overheated(self):
+        # Motor is hot from previous run
+        self.ctrl.motor_temp_c = 135.0
+        self.ctrl.set_power(True)
+        self.assertEqual(self.ctrl.state, VacuumPumpState.FAULT_OVERHEAT)
+        self.assertEqual(self.ctrl.motor_speed_rpm, 0.0)
+
+
 if __name__ == '__main__':
     unittest.main()
+

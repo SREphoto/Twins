@@ -117,7 +117,7 @@ function deckWithCutout(deckW, deckD, cutX, cutZ, cutW, cutD, thickness, materia
 // ─── SRE Designs Badge (matching centrifuge quality) ─────────────────────────
 function makeSREdesignsBadge() {
   const g = new THREE.Group();
-  g.name = "SREdesigns_Badge";
+  g.name = "Badge_SREdesigns";
 
   const plateW = 0.98, plateH = 0.28, plateD = 0.035;
 
@@ -183,6 +183,7 @@ function makeSREdesignsBadge() {
   ctx.fillText("LAB SYSTEMS", tx, 300 * 0.72);
 
   const tex = new THREE.CanvasTexture(c);
+  tex.flipY = false;
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.anisotropy = 4;
 
@@ -231,6 +232,7 @@ function keyFaceMaterial(label, bg = "#3a4452", fg = "#f3f6fa") {
   ctx.fillRect(0, 0, 256, 48);
   paintKeyLabel(ctx, label, fg);
   const tex = new THREE.CanvasTexture(c);
+  tex.flipY = false;
   tex.colorSpace = THREE.SRGBColorSpace;
 
   // Emissive map — white letters only
@@ -241,6 +243,7 @@ function keyFaceMaterial(label, bg = "#3a4452", fg = "#f3f6fa") {
   ctxE.fillRect(0, 0, 256, 192);
   paintKeyLabel(ctxE, label, "#ffffff");
   const emitTex = new THREE.CanvasTexture(ce);
+  emitTex.flipY = false;
   emitTex.colorSpace = THREE.SRGBColorSpace;
 
   return new THREE.MeshStandardMaterial({
@@ -289,15 +292,15 @@ function makeKey(label, w, h, d, bgHex, faceMat) {
 
 export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   const root = new THREE.Group();
-  root.name = "Ultrasonic_Root";
+  root.name = "Body_UltrasonicRoot";
 
-  const bodyGroup    = new THREE.Group(); bodyGroup.name    = "Body_Assembly";
-  const consoleG     = new THREE.Group(); consoleG.name     = "Console_Assembly";
-  const basinGroup   = new THREE.Group(); basinGroup.name   = "Basin_Assembly";
-  const basketGroup  = new THREE.Group(); basketGroup.name  = "Basket_Assembly";
-  const lidGroup     = new THREE.Group(); lidGroup.name     = "Lid_Hinge";
-  const fluidGroup   = new THREE.Group(); fluidGroup.name   = "Fluid_Assembly";
-  const driveGroup   = new THREE.Group(); driveGroup.name   = "Electronics_Bay";
+  const bodyGroup    = new THREE.Group(); bodyGroup.name    = "Body_ChassisAssembly";
+  const consoleG     = new THREE.Group(); consoleG.name     = "Body_ConsoleAssembly";
+  const basinGroup   = new THREE.Group(); basinGroup.name   = "Body_BasinAssembly";
+  const basketGroup  = new THREE.Group(); basketGroup.name  = "Body_BasketAssembly";
+  const lidGroup     = new THREE.Group(); lidGroup.name     = "Pivot_LidHinge";
+  const fluidGroup   = new THREE.Group(); fluidGroup.name   = "Body_FluidAssembly";
+  const driveGroup   = new THREE.Group(); driveGroup.name   = "Body_ElectronicsBay";
 
   const buttons = {};
 
@@ -333,7 +336,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   // ── Base plinth ────────────────────────────────────────────────────────────
   const plinth = box(W + 0.08, 0.14, D + 0.08, M(0x1a1f26, { r: 0.55, m: 0.1 }));
   plinth.position.y = 0.1;
-  plinth.name = "Base_Plinth";
+  plinth.name = "Body_BasePlinth";
   bodyGroup.add(plinth);
 
   // ── Hollow shell walls ─────────────────────────────────────────────────────
@@ -390,7 +393,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
     deckThickness, deckMat
   );
   topDeck.position.y = DECK_Y - deckThickness;
-  topDeck.name = "Top_Deck";
+  topDeck.name = "Body_TopDeck";
   bodyGroup.add(topDeck);
 
   // Dark inset rim around basin cutout
@@ -413,7 +416,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   const deckRim = new THREE.Mesh(rimGeo, dark);
   deckRim.rotation.x = -Math.PI / 2;
   deckRim.position.y = DECK_Y + 0.002;
-  deckRim.name = "Deck_Basin_Rim";
+  deckRim.name = "Body_DeckBasinRim";
   bodyGroup.add(deckRim);
 
   // ── Cosmetic seam line ─────────────────────────────────────────────────────
@@ -429,13 +432,13 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
     const xOuter = side * (W / 2 + 0.014);
     const panel = box(0.05, 0.9, ventDepth, ventDark);
     panel.position.set(side * (W / 2 - 0.01), BASE_Y + BODY_H / 2, ventZ);
-    panel.name = side < 0 ? "Vent_Panel_L" : "Vent_Panel_R";
+    panel.name = side < 0 ? "Body_VentPanel_L" : "Body_VentPanel_R";
     bodyGroup.add(panel);
 
     for (let i = 0; i < 9; i++) {
       const louvre = box(0.045, 0.034, ventDepth - 0.12, ventBar);
       louvre.position.set(xOuter, BASE_Y + 0.45 + i * 0.078, ventZ);
-      louvre.name = "Side_Vent_Louver";
+      louvre.name = "Body_SideVentLouver";
       bodyGroup.add(louvre);
     }
     // Frame posts
@@ -455,7 +458,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   for (let i = 0; i < 5; i++) {
     const v = box(0.9, 0.035, 0.025, dark);
     v.position.set(BASIN_OFFSET_X, BASE_Y + 0.5 + i * 0.14, D / 2 + 0.01);
-    v.name = `Rear_Vent_${i}`;
+    v.name = `Body_RearVent_${i}`;
     bodyGroup.add(v);
   }
 
@@ -464,11 +467,11 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   const iecZ = D / 2;
   const iecHousing = box(0.34, 0.24, 0.1, dark);
   iecHousing.position.set(iecX, IEC_Y, iecZ + 0.02);
-  iecHousing.name = "IEC_Inlet_Housing";
+  iecHousing.name = "Body_IECInletHousing";
   bodyGroup.add(iecHousing);
   const iecFace = box(0.24, 0.16, 0.03, M(0x0a0c10, { r: 0.6 }));
   iecFace.position.set(iecX, IEC_Y, iecZ + 0.08);
-  iecFace.name = "IEC_Inlet";
+  iecFace.name = "Body_IECInlet";
   bodyGroup.add(iecFace);
   // Earth pin detail
   const iecPin = box(0.06, 0.04, 0.02, M(0xc8ccd0, { r: 0.35, m: 0.7 }));
@@ -478,13 +481,13 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   const boot = cyl(0.055, 0.04, 0.12, M(0x1f2937, { r: 0.75 }), 12);
   boot.rotation.x = Math.PI / 2;
   boot.position.set(iecX, IEC_Y - 0.02, iecZ + 0.14);
-  boot.name = "Cord_Strain_Relief";
+  boot.name = "Body_CordStrainRelief";
   bodyGroup.add(boot);
 
   // ── Fuse holder ────────────────────────────────────────────────────────────
   const fuseHolder = box(0.16, 0.12, 0.06, dark);
   fuseHolder.position.set(iecX + 0.28, IEC_Y - 0.08, iecZ + 0.01);
-  fuseHolder.name = "Fuse_Holder";
+  fuseHolder.name = "Body_FuseHolder";
   bodyGroup.add(fuseHolder);
   const fuseFace = box(0.10, 0.06, 0.02, M(0x333333, { r: 0.5 }));
   fuseFace.position.set(iecX + 0.28, IEC_Y - 0.08, iecZ + 0.045);
@@ -493,7 +496,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   // Power rocker switch
   const rockerSwitch = box(0.18, 0.10, 0.04, M(0x111111, { r: 0.7 }));
   rockerSwitch.position.set(iecX, IEC_Y + 0.22, iecZ + 0.01);
-  rockerSwitch.name = "Power_Switch_Rear";
+  rockerSwitch.name = "Btn_PowerSwitchRear";
   bodyGroup.add(rockerSwitch);
   const rocker = box(0.12, 0.06, 0.02, M(0xcc0000, { r: 0.4 }));
   rocker.position.set(iecX, IEC_Y + 0.22, iecZ + 0.035);
@@ -520,7 +523,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
     const head = cyl(0.022, 0.022, 0.012, screwMat, 10);
     head.rotation.z = Math.PI / 2;
     head.position.set(sx, sy, sz);
-    head.name = `Body_Screw_${i}`;
+    head.name = `Fastener_Screw_${i}`;
     bodyGroup.add(head);
     // Phillips slot
     const slot1 = box(0.018, 0.003, 0.003, M(0x111111, { r: 0.7 }));
@@ -536,11 +539,11 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   for (const x of [BASIN_OFFSET_X - cutoutW / 3, BASIN_OFFSET_X + cutoutW / 3]) {
     const base = box(0.2, 0.025, 0.16, rubber);
     base.position.set(x, DECK_Y + 0.012, stopZ);
-    base.name = "Lid_Stopper_Pad";
+    base.name = "Body_LidStopperPad";
     bodyGroup.add(base);
     const bump = cyl(0.055, 0.06, 0.045, rubber, 16);
     bump.position.set(x, DECK_Y + 0.04, stopZ);
-    bump.name = "Lid_Stopper";
+    bump.name = "Body_LidStopper";
     bodyGroup.add(bump);
     const ring = new THREE.Mesh(
       new THREE.TorusGeometry(0.04, 0.008, 6, 16), metalStop
@@ -550,7 +553,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
     bodyGroup.add(ring);
   }
 
-  // ── Rating label (rear, bottom) ────────────────────────────────────────────
+  // ── Rating label (rear, bottom) ────────────────────────────────────
   const rlCanvas = document.createElement("canvas");
   rlCanvas.width = 256; rlCanvas.height = 128;
   const rlCtx = rlCanvas.getContext("2d");
@@ -563,13 +566,14 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   rlCtx.fillText("SRE designs.com", 10, 72);
   rlCtx.fillText("SERIAL: UC-2026-0001", 10, 96);
   const rlTex = new THREE.CanvasTexture(rlCanvas);
+  rlTex.flipY = false;
   rlTex.colorSpace = THREE.SRGBColorSpace;
   const ratingLabel = new THREE.Mesh(
     new THREE.PlaneGeometry(0.5, 0.25),
     new THREE.MeshStandardMaterial({ map: rlTex, roughness: 0.5, metalness: 0.1 })
   );
   ratingLabel.position.set(BASIN_OFFSET_X, BASE_Y + 0.22, D / 2 + 0.012);
-  ratingLabel.name = "Rating_Label";
+  ratingLabel.name = "Body_RatingLabel";
   bodyGroup.add(ratingLabel);
 
   root.add(bodyGroup);
@@ -587,7 +591,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   // Control fascia panel (recessed dark plate)
   const fascia = box(fasciaW, fasciaH, 0.06, M(0x111827, { r: 0.35, m: 0.08 }));
   fascia.position.set(fasciaX, fasciaY, fasciaZ - 0.01);
-  fascia.name = "Control_Fascia";
+  fascia.name = "Body_ControlFascia";
   consoleG.add(fascia);
 
   // Fascia border trim
@@ -621,13 +625,13 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   const lcdMesh = new THREE.Mesh(new THREE.PlaneGeometry(lcdW, lcdH), lcdMat);
   lcdMesh.rotation.y = Math.PI;  // face -Z toward viewer
   lcdMesh.position.set(fasciaX, fasciaY + fasciaH * 0.2, fasciaZ - 0.045);
-  lcdMesh.name = "LCD_Display";
+  lcdMesh.name = "UI_LCD";
   consoleG.add(lcdMesh);
 
   // LCD bezel (raised frame)
   const lcdBezelOuter = box(lcdW + 0.08, lcdH + 0.06, 0.025, dark);
   lcdBezelOuter.position.set(fasciaX, fasciaY + fasciaH * 0.2, fasciaZ - 0.032);
-  lcdBezelOuter.name = "LCD_Bezel";
+  lcdBezelOuter.name = "Body_LCDBezel";
   consoleG.add(lcdBezelOuter);
 
   // ── Up/Down Buttons (Timer and Temp) ────────────────────────────────────────
@@ -637,7 +641,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
     const faceMat = keyFaceMaterial(label, bgHex, fgHex);
     const btn = makeKey(label, adjBtnW, adjBtnH, adjBtnD, parseInt(bgHex.replace('#',''), 16), faceMat);
     btn.position.set(x, y, fasciaZ - 0.045);
-    btn.name = `btn_${label.toLowerCase().replace(/[^a-z]/g, '_')}`;
+    btn.name = `Btn_${keyId.replace(/-/g, '_')}`;
     btn.userData.keyId = keyId;
     consoleG.add(btn);
     return btn;
@@ -657,9 +661,11 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   tlCtx.font = "bold 20px monospace";
   tlCtx.textAlign = "center";
   tlCtx.fillText("TIMER", 64, 30);
+  const tlTex = new THREE.CanvasTexture(tlCanvas);
+  tlTex.flipY = false;
   const tlMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(0.14, 0.05),
-    new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(tlCanvas), roughness: 0.5 })
+    new THREE.MeshStandardMaterial({ map: tlTex, roughness: 0.5 })
   );
   tlMesh.rotation.y = Math.PI;
   tlMesh.position.set(timerCX, timerAdjY + 0.08, fasciaZ - 0.045);
@@ -684,9 +690,11 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   ttCtx.font = "bold 20px monospace";
   ttCtx.textAlign = "center";
   ttCtx.fillText("TEMP °C", 64, 30);
+  const ttTex = new THREE.CanvasTexture(ttCanvas);
+  ttTex.flipY = false;
   const ttMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(0.14, 0.05),
-    new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(ttCanvas), roughness: 0.5 })
+    new THREE.MeshStandardMaterial({ map: ttTex, roughness: 0.5 })
   );
   ttMesh.rotation.y = Math.PI;
   ttMesh.position.set(tempCX, tempAdjY + 0.08, fasciaZ - 0.045);
@@ -716,7 +724,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
     const faceMat = keyFaceMaterial(def.label, def.bg, def.fg);
     const btn = makeKey(def.label, btnW, btnH, btnD, def.hex, faceMat);
     btn.position.set(btnStartX + i * btnSpacing, btnRow, btnZ);
-    btn.name = `btn_${def.id}`;
+    btn.name = `Btn_${def.id}`;
     btn.userData.keyId = def.id;
     consoleG.add(btn);
     buttons[def.id] = { mesh: btn, faceMat };
@@ -745,14 +753,14 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   for (const sz of [-1, 1]) {
     const strip = box(fW, flangeH, flangeT, ss304);
     strip.position.set(BASIN_OFFSET_X, DECK_Y + flangeH / 2, sz * (fD / 2 - flangeT / 2));
-    strip.name = `Basin_Rim_${sz > 0 ? 'Back' : 'Front'}`;
+    strip.name = `Body_BasinRim_${sz > 0 ? 'Back' : 'Front'}`;
     basinGroup.add(strip);
   }
   // Left/Right flange strips (shorter to not overlap corners)
   for (const sx of [-1, 1]) {
     const strip = box(flangeT, flangeH, fD - 2 * flangeT, ss304);
     strip.position.set(BASIN_OFFSET_X + sx * (fW / 2 - flangeT / 2), DECK_Y + flangeH / 2, 0);
-    strip.name = `Basin_Rim_${sx > 0 ? 'Right' : 'Left'}`;
+    strip.name = `Body_BasinRim_${sx > 0 ? 'Right' : 'Left'}`;
     basinGroup.add(strip);
   }
 
@@ -766,14 +774,14 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   for (const sz of [-1, 1]) {
     const strip = box(rimOW, rimEdgeH, rimEdgeT, rimEdgeMat);
     strip.position.set(BASIN_OFFSET_X, DECK_Y + 0.04, sz * rimOD / 2);
-    strip.name = `Basin_Rim_Edge_${sz > 0 ? 'Back' : 'Front'}`;
+    strip.name = `Body_BasinRimEdge_${sz > 0 ? 'Back' : 'Front'}`;
     basinGroup.add(strip);
   }
   // Left/Right edge strips
   for (const sx of [-1, 1]) {
     const strip = box(rimEdgeT, rimEdgeH, rimOD, rimEdgeMat);
     strip.position.set(BASIN_OFFSET_X + sx * rimOW / 2, DECK_Y + 0.04, 0);
-    strip.name = `Basin_Rim_Edge_${sx > 0 ? 'Right' : 'Left'}`;
+    strip.name = `Body_BasinRimEdge_${sx > 0 ? 'Right' : 'Left'}`;
     basinGroup.add(strip);
   }
 
@@ -783,28 +791,28 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
 
   const bFront = box(BASIN_W, bWallH, BASIN_T, ss304Int);
   bFront.position.set(BASIN_OFFSET_X, bWallY, -BASIN_D / 2 + BASIN_T / 2);
-  bFront.name = "Basin_Front";
+  bFront.name = "Body_BasinFront";
   basinGroup.add(bFront);
 
   const bBack = box(BASIN_W, bWallH, BASIN_T, ss304Int);
   bBack.position.set(BASIN_OFFSET_X, bWallY, BASIN_D / 2 - BASIN_T / 2);
-  bBack.name = "Basin_Back";
+  bBack.name = "Body_BasinBack";
   basinGroup.add(bBack);
 
   const bLeft = box(BASIN_T, bWallH, BASIN_D - 2 * BASIN_T, ss304Int);
   bLeft.position.set(BASIN_OFFSET_X - BASIN_W / 2 + BASIN_T / 2, bWallY, 0);
-  bLeft.name = "Basin_Left";
+  bLeft.name = "Body_BasinLeft";
   basinGroup.add(bLeft);
 
   const bRight = box(BASIN_T, bWallH, BASIN_D - 2 * BASIN_T, ss304Int);
   bRight.position.set(BASIN_OFFSET_X + BASIN_W / 2 - BASIN_T / 2, bWallY, 0);
-  bRight.name = "Basin_Right";
+  bRight.name = "Body_BasinRight";
   basinGroup.add(bRight);
 
   // Basin floor
   const bFloor = box(BASIN_W - 2 * BASIN_T, BASIN_T, BASIN_D - 2 * BASIN_T, ss304Int);
   bFloor.position.set(BASIN_OFFSET_X, BASIN_FLOOR_Y + BASIN_T / 2, 0);
-  bFloor.name = "Basin_Floor";
+  bFloor.name = "Body_BasinFloor";
   basinGroup.add(bFloor);
 
   // Fill level markings
@@ -812,7 +820,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   for (const [label, frac] of [["MAX", 0.35], ["MIN", -0.15]]) {
     const mark = box(0.003, 0.003, 0.15, markMat);
     mark.position.set(BASIN_OFFSET_X + BASIN_W / 2 - BASIN_T - 0.01, bWallY + bWallH * frac, 0);
-    mark.name = `Mark_${label}`;
+    mark.name = `Body_Mark_${label}`;
     basinGroup.add(mark);
   }
 
@@ -823,11 +831,11 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   const drainBody = cyl(0.04, 0.04, 0.12, ss304, 12);
   drainBody.rotation.z = Math.PI / 2;
   drainBody.position.set(drainX, drainY, drainZ);
-  drainBody.name = "Drain_Valve";
+  drainBody.name = "Body_DrainValve";
   basinGroup.add(drainBody);
   const drainHandle = box(0.08, 0.015, 0.015, M(0xdd3333, { r: 0.4 }));
   drainHandle.position.set(drainX + 0.06, drainY + 0.04, drainZ);
-  drainHandle.name = "Drain_Handle";
+  drainHandle.name = "Knob_DrainHandle";
   basinGroup.add(drainHandle);
 
   root.add(basinGroup);
@@ -913,7 +921,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
     // Vertical arm
     const arm = cyl(handleRod, handleRod, handleH, basketMat, 8);
     arm.position.set(side * (basketW / 2 + 0.02), rimY + handleH / 2, 0);
-    arm.name = `Basket_Handle_${side > 0 ? "R" : "L"}`;
+    arm.name = `Body_BasketHandle_${side > 0 ? "R" : "L"}`;
     basketGroup.add(arm);
     // Horizontal hook
     const hook = cyl(handleRod, handleRod, 0.06, basketMat, 8);
@@ -940,7 +948,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   // Lid plate extends FORWARD from hinge (toward -Z)
   const lidPlate = box(lidW, LID_H, lidD_total, ss304);
   lidPlate.position.set(0, LID_H / 2, -lidD_total / 2);
-  lidPlate.name = "Lid_Plate";
+  lidPlate.name = "Body_LidPlate";
   lidGroup.add(lidPlate);
 
   // Chamfer strips along lid edges
@@ -970,7 +978,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   // Handle (pull tab on front edge of lid)
   const handle = box(0.3, 0.03, 0.07, dark);
   handle.position.set(0, LID_H + 0.015, -lidD_total + 0.04);
-  handle.name = "Lid_Handle";
+  handle.name = "Body_LidHandle";
   lidGroup.add(handle);
   const gripInset = box(0.24, 0.018, 0.04, M(0x555555, { r: 0.6, m: 0.1 }));
   gripInset.position.set(0, LID_H + 0.02, -lidD_total + 0.04);
@@ -980,7 +988,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   const hingeBarrel = cyl(0.025, 0.025, lidW * 0.6, alum, 12);
   hingeBarrel.rotation.z = Math.PI / 2;
   hingeBarrel.position.set(0, 0, 0.02);
-  hingeBarrel.name = "Hinge_Barrel";
+  hingeBarrel.name = "Pivot_HingeBarrel";
   lidGroup.add(hingeBarrel);
 
   root.add(lidGroup);
@@ -1000,7 +1008,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
     new THREE.BoxGeometry(fluidW, fluidH, fluidD), fluidMat
   );
   fluidMesh.position.set(BASIN_OFFSET_X, BASIN_FLOOR_Y + fluidH / 2 + 0.02, 0);
-  fluidMesh.name = "Cleaning_Fluid";
+  fluidMesh.name = "Body_CleaningFluid";
   fluidGroup.add(fluidMesh);
 
   // Cavitation particles
@@ -1018,7 +1026,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
     blending: THREE.AdditiveBlending,
   });
   const cavitationParticles = new THREE.Points(pGeo, pMat);
-  cavitationParticles.name = "Cavitation_Particles";
+  cavitationParticles.name = "Body_CavitationParticles";
   cavitationParticles.visible = false;
   fluidGroup.add(cavitationParticles);
 
@@ -1034,14 +1042,14 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   // ── EMI Line Filter ────────────────────────────────────────────────────────
   const emiFilter = box(0.22, 0.12, 0.08, M(0x222222, { r: 0.6, m: 0.1 }));
   emiFilter.position.set(elecCX, IEC_Y - 0.22, D / 2 - WALL_T - 0.08);
-  emiFilter.name = "EMI_Filter";
+  emiFilter.name = "Body_EMIFilter";
   driveGroup.add(emiFilter);
 
   // ── Driver PCB (40kHz generator) ───────────────────────────────────────────
   const driverY = elecFloor + 0.35;
   const driverPCB = box(0.55, 0.018, 0.35, pcbGreen);
   driverPCB.position.set(elecCX, driverY, 0.1);
-  driverPCB.name = "Driver_PCB";
+  driverPCB.name = "Body_DriverPCB";
   driveGroup.add(driverPCB);
 
   // PCB trace pattern (copper traces)
@@ -1067,7 +1075,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   for (let i = 0; i < 2; i++) {
     const mosfet = box(0.04, 0.065, 0.018, M(0x111111, { r: 0.5, m: 0.2 }));
     mosfet.position.set(elecCX - 0.12 + i * 0.1, driverY + 0.04, 0.1 + 0.12);
-    mosfet.name = `MOSFET_${i}`;
+    mosfet.name = `Body_MOSFET_${i}`;
     driveGroup.add(mosfet);
     const tab = box(0.035, 0.05, 0.002, alum);
     tab.position.set(elecCX - 0.12 + i * 0.1, driverY + 0.04, 0.1 + 0.13);
@@ -1084,7 +1092,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   const hsW = 0.22, hsH = 0.20, hsD = 0.08;
   const heatsink = box(hsW, hsH, hsD, alum);
   heatsink.position.set(elecCX - 0.18, driverY + 0.04, D / 2 - WALL_T - hsD / 2 - 0.02);
-  heatsink.name = "Heatsink";
+  heatsink.name = "Body_Heatsink";
   driveGroup.add(heatsink);
   for (let i = 0; i < 8; i++) {
     const fin = box(0.005, hsH - 0.02, hsD - 0.01, alum);
@@ -1093,14 +1101,14 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
       heatsink.position.y,
       heatsink.position.z
     );
-    fin.name = `Heatsink_Fin_${i}`;
+    fin.name = `Body_HeatsinkFin_${i}`;
     driveGroup.add(fin);
   }
 
   // Transformer
   const transformer = cyl(0.06, 0.06, 0.08, M(0x333333, { r: 0.7 }), 12);
   transformer.position.set(elecCX + 0.12, driverY + 0.05, 0.1);
-  transformer.name = "Transformer";
+  transformer.name = "Body_Transformer";
   driveGroup.add(transformer);
   const winding = cyl(0.065, 0.065, 0.06, copper, 12);
   winding.position.set(elecCX + 0.12, driverY + 0.05, 0.1);
@@ -1110,7 +1118,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   for (let i = 0; i < 2; i++) {
     const cap = cyl(0.035, 0.035, 0.10, M(0x1a3a6a, { r: 0.4, m: 0.1 }), 12);
     cap.position.set(elecCX + 0.02 + i * 0.09, driverY + 0.06, -0.05);
-    cap.name = `Filter_Cap_${i}`;
+    cap.name = `Body_FilterCap_${i}`;
     driveGroup.add(cap);
     // Silver stripe
     const stripe = cyl(0.036, 0.036, 0.01, alum, 12);
@@ -1121,14 +1129,14 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   // Rectifier bridge
   const rectifier = box(0.04, 0.04, 0.04, M(0x111111, { r: 0.5, m: 0.1 }));
   rectifier.position.set(elecCX + 0.2, driverY + 0.03, 0.2);
-  rectifier.name = "Rectifier_Bridge";
+  rectifier.name = "Body_RectifierBridge";
   driveGroup.add(rectifier);
 
   // ── Controller PCB ─────────────────────────────────────────────────────────
   const ctrlY = elecFloor + 0.65;
   const ctrlPCB = box(0.50, 0.018, 0.30, pcbDark);
   ctrlPCB.position.set(elecCX, ctrlY, -0.05);
-  ctrlPCB.name = "Controller_PCB";
+  ctrlPCB.name = "Body_ControllerPCB";
   driveGroup.add(ctrlPCB);
 
   // Controller board traces
@@ -1141,7 +1149,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   // MCU (QFP-48)
   const mcu = box(0.05, 0.01, 0.05, M(0x1a1a1a, { r: 0.5 }));
   mcu.position.set(elecCX - 0.08, ctrlY + 0.014, -0.05);
-  mcu.name = "MCU_Chip";
+  mcu.name = "Body_MCUChip";
   driveGroup.add(mcu);
   // MCU dot (pin 1 marker)
   const mcuDot = cyl(0.003, 0.003, 0.003, M(0xffffff, { r: 0.5 }), 6);
@@ -1151,19 +1159,19 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   // Crystal oscillator
   const crystal = box(0.02, 0.008, 0.01, M(0xc0c0c0, { r: 0.3, m: 0.6 }));
   crystal.position.set(elecCX - 0.06, ctrlY + 0.014, -0.08);
-  crystal.name = "Crystal_Osc";
+  crystal.name = "Body_CrystalOsc";
   driveGroup.add(crystal);
 
   // Heater relay
   const relay = box(0.06, 0.05, 0.04, M(0x2244aa, { r: 0.5, m: 0.1 }));
   relay.position.set(elecCX + 0.15, ctrlY + 0.035, -0.05);
-  relay.name = "Heater_Relay";
+  relay.name = "Body_HeaterRelay";
   driveGroup.add(relay);
 
   // LCD connector header
   const lcdHeader = box(0.08, 0.025, 0.015, M(0xf0f0f0, { r: 0.4 }));
   lcdHeader.position.set(elecCX - 0.15, ctrlY + 0.018, -0.18);
-  lcdHeader.name = "LCD_Connector";
+  lcdHeader.name = "Body_LCDConnector";
   driveGroup.add(lcdHeader);
 
   // ── Piezoelectric Transducers ──────────────────────────────────────────────
@@ -1180,7 +1188,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
     const [px, py, pz] = piezoPositions[i];
     const piezo = cyl(piezoR, piezoR, piezoH, piezoMat, 16);
     piezo.position.set(px, py, pz);
-    piezo.name = `Piezo_${i}`;
+    piezo.name = `Body_Piezo_${i}`;
     driveGroup.add(piezo);
     // Adhesive ring
     const adhesive = new THREE.Mesh(
@@ -1195,14 +1203,14 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   // Heater pad
   const heaterPad = box(BASIN_W * 0.6, 0.015, BASIN_D * 0.5, copper);
   heaterPad.position.set(BASIN_OFFSET_X, BASIN_FLOOR_Y - 0.02, 0);
-  heaterPad.name = "Heater_Pad";
+  heaterPad.name = "Body_HeaterPad";
   driveGroup.add(heaterPad);
 
   // Thermistor
   const thermistor = cyl(0.012, 0.012, 0.015, M(0x996633, { r: 0.6 }), 8);
   thermistor.rotation.z = Math.PI / 2;
   thermistor.position.set(BASIN_OFFSET_X + BASIN_W / 2 - 0.05, BASIN_FLOOR_Y + 0.15, 0);
-  thermistor.name = "Temp_Sensor";
+  thermistor.name = "Body_TempSensor";
   driveGroup.add(thermistor);
 
   // ── Internal Wiring ────────────────────────────────────────────────────────
@@ -1215,7 +1223,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
     [iecX, IEC_Y - 0.10, D / 2 - WALL_T - 0.04],
     [elecCX, IEC_Y - 0.22, D / 2 - WALL_T - 0.06],
     [elecCX, driverY + 0.02, 0.1 + 0.16],
-  ], wR, 0x8B4513, 32), { name: "W01_MainsLive" }));
+  ], wR, 0x8B4513, 32), { name: "Body_W01MainsLive" }));
 
   // W02: Neutral
   driveGroup.add(Object.assign(makeCable([
@@ -1223,27 +1231,27 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
     [iecX + 0.04, IEC_Y - 0.12, D / 2 - WALL_T - 0.04],
     [elecCX + 0.04, IEC_Y - 0.22, D / 2 - WALL_T - 0.06],
     [elecCX + 0.04, driverY + 0.02, 0.1 + 0.14],
-  ], wR, 0x1E90FF, 32), { name: "W02_MainsNeutral" }));
+  ], wR, 0x1E90FF, 32), { name: "Body_W02MainsNeutral" }));
 
   // W03: PE Ground
   driveGroup.add(Object.assign(makeCable([
     [iecX - 0.04, IEC_Y + 0.02, D / 2 - 0.05],
     [iecX - 0.04, IEC_Y, D / 2 - WALL_T - 0.03],
     [-W / 2 + WALL_T + 0.04, IEC_Y - 0.05, D / 2 - WALL_T - 0.03],
-  ], wR, 0x9ACD32, 24), { name: "W03_PE_Ground" }));
+  ], wR, 0x9ACD32, 24), { name: "Body_W03PEGround" }));
 
   // W04-W05: DC bus
   driveGroup.add(Object.assign(makeCable([
     [elecCX - 0.08, driverY + 0.01, -0.02],
     [elecCX - 0.08, ctrlY - 0.02, -0.04],
     [elecCX - 0.08, ctrlY + 0.01, -0.05],
-  ], tR, 0xDC143C, 16), { name: "W04_DC_BusPos" }));
+  ], tR, 0xDC143C, 16), { name: "Body_W04DCBusPos" }));
 
   driveGroup.add(Object.assign(makeCable([
     [elecCX - 0.04, driverY + 0.01, -0.02],
     [elecCX - 0.04, ctrlY - 0.02, -0.06],
     [elecCX - 0.04, ctrlY + 0.01, -0.07],
-  ], tR, 0x1a1a1a, 16), { name: "W05_DC_BusNeg" }));
+  ], tR, 0x1a1a1a, 16), { name: "Body_W05DCBusNeg" }));
 
   // W06-W09: Transducer wiring
   for (let i = 0; i < 4; i++) {
@@ -1254,7 +1262,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
       [leftWallXi + 0.02, BASIN_FLOOR_Y - 0.05, 0.05],
       [px - 0.02, BASIN_FLOOR_Y - 0.04, pz],
       [px, py - piezoH / 2, pz],
-    ], tR, i % 2 === 0 ? 0xDC143C : 0x1a1a1a, 32), { name: `W0${6 + i}_Piezo_${i}` }));
+    ], tR, i % 2 === 0 ? 0xDC143C : 0x1a1a1a, 32), { name: `Body_W0${6 + i}Piezo_${i}` }));
   }
 
   // W10: Heater
@@ -1264,7 +1272,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
     [leftWallXi + 0.04, BASIN_FLOOR_Y - 0.04, -0.03],
     [BASIN_OFFSET_X - 0.2, BASIN_FLOOR_Y - 0.03, 0],
     [BASIN_OFFSET_X, BASIN_FLOOR_Y - 0.02, 0],
-  ], tR, 0xF5F5F5, 32), { name: "W10_HeaterPower" }));
+  ], tR, 0xF5F5F5, 32), { name: "Body_W10HeaterPower" }));
 
   // W11: Temp probe
   driveGroup.add(Object.assign(makeCable([
@@ -1272,7 +1280,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
     [partitionX + 0.06, ctrlY - 0.1, -0.02],
     [partitionX + 0.06, BASIN_FLOOR_Y + 0.12, 0],
     [BASIN_OFFSET_X + BASIN_W / 2 - 0.06, BASIN_FLOOR_Y + 0.15, 0],
-  ], tR * 0.7, 0xFFD700, 24), { name: "W11_TempProbe" }));
+  ], tR * 0.7, 0xFFD700, 24), { name: "Body_W11TempProbe" }));
 
   // W12: Console harness
   driveGroup.add(Object.assign(makeCable([
@@ -1280,7 +1288,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
     [leftWallXi + 0.06, ctrlY, -D / 2 + WALL_T + 0.12],
     [leftWallXi + 0.06, fasciaY, -D / 2 + WALL_T + 0.06],
     [fasciaX, fasciaY, fasciaZ + 0.04],
-  ], wR * 1.2, 0x808080, 32), { name: "W12_ConsoleHarness" }));
+  ], wR * 1.2, 0x808080, 32), { name: "Body_W12ConsoleHarness" }));
 
   // Cable ties
   const tieMat = M(0xf0f0f0, { r: 0.5 });
@@ -1296,7 +1304,7 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
       new THREE.TorusGeometry(0.025, 0.004, 4, 12), tieMat
     );
     tie.position.set(tx, ty, tz);
-    tie.name = `Cable_Tie_${i}`;
+    tie.name = `Fastener_CableTie_${i}`;
     driveGroup.add(tie);
   }
 
@@ -1329,13 +1337,13 @@ export function createUltrasonicCleanerModel(lcdTexture, opts = {}) {
   };
 
   function getPartGroup(name) {
-    if (/Body_|Foot_|Plinth|Deck_|Seam|Vent_|IEC_|Fuse|Switch|Badge|Rating|Screw|Stopper|Boot|Cord_Strain/i.test(name)) return "Chassis";
-    if (/Console|LCD|btn_|LED_|Knob_|Fascia|Bezel|Trim/i.test(name)) return "Controls";
-    if (/Basin_|Rim|Mark_|Drain|Torus/i.test(name)) return "Tank";
-    if (/Basket_|Handle/i.test(name)) return "Basket";
-    if (/Lid_|Gasket|Hinge|Handle|Chamfer/i.test(name)) return "Lid";
+    if (/Console|LCD|Btn_|LED_|Knob_|Fascia|Bezel|Trim/i.test(name)) return "Controls";
+    if (/Basin|Rim|Mark_|Drain|Torus/i.test(name)) return "Tank";
+    if (/Basket/i.test(name)) return "Basket";
+    if (/Lid|Gasket|Hinge|Chamfer/i.test(name)) return "Lid";
     if (/Fluid|Cavitation/i.test(name)) return "Fluid";
-    if (/PCB|Driver|Controller|MOSFET|Heatsink|Fin|Transform|Cap_|Rectifier|MCU|Relay|Connector|EMI|Piezo|Heater|Temp_|Cable_Tie|W0\d|Crystal|Winding/i.test(name)) return "Electronics";
+    if (/PCB|Driver|Controller|MOSFET|Heatsink|Fin|Transform|Cap|Rectifier|MCU|Relay|Connector|EMI|Piezo|Heater|Temp|CableTie|Cable_Tie|W0\d|W1\d|Crystal|Winding/i.test(name)) return "Electronics";
+    if (/Body_|Foot_|Plinth|Deck|Seam|Vent|IEC|Fuse|Switch|Badge|Rating|Screw|Stopper|Boot|Cord/i.test(name)) return "Chassis";
     return "Other";
   }
 

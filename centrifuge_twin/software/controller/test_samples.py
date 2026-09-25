@@ -95,25 +95,29 @@ def test_remix():
     assert_true(not c.lab.tubes[ids[0]].separated)
 
 
+import unittest
+
+class TestCentrifugeSamples(unittest.TestCase):
+    def test_blood_separates_after_run(self):
+        test_blood_separates_after_run()
+
+    def test_unload_to_rack(self):
+        test_unload_to_rack()
+
+    def test_cannot_handle_tubes_while_running(self):
+        test_cannot_handle_tubes_while_running()
+
+    def test_pcr_min_conditions(self):
+        test_pcr_min_conditions()
+
+    def test_remix(self):
+        test_remix()
+
+
 def main():
-    tests = [
-        test_blood_separates_after_run,
-        test_unload_to_rack,
-        test_cannot_handle_tubes_while_running,
-        test_pcr_min_conditions,
-        test_remix,
-    ]
-    failed = 0
-    for t in tests:
-        try:
-            t()
-            print(f"  OK  {t.__name__}")
-        except Exception as e:
-            failed += 1
-            print(f"  FAIL {t.__name__}: {e}")
-    print(f"\n{len(tests) - failed}/{len(tests)} passed")
-    return 1 if failed else 0
+    unittest.main()
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    unittest.main()
+
