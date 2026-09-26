@@ -8,7 +8,7 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { VortexMixer3D } from './vortex_mixer3d.js';
+import { VortexMixer3D } from './vortex_mixer3d.js?v=20260926-vortex-gold-v4';
 import { VortexSFX } from './sfx.js';
 
 // --- State Definition ---

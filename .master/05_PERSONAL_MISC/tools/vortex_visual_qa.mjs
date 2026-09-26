@@ -56,6 +56,8 @@ async function audit() {
   await send('Page.enable');
   await send('Runtime.enable');
   await send('Page.reload', { ignoreCache: true });
+  exceptions.length = 0;
+  consoleMessages.length = 0;
   console.log('Page reloaded, waiting 3.5s for WebGL initialization...');
   await new Promise(r => setTimeout(r, 3500));
 
