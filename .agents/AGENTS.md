@@ -9,19 +9,25 @@ washer, bracket, gasket, and individual part of a twin must be fully modeled in 
 - Do not bake micro-fasteners into flat 2D normal maps out of fear of file size.
 - Recreate the exact CAD models down to the finest mechanical detail.
 
-## 2. 5-Agent Hybrid CAD-to-Web Pipeline
+## 2. Specialized Subagent Puzzle Architecture (The Centrifuge Standard)
 
-All machine twins follow the 5-Agent Handoff Chain:
+*"The idea is that we have subagents and they each are in charge of a little piece of the puzzle. Go and study the centrifuge it is just about perfect as far as what I want and expect in every machine."*
 
-1. **MDRA** (Research & Blueprints): Extract 1:1 mm dimensions and create the Parametric BOM.
-2. **CAD-BA** (Blender CAD Builder): Script the physical solids in Blender Python (`bpy`), carving flush recessed bezels
-   with real CAD booleans, modeling true kinematic pivot origins, and applying the Semantic Part Taxonomy.
-3. **WEB-BA** (Three.js Web Runtime): Integrate the exported model into the web viewer, binding the live dynamic HTML5
-   `CanvasTexture` to `UI_LCD` (`flipY = false`), wiring raycaster clicks to `Btn_*`, and controlling `Pivot_*`
-   transforms.
-4. **VQA** (Visual QA Auditor): Execute preflight visual audits from 4 standardized camera viewpoints (`CAM_ISO`,
-   `CAM_FRONT`, `CAM_SIDE`, `CAM_EXPLODED`) using `browser_subagent`.
-5. **LIA** (Lab Integration): Register the verified twin into `lab_viewer/machines/registry.js` on the shared lab desk.
+All machine twins follow the 13-Subagent Puzzle Architecture, where each subagent owns an isolated domain of the build and verifies against specific gates in `.agents/MASTER_PREFLIGHT_CHECKLIST.md`:
+
+1. **`twin_spec_researcher`** (Research & Specifications): OEM manuals, blueprints, 1:1 dimensions, BOM, physical formulas (`docs/dimensions.md`, `docs/BOM.md`).
+2. **`twin_chassis_builder`** (External Housing & Enclosure): Structural unibody casting, seam lines, parting lines, louvers, knurled leveling feet at $Y=0$, carved flush recessed pockets, and `Badge_SREdesigns`.
+3. **`twin_power_circuit_engineer`** (Power & Circuit Continuity): Bench duplex outlet box (`Power_Receptacle_Duplex`), NEMA 5-15P plug, SJTOW cord, internal PSU (transformer, rectifier, filter caps, regulators), color-coded wiring harness, ground lug, and hard continuity logic (`isPluggedIn && switchOn`).
+4. **`twin_sensor_data_engineer`** (Sensors, Data & Telemetry): Physical tachometer (Hall / optical encoder), NTC stator thermistor, microswitches, ribbon cables to MCU, external communication ports (RS-232, USB-B, RJ45), and GLP analytical CSV export.
+5. **`twin_display_silkscreen_engineer`** (Display & Silkscreen Typography): Dedicated LCD quad (`UI_LCD`), dynamic high-DPI CanvasTexture (`flipY = false`), upright UVs (`1.0 - uv.getY()`), anti-reflective protective lens, unpowered blackout state, and high-DPI procedural silkscreen faceplates.
+6. **`twin_controls_ergonomics_engineer`** (Tactile Controls & Ergonomics): Dedicated physical button meshes (`Btn_*`), push key kinematics (0.8–1.2mm depress), knurled dials with calibrated clockwise increase, multi-position toggle switches with synchronized kinematic angles, and $\ge 3.5\text{ mm}$ ergonomic clearance.
+7. **`twin_internal_mechanics_builder`** (Internal Mechanics & Exploded View): Drive motor (laminated stator core, dual copper coils, rotor, bearings), cast iron ballast, elastomeric vibration isolation dampers, PCB, and clean vertical exploded view offsets ($\ge +80\text{--}120\text{ mm}$).
+8. **`twin_environment_lighting_director`** (Environment, Bench & Lighting): Standard lab room setting, black epoxy bench (`INSTRUMENT_BENCH`) at datum $Y=0$, backsplash, calibrated 3-point studio lighting, and standardized interactive toolbar sliders (Light, Mood, Zoom, Orbit).
+9. **`twin_labware_fluid_specialist`** (Labware & Fluid Dynamics): Authentic 1:1 consumable vessels (15 mL Falcon tube with graduations and fluted cap, 1.5 mL Eppendorf tubes with hinged snap-caps), 24-slot tube rack, natural ergonomic tilt angles, and parabolic fluid meniscus / vortex physics.
+10. **`twin_audio_sfx_synthesizer`** (Acoustics & Audio Synthesis): Procedural Web Audio API sound synthesizer (`sfx.js`): multi-harmonic motor whine scaling with RPM, resonant bench rumble, mechanical switch snaps, microswitch detents, relay thuds, and mute control.
+11. **`twin_controller_logic_engineer`** (Dual-Truth Logic & State Machine): Pure Python controller (`software/controller/<twin>_controller.py`) with 100% test pass rate (`test_controller.py`), locking state transitions and safety interlocks (lid, power, balance), mirrored in client JS runtime (`app.js`).
+12. **`twin_web_ui_architect`** (Web Shell & Interface): Gold standard collapsible side panels (`<aside class="instrument panel-collapsible">`, `<aside class="parts panel-collapsible">`, `<aside class="lab panel-collapsible">`), dark lab theme CSS (`--bg: #0c1016`), Part Explorer with isolate & wireframe mode, and zero console errors.
+13. **`twin_visual_qa_auditor`** (Visual QA Auditor & Preflight Gate): Automated CDP preflight audit capturing all 6 standardized viewpoints (`CAM_ISO`, `CAM_FRONT`, `CAM_SIDE`, `CAM_TOP`, `CAM_EXPLODED`, `STATE_ACTIVE`), closed-loop visual review using `view_file` on every screenshot, verification of zero browser console exceptions, controller unit test pass, and git deployment verification.
 
 ## 3. Strict Semantic Part Taxonomy Contract
 
