@@ -90,7 +90,7 @@ async function audit() {
   await snap('CAM_TOP');
 
   // 5. CAM_EXPLODED (Isometric separation of assemblies)
-  await send('Runtime.evaluate', { expression: `window.setCameraPreset('iso')` });
+  await send('Runtime.evaluate', { expression: `window.setCameraPreset('exploded')` });
   await new Promise(r => setTimeout(r, 800));
   await send('Runtime.evaluate', {
     expression: `(() => {
@@ -110,6 +110,7 @@ async function audit() {
       document.getElementById('btn-explode')?.classList.remove('active');
       window.state.explodeProgress = 0.0;
       window.mixer3d.setExploded(0.0);
+      window.setCameraPreset('iso');
     })()`
   });
   await new Promise(r => setTimeout(r, 1200));

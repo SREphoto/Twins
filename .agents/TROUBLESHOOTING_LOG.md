@@ -20,6 +20,15 @@ Cause Analysis, and Mathematical Fixes
 | **DIAG-011** | Sensor / Logic Inversion | Doors closed says "Air draft detected"; open says "Ready" | Asymptotic lerp float $>0$; `updateUI` not called on stable lerp | Snap lerp $<0.002$; threshold $>0.03$; reactive UI updates           |
 | **DIAG-012** | Z-Fighting / Coplanar    | Metal top of rear box flickers between white and grey     | `towerCasting` & `towerCap` both shared top plane at $Y = 2.450$ | Bound casting to $Y = 2.425$; place cap from $2.425$ to $2.450$      |
 | **DIAG-013** | Placement / Lighting     | Spirit level uncentered; casts shadow onto weighing base  | Off-center at $X = -1.38$; proud puck with `castShadow = true`   | Center at $X = -1.49, Z = -0.52$; flush recess; `castShadow = false` |
+| **DIAG-014** | Circuit / Power Reality  | Unplugged device running at 2400 RPM with active LCD      | Checklist compliance without physical circuit continuity logic   | Receptacle box on bench; plug inserted; unplugged cuts power to 0    |
+| **DIAG-015** | UV / Directional Mapping | Text/labels upside down or mirrored horizontally/vert     | `flipY=false` maps row 0 to $V=0$; no geometry UV buffer invert  | Invert UV buffer explicitly (`1.0 - uv.getY()`); upright validation  |
+| **DIAG-016** | Sloped Hull Alignment    | Submerged consoles; dark clipping slits piercing hull     | Hardcoding internal Z without solving sloped wall equation $Z(Y)$ | Solve exact casting face equation; carve bezel; seat proudly (+0.2mm)|
+| **DIAG-017** | Control Interface        | Blank, unlabeled buttons, dials, and toggle switches      | Mesh geometry created without high-DPI silkscreen overlays       | High-DPI silkscreen faceplate; calibrated scales & standard symbols  |
+| **DIAG-018** | Ergonomics & Layout      | Speed dial / knobs overlap display borders and telemetry  | Placing controls without accounting for dial skirts & radii      | Enforce $\ge 3.5\text{ mm}$ physical clearance between dial & screen |
+| **DIAG-019** | Industrial Fidelity      | Generic straight cylinder tube lacking labware features   | Abstract primitives used instead of authentic 1:1 labware geometry| 15 mL Falcon tube with conical tip, graduations, cap, & natural tilt |
+| **DIAG-020** | Kinematic Exposure       | Exploded view conceals internal motor/coils behind shell  | Shell chassis left at origin $(0,0,0)$ during exploded view      | Elevate unibody shell $+105\text{ mm}$ along vertical kinematic axis |
+| **DIAG-021** | Kinematic Direction      | Toggle lever points to TOUCH while running in CONTINUOUS  | Counter-clockwise Z-rotation treated as clockwise in 3D space    | Synchronize 3D rotational sign with silkscreen text and mode states  |
+| **DIAG-022** | Preflight QA / Framing   | Sample tube/cap cut off at top of camera frame; blind QA  | Tight camera framing; agent skipped visual inspection of renders | Total bounding box framing; mandatory `view_file` preflight audit    |
 
 ---
 
@@ -273,6 +282,150 @@ Cause Analysis, and Mathematical Fixes
   3. Explicitly set `castShadow = false` on all spirit level sub-meshes (`well`, `bezelRing`, `fluid`, `ring`,
      `bubbleMesh`, `dome`), eliminating all shadow projection onto the weighing box.
 
+
+---
+
+### DIAG-014: Circuit & Power Reality Failure (Unplugged Machine Operating / Magical Power)
+
+- **Visual Symptom**: The digital twin is actively running (motor spinning at $2400\text{ RPM}$, fluid violently vortexing,
+  LCD telemetry glowing bright cyan, status LED glowing bright green), while the power cord lies completely unplugged on
+  the benchtop with bare exposed brass prongs pointing into thin air.
+- **Why It Occurred**: "Checklist Tunnel Vision & Disconnected Compliance." The subagent treated "model a power cord" as
+  an isolated visual geometry checkbox, and "render active running state" as a separate runtime visual preset. The agent
+  never applied fundamental physical common sense: **an electrical appliance cannot possibly run unless it is connected
+  to electricity**.
+- **Physical Machine Reality**: In real laboratory environments, bench equipment plugs into an electrical outlet
+  (e.g., dual NEMA 5-15R duplex bench pedestal or wall raceway). If a machine is unplugged from the outlet, electrical
+  continuity is broken: $V = 0$, $I = 0$. The LCD display is completely black/unpowered, the motor is stopped at $0\text{ RPM}$,
+  the status LEDs are unlit, audio synthesizer is silent, and all agitation controls are non-operational.
+- **Enforced Rule (AGENTS.md & CAD Protocol)**:
+  - Every electrical twin must have its power state coupled to physical circuit continuity:
+    $$\text{Operating State} \equiv (\text{Plugged In} \land \text{Rear Power Switch ON} \land \text{Mode Active})$$
+  - Model a physical benchtop electrical receptacle box (`Power_Receptacle_Duplex`) seated on the bench surface.
+  - The power cord plug (`Power_Plug`) must be seated firmly inside the live receptacle by default.
+  - If the user or script unplugs the machine (`isPluggedIn = false`), the simulation must immediately cut 100% of power
+    (force $\text{RPM} = 0$, unlit screen, unlit LED, mute SFX).
+  - All power switches (rear rocker `Btn_Switch_RearPower`, front toggle `Btn_Switch_Mode`) must be wired into the circuit.
+
+---
+
+### DIAG-015: Inverted Textures & Directional UV Mapping ("Which Way Up and Down Are")
+
+- **Visual Symptom**: Silkscreen labels, control panel text, mode switch labels (`TOUCH`, `OFF`, `CONT`), speed markings
+  ($500\text{--}3200\text{ RPM}$), and brand badges (`Badge_SREdesigns`) render completely upside-down or mirrored.
+- **Why It Occurred**: Three.js standard texture loading enforces `flipY = false` to avoid GPU overhead and match WebGL
+  texture conventions. However, on standard `PlaneGeometry`, Canvas 2D row 0 (the top edge of the graphic) maps directly
+  to UV coordinate $V = 0$ (the **bottom** edge of the 3D geometry). Without explicit geometry UV attribute inversion,
+  the texture renders upside down.
+- **Why Naive Fixes Failed**: Applying negative scale matrices (`scale.x = -1` or `scale.y = -1`) reverses triangle
+  winding order, causing backface culling errors and raycaster hit failures. Applying `rotation.z = Math.PI` rotates
+  both axes, creating inverted text depending on surface normal angles.
+- **Enforced Rule (AGENTS.md & CAD Protocol)**:
+  - All static and dynamic canvas textures must use `texture.flipY = false`.
+  - The target quad geometry must explicitly invert its UV buffer coordinate along the appropriate axis:
+    $$V_{\text{corrected}} = 1.0 - V_{\text{original}}$$
+  - Verify every label visually upright from the camera front perspective (`CAM_FRONT`).
+
+---
+
+### DIAG-016: Submerged Meshes & Piercing Hull Slits (Sloped Wall Elevation Miscalculation)
+
+- **Visual Symptom**: Control consoles, keypads, or badges are partially or completely buried inside the solid metal
+  unibody housing, with outer plate corners protruding through the hull flanks as jagged dark clipping slits.
+- **Why It Occurred**: Extruded unibody housings often feature drafted/sloped front faces (e.g., $25^\circ$ slope from
+  the vertical datum). The outer surface coordinate is a function of height: $Z(Y) = Z_0 - (Y - Y_0)\tan(\theta)$.
+  The builder hardcoded an arbitrary internal $Z$ coordinate ($Z = 34.5\text{ mm}$ when the true outer face at
+  $Y = 62.0\text{ mm}$ is $Z = 42.28\text{ mm}$), placing the assembly $7.78\text{ mm}$ deep inside solid zinc casting.
+- **Enforced Rule (AGENTS.md & CAD Protocol)**:
+  - Never guess or hardcode mounting coordinates on sloped or contoured castings.
+  - Calculate exact surface coordinates mathematically using the extrusion profile equations.
+  - Carve dedicated recessed bezel pockets directly into the chassis geometry.
+  - Seat faceplates proud of the bezel floor with positive delta clearance ($+0.1\text{ to }+0.4\text{ mm}$).
+
+---
+
+### DIAG-017: Missing Physical Silkscreen & Control Labels (Unlabeled Interfaces)
+
+- **Visual Symptom**: Momentary pushbuttons, toggle switches, and rotary dials render as plain plastic or chrome
+  primitives with zero functional identification, leaving users unable to determine button roles.
+- **Why It Occurred**: CAD builder modeled 3D mechanical cylinders without generating the accompanying industrial
+  silkscreen graphic overlay plate.
+- **Enforced Rule (AGENTS.md & CAD Protocol)**:
+  - All control panels must feature high-DPI procedural silkscreen faceplates ($1024 \times 1024$ minimum).
+  - Explicitly silkscreen every tactile function (`TIMER`, `PULSE`), mode switch positions (`TOUCH`, `OFF`, `CONT`),
+    rotary potentiometer calibrations ($500\text{--}3200\text{ RPM}$ with radial tick marks), and electrical compliance
+    ratings (`DIN EN 61010-1`, electrical voltage/Hz/wattage).
+
+---
+
+### DIAG-018: Ergonomics & Control Occlusion (Overlapping Dial & Display Bezel)
+
+- **Visual Symptom**: The rotary speed control dial overlaps the bottom border of the digital LCD display, physically
+  occluding status telemetry lines and temperature readings.
+- **Why It Occurred**: Builder placed the potentiometer origin without calculating the full geometric radius of the
+  knob, including its knurled skirt and indicator bezel.
+- **Enforced Rule (AGENTS.md & CAD Protocol)**:
+  - Maintain a strict minimum physical clearance of $\ge 3.5\text{ mm}$ between the outer diameter of any control knob
+    and the edge of any display bezel, button, or adjacent switch.
+
+---
+
+### DIAG-019: Industrial Fidelity Failure (Unnatural Straight Tubes & Generic Primitives)
+
+- **Visual Symptom**: Sample tubes render as rigid, dead-vertical generic cylinders, floating unnaturally or lacking
+  authentic conical tips, volumetric graduations, frosted specimen patches, and grip flutes on the cap.
+- **Why It Occurred**: Use of placeholder cylinder geometry instead of authentic 1:1 laboratory consumables, and failure
+  to recreate natural hand-held ergonomic inclination.
+- **Enforced Rule (AGENTS.md & CAD Protocol)**:
+  - Procedurally model 1:1 authentic labware: 15 mL Falcon tube with conical tip, hemispherical apex, 14 silk-screened
+    graduation rings ($1\text{--}15\text{ mL}$), frosted write-on patch, and 24-flute royal blue screw cap.
+  - In vortex mixers, incline the vessel at a natural ergonomic hand-held angle ($14^\circ\text{--}16^\circ$ off-vertical)
+    pivoting from the rubber cup head apex.
+
+---
+
+### DIAG-020: Kinematic Exposure Failure (Opaque Shell Concealing Exploded Mechanics)
+
+- **Visual Symptom**: Toggling Exploded View lifts the cup head and tubes into the air, but the unibody shell remains
+  stationary at the origin $(0, 0, 0)$, acting as an opaque barrier that conceals the motor, coils, bearings, and PCB.
+- **Why It Occurred**: The subagent created extensive internal geometry but assigned an exploded offset of $(0, 0, 0)$
+  to the outer housing, completely defeating the purpose of the exploded view.
+- **Enforced Rule (AGENTS.md & CAD Protocol)**:
+  - In exploded view, the main chassis casting must elevate vertically ($+80\text{ to }+120\text{ mm}$) along clean
+    kinematic axes.
+  - Exploded view must fully expose all Tier-1 internal anatomy: cast iron ballast, elastomeric vibration dampers,
+    shaded-pole induction motor with laminated stator & dual copper coils, eccentric flywheel with counterweight, and
+    green FR4 controller PCB with transformer & finned heatsink.
+
+---
+
+### DIAG-021: Kinematic Directional Inversion (Reversed Switch / Dial Travel)
+
+- **Visual Symptom**: Setting mode to `CONTINUOUS` causes the toggle switch bat lever to point toward `TOUCH`; rotary
+  speed dials rotate counter-clockwise when increasing speed.
+- **Why It Occurred**: In Three.js, positive rotation around the local Z-axis rotates counter-clockwise. Applying positive
+  angles without accounting for panel coordinate signs caused the physical lever to move in the exact opposite direction
+  of the silkscreen text.
+- **Enforced Rule (AGENTS.md & CAD Protocol)**:
+  - Explicitly verify kinematic signs against panel typography. When `mode === 'CONTINUOUS'`, the lever must align with
+    the `CONT` silkscreen label. Dials must rotate clockwise to increase setpoints.
+
+---
+
+### DIAG-022: Viewport Clipping & Blind Preflight QA
+
+- **Visual Symptom**: The top of the sample tube and screw cap are cut off outside the top border of the camera frame
+  in `CAM_FRONT`, `CAM_ISO`, and `CAM_SIDE`; or the WebGL canvas renders pitch black on mobile viewports.
+- **Why It Occurred**: Camera preset positions used narrow field-of-view or tight target framing without calculating
+  the total vertical bounding box of the assembly ($Y_{\text{max}} = 252\text{ mm}$). Agents marked tasks complete
+  without using `view_file` to visually inspect rendered preflight screenshots.
+- **Enforced Rule (AGENTS.md & CAD Protocol)**:
+  - Mandatory preflight camera bounding box: Camera framing must encompass the entire vertical envelope of the instrument,
+    including sample tubes, cap, leveling feet, and power cords ($Y \in [0, 260\text{ mm}]$).
+  - Closed-Loop Visual QA: Agents are strictly prohibited from reporting a task complete until they execute `view_file`
+    on all 6 standardized high-resolution screenshots and confirm zero clipping, zero inversion, and 100% circuit
+    continuity.
+
 ---
 
 ## How to Use This Log in Future Visual Audits
@@ -288,3 +441,23 @@ Cause Analysis, and Mathematical Fixes
    and verify zero intersection with walls, cords, or adjacent equipment.
 5. **Aperture & Functional Opening Verification**: Ensure sliding covers expose true open apertures rather than sliding
    over solid underlying geometry.
+
+---
+
+## Mandatory Subagent Pre-Flight Audit Checklist (Zero-Tolerance Gate)
+
+Every subagent, builder, and auditor MUST execute and document this checklist for EVERY twin build before submitting work. Failing ANY check results in immediate build rejection:
+
+| # | Inspection Item | Failure Mode (What the User Saw) | Mandatory Pass Criteria |
+| :- | :--- | :--- | :--- |
+| **CHK-01** | **Physical Circuit Continuity** | Machine running while power plug is disconnected on the desk. | A physical electrical receptacle box (`Power_Receptacle_Duplex`) is modeled on the bench; plug is seated in the outlet; if unplugged, power drops to 0 (screen black, RPM = 0). |
+| **CHK-02** | **Texture & Canvas Orientation** | Text, numbers, or brand logos render upside down or mirrored. | Target geometry buffer has explicit UV inversion (`1.0 - uv.getY()`); all silkscreen text is 100% upright in `CAM_FRONT`. |
+| **CHK-03** | **Wall Elevation & Flush Seating** | Consoles buried in solid walls; plate corners piercing chassis as dark slits. | Faceplates seated mathematically on sloped unibody outer face with $+0.1\text{ to }+0.4\text{ mm}$ clearance; zero wall penetration. |
+| **CHK-04** | **Silkscreen Completeness** | Blank buttons, dials, and switches with no labels or ratings. | High-DPI silkscreen overlay present with calibrated scales ($500\text{--}3200\text{ RPM}$), button names (`TIMER`, `PULSE`), and mode labels (`TOUCH`, `OFF`, `CONT`). |
+| **CHK-05** | **Control-to-Display Clearance** | Knob or switch overlapping LCD panel border or occluding numbers. | $\ge 3.5\text{ mm}$ physical separation between rotary dials and display bezels. |
+| **CHK-06** | **Labware Procedural Fidelity** | Generic straight cylinder floating over cup head. | 1:1 procedural vessel (conical bottom, 14 volume rings, frosted write-on patch, fluted cap) with natural $14^\circ\text{--}16^\circ$ ergonomic tilt. |
+| **CHK-07** | **Exploded View Mechanical Exposure**| Shell chassis stationary, hiding motor, coils, ballast, and PCB. | Unibody housing lifts $\ge +100\text{ mm}$ along kinematic axis, completely exposing cast iron ballast, 4 dampers, motor, coils, and PCB. |
+| **CHK-08** | **Kinematic & Directional Alignment**| Switch lever pointing to TOUCH while running in CONTINUOUS. | Physical switch orientation and dial angles mathematically synchronize with silkscreen labels and active simulation state. |
+| **CHK-09** | **Camera Viewport Framing** | Vessel cap cut off at top of screen; blind completion without visual check. | Camera target and FOV encompass full vertical bounding box ($Y \in [0, 260\text{ mm}]$); agent visually audits all screenshots with `view_file`. |
+| **CHK-10** | **Brand Badge Quality & Boundaries** | Badge text clipped, overflowing borders, or non-standard styling. | Official `Badge_SREdesigns` component used; text strictly contained within boundaries with $\ge 1.5\text{ mm}$ margin. |
+

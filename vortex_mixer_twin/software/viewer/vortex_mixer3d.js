@@ -478,7 +478,7 @@ function createConsoleFaceplateTexture() {
   // X = +18 mm, Y = -9.0 mm -> px = 783, py = 424
   ctx.fillStyle = '#06b6d4';
   ctx.font = 'bold 18px system-ui, Segoe UI, Arial, sans-serif';
-  ctx.fillText('SPEED CONTROL', 783, 305);
+  ctx.fillText('SPEED CONTROL', 783, 285);
 
   const knobPx = 783;
   const knobPy = 424;
@@ -572,6 +572,10 @@ export class VortexMixer3D {
     this.ledPowerRun = null;
     this.ledMaterial = null;
     this.uiLcdMesh = null;
+    this.isPluggedIn = true;
+    this.plugGroup = null;
+    this.plugBlades = null;
+    this.rockerActuator = null;
 
     // Tube and liquid assemblies
     this.activeTubeGroup = null;
@@ -683,7 +687,7 @@ export class VortexMixer3D {
     });
 
     this.root.add(baseGroup);
-    this.explodedParts.push({ group: baseGroup, offset: new THREE.Vector3(0, -25, 0) });
+    this.explodedParts.push({ group: baseGroup, offset: new THREE.Vector3(0, -15, 0) });
   }
 
   _buildBallastAndSuspension() {
@@ -851,7 +855,7 @@ export class VortexMixer3D {
     motorGroup.add(groundLug);
 
     this.root.add(motorGroup);
-    this.explodedParts.push({ group: motorGroup, offset: new THREE.Vector3(0, 35, 0) });
+    this.explodedParts.push({ group: motorGroup, offset: new THREE.Vector3(0, 20, 0) });
 
     // 3. Counterbalance Eccentric Flywheel & Orbital Mechanism
     const eccentricGroup = new THREE.Group();
@@ -898,7 +902,7 @@ export class VortexMixer3D {
     eccentricGroup.add(bellows);
 
     this.root.add(eccentricGroup);
-    this.explodedParts.push({ group: eccentricGroup, offset: new THREE.Vector3(0, 65, 0) });
+    this.explodedParts.push({ group: eccentricGroup, offset: new THREE.Vector3(0, 38, 0) });
   }
 
   _buildMainControllerPCB() {
@@ -999,7 +1003,7 @@ export class VortexMixer3D {
     }
 
     this.root.add(pcbGroup);
-    this.explodedParts.push({ group: pcbGroup, offset: new THREE.Vector3(0, 14, 52) });
+    this.explodedParts.push({ group: pcbGroup, offset: new THREE.Vector3(0, 12, 45) });
   }
 
   _buildChassisBody() {
@@ -1028,7 +1032,7 @@ export class VortexMixer3D {
     chassisGroup.add(collarInner);
 
     this.root.add(chassisGroup);
-    this.explodedParts.push({ group: chassisGroup, offset: new THREE.Vector3(0, 105, 0) });
+    this.explodedParts.push({ group: chassisGroup, offset: new THREE.Vector3(0, 42, 0) });
   }
 
   _buildRecessedConsole() {
@@ -1236,7 +1240,7 @@ export class VortexMixer3D {
     });
 
     this.root.add(consoleGroup);
-    this.explodedParts.push({ group: consoleGroup, offset: new THREE.Vector3(0, 40, 80) });
+    this.explodedParts.push({ group: consoleGroup, offset: new THREE.Vector3(0, 22, 45) });
   }
 
   _buildBrandBadge() {
@@ -1245,7 +1249,7 @@ export class VortexMixer3D {
     badge.position.set(0, 25.0, 59.6);
     badge.rotation.x = THREE.MathUtils.degToRad(-25.0);
     this.root.add(badge);
-    this.explodedParts.push({ group: badge, offset: new THREE.Vector3(0, 10, 35) });
+    this.explodedParts.push({ group: badge, offset: new THREE.Vector3(0, 8, 25) });
   }
 
   _buildHardwareAndFittings() {
@@ -1297,7 +1301,7 @@ export class VortexMixer3D {
 
     hwGroup.add(iecInlet);
 
-    // 3. Rear Illuminated Rocker Switch
+    // 3. Rear Illuminated Rocker Switch (AC Mains Power Switch)
     const rockerGroup = new THREE.Group();
     rockerGroup.name = 'Btn_Switch_RearPower';
     rockerGroup.position.set(15, 36, -80.0);
@@ -1312,16 +1316,96 @@ export class VortexMixer3D {
       roughness: 0.35,
       metalness: 0.1,
       emissive: 0xdc2626,
-      emissiveIntensity: 0.3,
+      emissiveIntensity: 0.35,
     });
     const rockerActuator = new THREE.Mesh(rockerActuatorGeo, rockerActuatorMat);
     rockerActuator.position.set(0, 0, 1.2);
-    rockerActuator.rotation.x = 0.12;
+    rockerActuator.rotation.x = 0.14; // Default ON
     rockerGroup.add(rockerActuator);
+
+    rockerActuator.userData = {
+      isInteractive: true,
+      type: 'powerSwitch',
+      name: 'Btn_Switch_RearPower',
+      hint: 'Toggle Main AC Power Switch',
+    };
+    this.interactiveMeshes.push(rockerActuator);
+    this.rockerActuator = rockerActuator;
 
     hwGroup.add(rockerGroup);
 
-    // 4. Heavy-Duty Laboratory AC Mains Power Cord
+    // 4. Authentic Laboratory Benchtop Duplex Receptacle Box (Power_Receptacle_Duplex)
+    const outletGroup = new THREE.Group();
+    outletGroup.name = 'Body_Assembly_BenchOutlet';
+    outletGroup.position.set(145.0, 0.0, -135.0);
+
+    // Heavy-duty cast aluminum junction box body resting firmly on the bench (Y = 0)
+    const jboxGeo = new THREE.BoxGeometry(54, 72, 36);
+    const jboxMat = new THREE.MeshStandardMaterial({
+      color: 0x8a9199, // Satin industrial aluminum
+      roughness: 0.32,
+      metalness: 0.85,
+    });
+    const jbox = new THREE.Mesh(jboxGeo, jboxMat);
+    jbox.position.y = 36;
+    jbox.castShadow = true;
+    jbox.receiveShadow = true;
+    outletGroup.add(jbox);
+
+    // Brushed stainless steel duplex faceplate with beveled edges
+    const plateGeo = new THREE.BoxGeometry(50, 68, 2.0);
+    const plateMat = new THREE.MeshStandardMaterial({
+      color: 0xd1d5db,
+      roughness: 0.22,
+      metalness: 0.92,
+    });
+    const plate = new THREE.Mesh(plateGeo, plateMat);
+    plate.position.set(0, 36, 18.0);
+    outletGroup.add(plate);
+
+    // Center mounting screw (6-32 oval head)
+    const screwCenter = createHexSocketScrew(1.2, 3.0);
+    screwCenter.rotation.x = Math.PI / 2;
+    screwCenter.position.set(0, 36, 19.1);
+    outletGroup.add(screwCenter);
+
+    // Dual NEMA 5-15R Receptacles (Commercial Lab Grade, Ground Pin UP)
+    for (const yOut of [48.0, 24.0]) {
+      const recFaceGeo = new THREE.CylinderGeometry(14, 14, 1.2, 32);
+      const recFaceMat = new THREE.MeshStandardMaterial({
+        color: 0x181c22, // Industrial high-impact nylon
+        roughness: 0.55,
+        metalness: 0.1,
+      });
+      const recFace = new THREE.Mesh(recFaceGeo, recFaceMat);
+      recFace.rotation.x = Math.PI / 2;
+      recFace.position.set(0, yOut, 19.1);
+      outletGroup.add(recFace);
+
+      // Ground Pin Hole (U-shaped, top of socket, Ground UP safety standard)
+      const gndHoleGeo = new THREE.CylinderGeometry(1.6, 1.6, 2.4, 16);
+      const holeMat = new THREE.MeshBasicMaterial({ color: 0x05070a });
+      const gndHole = new THREE.Mesh(gndHoleGeo, holeMat);
+      gndHole.rotation.x = Math.PI / 2;
+      gndHole.position.set(0, yOut + 5.5, 19.6);
+      outletGroup.add(gndHole);
+
+      // Neutral Slot (wider, left)
+      const neutGeo = new THREE.BoxGeometry(1.8, 8.5, 2.4);
+      const neutSlot = new THREE.Mesh(neutGeo, holeMat);
+      neutSlot.position.set(-5.5, yOut - 2.5, 19.6);
+      outletGroup.add(neutSlot);
+
+      // Hot Slot (narrower, right)
+      const hotGeo = new THREE.BoxGeometry(1.4, 7.0, 2.4);
+      const hotSlot = new THREE.Mesh(hotGeo, holeMat);
+      hotSlot.position.set(5.5, yOut - 2.5, 19.6);
+      outletGroup.add(hotSlot);
+    }
+
+    hwGroup.add(outletGroup);
+
+    // 5. Heavy-Duty Laboratory AC Mains Power Cord
     const cordGroup = new THREE.Group();
     cordGroup.name = 'Body_Assembly_PowerCord';
 
@@ -1336,16 +1420,17 @@ export class VortexMixer3D {
     boot.position.set(-13, 36, -107.0);
     cordGroup.add(boot);
 
+    // Continuous cable routing from mixer rear C13 connector into bench outlet plug
     const cordMesh = makeCable(
       [
         [-13.0, 36.0, -114.0],
-        [-13.0, 30.0, -126.0],
-        [-4.0, 15.0, -136.0],
-        [14.0, 3.25, -144.0],
-        [42.0, 3.25, -148.0],
-        [75.0, 3.25, -147.0],
-        [106.0, 3.25, -140.0],
-        [126.0, 3.25, -132.0],
+        [-13.0, 24.0, -126.0],
+        [15.0, 3.25, -145.0],
+        [60.0, 3.25, -150.0],
+        [105.0, 3.25, -148.0],
+        [135.0, 18.0, -130.0],
+        [145.0, 34.0, -115.0],
+        [145.0, 48.0, -96.0],
       ],
       3.25,
       0x111317,
@@ -1354,40 +1439,62 @@ export class VortexMixer3D {
     cordMesh.name = 'Power_Cord';
     cordGroup.add(cordMesh);
 
-    // Molded 3-prong NEMA 5-15P laboratory AC plug resting flat on the bench
+    // Molded 3-prong NEMA 5-15P laboratory AC plug seated in the top outlet receptacle
     const plugGroup = new THREE.Group();
     plugGroup.name = 'Power_Plug';
-    plugGroup.position.set(138.0, 8.0, -128.0);
-    plugGroup.rotation.y = THREE.MathUtils.degToRad(-35.0);
+    plugGroup.position.set(145.0, 48.0, -104.0);
 
-    const plugBodyGeo = new THREE.BoxGeometry(22, 16, 32);
+    const plugBodyGeo = new THREE.BoxGeometry(22, 16, 26);
     const plugBody = new THREE.Mesh(plugBodyGeo, MAT_KNOB_ABS);
     plugGroup.add(plugBody);
 
     const plugNeckGeo = new THREE.CylinderGeometry(5.0, 7.0, 10, 16);
     const plugNeck = new THREE.Mesh(plugNeckGeo, MAT_CORD_NEOPRENE);
     plugNeck.rotation.x = Math.PI / 2;
-    plugNeck.position.z = -20.0;
+    plugNeck.position.z = 18.0;
     plugGroup.add(plugNeck);
 
-    for (const ox of [-5.0, 5.0]) {
-      const bladeGeo = new THREE.BoxGeometry(1.5, 6.0, 16.0);
-      const blade = new THREE.Mesh(bladeGeo, MAT_BRASS);
-      blade.position.set(ox, 0, 22.0);
-      plugGroup.add(blade);
-    }
+    const bladesGroup = new THREE.Group();
+    bladesGroup.name = 'Plug_Prongs';
 
-    const earthPinGeo = new THREE.CylinderGeometry(2.4, 2.4, 18.0, 16);
+    // Neutral blade (wider, left)
+    const neutBladeGeo = new THREE.BoxGeometry(1.6, 7.5, 14.0);
+    const neutBlade = new THREE.Mesh(neutBladeGeo, MAT_BRASS);
+    neutBlade.position.set(-5.5, -2.5, -16.0);
+    bladesGroup.add(neutBlade);
+
+    // Hot blade (narrower, right)
+    const hotBladeGeo = new THREE.BoxGeometry(1.2, 6.5, 14.0);
+    const hotBlade = new THREE.Mesh(hotBladeGeo, MAT_BRASS);
+    hotBlade.position.set(5.5, -2.5, -16.0);
+    bladesGroup.add(hotBlade);
+
+    // Ground pin (round, top, ground UP standard)
+    const earthPinGeo = new THREE.CylinderGeometry(1.5, 1.5, 16.0, 16);
     const earthPin = new THREE.Mesh(earthPinGeo, MAT_BRASS);
     earthPin.rotation.x = Math.PI / 2;
-    earthPin.position.set(0, -4.5, 23.0);
-    plugGroup.add(earthPin);
+    earthPin.position.set(0, 5.5, -17.0);
+    bladesGroup.add(earthPin);
+
+    bladesGroup.visible = false; // Hidden when seated inside receptacle
+    plugGroup.add(bladesGroup);
+
+    this.plugBlades = bladesGroup;
+    this.plugGroup = plugGroup;
+
+    plugBody.userData = {
+      isInteractive: true,
+      type: 'plug',
+      name: 'Power_Plug',
+      hint: 'Click to Unplug / Plug In AC Mains Power',
+    };
+    this.interactiveMeshes.push(plugBody);
 
     cordGroup.add(plugGroup);
     hwGroup.add(cordGroup);
 
     this.root.add(hwGroup);
-    this.explodedParts.push({ group: hwGroup, offset: new THREE.Vector3(0, 0, -35) });
+    this.explodedParts.push({ group: hwGroup, offset: new THREE.Vector3(0, 0, -25) });
   }
 
   _buildCupHeadAssembly() {
@@ -1461,7 +1568,7 @@ export class VortexMixer3D {
     cupAssembly.add(cupGroup);
     this.pivotCupHead = cupGroup;
     this.root.add(cupAssembly);
-    this.explodedParts.push({ group: cupAssembly, offset: new THREE.Vector3(0, 160, 0) });
+    this.explodedParts.push({ group: cupAssembly, offset: new THREE.Vector3(0, 65, 0) });
   }
 
   _buildSampleTubes() {
@@ -1483,7 +1590,7 @@ export class VortexMixer3D {
 
     this.activeTubeGroup = this.falconTubeGroup;
     this.root.add(tubesContainer);
-    this.explodedParts.push({ group: tubesContainer, offset: new THREE.Vector3(0, 225, 0) });
+    this.explodedParts.push({ group: tubesContainer, offset: new THREE.Vector3(0, 90, 0) });
   }
 
   _createFalconTube15mL() {
@@ -1842,12 +1949,39 @@ export class VortexMixer3D {
   setModeSwitchState(stateStr) {
     if (!this.switchBatLever) return;
     this.modeState = stateStr;
+    // On the silkscreen: TOUCH is left (X=165), OFF is center (X=241), CONT is right (X=317).
+    // In Three.js front view (+Z), positive Z-rotation rotates counter-clockwise (to the LEFT/TOUCH).
+    // Negative Z-rotation rotates clockwise (to the RIGHT/CONT).
     if (stateStr === 'TOUCH') {
-      this.switchBatLever.rotation.z = THREE.MathUtils.degToRad(-20.0);
+      this.switchBatLever.rotation.z = THREE.MathUtils.degToRad(20.0);
     } else if (stateStr === 'OFF') {
       this.switchBatLever.rotation.z = 0.0;
     } else if (stateStr === 'CONTINUOUS') {
-      this.switchBatLever.rotation.z = THREE.MathUtils.degToRad(20.0);
+      this.switchBatLever.rotation.z = THREE.MathUtils.degToRad(-20.0);
+    }
+  }
+
+  setPluggedIn(plugged) {
+    this.isPluggedIn = !!plugged;
+    if (!this.plugGroup) return;
+    if (this.isPluggedIn) {
+      this.plugGroup.position.set(145.0, 48.0, -104.0);
+      this.plugGroup.rotation.set(0, 0, 0);
+      if (this.plugBlades) this.plugBlades.visible = false;
+    } else {
+      // Unplugged: resting on the bench with exposed brass prongs
+      this.plugGroup.position.set(145.0, 8.0, -65.0);
+      this.plugGroup.rotation.set(0, THREE.MathUtils.degToRad(-25.0), 0);
+      if (this.plugBlades) this.plugBlades.visible = true;
+    }
+  }
+
+  setRearPowerSwitch(on) {
+    if (this.rockerActuator) {
+      this.rockerActuator.rotation.x = on ? 0.14 : -0.14;
+      if (this.rockerActuator.material) {
+        this.rockerActuator.material.emissiveIntensity = on ? 0.35 : 0.02;
+      }
     }
   }
 

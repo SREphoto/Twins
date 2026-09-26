@@ -78,5 +78,29 @@ All agents must strictly cross-reference `.agents/TROUBLESHOOTING_LOG.md` before
 - **DIAG-002 (Mesh Occlusion)**: Ensure decorative and canvas planes have positive relative Z clearance over backing boxes.
 - **DIAG-003 (Coplanar Z-Fighting)**: No two solid meshes may share an identical planar coordinate. All edge trims must wrap outer perimeters.
 - **DIAG-004 (Industrial Fidelity)**: Recreate authentic real-world instrument lineage (e.g. through-panel buttons without fabricated fantasy labels).
-- **DIAG-005 (Dynamic Canvas LCD Orientation)**: Canvas textures must set `flipY = false`. Text inverted? Invert UV coordinates on buffer geometry (`uv.setX(i, 1.0 - uv.getX(i))`). Never apply negative scale matrices (`scale.x = -1`).
+- **DIAG-005 (Dynamic Canvas LCD Orientation)**: Canvas textures must set `flipY = false`. Text inverted? Invert UV coordinates on buffer geometry (`uv.setY(i, 1.0 - uv.getY(i))`). Never apply negative scale matrices (`scale.x = -1`).
+- **DIAG-014 (Physical Circuit Continuity)**: No electrical machine may ever run or illuminate displays while disconnected from electricity. Power cord must plug into a physical bench receptacle; unplugging cuts power to 0.
+- **DIAG-015 (Upright Typography & Direction)**: All silkscreen faceplate typography, control numbers, and branding must render 100% upright in front view (`CAM_FRONT`).
+- **DIAG-016 (Sloped Wall Recess)**: Solve exact casting face equations $Z(Y)$ on drafted hulls; never submerge consoles inside solid metal walls.
+- **DIAG-017 (Silkscreen Completeness)**: Every tactile button, rotary dial, and toggle switch must have high-DPI procedural silkscreen text and calibrated markings.
+- **DIAG-018 (Control Clearance)**: Maintain $\ge 3.5\text{ mm}$ physical separation between knobs and display bezels.
+- **DIAG-019 (Labware Procedural Fidelity)**: Recreate authentic 1:1 labware geometry (conical bottoms, graduation rings, fluted caps, ergonomic tilt).
+- **DIAG-020 (Kinematic Exploded Exposure)**: Unibody casting must elevate $\ge +100\text{ mm}$ to fully expose cast iron ballast, isolators, motor windings, and PCB.
+- **DIAG-021 (Kinematic Directional Synchronization)**: Lever and dial rotations must mathematically synchronize with silkscreen labels.
+- **DIAG-022 (Camera Viewport Bounding)**: Camera framing must encompass the entire vertical envelope ($Y \in [0, 260\text{ mm}]$); zero cut-off caps.
+
+## 9. Physical Circuit Continuity & Real-World Reality
+
+**Electrical appliances require power to run.** In the 3D digital twin:
+1. Model a genuine laboratory electrical outlet box (`Power_Receptacle_Duplex`) seated on the bench surface.
+2. The molded NEMA 5-15P plug must be firmly inserted into the receptacle to close the circuit.
+3. Logical power state MUST be bound to electrical continuity:
+   - When unplugged (`isPluggedIn === false`) or rear power switch is off, the twin has ZERO power.
+   - Screen goes black, motor stops at $0\text{ RPM}$, status LED is dark, and sound is silenced.
+   - A digital twin with a loose unplugged cord sitting on the desk while spinning at 2400 RPM is an immediate automatic failure.
+
+## 10. Mandatory Pre-Flight Audit Checklist Execution
+
+Before requesting signoff or claiming completion, the agent must execute and document the 10-point checklist (`CHK-01` through `CHK-10`) in `.agents/TROUBLESHOOTING_LOG.md`. Every screenshot MUST be visually reviewed using `view_file`.
+
 

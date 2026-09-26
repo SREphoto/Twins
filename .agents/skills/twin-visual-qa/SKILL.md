@@ -159,5 +159,17 @@ Before approving any build:
    - Run Python controller unit tests (`python3 <twin>/software/controller/test_controller.py`).
    - 100% of unit tests must pass.
 
-7. **Lab Desk Registry**:
-   - Register the twin in `lab_viewer/machines/registry.js` with `"status": "ready"`.
+7. **Physical Circuit Continuity Gate (DIAG-014)**:
+   - Power cord must plug into a physical benchtop receptacle box (`Power_Receptacle_Duplex`).
+   - Twin power MUST be coupled to electrical continuity: when unplugged (`isPluggedIn = false`), power is 0 (motor stopped, screen dark, LED unlit). Never display an unplugged cord while the machine is running.
+
+8. **Upright Silkscreen & Kinematic Direction (DIAG-015 & DIAG-021)**:
+   - All panel typography must be upright in `CAM_FRONT`.
+   - Control levers and dials must mathematically align with silkscreen labels (e.g. `CONT` mode aligns with `CONT` text).
+
+9. **Vertical Camera Envelope & Anti-Clipping (DIAG-022)**:
+   - Camera framing must encompass the entire vertical bounding box ($Y \in [0, 260\text{ mm}]$); sample tube cap must never be cut off.
+
+10. **Lab Desk Registry**:
+    - Register the twin in `lab_viewer/machines/registry.js` with `"status": "ready"`.
+

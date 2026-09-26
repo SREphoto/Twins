@@ -8,12 +8,14 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { VortexMixer3D } from './vortex_mixer3d.js?v=20260926-vortex-gold-v4';
+import { VortexMixer3D } from './vortex_mixer3d.js?v=20260926-vortex-gold-v6';
 import { VortexSFX } from './sfx.js';
 
 // --- State Definition ---
 const state = {
   power: true,
+  isPluggedIn: true,
+  rearPowerSwitch: true,
   mode: 'CONTINUOUS', // Default to CONTINUOUS so high-frequency forced vortex is immediately active on load!
   stateName: 'RUNNING', // 'STANDBY', 'RUNNING', 'PULSE', 'DONE', 'OFF'
   setpointRpm: 2400,
@@ -76,7 +78,7 @@ const camera = new THREE.PerspectiveCamera(
   1000
 );
 // Default 3/4 Isometric Perspective (CAM_ISO)
-camera.position.set(240, 280, 290);
+camera.position.set(310, 310, 360);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
 renderer.setSize(container.clientWidth, container.clientHeight);
@@ -90,7 +92,7 @@ container.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
-controls.target.set(0, 95, -16); // Center framing on machine body, top deck, and sample tube
+controls.target.set(0, 115, -16); // Center framing on machine body, top deck, and sample tube (Y = 115 mm)
 controls.maxPolarAngle = Math.PI / 2 - 0.01; // Prevent going below tabletop datum Y = 0
 controls.minDistance = 80;
 controls.maxDistance = 800;
@@ -160,11 +162,13 @@ function renderLCD() {
   const w = lcdCanvas.width;
   const h = lcdCanvas.height;
 
+  const hasCircuitPower = state.isPluggedIn && state.rearPowerSwitch && state.power;
+
   // Background
-  ctx.fillStyle = state.power ? '#060a0f' : '#020406';
+  ctx.fillStyle = hasCircuitPower ? '#060a0f' : '#020406';
   ctx.fillRect(0, 0, w, h);
 
-  if (!state.power) {
+  if (!hasCircuitPower) {
     lcdTexture.needsUpdate = true;
     return;
   }
@@ -364,7 +368,19 @@ function updateDOMUI() {
   const pill = document.getElementById('status-pill');
   const detail = document.getElementById('status-detail');
   if (pill && detail) {
-    if (state.stateName === 'RUNNING' || state.stateName === 'PULSE') {
+    if (!state.isPluggedIn) {
+      pill.className = 'pill standby';
+      pill.textContent = 'UNPLUGGED';
+      detail.textContent = 'AC mains cord unplugged from bench outlet';
+    } else if (!state.rearPowerSwitch) {
+      pill.className = 'pill standby';
+      pill.textContent = 'SWITCH OFF';
+      detail.textContent = 'Rear AC mains rocker switch is OFF';
+    } else if (!state.power) {
+      pill.className = 'pill standby';
+      pill.textContent = 'POWER OFF';
+      detail.textContent = 'Instrument logic in low-power standby';
+    } else if (state.stateName === 'RUNNING' || state.stateName === 'PULSE') {
       pill.className = 'pill run';
       pill.textContent = state.stateName;
       detail.textContent = `Vortex active at ${Math.round(state.currentRpm)} RPM`;
@@ -644,6 +660,16 @@ function onPointerDown(e) {
       state.power = !state.power;
       sfx.playButtonBeep();
       updateDOMUI();
+    } else if (data.type === 'plug' || data.name === 'Power_Plug') {
+      state.isPluggedIn = !state.isPluggedIn;
+      mixer3d.setPluggedIn(state.isPluggedIn);
+      sfx.playToggleClick();
+      updateDOMUI();
+    } else if (data.type === 'powerSwitch' || data.name === 'Btn_Switch_RearPower') {
+      state.rearPowerSwitch = !state.rearPowerSwitch;
+      mixer3d.setRearPowerSwitch(state.rearPowerSwitch);
+      sfx.playToggleClick();
+      updateDOMUI();
     }
   }
 }
@@ -657,24 +683,33 @@ function setCameraView(preset) {
   const btnRotate = document.getElementById('btn-auto-rotate');
   if (btnRotate) btnRotate.classList.remove('active');
 
-  document.querySelectorAll('.view-btn').forEach((b) => b.classList.remove('active'));
+  ['btn-cam-iso', 'btn-cam-front', 'btn-cam-side', 'btn-cam-top'].forEach((id) => {
+    document.getElementById(id)?.classList.remove('active');
+  });
 
   if (preset === 'iso') {
-    camera.position.set(240, 280, 290);
-    controls.target.set(0, 95, -16);
+    camera.position.set(310, 310, 360);
+    controls.target.set(0, 115, -16);
     document.getElementById('btn-cam-iso')?.classList.add('active');
+    state.isExploded = false;
+    document.getElementById('btn-explode')?.classList.remove('active');
   } else if (preset === 'front') {
-    camera.position.set(0, 115, 410);
-    controls.target.set(0, 95, -16);
+    camera.position.set(0, 115, 520);
+    controls.target.set(0, 115, -16);
     document.getElementById('btn-cam-front')?.classList.add('active');
   } else if (preset === 'side') {
-    camera.position.set(410, 115, -16);
-    controls.target.set(0, 95, -16);
+    camera.position.set(520, 115, -16);
+    controls.target.set(0, 115, -16);
     document.getElementById('btn-cam-side')?.classList.add('active');
   } else if (preset === 'top') {
-    camera.position.set(0, 420, -16.01);
-    controls.target.set(0, 95, -16);
+    camera.position.set(0, 600, -16.01);
+    controls.target.set(0, 110, -16);
     document.getElementById('btn-cam-top')?.classList.add('active');
+  } else if (preset === 'exploded') {
+    camera.position.set(400, 360, 480);
+    controls.target.set(0, 130, -16);
+    state.isExploded = true;
+    document.getElementById('btn-explode')?.classList.add('active');
   }
 }
 
@@ -797,9 +832,10 @@ function animate() {
 
   // 1. Determine Target RPM
   let targetRpm = 0.0;
-  if (!state.power || state.mode === 'OFF') {
+  const hasCircuitPower = state.isPluggedIn && state.rearPowerSwitch && state.power;
+  if (!hasCircuitPower || state.mode === 'OFF') {
     targetRpm = 0.0;
-    state.stateName = state.power ? 'STANDBY' : 'OFF';
+    state.stateName = hasCircuitPower ? 'STANDBY' : 'OFF';
   } else {
     // Pulse Cycle Logic
     let isPulseActive = true;
@@ -873,7 +909,7 @@ function animate() {
   sfx.updateMotorSound(state.currentRpm, hasTube);
 
   // 7. Update Status LED Color
-  if (!state.power) {
+  if (!hasCircuitPower) {
     mixer3d.setLEDState(0x000000, 0.0);
   } else if (state.currentRpm > 50) {
     mixer3d.setLEDState(0x22c55e, 1.2); // Bright green active mixing
@@ -891,9 +927,11 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-// Synchronize 3D mixer controls to initial continuous running state
-mixer3d.setModeSwitchState('CONTINUOUS');
-mixer3d.setSpeedKnobAngle((state.setpointRpm - 200) / 3000.0);
+// Synchronize 3D mixer controls to initial state
+mixer3d.setPluggedIn(state.isPluggedIn);
+mixer3d.setRearPowerSwitch(state.rearPowerSwitch);
+mixer3d.setModeSwitchState(state.mode);
+mixer3d.setSpeedKnobAngle((state.setpointRpm - 500) / (3200 - 500));
 mixer3d.setLEDState(0x22c55e, 1.2);
 updateDOMUI();
 
