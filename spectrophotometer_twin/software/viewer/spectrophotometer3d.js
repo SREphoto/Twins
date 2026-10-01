@@ -1085,7 +1085,7 @@ export function createPowerCord(iecPortPos, wallOutletPos = new THREE.Vector3(1.
       new THREE.BoxGeometry(0.012, 0.044, 0.06),
       MAT_CHROME
     );
-    prong.position.set(s, 0, -0.015);
+    prong.position.set(s, 0, 0.03);
     wallPlugGroup.add(prong);
   }
   const groundProng = new THREE.Mesh(
@@ -1093,7 +1093,7 @@ export function createPowerCord(iecPortPos, wallOutletPos = new THREE.Vector3(1.
     MAT_CHROME
   );
   groundProng.rotation.x = Math.PI / 2;
-  groundProng.position.set(0, -0.042, -0.010);
+  groundProng.position.set(0, -0.042, 0.035);
   wallPlugGroup.add(groundProng);
 
   group.add(wallPlugGroup);
@@ -1543,17 +1543,15 @@ export function createInternalWiring(opticsGroup, BASE_Y, CHAMBER_FLOOR_Y, CHAMB
   // 10. Cooling Fan 3-Pin Sleeved Cable
   const plugFanFrame = createJSTMatingPlug(3);
   plugFanFrame.name = 'Plug_Fan_MotorFrame';
-  plugFanFrame.position.set(1.40, BASE_Y + 0.95, 2.18);
+  plugFanFrame.position.set(-1.40, BASE_Y + 0.95, 2.18);
   wireGroup.add(plugFanFrame);
 
   addWireRun([
-    new THREE.Vector3(1.40, BASE_Y + 0.95, 2.18),
-    new THREE.Vector3(1.40, BASE_Y + 0.18, 2.16),
-    new THREE.Vector3(0.80, BASE_Y + 0.18, 2.16),
-    new THREE.Vector3(0.05, BASE_Y + 0.18, 2.16),
-    new THREE.Vector3(0.05, BASE_Y + 0.16, 0.02),
-    new THREE.Vector3(-0.45, BASE_Y + 0.16, 0.02),
-    new THREE.Vector3(-0.45, BASE_Y + 0.16, -0.98),
+    new THREE.Vector3(-1.40, BASE_Y + 0.95, 2.18),
+    new THREE.Vector3(-1.40, BASE_Y + 0.20, 2.16),
+    new THREE.Vector3(-1.60, BASE_Y + 0.20, 2.16),
+    new THREE.Vector3(-1.60, BASE_Y + 0.18, 0.50),
+    new THREE.Vector3(-1.60, BASE_Y + 0.18, -0.98),
     new THREE.Vector3(-0.95, BASE_Y + 0.19, -1.29),
   ], 0.015, MAT_WIRE_BLACK, 'Cable_CoolingFan_12V');
 
@@ -2887,11 +2885,13 @@ export function createSpectrophotometerModel(options = {}) {
   interactiveObjects.push(sourceSelectorGroup, selMirror);
 
   // D. Czerny-Turner Monochromator Optical Subsystem
+  // Precision cast optical bench baseplate supporting entrance slit, collimator, grating, focusing mirror, and exit slit.
+  // Terminated cleanly at Z = 0.98 (exit slit datum), leaving open air for filter wheel and rotating chopper. (DIAG-001, DIAG-020)
   const monoBase = new THREE.Mesh(
-    new THREE.BoxGeometry(1.40, 0.12, 1.65),
+    new THREE.BoxGeometry(1.40, 0.12, 0.86),
     MAT_CHASSIS_DARK
   );
-  monoBase.position.set(-0.25, BASE_Y + 0.32, 1.05);
+  monoBase.position.set(-0.25, BASE_Y + 0.32, 1.41);
   opticsGroup.add(monoBase);
 
   // NEMA 17 Stepper Motor driving diffraction grating sine-bar
@@ -3257,12 +3257,12 @@ export function createSpectrophotometerModel(options = {}) {
   gussetR.rotation.x = -0.25;
   chopperAssembly.add(gussetR);
 
-  // Motor mounting face cradle plate (facing -Z towards chopper disc)
+  // Motor mounting face cradle plate (facing -Z towards chopper disc, set back to Z = 0.080)
   const motorCradle = new THREE.Mesh(
     new THREE.BoxGeometry(0.20, 0.20, 0.025),
     MAT_ALUM_ANODIZED
   );
-  motorCradle.position.set(0, 0, 0.04);
+  motorCradle.position.set(0, 0, 0.080);
   chopperAssembly.add(motorCradle);
 
   // 4 M2.5 socket cap screws securing BLDC motor face to cradle
@@ -3272,17 +3272,17 @@ export function createSpectrophotometerModel(options = {}) {
     const msY = Math.sin(mAngle) * 0.072;
     const mScrew = createHexSocketScrew(0.010, 0.025, { material: MAT_CHROME });
     mScrew.rotation.x = -Math.PI / 2;
-    mScrew.position.set(msX, msY, 0.028);
+    mScrew.position.set(msX, msY, 0.068);
     chopperAssembly.add(mScrew);
   }
 
-  // 2. Precision BLDC Motor Body (Mounted on +Z side in open air gap toward filter wheel)
+  // 2. Precision BLDC Motor Body (Mounted on +Z side behind cradle)
   const chopperMotor = new THREE.Mesh(
     new THREE.CylinderGeometry(0.072, 0.072, 0.15, 20),
     new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.35, metalness: 0.85 })
   );
   chopperMotor.rotation.x = Math.PI / 2;
-  chopperMotor.position.set(0, 0, 0.125);
+  chopperMotor.position.set(0, 0, 0.165);
   chopperAssembly.add(chopperMotor);
 
   // Motor rear bearing cap
@@ -3291,19 +3291,19 @@ export function createSpectrophotometerModel(options = {}) {
     MAT_ALUM_ANODIZED
   );
   motorCap.rotation.x = Math.PI / 2;
-  motorCap.position.set(0, 0, 0.210);
+  motorCap.position.set(0, 0, 0.250);
   chopperAssembly.add(motorCap);
 
-  // Grounded stainless motor drive shaft extending forward along -Z through cradle to wheel hub
+  // Grounded stainless motor drive shaft extending forward along -Z through cradle bore to wheel hub
   const driveShaft = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.012, 0.012, 0.08, 16),
+    new THREE.CylinderGeometry(0.012, 0.012, 0.10, 16),
     MAT_CHROME
   );
   driveShaft.rotation.x = Math.PI / 2;
-  driveShaft.position.set(0, 0, 0.005);
+  driveShaft.position.set(0, 0, 0.035);
   chopperAssembly.add(driveShaft);
 
-  // 3. Rotating Rotor Assembly (Hub + Dual-Sector Chopper Wheel)
+  // 3. Rotating Rotor Assembly (Hub + Dual-Sector Chopper Wheel at Z = 0.00)
   const rotorGroup = new THREE.Group();
   rotorGroup.name = 'Rotor_OpticalChopper';
   chopperAssembly.add(rotorGroup);
@@ -3311,11 +3311,11 @@ export function createSpectrophotometerModel(options = {}) {
 
   // CNC aluminum clamp hub
   const chopperHub = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.045, 0.045, 0.035, 20),
+    new THREE.CylinderGeometry(0.045, 0.045, 0.030, 20),
     MAT_ALUM_ANODIZED
   );
   chopperHub.rotation.x = Math.PI / 2;
-  chopperHub.position.set(0, 0, 0.018);
+  chopperHub.position.set(0, 0, 0.015);
   rotorGroup.add(chopperHub);
 
   // Radial set screws in hub
@@ -3325,18 +3325,18 @@ export function createSpectrophotometerModel(options = {}) {
       new THREE.CylinderGeometry(0.006, 0.006, 0.012, 8),
       MAT_CHROME
     );
-    grub.position.set(Math.cos(sAngle) * 0.042, Math.sin(sAngle) * 0.042, 0.018);
+    grub.position.set(Math.cos(sAngle) * 0.042, Math.sin(sAngle) * 0.042, 0.015);
     grub.rotation.z = sAngle + Math.PI / 2;
     rotorGroup.add(grub);
   }
 
   // Sector Wheel Carrier Center Disc
   const centerDisc = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.075, 0.075, 0.008, 24),
+    new THREE.CylinderGeometry(0.075, 0.075, 0.006, 24),
     MAT_ALUM_ANODIZED
   );
   centerDisc.rotation.x = Math.PI / 2;
-  centerDisc.position.set(0, 0, 0.038);
+  centerDisc.position.set(0, 0, 0.004);
   rotorGroup.add(centerDisc);
 
   // 3 M2 blade retaining screws
@@ -3344,7 +3344,7 @@ export function createSpectrophotometerModel(options = {}) {
     const bAngle = (bs * 2 * Math.PI) / 3;
     const bScrew = createHexSocketScrew(0.008, 0.015, { material: MAT_CHROME });
     bScrew.rotation.x = Math.PI / 2;
-    bScrew.position.set(Math.cos(bAngle) * 0.060, Math.sin(bAngle) * 0.060, 0.043);
+    bScrew.position.set(Math.cos(bAngle) * 0.060, Math.sin(bAngle) * 0.060, -0.003);
     rotorGroup.add(bScrew);
   }
 
@@ -3353,52 +3353,69 @@ export function createSpectrophotometerModel(options = {}) {
   // Sector 2: [PI/2, PI] (90 deg) OPEN TRANSMISSION APERTURE
   // Sector 3: [PI, 3*PI/2] (90 deg) First-surface coated optical mirror blade
   // Sector 4: [3*PI/2, 2*PI] (90 deg) OPEN TRANSMISSION APERTURE
-  const bladeGeometry = new THREE.RingGeometry(0.070, 0.25, 32, 1, 0, Math.PI / 2);
+  const bladeGeometry = new THREE.RingGeometry(0.070, 0.245, 32, 1, 0, Math.PI / 2);
 
   // Blade 1 (Mirror sector at 0 to PI/2)
   const sectorBlade1 = new THREE.Mesh(bladeGeometry, MAT_OPTICAL_MIRROR);
-  sectorBlade1.position.set(0, 0, 0.040);
+  sectorBlade1.position.set(0, 0, 0.000);
   rotorGroup.add(sectorBlade1);
 
   // Blade 1 substrate backing
   const sectorBacking1 = new THREE.Mesh(bladeGeometry, MAT_OPTICAL_GLASS);
-  sectorBacking1.position.set(0, 0, 0.036);
+  sectorBacking1.position.set(0, 0, 0.003);
   rotorGroup.add(sectorBacking1);
 
   // Blade 2 (Mirror sector at PI to 3*PI/2)
   const sectorBlade2 = new THREE.Mesh(bladeGeometry, MAT_OPTICAL_MIRROR);
   sectorBlade2.rotation.z = Math.PI;
-  sectorBlade2.position.set(0, 0, 0.040);
+  sectorBlade2.position.set(0, 0, 0.000);
   rotorGroup.add(sectorBlade2);
 
   // Blade 2 substrate backing
   const sectorBacking2 = new THREE.Mesh(bladeGeometry, MAT_OPTICAL_GLASS);
   sectorBacking2.rotation.z = Math.PI;
-  sectorBacking2.position.set(0, 0, 0.036);
+  sectorBacking2.position.set(0, 0, 0.003);
   rotorGroup.add(sectorBacking2);
 
   // Outer protective edge ring
   const outerRing = new THREE.Mesh(
-    new THREE.RingGeometry(0.244, 0.254, 48),
+    new THREE.RingGeometry(0.240, 0.246, 48),
     MAT_ALUM_ANODIZED
   );
-  outerRing.position.set(0, 0, 0.041);
+  outerRing.position.set(0, 0, -0.001);
   rotorGroup.add(outerRing);
 
-  // 4. Optoelectronic Photo-Interrupter Sensor
+  // 4. Optoelectronic Photo-Interrupter Sensor (Slotted U-channel bracket)
   const optoBracket = new THREE.Mesh(
-    new THREE.BoxGeometry(0.035, 0.06, 0.08),
+    new THREE.BoxGeometry(0.035, 0.05, 0.06),
     MAT_ALUM_ANODIZED
   );
-  optoBracket.position.set(0, 0.25, -0.01);
+  optoBracket.position.set(0, 0.27, 0.04);
   chopperAssembly.add(optoBracket);
 
-  const optoBody = new THREE.Mesh(
-    new THREE.BoxGeometry(0.024, 0.032, 0.045),
+  // Slotted U-channel sensor body spanning outside blade perimeter with free clearance slot
+  const optoBridge = new THREE.Mesh(
+    new THREE.BoxGeometry(0.024, 0.015, 0.050),
     MAT_CHASSIS_DARK
   );
-  optoBody.position.set(0, 0.25, 0.040);
-  chopperAssembly.add(optoBody);
+  optoBridge.position.set(0, 0.265, 0.00);
+  chopperAssembly.add(optoBridge);
+
+  // Emitter tine (-Z side of rotating disc)
+  const optoEmitter = new THREE.Mesh(
+    new THREE.BoxGeometry(0.024, 0.026, 0.012),
+    MAT_CHASSIS_DARK
+  );
+  optoEmitter.position.set(0, 0.245, -0.019);
+  chopperAssembly.add(optoEmitter);
+
+  // Detector tine (+Z side of rotating disc)
+  const optoDetector = new THREE.Mesh(
+    new THREE.BoxGeometry(0.024, 0.026, 0.012),
+    MAT_CHASSIS_DARK
+  );
+  optoDetector.position.set(0, 0.245, 0.019);
+  chopperAssembly.add(optoDetector);
 
   chopperAssembly.userData = {
     name: 'Assembly_OpticalChopper',
@@ -4363,7 +4380,7 @@ export function createSpectrophotometerModel(options = {}) {
   // an aerodynamic duct to the rear louvers with zero protrusion or tumbling!
   const fanGroup = new THREE.Group();
   fanGroup.name = 'Assembly_CoolingFan';
-  fanGroup.position.set(1.40, BASE_Y + 1.23, 2.20);
+  fanGroup.position.set(-1.40, BASE_Y + 1.23, 2.20);
   opticsGroup.add(fanGroup);
 
   // Heavy-gauge sheet-aluminum mounting bracket anchored to baseplate
@@ -4764,7 +4781,7 @@ export function createSpectrophotometerModel(options = {}) {
     new THREE.BoxGeometry(0.78, 0.78, 0.02),
     MAT_CHAMBER_INNER
   );
-  exhaustPocket.position.set(1.40, BASE_Y + 1.23, rearZ - 0.01);
+  exhaustPocket.position.set(-1.40, BASE_Y + 1.23, rearZ - 0.01);
   root.add(exhaustPocket);
 
   // Hex-perforated dark filter screen behind louvers
@@ -4777,7 +4794,7 @@ export function createSpectrophotometerModel(options = {}) {
       side: THREE.DoubleSide,
     })
   );
-  filterScreen.position.set(1.40, BASE_Y + 1.23, rearZ - 0.005);
+  filterScreen.position.set(-1.40, BASE_Y + 1.23, rearZ - 0.005);
   root.add(filterScreen);
 
   // 8 Angled downward-sloped molded exhaust louvers (shields internal fan from dust)
@@ -4787,7 +4804,7 @@ export function createSpectrophotometerModel(options = {}) {
       MAT_CHASSIS
     );
     fanLouver.rotation.x = 0.42; // Angled downwards at ~24 degrees
-    fanLouver.position.set(1.40, BASE_Y + 0.95 + (f * 0.08), rearZ + 0.005);
+    fanLouver.position.set(-1.40, BASE_Y + 0.95 + (f * 0.08), rearZ + 0.005);
     root.add(fanLouver);
   }
 

@@ -9,7 +9,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import {
   createSpectrophotometerModel,
   wavelengthToRGB,
-} from './spectrophotometer3d.js?v=20261001-v9';
+} from './spectrophotometer3d.js?v=20261001-v12';
 import { sfx } from './sfx.js';
 
 // --- State Engine ---
@@ -966,149 +966,142 @@ function executeObjectAction(obj, intersects, clientX, clientY, isTouch = false)
   }
 }
 
-let pointerDownPos = null;
-let pointerDownTime = 0;
-let pointerDownTarget = null;
-let pointerDownIntersects = null;
-let pointerDownIsAction = false;
-let lastInteractionHandledTime = 0;
-
-function handlePointerDown(e) {
-  pointerDownPos = { x: e.clientX, y: e.clientY };
-  pointerDownTime = performance.now();
-  pointerDownTarget = null;
-  pointerDownIntersects = null;
-  pointerDownIsAction = false;
-
-  const intersects = getPointerIntersects(e.clientX, e.clientY);
-  if (intersects.length > 0) {
-    let obj = intersects[0].object;
-    while (obj && !obj.userData.name && obj.parent) {
+// Helper to resolve actionable target from raycast hits (works across nested meshes, groups, and userData)
+function resolveActionableTarget(intersects) {
+  if (!intersects || intersects.length === 0) return null;
+  for (const hit of intersects) {
+    let obj = hit.object;
+    while (obj && obj !== scene) {
+      if (obj.userData?.name || obj.userData?.action || obj.userData?.cellNumber != null) {
+        return { target: obj, hit };
+      }
+      const n = obj.name || '';
+      if (
+        n.startsWith('Btn_') ||
+        n === 'UI_LCD' ||
+        n === 'UI_LCD_TOUCH' ||
+        n.includes('Door') ||
+        n.includes('Lid') ||
+        n.includes('Switch_Rocker') ||
+        n.includes('Cuvette')
+      ) {
+        return { target: obj, hit };
+      }
       obj = obj.parent;
     }
-    if (obj && (obj.userData.name || obj.name)) {
-      pointerDownTarget = obj;
-      pointerDownIntersects = intersects;
-      const name = obj.userData.name || obj.name;
+  }
+  let obj = intersects[0].object;
+  while (obj && !obj.userData?.name && !obj.name && obj.parent) {
+    obj = obj.parent;
+  }
+  return obj ? { target: obj, hit: intersects[0] } : null;
+}
 
-      const isActionable =
-        name.startsWith('Btn_') ||
-        name === 'UI_LCD_TOUCH' ||
-        obj.name === 'UI_LCD' ||
-        name === 'Btn_Lid_Handle' ||
-        name === 'Btn_Lid' ||
-        obj.name?.includes('Door') ||
-        obj.name?.includes('Lid') ||
-        obj.name?.includes('Switch_Rocker') ||
-        obj.userData.cellNumber != null;
+let touchStartPos = null;
+let lastInteractionHandledTime = 0;
 
-      if (isActionable) {
-        pointerDownIsAction = true;
-        controls.enabled = false;
-        if (typeof e.stopPropagation === 'function') {
-          e.stopPropagation();
-        }
-      }
-
+// Explicit TouchEvent support for iOS Safari / Mobile WebKit
+renderer.domElement.addEventListener('touchstart', (e) => {
+  if (e.touches.length === 1) {
+    const t = e.touches[0];
+    touchStartPos = {
+      x: t.clientX,
+      y: t.clientY,
+      time: performance.now(),
+    };
+    const intersects = getPointerIntersects(t.clientX, t.clientY);
+    const resolved = resolveActionableTarget(intersects);
+    if (resolved) {
+      const name = resolved.target.userData?.name || resolved.target.name || '';
       if (name.startsWith('Btn_')) {
         triggerKeycapPress(name);
       }
     }
   }
-}
+}, { passive: true, capture: true });
 
-renderer.domElement.addEventListener('pointerdown', handlePointerDown, { capture: true });
+renderer.domElement.addEventListener('touchend', (e) => {
+  if (!touchStartPos) return;
+  const touch = e.changedTouches?.[0];
+  const endX = touch ? touch.clientX : touchStartPos.x;
+  const endY = touch ? touch.clientY : touchStartPos.y;
+  const dist = Math.hypot(endX - touchStartPos.x, endY - touchStartPos.y);
+  const elapsed = performance.now() - touchStartPos.time;
 
-renderer.domElement.addEventListener('pointermove', (e) => {
-  // If user moved pointer/finger significantly and not on an actionable button, treat as camera orbit/pan
-  if (pointerDownPos && !pointerDownIsAction) {
-    const dist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
-    if (dist > 18) {
-      pointerDownTarget = null;
-      controls.enabled = true;
+  if (dist < 28 && elapsed < 900) {
+    lastInteractionHandledTime = performance.now();
+    const intersects = getPointerIntersects(endX, endY);
+    const resolved = resolveActionableTarget(intersects);
+    if (resolved) {
+      executeObjectAction(resolved.target, intersects, endX, endY, true);
     }
   }
+  touchStartPos = null;
+}, { passive: true });
 
-  // Hover detection for desktop mouse pointer
+renderer.domElement.addEventListener('touchcancel', () => {
+  touchStartPos = null;
+}, { passive: true });
+
+// Desktop / Mouse Pointer Handling
+let pointerDownPos = null;
+let pointerDownTime = 0;
+let pointerDownTarget = null;
+let pointerDownIntersects = null;
+
+renderer.domElement.addEventListener('pointerdown', (e) => {
+  if (e.pointerType === 'touch') return;
+  pointerDownPos = { x: e.clientX, y: e.clientY };
+  pointerDownTime = performance.now();
+  const intersects = getPointerIntersects(e.clientX, e.clientY);
+  const resolved = resolveActionableTarget(intersects);
+  if (resolved) {
+    pointerDownTarget = resolved.target;
+    pointerDownIntersects = intersects;
+    const name = resolved.target.userData?.name || resolved.target.name || '';
+    if (name.startsWith('Btn_')) {
+      triggerKeycapPress(name);
+    }
+  }
+}, { capture: true });
+
+renderer.domElement.addEventListener('pointerup', (e) => {
+  if (e.pointerType === 'touch') return;
+  if (pointerDownPos && pointerDownTarget) {
+    const dist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
+    const elapsed = performance.now() - pointerDownTime;
+    if (dist < 24 && elapsed < 800) {
+      lastInteractionHandledTime = performance.now();
+      executeObjectAction(pointerDownTarget, pointerDownIntersects || [], e.clientX, e.clientY, false);
+    }
+  }
+  pointerDownPos = null;
+  pointerDownTarget = null;
+  pointerDownIntersects = null;
+});
+
+renderer.domElement.addEventListener('pointermove', (e) => {
   if (e.pointerType === 'mouse') {
     const intersects = getPointerIntersects(e.clientX, e.clientY);
-    if (intersects.length > 0) {
-      let obj = intersects[0].object;
-      while (obj && !obj.userData.name && obj.parent) {
-        obj = obj.parent;
-      }
-      if (obj && (obj.userData.name || obj.name)) {
-        container.style.cursor = 'pointer';
-        showTooltipAt(e.clientX, e.clientY, obj, false);
-        return;
-      }
+    const resolved = resolveActionableTarget(intersects);
+    if (resolved) {
+      container.style.cursor = 'pointer';
+      showTooltipAt(e.clientX, e.clientY, resolved.target, false);
+      return;
     }
     container.style.cursor = 'default';
     if (tooltip) tooltip.style.display = 'none';
   }
 });
 
-function finishPointer(e) {
-  const isTouch = e.pointerType === 'touch' || e.pointerType === 'pen';
-  const endX = e.clientX || pointerDownPos?.x || 0;
-  const endY = e.clientY || pointerDownPos?.y || 0;
-
-  if (pointerDownPos && pointerDownTarget) {
-    const dist = Math.hypot(endX - pointerDownPos.x, endY - pointerDownPos.y);
-    const elapsed = performance.now() - pointerDownTime;
-    const isTap = (pointerDownIsAction && dist < 36 && elapsed < 1200) || (!pointerDownIsAction && dist < 24 && elapsed < 800);
-
-    if (isTap) {
-      lastInteractionHandledTime = performance.now();
-      executeObjectAction(pointerDownTarget, pointerDownIntersects || [], endX, endY, isTouch);
-    }
-  }
-
-  controls.enabled = true;
-  pointerDownPos = null;
-  pointerDownTarget = null;
-  pointerDownIntersects = null;
-  pointerDownIsAction = false;
-}
-
-renderer.domElement.addEventListener('pointerup', finishPointer);
-renderer.domElement.addEventListener('pointercancel', () => {
-  controls.enabled = true;
-  pointerDownPos = null;
-  pointerDownTarget = null;
-  pointerDownIntersects = null;
-  pointerDownIsAction = false;
-});
-
-// Explicit TouchEvent support for iOS Safari
-renderer.domElement.addEventListener('touchstart', (e) => {
-  if (e.touches.length === 1) {
-    const t = e.touches[0];
-    handlePointerDown({ clientX: t.clientX, clientY: t.clientY, stopPropagation: () => e.stopPropagation(), pointerType: 'touch' });
-  }
-}, { passive: true, capture: true });
-
-renderer.domElement.addEventListener('touchend', (e) => {
-  if (pointerDownTarget && pointerDownPos) {
-    const touch = e.changedTouches?.[0];
-    finishPointer({ clientX: touch ? touch.clientX : pointerDownPos.x, clientY: touch ? touch.clientY : pointerDownPos.y, pointerType: 'touch' });
-  }
-}, { passive: true });
-
-// Fallback click listener for desktop browsers
-window.addEventListener('click', (e) => {
-  // If already executed by pointerup within 350ms, prevent double execution
-  if (performance.now() - lastInteractionHandledTime < 350) return;
-
+// Direct click listener for desktop browsers & accessibility agents
+renderer.domElement.addEventListener('click', (e) => {
+  if (performance.now() - lastInteractionHandledTime < 400) return;
   const intersects = getPointerIntersects(e.clientX, e.clientY);
-  if (intersects.length > 0) {
-    let obj = intersects[0].object;
-    while (obj && !obj.userData.name && obj.parent) {
-      obj = obj.parent;
-    }
-    if (obj && (obj.userData.name || obj.name)) {
-      executeObjectAction(obj, intersects, e.clientX, e.clientY, false);
-    }
+  const resolved = resolveActionableTarget(intersects);
+  if (resolved) {
+    lastInteractionHandledTime = performance.now();
+    executeObjectAction(resolved.target, intersects, e.clientX, e.clientY, false);
   }
 });
 
