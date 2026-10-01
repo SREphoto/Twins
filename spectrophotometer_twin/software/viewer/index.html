@@ -29,8 +29,10 @@
           <button type="button" class="view-btn" id="btn-cam-front" title="Front view">Front</button>
           <button type="button" class="view-btn" id="btn-cam-side" title="Side view">Side</button>
           <button type="button" class="view-btn" id="btn-cam-top" title="Top view">Top</button>
+          <button type="button" class="view-btn" id="btn-cam-rear" title="Rear view">Rear</button>
           <button type="button" class="view-btn" id="btn-explode" title="Separate assemblies">Exploded view</button>
           <button type="button" class="view-btn" id="btn-optics-view" title="Inspect internal optical train & rays">Optics View</button>
+          <button type="button" class="view-btn" id="btn-schematics" title="View interactive optical & electrical schematics">Schematics</button>
           <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe">Wireframe</button>
           <button type="button" class="view-btn" id="btn-auto-rotate" title="Orbit camera automatically">Auto-rotate</button>
           
@@ -165,6 +167,413 @@
     </div>
   </div>
 
+  <!-- Interactive Engineering Schematics Modal -->
+  <div id="schematic-modal" class="schematic-overlay" style="display: none;">
+    <div class="schematic-dialog">
+      <div class="schematic-header">
+        <div class="schematic-title">
+          <span class="schematic-brand">SHIMADZU UV-1900i</span>
+          <h3>Engineering Schematics & System Architecture</h3>
+        </div>
+        <button type="button" class="schematic-close-btn" id="btn-close-schematic" title="Close schematics (ESC)">✕</button>
+      </div>
+
+      <div class="schematic-nav">
+        <button type="button" class="schematic-tab active" data-tab="tab-optics">1. Optical Ray Path & Sample Testing</button>
+        <button type="button" class="schematic-tab" data-tab="tab-wiring">2. Electrical Continuity & Wiring</button>
+        <button type="button" class="schematic-tab" data-tab="tab-fan">3. Cooling Fan Screws & Rear Panel</button>
+      </div>
+
+      <div class="schematic-body">
+        <!-- Tab 1: Optics & Sample Testing -->
+        <div class="schematic-pane active" id="tab-optics">
+          <div class="schematic-legend-box">
+            <h4>How Samples Get Tested (Optical vs. Fluidic Routing)</h4>
+            <p>
+              <strong>Liquid samples do NOT route or pump through tubing inside a UV-Vis spectrophotometer!</strong>
+              The liquid sample is pipetted into a <strong>precision 10 mm quartz cuvette</strong> and placed inside the light-tight sample compartment.
+              <strong>The monochromatic LIGHT BEAM is what travels through the machine</strong>, penetrating through the stationary liquid in the cuvette.
+              The detector measures transmitted photons ($I$) versus incident photons ($I_0$), calculating Absorbance via the <strong>Beer-Lambert Law</strong>:
+              <span class="formula">A = -log₁₀(I / I₀) = ε · c · l</span>
+            </p>
+          </div>
+
+          <div class="schematic-diagram-wrap">
+            <svg class="schematic-svg" viewBox="0 0 960 480" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="uvGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#c084fc"/>
+                  <stop offset="100%" stop-color="#38bdf8"/>
+                </linearGradient>
+                <linearGradient id="visGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#f59e0b"/>
+                  <stop offset="100%" stop-color="#38bdf8"/>
+                </linearGradient>
+                <linearGradient id="spectrumFan" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#8b5cf6"/>
+                  <stop offset="35%" stop-color="#3b82f6"/>
+                  <stop offset="70%" stop-color="#10b981"/>
+                  <stop offset="100%" stop-color="#ef4444"/>
+                </linearGradient>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="3" result="blur"/>
+                  <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+
+              <!-- Grid Background -->
+              <rect width="960" height="480" fill="#090d14" rx="8"/>
+              <g stroke="#1e293b" stroke-width="1" opacity="0.4">
+                <line x1="0" y1="80" x2="960" y2="80"/><line x1="0" y1="160" x2="960" y2="160"/><line x1="0" y1="240" x2="960" y2="240"/><line x1="0" y1="320" x2="960" y2="320"/><line x1="0" y1="400" x2="960" y2="400"/>
+                <line x1="160" y1="0" x2="160" y2="480"/><line x1="320" y1="0" x2="320" y2="480"/><line x1="480" y1="0" x2="480" y2="480"/><line x1="640" y1="0" x2="640" y2="480"/><line x1="800" y1="0" x2="800" y2="480"/>
+              </g>
+
+              <!-- Optical Ray Paths -->
+              <!-- D2 Lamp Ray -->
+              <path d="M 90 120 L 170 180" stroke="#c084fc" stroke-width="3" filter="url(#glow)" fill="none"/>
+              <!-- W Lamp Ray -->
+              <path d="M 90 240 L 170 180" stroke="#f59e0b" stroke-width="3" filter="url(#glow)" fill="none"/>
+              <!-- To Slit & Collimator -->
+              <path d="M 170 180 L 250 180 L 290 80" stroke="#38bdf8" stroke-width="3" filter="url(#glow)" fill="none"/>
+              <!-- Collimator to Grating -->
+              <path d="M 290 80 L 370 180" stroke="#38bdf8" stroke-width="3" filter="url(#glow)" fill="none"/>
+              <!-- Grating to Focusing Mirror (Dispersed Fan) -->
+              <polygon points="370,180 440,75 460,85" fill="url(#spectrumFan)" opacity="0.35"/>
+              <line x1="370" y1="180" x2="450" y2="80" stroke="#a855f7" stroke-width="2"/>
+              <!-- Focusing to Exit Slit & Chopper -->
+              <path d="M 450 80 L 510 180 L 570 180" stroke="#00ffff" stroke-width="3.5" filter="url(#glow)" fill="none"/>
+              <!-- Sample Channel: Chopper through Cuvette to Sample Detector -->
+              <path d="M 570 180 L 730 180 L 890 180" stroke="#00ffff" stroke-width="3.5" filter="url(#glow)" fill="none"/>
+              <!-- Reference Channel: Chopper via Fold Mirrors to Reference Detector -->
+              <path d="M 570 180 L 570 290 L 890 290" stroke="#38bdf8" stroke-width="2" stroke-dasharray="6,4" fill="none"/>
+
+              <!-- Components -->
+              <!-- 1. D2 Lamp -->
+              <g transform="translate(40, 95)">
+                <rect width="65" height="50" rx="4" fill="#1e2230" stroke="#8b5cf6" stroke-width="1.5"/>
+                <circle cx="32" cy="25" r="12" fill="#c084fc" opacity="0.3"/>
+                <circle cx="32" cy="25" r="5" fill="#ffffff"/>
+                <text x="32" y="65" fill="#c084fc" font-size="10" text-anchor="middle" font-weight="600">D₂ Arc Lamp</text>
+                <text x="32" y="77" fill="#64748b" font-size="9" text-anchor="middle">190–340 nm UV</text>
+              </g>
+
+              <!-- 2. W Halogen Lamp -->
+              <g transform="translate(40, 215)">
+                <rect width="65" height="50" rx="4" fill="#1e2230" stroke="#f59e0b" stroke-width="1.5"/>
+                <circle cx="32" cy="25" r="10" fill="#fbbf24" opacity="0.3"/>
+                <circle cx="32" cy="25" r="4" fill="#ffffff"/>
+                <text x="32" y="65" fill="#f59e0b" font-size="10" text-anchor="middle" font-weight="600">Halogen Lamp</text>
+                <text x="32" y="77" fill="#64748b" font-size="9" text-anchor="middle">340–1100 nm Vis</text>
+              </g>
+
+              <!-- 3. Source Selector Mirror -->
+              <g transform="translate(155, 160)">
+                <line x1="0" y1="0" x2="30" y2="40" stroke="#e2e8f0" stroke-width="4" stroke-linecap="round"/>
+                <text x="15" y="-6" fill="#94a3b8" font-size="10" text-anchor="middle">Selector Mirror</text>
+                <text x="15" y="55" fill="#64748b" font-size="9" text-anchor="middle">Flips @ 340nm</text>
+              </g>
+
+              <!-- 4. Entrance Slit -->
+              <g transform="translate(245, 160)">
+                <rect width="8" height="40" fill="#334155" stroke="#94a3b8"/>
+                <line x1="4" y1="12" x2="4" y2="28" stroke="#00ffff" stroke-width="2"/>
+                <text x="4" y="-8" fill="#94a3b8" font-size="10" text-anchor="middle">Entrance Slit</text>
+              </g>
+
+              <!-- 5. Collimating Mirror -->
+              <g transform="translate(265, 55)">
+                <path d="M 0 0 Q 30 15 50 35" stroke="#38bdf8" stroke-width="5" fill="none" stroke-linecap="round"/>
+                <text x="25" y="-8" fill="#38bdf8" font-size="10" text-anchor="middle">Collimating Mirror</text>
+              </g>
+
+              <!-- 6. Diffraction Grating -->
+              <g transform="translate(345, 155)">
+                <rect width="45" height="50" rx="3" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+                <line x1="355" y1="162" x2="355" y2="198" stroke="#38bdf8" stroke-width="1.5"/>
+                <line x1="365" y1="162" x2="365" y2="198" stroke="#38bdf8" stroke-width="1.5"/>
+                <line x1="375" y1="162" x2="375" y2="198" stroke="#38bdf8" stroke-width="1.5"/>
+                <text x="22" y="65" fill="#38bdf8" font-size="11" text-anchor="middle" font-weight="700">LO-RAY-LIGH Grating</text>
+                <text x="22" y="78" fill="#64748b" font-size="9" text-anchor="middle">1200 lines/mm (λ scan)</text>
+              </g>
+
+              <!-- 7. Focusing Mirror -->
+              <g transform="translate(425, 55)">
+                <path d="M 0 35 Q 20 15 50 0" stroke="#38bdf8" stroke-width="5" fill="none" stroke-linecap="round"/>
+                <text x="25" y="-8" fill="#38bdf8" font-size="10" text-anchor="middle">Focusing Mirror</text>
+              </g>
+
+              <!-- 8. Exit Slit & Filter Wheel -->
+              <g transform="translate(495, 160)">
+                <rect width="8" height="40" fill="#334155" stroke="#94a3b8"/>
+                <circle cx="20" cy="20" r="16" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,2"/>
+                <text x="14" y="-8" fill="#94a3b8" font-size="10" text-anchor="middle">Exit Slit / Filters</text>
+              </g>
+
+              <!-- 9. Rotating Sector Chopper -->
+              <g transform="translate(545, 155)">
+                <circle cx="25" cy="25" r="22" fill="#1e293b" stroke="#e2e8f0" stroke-width="2"/>
+                <path d="M 25 25 L 25 3 A 22 22 0 0 1 47 25 Z" fill="#94a3b8" opacity="0.6"/>
+                <path d="M 25 25 L 25 47 A 22 22 0 0 1 3 25 Z" fill="#94a3b8" opacity="0.6"/>
+                <text x="25" y="-8" fill="#e2e8f0" font-size="10" text-anchor="middle" font-weight="600">Sector Chopper</text>
+                <text x="25" y="60" fill="#64748b" font-size="9" text-anchor="middle">Splits Sample / Ref</text>
+              </g>
+
+              <!-- 10. Sample Chamber & 10mm Cuvette -->
+              <g transform="translate(680, 110)">
+                <!-- Sample Chamber Box -->
+                <rect width="100" height="130" rx="6" fill="#0f172a" stroke="#00ffff" stroke-width="2" stroke-dasharray="4,3"/>
+                <text x="50" y="-10" fill="#00ffff" font-size="12" text-anchor="middle" font-weight="700">Sample Chamber</text>
+
+                <!-- Cuvette -->
+                <rect x="35" y="25" width="30" height="80" rx="3" fill="#1e293b" stroke="#e2e8f0" stroke-width="1.5"/>
+                <!-- Liquid column -->
+                <rect x="38" y="40" width="24" height="62" rx="2" fill="#a855f7" opacity="0.75"/>
+                <line x1="38" y1="40" x2="62" y2="40" stroke="#c084fc" stroke-width="1.5"/>
+
+                <text x="50" y="75" fill="#ffffff" font-size="9" text-anchor="middle" font-weight="700">Cuvette</text>
+                <text x="50" y="87" fill="#e2e8f0" font-size="8" text-anchor="middle">10 mm path</text>
+                <text x="50" y="120" fill="#00ffff" font-size="9" text-anchor="middle">Stationary Sample</text>
+              </g>
+
+              <!-- 11. Reference Channel & Cuvette -->
+              <g transform="translate(680, 260)">
+                <rect x="35" y="10" width="30" height="60" rx="3" fill="#1e293b" stroke="#64748b" stroke-width="1"/>
+                <rect x="38" y="20" width="24" height="48" rx="2" fill="#38bdf8" opacity="0.3"/>
+                <text x="50" y="45" fill="#94a3b8" font-size="8" text-anchor="middle">Ref Blank</text>
+                <text x="50" y="82" fill="#64748b" font-size="9" text-anchor="middle">Reference Path (I₀)</text>
+              </g>
+
+              <!-- 12. Photodiode Detectors -->
+              <g transform="translate(860, 155)">
+                <rect width="60" height="50" rx="4" fill="#1e2230" stroke="#00ffff" stroke-width="2"/>
+                <circle cx="30" cy="25" r="10" fill="#0284c7"/>
+                <text x="30" y="65" fill="#00ffff" font-size="10" text-anchor="middle" font-weight="700">Sample Det.</text>
+                <text x="30" y="78" fill="#64748b" font-size="9" text-anchor="middle">Silicon PIN (I)</text>
+              </g>
+
+              <g transform="translate(860, 265)">
+                <rect width="60" height="50" rx="4" fill="#1e2230" stroke="#38bdf8" stroke-width="1.5"/>
+                <circle cx="30" cy="25" r="10" fill="#0369a1"/>
+                <text x="30" y="65" fill="#38bdf8" font-size="10" text-anchor="middle" font-weight="600">Ref Det.</text>
+                <text x="30" y="78" fill="#64748b" font-size="9" text-anchor="middle">Silicon PIN (I₀)</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Tab 2: Electrical Block Diagram -->
+        <div class="schematic-pane" id="tab-wiring">
+          <div class="schematic-legend-box">
+            <h4>Electrical Architecture & Physical Wiring Continuity</h4>
+            <p>
+              Dual-power safety isolation: AC mains routes through double-pole switch & ceramic fuses into universal SMPS.
+              Dedicated high-voltage ignition circuitry drives the D₂ arc lamp, while precision constant current drives the Halogen bulb.
+              Low-noise detector analog signals route via shielded RG-174 coaxial cables directly to a 24-bit delta-sigma ADC.
+            </p>
+          </div>
+
+          <div class="schematic-diagram-wrap">
+            <svg class="schematic-svg" viewBox="0 0 960 440" xmlns="http://www.w3.org/2000/svg">
+              <rect width="960" height="440" fill="#090d14" rx="8"/>
+
+              <!-- Power Rails & Buses -->
+              <line x1="80" y1="120" x2="220" y2="120" stroke="#ef4444" stroke-width="3"/>
+              <line x1="80" y1="135" x2="220" y2="135" stroke="#f1f5f9" stroke-width="2"/>
+              <line x1="80" y1="150" x2="160" y2="240" stroke="#84cc16" stroke-width="2.5" stroke-dasharray="4,2"/>
+
+              <!-- Block: AC Mains Inlet -->
+              <g transform="translate(30, 85)">
+                <rect width="90" height="85" rx="5" fill="#161e2e" stroke="#ef4444" stroke-width="2"/>
+                <text x="45" y="24" fill="#ef4444" font-size="11" font-weight="700" text-anchor="middle">AC INLET</text>
+                <text x="45" y="42" fill="#94a3b8" font-size="9" text-anchor="middle">IEC 60320 C14</text>
+                <text x="45" y="58" fill="#e2e8f0" font-size="9" text-anchor="middle">2x 250V 2A Fuses</text>
+                <text x="45" y="74" fill="#84cc16" font-size="8" text-anchor="middle">PE Earth Ground</text>
+              </g>
+
+              <!-- Block: Rocker Switch -->
+              <g transform="translate(150, 95)">
+                <rect width="70" height="65" rx="4" fill="#161e2e" stroke="#ef4444" stroke-width="1.5"/>
+                <text x="35" y="24" fill="#ef4444" font-size="10" font-weight="700" text-anchor="middle">DPST SWITCH</text>
+                <text x="35" y="42" fill="#94a3b8" font-size="9" text-anchor="middle">Red Rocker</text>
+                <text x="35" y="56" fill="#64748b" font-size="8" text-anchor="middle">Isolates L + N</text>
+              </g>
+
+              <!-- Chassis Ground Stud -->
+              <g transform="translate(135, 230)">
+                <circle cx="15" cy="15" r="14" fill="#d4af37" opacity="0.3"/>
+                <circle cx="15" cy="15" r="8" fill="#d4af37"/>
+                <text x="15" y="38" fill="#d4af37" font-size="9" font-weight="700" text-anchor="middle">Chassis Ground</text>
+                <text x="15" y="49" fill="#84cc16" font-size="8" text-anchor="middle">M4 Brass Stud</text>
+              </g>
+
+              <!-- Block: SMPS Power Supply -->
+              <g transform="translate(260, 75)">
+                <rect width="180" height="230" rx="6" fill="#111827" stroke="#38bdf8" stroke-width="2"/>
+                <text x="90" y="26" fill="#38bdf8" font-size="12" font-weight="700" text-anchor="middle">SMPS POWER SUPPLY</text>
+                <text x="90" y="42" fill="#64748b" font-size="9" text-anchor="middle">Universal 85–264V AC Input</text>
+
+                <!-- Sub-circuits inside SMPS -->
+                <rect x="15" y="55" width="150" height="42" rx="3" fill="#1e293b" stroke="#f97316"/>
+                <text x="90" y="73" fill="#f97316" font-size="10" font-weight="600" text-anchor="middle">D₂ Arc Lamp Igniter</text>
+                <text x="90" y="87" fill="#94a3b8" font-size="8" text-anchor="middle">400V Strike / 85V Arc Lead</text>
+
+                <rect x="15" y="105" width="150" height="42" rx="3" fill="#1e293b" stroke="#f59e0b"/>
+                <text x="90" y="123" fill="#f59e0b" font-size="10" font-weight="600" text-anchor="middle">Halogen Constant Current</text>
+                <text x="90" y="137" fill="#94a3b8" font-size="8" text-anchor="middle">12V DC Regulated Ballast</text>
+
+                <rect x="15" y="155" width="150" height="60" rx="3" fill="#1e293b" stroke="#10b981"/>
+                <text x="90" y="173" fill="#10b981" font-size="10" font-weight="600" text-anchor="middle">Low-Voltage DC Rails</text>
+                <text x="90" y="188" fill="#e2e8f0" font-size="8" text-anchor="middle">+24V (Motors) · +12V (Fan)</text>
+                <text x="90" y="202" fill="#e2e8f0" font-size="8" text-anchor="middle">+5V (Logic) · +3.3V (MCU)</text>
+              </g>
+
+              <!-- Lines from SMPS to Components -->
+              <!-- HV to D2 -->
+              <path d="M 440 85 L 530 85" stroke="#f97316" stroke-width="3"/>
+              <!-- Vis to Halogen -->
+              <path d="M 440 135 L 530 135" stroke="#f59e0b" stroke-width="2.5"/>
+              <!-- DC Bus to MCU -->
+              <path d="M 440 195 L 530 195" stroke="#10b981" stroke-width="3.5"/>
+
+              <!-- Actuators: D2, Halogen, Fan -->
+              <g transform="translate(530, 65)">
+                <rect width="110" height="40" rx="4" fill="#1e2230" stroke="#f97316" stroke-width="1.5"/>
+                <text x="55" y="24" fill="#f97316" font-size="10" font-weight="600" text-anchor="middle">D₂ UV Lamp</text>
+              </g>
+
+              <g transform="translate(530, 115)">
+                <rect width="110" height="40" rx="4" fill="#1e2230" stroke="#f59e0b" stroke-width="1.5"/>
+                <text x="55" y="24" fill="#f59e0b" font-size="10" font-weight="600" text-anchor="middle">Halogen Bulb</text>
+              </g>
+
+              <!-- Block: 80mm Cooling Fan -->
+              <g transform="translate(530, 240)">
+                <rect width="110" height="55" rx="4" fill="#1e2230" stroke="#00ffff" stroke-width="1.5"/>
+                <text x="55" y="22" fill="#00ffff" font-size="10" font-weight="600" text-anchor="middle">80mm Fan (12V)</text>
+                <text x="55" y="36" fill="#94a3b8" font-size="8" text-anchor="middle">4x M4 Corner Screws</text>
+                <text x="55" y="48" fill="#64748b" font-size="8" text-anchor="middle">2x M4 Base Screws</text>
+              </g>
+              <path d="M 440 215 L 485 215 L 485 265 L 530 265" stroke="#00ffff" stroke-width="2" fill="none"/>
+
+              <!-- Block: Main Motherboard & DSP -->
+              <g transform="translate(530, 170)">
+                <rect width="180" height="150" rx="6" fill="#064e3b" stroke="#34d399" stroke-width="2"/>
+                <text x="90" y="24" fill="#ffffff" font-size="11" font-weight="700" text-anchor="middle">DSP MOTHERBOARD</text>
+                <text x="90" y="40" fill="#a7f3d0" font-size="8" text-anchor="middle">32-bit ARM Cortex-M7 Controller</text>
+                <line x1="15" y1="48" x2="165" y2="48" stroke="#047857"/>
+                <text x="25" y="65" fill="#e2e8f0" font-size="8">▶ Grating Stepper Motor Driver</text>
+                <text x="25" y="80" fill="#e2e8f0" font-size="8">▶ 6-Cell Turret Indexer Driver</text>
+                <text x="25" y="95" fill="#e2e8f0" font-size="8">▶ 24-bit Low-Noise Delta-Sigma ADC</text>
+                <text x="25" y="110" fill="#e2e8f0" font-size="8">▶ Chamber Door Safety Interlock</text>
+                <text x="25" y="125" fill="#e2e8f0" font-size="8">▶ USB-A, USB-B & RS-232 Drivers</text>
+              </g>
+
+              <!-- Block: User Console & Touchscreen -->
+              <g transform="translate(760, 110)">
+                <rect width="165" height="110" rx="6" fill="#161a20" stroke="#f59e0b" stroke-width="2"/>
+                <text x="82" y="25" fill="#f59e0b" font-size="11" font-weight="700" text-anchor="middle">7" TOUCHSCREEN (UI_LCD)</text>
+                <text x="82" y="42" fill="#94a3b8" font-size="8" text-anchor="middle">High-Resolution Canvas Display</text>
+                <text x="82" y="62" fill="#e2e8f0" font-size="9" text-anchor="middle">Amber Kapton FPC Ribbon</text>
+                <text x="82" y="82" fill="#64748b" font-size="8" text-anchor="middle">Tactile Keycaps + Digitizer</text>
+              </g>
+              <path d="M 710 200 L 760 160" stroke="#d97706" stroke-width="3" fill="none"/>
+
+              <!-- Block: Detector Pre-Amp & Shielded Coax -->
+              <g transform="translate(760, 260)">
+                <rect width="165" height="75" rx="5" fill="#1e2230" stroke="#00ffff" stroke-width="2"/>
+                <text x="82" y="24" fill="#00ffff" font-size="10" font-weight="700" text-anchor="middle">DETECTOR PRE-AMP PCB</text>
+                <text x="82" y="40" fill="#94a3b8" font-size="8" text-anchor="middle">Silicon PIN Photodiode (Sample)</text>
+                <text x="82" y="55" fill="#94a3b8" font-size="8" text-anchor="middle">Shielded RG-174 Coax + SMA</text>
+              </g>
+              <path d="M 760 295 L 710 295" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="4,2"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Tab 3: Fan Fasteners & Rear Panel -->
+        <div class="schematic-pane" id="tab-fan">
+          <div class="schematic-legend-box">
+            <h4>Cooling Fan Fastener Breakdown & Rear Bulkhead Legend</h4>
+            <p>
+              In accordance with Rule 1 (Exhaustive Procedural Detail), the cooling fan is secured by <strong>exactly six (6) genuine DIN 912 M4 hex socket cap screws</strong>.
+              Four screws clamp the steel wire finger-guard through silicone vibration dampers to the fan frame and cowl bracket.
+              Two screws bolt the bracket foot directly to the die-cast baseplate chassis.
+            </p>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px;">
+            <div style="background: #111827; border: 1px solid var(--border); border-radius: 8px; padding: 14px;">
+              <h5 style="color: var(--cyan); margin: 0 0 10px 0; font-size: 0.95rem;">Fan Screws (6 Total) Specification Table</h5>
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.78rem;">
+                <thead>
+                  <tr style="border-bottom: 1px solid #334155; color: var(--muted); text-align: left;">
+                    <th style="padding: 6px 4px;">Fastener ID</th>
+                    <th style="padding: 6px 4px;">Type & Size</th>
+                    <th style="padding: 6px 4px;">Location / Placement</th>
+                    <th style="padding: 6px 4px;">Connected Components</th>
+                  </tr>
+                </thead>
+                <tbody style="color: #e2e8f0;">
+                  <tr style="border-bottom: 1px solid #1e293b;">
+                    <td style="padding: 6px 4px; font-family: var(--mono); color: var(--amber);">Fastener_FanMount_M4_1</td>
+                    <td style="padding: 6px 4px;">DIN 912 M4×16 Hex</td>
+                    <td style="padding: 6px 4px;">Top-Left Ear (X=-0.28, Y=+0.28)</td>
+                    <td style="padding: 6px 4px;">Wire Guard → Fan Frame → Clinch Nut</td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #1e293b;">
+                    <td style="padding: 6px 4px; font-family: var(--mono); color: var(--amber);">Fastener_FanMount_M4_2</td>
+                    <td style="padding: 6px 4px;">DIN 912 M4×16 Hex</td>
+                    <td style="padding: 6px 4px;">Top-Right Ear (X=+0.28, Y=+0.28)</td>
+                    <td style="padding: 6px 4px;">Wire Guard → Fan Frame → Clinch Nut</td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #1e293b;">
+                    <td style="padding: 6px 4px; font-family: var(--mono); color: var(--amber);">Fastener_FanMount_M4_3</td>
+                    <td style="padding: 6px 4px;">DIN 912 M4×16 Hex</td>
+                    <td style="padding: 6px 4px;">Bottom-Left Ear (X=-0.28, Y=-0.28)</td>
+                    <td style="padding: 6px 4px;">Wire Guard → Fan Frame → Clinch Nut</td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #1e293b;">
+                    <td style="padding: 6px 4px; font-family: var(--mono); color: var(--amber);">Fastener_FanMount_M4_4</td>
+                    <td style="padding: 6px 4px;">DIN 912 M4×16 Hex</td>
+                    <td style="padding: 6px 4px;">Bottom-Right Ear (X=+0.28, Y=-0.28)</td>
+                    <td style="padding: 6px 4px;">Wire Guard → Fan Frame → Clinch Nut</td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #1e293b;">
+                    <td style="padding: 6px 4px; font-family: var(--mono); color: var(--cyan);">Fastener_FanBracket_Base_1</td>
+                    <td style="padding: 6px 4px;">DIN 912 M4×10 Hex</td>
+                    <td style="padding: 6px 4px;">Bracket Foot Left (X=1.65, Y=0.30)</td>
+                    <td style="padding: 6px 4px;">Cowl Bracket Foot → Baseplate Chassis</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 4px; font-family: var(--mono); color: var(--cyan);">Fastener_FanBracket_Base_2</td>
+                    <td style="padding: 6px 4px;">DIN 912 M4×10 Hex</td>
+                    <td style="padding: 6px 4px;">Bracket Foot Right (X=1.79, Y=0.30)</td>
+                    <td style="padding: 6px 4px;">Cowl Bracket Foot → Baseplate Chassis</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div style="background: #111827; border: 1px solid var(--border); border-radius: 8px; padding: 14px;">
+              <h5 style="color: var(--cyan); margin: 0 0 10px 0; font-size: 0.95rem;">Rear Bulkhead Panel Connector Legend</h5>
+              <ul style="margin: 0; padding-left: 20px; font-size: 0.8rem; line-height: 1.6; color: #cbd5e1;">
+                <li><strong>IEC C14 AC Power Inlet:</strong> 100–240V AC 50/60Hz, dual 250V 2A fuses.</li>
+                <li><strong>DPST Rocker Power Switch:</strong> Illuminated red switch isolating both Line & Neutral.</li>
+                <li><strong>Dual USB-A Ports:</strong> For USB flash drives, barcode reader, or laboratory printer.</li>
+                <li><strong>DB-9 RS-232C Port:</strong> Serial automation interface for legacy LIMS and external titrators.</li>
+                <li><strong>BNC Trigger / Analog Out:</strong> 50Ω female BNC for stop-flow triggers or chart recorder out.</li>
+                <li><strong>Recessed Exhaust Louvers:</strong> 8 downward-sloped louvers protecting internal 80mm fan.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script type="importmap">
   {
     "imports": {
@@ -173,6 +582,6 @@
     }
   }
   </script>
-  <script type="module" src="app.js?v=20260924-v3"></script>
+  <script type="module" src="app.js?v=20260930-v6"></script>
 </body>
 </html>

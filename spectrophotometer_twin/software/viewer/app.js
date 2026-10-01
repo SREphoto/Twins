@@ -5,10 +5,11 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import {
   createSpectrophotometerModel,
   wavelengthToRGB,
-} from './spectrophotometer3d.js';
+} from './spectrophotometer3d.js?v=20260930-v6';
 import { sfx } from './sfx.js';
 
 // --- State Engine ---
@@ -40,14 +41,14 @@ const state = {
   keycapAnims: [],    // Active physical button depressions
 };
 
-// Chemical sample Gaussian peak profiles
+// Chemical sample Gaussian peak profiles & physical standards
 const SAMPLES = {
-  1: { name: 'Deionized Water Blank', bands: [], offset: 0.000 },
-  2: { name: 'KMnO4 (Potassium Permanganate)', bands: [[508, 0.62, 22], [525, 1.25, 26], [546, 0.95, 24]], offset: 0.002 },
-  3: { name: 'Calf Thymus DNA (TE Buffer)', bands: [[260, 1.15, 34], [280, 0.62, 40]], offset: 0.003 },
-  4: { name: 'BSA Protein (Bradford Assay)', bands: [[595, 1.42, 55]], offset: 0.002 },
-  5: { name: 'Methylene Blue Dye', bands: [[612, 0.45, 30], [664, 1.68, 38]], offset: 0.002 },
-  6: { name: 'Empty Chamber Slot', bands: [], offset: 0.001 },
+  1: { name: 'Blank Reference (DI Water)', formula: 'H2O', bands: [], offset: 0.000, color: 0xf1f5f9, opacity: 0.40, peak: 'None (A = 0.000)' },
+  2: { name: 'Potassium Permanganate (KMnO4)', formula: 'KMnO4 (100 µM)', bands: [[508, 0.62, 22], [525, 1.25, 26], [546, 0.95, 24]], offset: 0.002, color: 0x9333ea, opacity: 0.92, peak: '525 nm (A = 1.25)' },
+  3: { name: 'Calf Thymus DNA (TE Buffer)', formula: 'dsDNA (50 ng/µL)', bands: [[260, 1.15, 34], [280, 0.62, 40]], offset: 0.003, color: 0xe0f2fe, opacity: 0.50, peak: '260 nm (A = 1.15)' },
+  4: { name: 'BSA Protein (Bradford Assay)', formula: 'BSA (1.0 mg/mL)', bands: [[595, 1.42, 55]], offset: 0.002, color: 0x2563eb, opacity: 0.90, peak: '595 nm (A = 1.42)' },
+  5: { name: 'Chlorophyll a Extract', formula: 'C55H72MgN4O5', bands: [[430, 1.45, 32], [662, 1.38, 28]], offset: 0.002, color: 0x16a34a, opacity: 0.90, peak: '430 & 662 nm (A = 1.45)' },
+  6: { name: 'Oxidized Cytochrome c', formula: 'Heme (25 µM)', bands: [[409, 1.55, 20], [530, 0.48, 24], [550, 0.65, 22]], offset: 0.002, color: 0xea580c, opacity: 0.88, peak: '409 & 550 nm (A = 1.55)' },
 };
 
 function calculateAbsorbance(cellNum, wl) {
@@ -407,16 +408,30 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
 container.appendChild(renderer.domElement);
 
+// Photorealistic Studio Environment Map for Specular Reflection & Mirrors
+const pmremGenerator = new THREE.PMREMGenerator(renderer);
+pmremGenerator.compileEquirectangularShader();
+scene.environment = pmremGenerator.fromScene(new RoomEnvironment()).texture;
+scene.environmentIntensity = 1.35;
+
+// Precision specular directional fill light targeting internal optical bench mirrors
+const opticsKeyLight = new THREE.DirectionalLight(0xffffff, 1.6);
+opticsKeyLight.position.set(-1.0, 5.0, 2.5);
+opticsKeyLight.target.position.set(-0.25, 0.65, 1.2);
+scene.add(opticsKeyLight);
+scene.add(opticsKeyLight.target);
+
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(0.0, 1.15, -0.2);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
 controls.maxPolarAngle = Math.PI / 2 + 0.05;
 controls.minDistance = 1.5;
-controls.maxDistance = 14.0;
+controls.maxDistance = 35.0;
 
 window.camera = camera;
 window.controls = controls;
+window.state = state;
 
 function onWindowResize() {
   if (!container || !camera || !renderer) return;
@@ -453,6 +468,9 @@ scene.add(fillLight);
 // Build 3D Spectrophotometer Model
 const { root: machineRoot, interactiveObjects, animTargets, setOpticsView } = createSpectrophotometerModel({ includeLab: true });
 scene.add(machineRoot);
+window.interactiveObjects = interactiveObjects;
+window.camera = camera;
+window.controls = controls;
 
 // Bind dynamic LCD canvas to UI_LCD mesh
 if (animTargets.lcdMesh) {
@@ -829,7 +847,13 @@ window.addEventListener('mousemove', (e) => {
         tooltip.style.display = 'block';
         tooltip.style.left = `${e.clientX + 14}px`;
         tooltip.style.top = `${e.clientY + 14}px`;
-        tooltip.textContent = obj.userData.action || obj.userData.name;
+        const title = obj.userData.title || obj.userData.name.replace(/_/g, ' ');
+        const desc = obj.userData.action || obj.userData.desc || '';
+        if (desc) {
+          tooltip.innerHTML = `<div class="hud-title">${title}</div><div class="hud-desc">${desc}</div>`;
+        } else {
+          tooltip.innerHTML = `<div class="hud-title">${title}</div>`;
+        }
       }
       return;
     }
@@ -968,6 +992,10 @@ const CAMERA_PRESETS = {
     target: new THREE.Vector3(0.0, 1.0, -0.2),
     up: new THREE.Vector3(0.0, 0.0, 1.0),
   },
+  rear: {
+    pos: new THREE.Vector3(0.0, 2.6, 6.8),
+    target: new THREE.Vector3(0.0, 1.05, 0.6),
+  },
   exploded: {
     pos: new THREE.Vector3(6.5, 5.5, -8.5),
     target: new THREE.Vector3(0.0, 1.6, -0.2),
@@ -987,7 +1015,7 @@ function setCameraPreset(presetName) {
   }
   controls.update();
 
-  ['iso', 'front', 'side', 'top'].forEach((key) => {
+  ['iso', 'front', 'side', 'top', 'rear'].forEach((key) => {
     document.getElementById(`btn-cam-${key}`)?.classList.remove('active');
   });
   document.getElementById(`btn-cam-${presetName}`)?.classList.add('active');
@@ -996,10 +1024,49 @@ function setCameraPreset(presetName) {
 
 window.setCameraPreset = setCameraPreset;
 
-['iso', 'front', 'side', 'top'].forEach((key) => {
+['iso', 'front', 'side', 'top', 'rear'].forEach((key) => {
   document.getElementById(`btn-cam-${key}`)?.addEventListener('click', () => {
     setCameraPreset(key);
   });
+});
+
+// Schematics Modal Interactivity
+const schematicModal = document.getElementById('schematic-modal');
+const btnSchematics = document.getElementById('btn-schematics');
+const btnCloseSchematic = document.getElementById('btn-close-schematic');
+
+function toggleSchematics(show) {
+  if (!schematicModal) return;
+  const isVisible = show !== undefined ? show : (schematicModal.style.display === 'none');
+  schematicModal.style.display = isVisible ? 'flex' : 'none';
+  btnSchematics?.classList.toggle('active', isVisible);
+  sfx.click();
+}
+
+btnSchematics?.addEventListener('click', () => toggleSchematics());
+btnCloseSchematic?.addEventListener('click', () => toggleSchematics(false));
+schematicModal?.addEventListener('click', (e) => {
+  if (e.target === schematicModal) toggleSchematics(false);
+});
+
+// Tab switching
+document.querySelectorAll('.schematic-tab').forEach((tab) => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.schematic-tab').forEach((t) => t.classList.remove('active'));
+    document.querySelectorAll('.schematic-pane').forEach((p) => p.classList.remove('active'));
+    tab.classList.add('active');
+    const targetId = tab.getAttribute('data-tab');
+    document.getElementById(targetId)?.classList.add('active');
+    sfx.click();
+  });
+});
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && schematicModal && schematicModal.style.display !== 'none') {
+    toggleSchematics(false);
+  } else if ((e.key === 's' || e.key === 'S') && !e.target.matches('input, textarea')) {
+    toggleSchematics();
+  }
 });
 
 
@@ -1076,8 +1143,8 @@ function animate() {
     animTargets.diffractionGrating.rotation.y = gratingAngle;
   }
 
-  // 7. Dual-Beam Chopper Wheel Continuous Rotation
-  if (animTargets.chopperWheel) {
+  // 7. Dual-Beam Chopper Wheel Continuous Rotation (Synchronized with Electrical Power)
+  if (animTargets.chopperWheel && state.power) {
     const spinSpeed = state.stateName === 'SCANNING' ? 18.0 : 6.0;
     animTargets.chopperWheel.rotation.z += spinSpeed * dt;
   }
@@ -1085,6 +1152,11 @@ function animate() {
   // 8. Rear Cooling Fan Rotation
   if (animTargets.coolingFanHub && state.power) {
     animTargets.coolingFanHub.rotation.z += 12.0 * dt;
+  }
+
+  // 8b. SMPS Dedicated Cooling Fan Rotation (synchronized with power state)
+  if (animTargets.smpsFanHub && state.power) {
+    animTargets.smpsFanHub.rotation.z += 10.0 * dt;
   }
 
   // 9. Source Selection Mirror Arm Pivot
@@ -1097,9 +1169,27 @@ function animate() {
   if (animTargets.opticalRayMats && animTargets.opticalRayMats.length > 0) {
     const beamColor = wavelengthToRGB(state.currentWl);
     animTargets.opticalRayMats.forEach((mat) => {
-      mat.color.copy(beamColor);
-      mat.opacity = 0.75 + 0.15 * Math.sin(now * 0.008);
+      if (mat.userData && mat.userData.keepSpectralColor) {
+        // Retain authentic dispersed rainbow fan colors (violet, green, red) from holographic grating
+        mat.opacity = 0.80 + 0.12 * Math.sin(now * 0.008);
+      } else {
+        mat.color.copy(beamColor);
+        mat.opacity = 0.75 + 0.15 * Math.sin(now * 0.008);
+      }
     });
+  }
+
+  if (animTargets.probeBeamMat) {
+    const beamColor = wavelengthToRGB(state.currentWl);
+    animTargets.probeBeamMat.color.copy(beamColor);
+    animTargets.probeBeamMat.opacity = (state.power && !state.chamberOpen) ? (0.75 + 0.15 * Math.sin(now * 0.008)) : 0.0;
+  }
+
+  // 10b. Lamp Source Ray Cutoff Switching (D2 for UV < 340 nm, Tungsten for Vis >= 340 nm)
+  if (animTargets.raySourceD2 && animTargets.raySourceW) {
+    const isUV = state.currentWl < 340;
+    animTargets.raySourceD2.mat.opacity = (isUV && state.power) ? 0.90 : 0.04;
+    animTargets.raySourceW.mat.opacity = (!isUV && state.power) ? 0.90 : 0.04;
   }
 
   // 11. Tactile Keycap Depression Animation Loop

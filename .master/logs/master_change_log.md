@@ -4,6 +4,232 @@ Newest first. Template: `templates/change_log_entry.md`.
 
 ---
 
+## 2026-09-30 · OGA-CAD & SRE-TWIN · rebuild-spectrophotometer-motherboard-and-connectors
+
+| Field   | Value                                                                                                                                                                                                                                                            |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | OGA-CAD (Master Orchestration) / Digital Twin Architecture Team                                                                                                                                                                                                 |
+| Machine | `spectrophotometer_twin`, `workspace`                                                                                                                                                                                                                            |
+| Intent  | Remediate spectrophotometer interior mechanics and electrical continuity to meet the Centrifuge Standard: procedural high-density DSP motherboard (32-bit DSP with 7-fin heatsink, 8GB eMMC flash, 512MB SDRAM buffer, 24-bit delta-sigma ADC, 4x modular stepper driver daughterboards, CR2032 RTC battery socket, quartz crystals, radial electrolytic capacitors with pressure relief tops, high-DPI copper traces & guard rings), SMPS with 6-position phenolic barrier block, genuine keyed JST/IDC/SMA/FPC mating connectors and sockets, console LCD sub-board interconnect, upright rear silkscreen labels (DIAG-005, DIAG-015), rigid CNC aluminum chopper pedestal, 32m x 32m lab room, bench duplex pedestal with EMT conduit, and interactive SVG schematics modal. |
+
+### Changed
+
+- `spectrophotometer_twin/software/viewer/spectrophotometer3d.js`: Procedural DSP motherboard, SMPS with phenolic barrier block, JST-VH/XH headers and mating plugs, IDC box header, FPC ZIF sockets, SMA coaxial connectors, Faston spade crimp terminals, CNC chopper mounting pedestal, benchtop power pedestal with EMT conduit, 32m x 32m laboratory room shell, and inverted UV coordinates on rear silkscreen meshes (`flipY = false`).
+- `spectrophotometer_twin/software/viewer/index.html`: Added "Schematics" interactive button to header toolbar and integrated modal dialog container.
+- `spectrophotometer_twin/software/viewer/style.css`: Styles for the interactive engineering schematics modal, SVG diagrams, and tabbed technical navigation.
+- `spectrophotometer_twin/software/viewer/app.js`: Interactive schematics modal controller with 4 technical SVG views (Optical Train, Wiring & Power, Fan Fastener Array, Motherboard Architecture) and Beer-Lambert formula callouts.
+- `spectrophotometer_twin/docs/SCHEMATICS.md`: Added Sections 10, 11, and 12 detailing procedural DSP motherboard architecture, SMPS barrier terminal block, and complete physical connector/pinout legends.
+- `.master/logs/troubleshooting_log.md`: Added DIAG-029 entry documenting motherboard procedural realism, physical connector terminations, and rear silkscreen orientation.
+
+---
+
+## 2026-09-26 · OGA-CAD · build-f1-2026-rear-wing-twin
+
+| Field   | Value                                                                                                                                                                                                                                                            |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | OGA-CAD (Master Orchestration) / F1 Digital Twin Architecture Team                                                                                                                                                                                               |
+| Machine | `f1_2026_rear_wing_twin`, `workspace`                                                                                                                                                                                                                            |
+| Intent  | Build the 2026 Formula 1 Active Rear Wing & Endplate Assembly digital twin (`f1_2026_rear_wing_twin`) from scratch: procedural 3D modeling in Three.js (3D contoured spoon airfoil mainplane, intermediate aux flap, active upper flap 26° to 3°, twin swan-neck pylons arching over wing suction surface, Moog electro-hydraulic actuator with braided hoses, dual helical titanium failsafe return springs, 6x slot-gap separators, planar carbon endplates with upwash strakes and 12x M6 Torx fasteners), pure Python controller and unit test suite (100% pass rate), interactive Gold-Standard UI with Part Explorer and active aero telemetry, full compliance with OGA-CAD governance. |
+
+### Changed
+
+- `f1_2026_rear_wing_twin/docs/dimensions.md`: 1:1 CAD dimensions, coordinates, materials, and physics equations.
+- `f1_2026_rear_wing_twin/docs/BOM.md`: Full Bill of Materials.
+- `f1_2026_rear_wing_twin/research/sources.md`: FIA 2026 Articles C3.10 & C3.11 regulatory concordance.
+- `f1_2026_rear_wing_twin/software/controller/rear_wing_controller.py`: Pure Python controller modeling active aero modes, flap slew rates, dynamic downforce/drag, hydraulic failsafe (<140 ms), and deceleration interlock.
+- `f1_2026_rear_wing_twin/software/controller/test_controller.py`: Comprehensive unit test suite (5/5 tests passing).
+- `f1_2026_rear_wing_twin/software/viewer/index.html`: Gold-Standard UI layout with collapsible telemetry and Part Explorer.
+- `f1_2026_rear_wing_twin/software/viewer/style.css`: Dark lab theme stylesheet with glowing gauges.
+- `f1_2026_rear_wing_twin/software/viewer/rear_wing3d.js`: Procedural 3D model adhering to Semantic Part Taxonomy.
+- `f1_2026_rear_wing_twin/software/viewer/app.js`: Real-time orchestrator, active flap kinematics, and Part Explorer.
+- `.master/logs/report_cards/2026-09-26_OGA-CAD_build-f1-2026-rear-wing-twin.md`: Added session report card.
+
+---
+
+## 2026-09-26 · OGA-CAD · build-f1-2026-gearbox-twin
+
+| Field   | Value                                                                                                                                                                                                                                                            |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | OGA-CAD (Master Orchestration) / F1 Digital Twin Architecture Team                                                                                                                                                                                               |
+| Machine | `f1_2026_gearbox_twin`, `workspace`                                                                                                                                                                                                                             |
+| Intent  | Build the 2026 Formula 1 Transmission, Active LSD, Rear Suspension & Rear Impact Structure digital twin (`f1_2026_gearbox_twin`) from scratch: procedural 3D modeling in Three.js (Ti-CFRP casing, 8-speed gear cluster with selector dogs, active electro-hydraulic LSD, hollow gun-drilled driveshafts, aero wishbones, pushrod struts, bellcrank rockers, downsized rear brakes, 50 kJ RIS crash cone, 4 Hz flashing rain light, M10/M12 studs), pure Python controller and unit test suite (100% pass rate), interactive Gold-Standard UI with Part Explorer and driveline telemetry, full compliance with OGA-CAD governance. |
+
+### Changed
+
+- `f1_2026_gearbox_twin/docs/dimensions.md`: 1:1 CAD dimensions, coordinates, materials, and physics equations.
+- `f1_2026_gearbox_twin/docs/BOM.md`: Full Bill of Materials.
+- `f1_2026_gearbox_twin/research/sources.md`: FIA 2026 Articles C9, C10, C11, C13 regulatory concordance.
+- `f1_2026_gearbox_twin/software/controller/gearbox_controller.py`: Pure Python controller modeling 8-speed seamless shifting, active differential preload, suspension kinematics, and RIS compliance.
+- `f1_2026_gearbox_twin/software/controller/test_controller.py`: Comprehensive unit test suite (5/5 tests passing).
+- `f1_2026_gearbox_twin/software/viewer/index.html`: Gold-Standard UI layout with collapsible telemetry and Part Explorer.
+- `f1_2026_gearbox_twin/software/viewer/style.css`: Dark lab theme stylesheet with glowing gauges.
+- `f1_2026_gearbox_twin/software/viewer/gearbox3d.js`: Procedural 3D model adhering to Semantic Part Taxonomy.
+- `f1_2026_gearbox_twin/software/viewer/app.js`: Real-time orchestrator, paddle gear shifting, differential modes, and Part Explorer.
+- `.master/logs/report_cards/2026-09-26_OGA-CAD_build-f1-2026-gearbox-twin.md`: Added session report card.
+
+---
+
+## 2026-09-26 · OGA-CAD · build-f1-2026-powertrain-twin
+
+| Field   | Value                                                                                                                                                                                                                                                            |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | OGA-CAD (Master Orchestration) / F1 Digital Twin Architecture Team                                                                                                                                                                                               |
+| Machine | `f1_2026_powertrain_twin`, `workspace`                                                                                                                                                                                                                          |
+| Intent  | Build the 2026 Formula 1 Powertrain, 350 kW MGU-K & High-Voltage Energy Store digital twin (`f1_2026_powertrain_twin`) from scratch: procedural 3D modeling in Three.js (1.6L 90° V6 crankcase, DOHC cylinder heads, carbon plenum with 6 runners, single turbocharger with Inconel turbine, twin electronic wastegates, 130 mm tailpipe, 350 kW MGU-K motor, dual SiC inverters, 800V-900V immersion battery pack tub, M12 studs), pure Python controller and unit test suite (100% pass rate), interactive Gold-Standard UI with Part Explorer and 50/50 hybrid telemetry, full compliance with OGA-CAD governance. |
+
+### Changed
+
+- `f1_2026_powertrain_twin/docs/dimensions.md`: 1:1 CAD dimensions, coordinates, materials, and physics equations.
+- `f1_2026_powertrain_twin/docs/BOM.md`: Full Bill of Materials.
+- `f1_2026_powertrain_twin/research/sources.md`: FIA 2026 Articles C5 & C6 regulatory concordance.
+- `f1_2026_powertrain_twin/software/controller/powertrain_controller.py`: Pure Python controller modeling 50/50 hybrid output, fuel energy flow limit (3,000 MJ/h), and crash pyrofuse isolation.
+- `f1_2026_powertrain_twin/software/controller/test_controller.py`: Comprehensive unit test suite (5/5 tests passing).
+- `f1_2026_powertrain_twin/software/viewer/index.html`: Gold-Standard UI layout with collapsible telemetry and Part Explorer.
+- `f1_2026_powertrain_twin/software/viewer/style.css`: Dark lab theme stylesheet with glowing gauges.
+- `f1_2026_powertrain_twin/software/viewer/powertrain3d.js`: Procedural 3D model adhering to Semantic Part Taxonomy.
+- `f1_2026_powertrain_twin/software/viewer/app.js`: Real-time orchestrator, dynamic throttle/RPM/regen controls, and Part Explorer.
+- `.master/logs/report_cards/2026-09-26_OGA-CAD_build-f1-2026-powertrain-twin.md`: Added session report card.
+
+---
+
+## 2026-09-26 · OGA-CAD · build-f1-2026-floor-twin
+
+| Field   | Value                                                                                                                                                                                                                                                            |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | OGA-CAD (Master Orchestration) / F1 Digital Twin Architecture Team                                                                                                                                                                                               |
+| Machine | `f1_2026_floor_twin`, `workspace`                                                                                                                                                                                                                                |
+| Intent  | Build the 2026 Formula 1 Underbody Floor, Venturi Channels, Plank & Diffuser digital twin (`f1_2026_floor_twin`) from scratch: procedural 3D modeling in Three.js (1,450 mm partially flat carbon deck, 10.0 mm Jabroc plank with 3x inspection holes, 4x flush titanium skid pucks with dynamic spark particles, 10 underfloor fences, sealing winglets, 10.5° rear expansion ramp, tyre squirt notches), pure Python controller and unit test suite (100% pass rate), interactive Gold-Standard UI with Part Explorer, underneath inverted view, and ground effect telemetry, full compliance with OGA-CAD governance. |
+
+### Changed
+
+- `f1_2026_floor_twin/docs/dimensions.md`: 1:1 CAD dimensions, coordinates, materials, and physics equations.
+- `f1_2026_floor_twin/docs/BOM.md`: Full Bill of Materials.
+- `f1_2026_floor_twin/research/sources.md`: FIA 2026 Articles C3.5 & C3.6 regulatory concordance.
+- `f1_2026_floor_twin/software/controller/floor_controller.py`: Pure Python controller modeling anti-porpoising linearized ground effect, plank wear budget, and titanium spark telemetry.
+- `f1_2026_floor_twin/software/controller/test_controller.py`: Comprehensive unit test suite (5/5 tests passing).
+- `f1_2026_floor_twin/software/viewer/index.html`: Gold-Standard UI layout with collapsible telemetry and Part Explorer.
+- `f1_2026_floor_twin/software/viewer/style.css`: Dark lab theme stylesheet with glowing gauges.
+- `f1_2026_floor_twin/software/viewer/floor3d.js`: Procedural 3D model adhering to Semantic Part Taxonomy.
+- `f1_2026_floor_twin/software/viewer/app.js`: Real-time orchestrator, dynamic ride height articulation, titanium sparks, and Part Explorer.
+- `.master/logs/report_cards/2026-09-26_OGA-CAD_build-f1-2026-floor-twin.md`: Added session report card.
+
+---
+
+## 2026-09-26 · OGA-CAD · build-f1-2026-front-assembly-twin
+
+| Field   | Value                                                                                                                                                                                                                                                            |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | OGA-CAD (Master Orchestration) / F1 Digital Twin Architecture Team                                                                                                                                                                                               |
+| Machine | `f1_2026_front_assembly_twin`, `workspace`                                                                                                                                                                                                                       |
+| Intent  | Build the master unified 2026 Formula 1 Front Quarter Car digital twin (`f1_2026_front_assembly_twin`) on Universal Chassis Datum [0,0,0], unifying Monocoque, Active Front Wing, Suspension Wishbones, and Brake Corner: procedural 3D modeling in Three.js (162 components), pure Python master controller and unit test suite (100% pass rate), cross-system safety interlocks (heavy braking auto-shuts active wing to Z-Mode), interactive Gold-Standard UI with Part Explorer and master telemetry, full compliance with OGA-CAD governance. |
+
+### Changed
+
+- `f1_2026_front_assembly_twin/docs/dimensions.md`: Unified 1:1 CAD coordinates, tolerances, and integration envelope.
+- `f1_2026_front_assembly_twin/docs/BOM.md`: Full 162-component Bill of Materials.
+- `f1_2026_front_assembly_twin/research/sources.md`: FIA 2026 Articles C3, C10, C11, C13 regulatory concordance.
+- `f1_2026_front_assembly_twin/software/controller/front_assembly_controller.py`: Master integrated pure Python controller modeling braking torque, active aero modes, suspension bump/anti-dive, and chassis rigidity.
+- `f1_2026_front_assembly_twin/software/controller/test_controller.py`: Comprehensive unit test suite (5/5 tests passing).
+- `f1_2026_front_assembly_twin/software/viewer/index.html`: Gold-Standard UI layout with collapsible master telemetry and Part Explorer.
+- `f1_2026_front_assembly_twin/software/viewer/style.css`: Dark lab theme stylesheet with glowing gauges.
+- `f1_2026_front_assembly_twin/software/viewer/app.js`: Master orchestrator unifying monocoque, active wing, suspension, and brake corner in real time.
+- `.master/logs/report_cards/2026-09-26_OGA-CAD_build-f1-2026-front-assembly-twin.md`: Added session report card.
+
+---
+
+## 2026-09-26 · OGA-CAD · build-f1-2026-front-wing-twin
+
+| Field   | Value                                                                                                                                                                                                                                                            |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | OGA-CAD (Master Orchestration) / F1 Digital Twin Architecture Team                                                                                                                                                                                               |
+| Machine | `f1_2026_front_wing_twin`, `workspace`                                                                                                                                                                                                                           |
+| Intent  | Build the 2026 Formula 1 Active Front Wing & Two-Stage FIS Nosecone digital twin (`f1_2026_front_wing_twin`) from scratch: procedural 3D modeling in Three.js (Two-Stage FIS crash cone, 4x M14 titanium studs, 1,850 mm carbon spoon mainplane, intermediate flaps, active articulating flaps 24° to 6°, inwash endplates, micro diveplanes, Moog EHA actuators, pitot sensors), pure Python controller and unit test suite (100% pass rate), interactive Gold-Standard UI with Part Explorer and active aero telemetry, full compliance with OGA-CAD governance. |
+
+### Changed
+
+- `f1_2026_front_wing_twin/docs/dimensions.md`: 1:1 CAD dimensions, coordinates, materials, and physics equations.
+- `f1_2026_front_wing_twin/docs/BOM.md`: Full Bill of Materials.
+- `f1_2026_front_wing_twin/research/sources.md`: FIA 2026 Articles C3 & C13 regulatory concordance.
+- `f1_2026_front_wing_twin/software/controller/front_wing_controller.py`: Pure Python controller modeling active aero modes, flap slew rates, dynamic downforce/drag, hydraulic failsafe, and bilateral asymmetry abort.
+- `f1_2026_front_wing_twin/software/controller/test_controller.py`: Comprehensive unit test suite (5/5 tests passing).
+- `f1_2026_front_wing_twin/software/viewer/index.html`: Gold-Standard UI layout with collapsible telemetry and Part Explorer.
+- `f1_2026_front_wing_twin/software/viewer/style.css`: Dark lab theme stylesheet with glowing gauges.
+- `f1_2026_front_wing_twin/software/viewer/front_wing3d.js`: Procedural 3D model adhering to Semantic Part Taxonomy.
+- `f1_2026_front_wing_twin/software/viewer/app.js`: Real-time orchestrator, active flap kinematics, and Part Explorer.
+- `.master/logs/report_cards/2026-09-26_OGA-CAD_build-f1-2026-front-wing-twin.md`: Added session report card.
+
+---
+
+## 2026-09-26 · OGA-CAD · build-f1-2026-suspension-twin
+
+| Field   | Value                                                                                                                                                                                                                                                            |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | OGA-CAD (Master Orchestration) / F1 Digital Twin Architecture Team                                                                                                                                                                                               |
+| Machine | `f1_2026_suspension_twin`, `workspace`                                                                                                                                                                                                                           |
+| Intent  | Build the 2026 Formula 1 Front Suspension & Steering Linkage digital twin (`f1_2026_suspension_twin`) as the kinematic bridge from monocoque to brake corner: procedural 3D modeling in Three.js (aero wishbones, 14.2° anti-dive rake, carbon pull-rod, Ti bellcrank, HPAS tie-rod, 4x 7.0 kJ Zylon tethers, upright carrier, BBS wheel), pure Python controller and unit test suite (100% pass rate), interactive Gold-Standard UI with Part Explorer and dynamic travel/steer kinematics, full compliance with OGA-CAD governance. |
+
+### Changed
+
+- `f1_2026_suspension_twin/docs/dimensions.md`: 1:1 CAD dimensions, coordinates, materials, and physics equations.
+- `f1_2026_suspension_twin/docs/BOM.md`: Full Bill of Materials.
+- `f1_2026_suspension_twin/research/sources.md`: FIA 2026 Articles C10 & C13 regulatory concordance.
+- `f1_2026_suspension_twin/software/controller/suspension_controller.py`: Pure Python controller modeling bump kinematics, camber gain, pull-rod tension, and anti-dive.
+- `f1_2026_suspension_twin/software/controller/test_controller.py`: Comprehensive unit test suite (4/4 tests passing).
+- `f1_2026_suspension_twin/software/viewer/index.html`: Gold-Standard UI layout with collapsible telemetry and Part Explorer.
+- `f1_2026_suspension_twin/software/viewer/style.css`: Dark lab theme stylesheet with glowing gauges.
+- `f1_2026_suspension_twin/software/viewer/suspension3d.js`: Procedural 3D model adhering to Semantic Part Taxonomy.
+- `f1_2026_suspension_twin/software/viewer/app.js`: Real-time orchestrator, dynamic kinematics articulation, and Part Explorer.
+- `.master/logs/report_cards/2026-09-26_OGA-CAD_build-f1-2026-suspension-twin.md`: Added session report card.
+
+---
+
+## 2026-09-26 · OGA-CAD · build-f1-2026-monocoque-twin
+
+| Field   | Value                                                                                                                                                                                                                                                            |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | OGA-CAD (Master Orchestration) / F1 Digital Twin Architecture Team                                                                                                                                                                                               |
+| Machine | `f1_2026_monocoque_twin`, `workspace`                                                                                                                                                                                                                           |
+| Intent  | Build the 2026 Formula 1 Survival Cell Monocoque & Master Chassis Datum digital twin (`f1_2026_monocoque_twin`) from scratch: establish universal reference origin [0,0,0], procedural 3D modeling in Three.js (carbon/Zylon tub, 125 kN titanium Halo, 172 kN roll hoop with twin combustion/cooling splitters, front bulkhead with FIS spigots and 14.2° anti-dive wishbone clevises, bead seat, 180 kgf pedal sled, PCU-8D display), pure Python controller and unit test suite (100% pass rate), interactive Gold-Standard UI with Part Explorer, full compliance with OGA-CAD governance. |
+
+### Changed
+
+- `f1_2026_monocoque_twin/docs/dimensions.md`: 1:1 CAD dimensions, coordinates, materials, and physics equations.
+- `f1_2026_monocoque_twin/docs/BOM.md`: Full Bill of Materials.
+- `f1_2026_monocoque_twin/research/sources.md`: FIA 2026 Articles C13 & C14 regulatory concordance.
+- `f1_2026_monocoque_twin/software/controller/monocoque_controller.py`: Pure Python controller modeling chassis torsional stiffness, 172 kN proof test, and safety systems.
+- `f1_2026_monocoque_twin/software/controller/test_controller.py`: Comprehensive unit test suite (4/4 tests passing).
+- `f1_2026_monocoque_twin/software/viewer/index.html`: Gold-Standard UI layout with collapsible telemetry and Part Explorer.
+- `f1_2026_monocoque_twin/software/viewer/style.css`: Dark lab theme stylesheet with glowing gauges.
+- `f1_2026_monocoque_twin/software/viewer/monocoque3d.js`: Procedural 3D model adhering to Semantic Part Taxonomy.
+- `f1_2026_monocoque_twin/software/viewer/app.js`: Real-time orchestrator, dynamic telemetry, and Part Explorer.
+- `.master/logs/report_cards/2026-09-26_OGA-CAD_build-f1-2026-monocoque-twin.md`: Added session report card.
+
+---
+
+## 2026-09-26 · OGA-CAD · build-f1-2026-front-brake-corner-twin
+
+| Field   | Value                                                                                                                                                                                                                                                            |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | OGA-CAD (Master Orchestration) / F1 Digital Twin Architecture Team                                                                                                                                                                                               |
+| Machine | `f1_2026_brake_twin`, `workspace`                                                                                                                                                                                                                               |
+| Intent  | Build the 2026 Formula 1 Front Brake Corner digital twin (`f1_2026_brake_twin`) from scratch: procedural 3D modeling in Three.js (1,400+ chevron holes, floating bobbins, Al-Li 2099 monobloc caliper, castellated pistons with EPDM square rollback seals, BBS magnesium wheel), pure Python controller and unit test suite (100% pass rate), interactive Gold-Standard UI with Part Explorer and Web Audio API synthesizer, full compliance with OGA-CAD governance. |
+
+### Changed
+
+- `f1_2026_brake_twin/docs/dimensions.md`: 1:1 CAD dimensions, tolerances, materials, and physics equations.
+- `f1_2026_brake_twin/docs/BOM.md`: Full 42-component Bill of Materials.
+- `f1_2026_brake_twin/research/oem_specs.md`: Brembo & AP Racing F1 2026 regulatory concordance documentation.
+- `f1_2026_brake_twin/software/controller/f1_brake_controller.py`: Dual-truth pure Python controller.
+- `f1_2026_brake_twin/software/controller/test_controller.py`: Comprehensive unit test suite (6/6 tests passing).
+- `f1_2026_brake_twin/software/viewer/index.html`: Gold-Standard UI layout with collapsible telemetry and Part Explorer.
+- `f1_2026_brake_twin/software/viewer/style.css`: Dark lab theme stylesheet with glowing gauges.
+- `f1_2026_brake_twin/software/viewer/f1_brake3d.js`: Procedural 3D model adhering to Semantic Part Taxonomy.
+- `f1_2026_brake_twin/software/viewer/app.js`: Real-time orchestrator, dynamic blackbody glow shader, and simulation presets.
+- `f1_2026_brake_twin/software/viewer/sfx.js`: Web Audio API sound synthesizer.
+- `.master/logs/report_cards/2026-09-26_OGA-CAD_build-f1-2026-front-brake-corner-twin.md`: Added session report card.
+
+---
+
 ## 2026-09-25 · OGA-CAD & VBA · remediate-vortex-fluid-and-establish-vortex-guild
 
 | Field   | Value                                                                                                                                                                                                                                                            |

@@ -4,6 +4,85 @@ Newest first. Template: `templates/troubleshooting_entry.md`.
 
 ---
 
+## 2026-09-30 · OGA-CAD & SRE-TWIN · spectrophotometer-motherboard-connectors-and-continuity [DIAG-029] [DIAG-005] [DIAG-014] [DIAG-015]
+
+| Field    | Value                                                              |
+| -------- | ------------------------------------------------------------------ |
+| Status   | resolved                                                           |
+| Machine  | spectrophotometer_twin                                             |
+| Severity | high                                                               |
+
+**Problem:** 
+1. The motherboard lacked realism, with no recognizable processor, memory chips, modular stepper drivers, or high-density PCB traces.
+2. Internal cables ended in empty space with no physical mating connectors or sockets.
+3. Rear panel silkscreen labels were inverted when setting `CanvasTexture.flipY = false`.
+4. Room walls ($8\text{m} \times 8\text{m}$) occluded the camera when orbiting behind the spectrophotometer.
+5. The rotating optical sector chopper wheel was floating without a physical mounting pedestal.
+6. Electrical wiring lacked physical continuity to a benchtop utility power outlet.
+
+**Symptoms:** 
+- Inverted text on rear panel ports (`CAM_REAR`).
+- Wires floating in mid-air inside the chassis.
+- Camera clipping into the back wall when orbiting to inspect rear connectors.
+- Unrealistic floating chopper wheel and non-physical electronics.
+
+**Cause:** 
+- Standard Three.js `PlaneGeometry` has UV $V = 1$ at the top; disabling `flipY` without inverting UV Y coordinates maps canvas $Y = 0$ to $V = 0$, inverting the texture vertically (DIAG-005).
+- Absence of procedural mating connector geometry (JST, IDC, SMA, ZIF, Faston) and mating socket definitions.
+- Room enclosure bounds were set too close to the bench datum.
+
+**Fix:** 
+1. **Procedural High-Density DSP Motherboard (`Assembly_Motherboard_DSP`):**
+   - High-DPI 1024x1024 canvas texture with dark green solder mask, serpentine copper traces, analog ground guard ring, plated vias, test pads, and silkscreen legend.
+   - 32-bit floating-point DSP microprocessor with 7-fin extruded black anodized aluminum heatsink.
+   - 8 GB eMMC flash storage IC (non-volatile firmware and calibration tables) and 512 MB SDRAM buffer (volatile kinetic scan buffer).
+   - 24-bit low-noise Delta-Sigma ADC and gold-plated threaded SMA coaxial jack (`Socket_SMA_AnalogIn`).
+   - 4 modular stepper driver daughterboards (Grating, Carousel Turret, Sector Selector, Order Filter) with mini heatsinks and trimpots.
+   - CR2032 Lithium coin-cell battery in nickel-plated socket, 25.000 MHz quartz crystal, and 32.768 kHz cylindrical RTC crystal.
+   - 6 radial aluminum electrolytic filter capacitors with cross-scored pressure relief tops.
+2. **Procedural Mating Connectors & Physical Termination:**
+   - Modeled keyed nylon shrouded headers and mating plugs: 4-pin JST-VH (DC power), 3-pin JST-XH (cooling fan), 3x 4-pin JST-XH (stepper motors), 10-pin shrouded IDC box header (RS-232 UART), 5-pin JST (USB internal), 2-pin header (BNC external trigger).
+   - 40-pin flip-lock FPC ZIF connectors mating with an amber Kapton polyimide flex ribbon connecting to the front console LCD sub-board (`PCB_LCD_Controller`).
+   - 6-position phenolic barrier terminal block on SMPS with brass binding screws, square clamping washers, clear acrylic hinged safety cover, and blue insulated Faston spade crimp terminals.
+3. **Rear Silkscreen Orientation Inversion (DIAG-005, DIAG-015):**
+   - Inverted buffer geometry UV coordinates (`uvAttr.setY(i, 1.0 - uvAttr.getY(i))`) when `flipY = false`, guaranteeing 100% upright, crisp, unmirrored typography across all 5 rear panel silkscreen markings.
+4. **Spacious Laboratory Room Enclosure:**
+   - Expanded room shell to $32\text{m} \times 32\text{m} \times 10\text{m}$ with perimeter baseboards, ceiling LED troffer lights, and yellow safety hazard border, providing $>12\text{m}$ of clear rear aisle viewing space.
+5. **Rigid CNC Aluminum Chopper Pedestal:**
+   - Machined 6061-T6 aluminum mounting stand with dual triangular stiffening gussets, clamped to the optical baseplate by two DIN 912 M3 socket head cap screws with washers (`Fastener_ChopperBase_01`, `02`).
+6. **Benchtop Duplex Power Pedestal & EMT Feed (DIAG-014):**
+   - Cast aluminum dual-gang NEMA 5-20R service pedestal bolted to the benchtop with 4 stainless M5 anchor bolts.
+   - 1-inch trade size galvanized EMT conduit with compression locknuts and subfloor $90^\circ$ sweep elbow housing three continuous #12 AWG THHN copper conductors.
+   - Molded NEMA 5-15P plug inserted into receptacle with hard continuity cutoff when unplugged.
+
+**Prevention:** Mandate DIAG-029: All internal electronic circuit boards must feature genuine procedural component geometry (processing ICs, flash, RAM, ADC, modular drivers, passive filtering) and every harness conductor must terminate into a physically modeled mating plug and socket connector.
+
+---
+
+## 2026-09-26 · OGA-CAD · active-flap-slew-and-fis-crash-attenuation [DIAG-023]
+
+| Field    | Value                                                              |
+| -------- | ------------------------------------------------------------------ |
+| Status   | resolved                                                           |
+| Machine  | f1_2026_front_wing_twin                                            |
+| Severity | medium                                                             |
+
+**Problem:** Front active aerodynamic flaps and Two-Stage Front Impact Structure (FIS) require strict geometric hinge alignment and continuous crash load path verification without mesh penetration during X-mode depitch.
+
+**Symptoms:** Flaps rotating around incorrect center coordinates would clip the mainplane trailing edge or separate into free space.
+
+**Cause:** Fixed-point group rotations without defining local hinge pivot vectors `(x_hinge, y_hinge, z_hinge)` can induce non-physical orbit rather than authentic aerodynamic flap pitch.
+
+**Fix:**
+1. Positioned `Pivot_Wing_ActiveFlap_LH_Element3` and `Pivot_Wing_ActiveFlap_RH_Element3` with origin placed strictly at the titanium hinge pin axis `[-7.2, 1.8, ±1.6]`.
+2. Applied local Z-axis pitch rotation `rotation.z = angleDeltaRad` bounded to $0.0\text{ rad}$ ($24.0^\circ$ Z-Mode) to $-0.314\text{ rad}$ ($6.0^\circ$ X-Mode).
+3. Modeled genuine 3D titanium hinge dowels, slot gap separators, and Moog EHA actuator pushrods tracking the articulation.
+4. Mated the Stage 2 FIS structure to Bulkhead A-A using 4x M14 titanium mounting studs with $>350\text{ kN}$ tensile strength.
+
+**Prevention:** Mandate DIAG-023: All active aerodynamic surfaces must have local group coordinate origins coincidence with mechanical hinge pins, and dynamic angular limits must prevent airfoil mesh intersection.
+
+---
+
 ## 2026-09-25 · SHAA-3D · fix-vortex-fluid-and-establish-vortex-guild [ISS-003] [DIAG-006]
 
 | Field    | Value                                                              |
@@ -336,4 +415,61 @@ No blockers while creating `.master` structure.
 **Problem:** `getPartGroup` in `ultrasonic3d.js` evaluated regex for `Body_` first, which caused all newly compliant part names (e.g. `Body_BasinFloor`, `Body_ControllerPCB`, `Body_LidPlate`) to be categorized as "Chassis" instead of their specific subsystems.
 
 **Fix:** Reordered regex evaluations so specific domains (Controls, Tank, Basket, Lid, Fluid, Electronics) evaluate prior to the generic `Body_` chassis fallback.
+
+---
+
+## 2026-09-26 · OGA-CAD · f1_2026_powertrain_twin [DIAG-026]
+
+| Field    | Value                     |
+| -------- | ------------------------- |
+| Status   | resolved                  |
+| Machine  | `f1_2026_powertrain_twin` |
+| Severity | medium                    |
+
+**Problem:** 
+1. 2026 Formula 1 regulations (Articles C5 and C6) require strict 50/50 hybrid parity: 405 kW (543 hp) 1.6L V6 turbocharged ICE and 350 kW (469 hp) MGU-K with a 3,000 MJ/h maximum energy flow rate and elimination of the MGU-H.
+2. High-voltage 800V-900V DC bus required redundant crash pyrofuse isolation disconnecting in under 10 ms to prevent electrical hazards.
+
+**Fix:** 
+1. Implemented dual-truth energy flow calculation ($EF \le 3000\text{ MJ/h}$) and MGU-K kinetic deployment / braking regeneration in pure Python controller (`software/controller/powertrain_controller.py`) and JavaScript runtime (`app.js`).
+2. Engineered crash pyrofuse circuit breaker logic with SECU latching, isolating the 800V DC bus and cutting MGU-K output to 0 kW immediately. 5/5 controller unit tests passing (100%).
+
+---
+
+## 2026-09-26 · OGA-CAD · f1_2026_gearbox_twin [DIAG-027]
+
+| Field    | Value                   |
+| -------- | ----------------------- |
+| Status   | resolved                |
+| Machine  | `f1_2026_gearbox_twin`  |
+| Severity | medium                  |
+
+**Problem:** 
+1. Primary reduction / final drive gearing in Formula 1 requires authentic scaling ($R_{\text{final}} = 5.400$) to match realistic road speeds across all 8 homologated forward ratios (1st gear ~91 km/h up to 8th gear ~350 km/h at 11,500 RPM).
+2. Rear Impact Structure (RIS) must withstand $\ge 50.0\text{ kJ}$ kinetic crash energy at $12\text{ m/s}$ while housing the FIA mandated $4\text{ Hz}$ pulsing rain safety light.
+
+**Fix:** 
+1. Configured exact FIA 2026 8-speed gear ratios and 5.400 final drive in pure Python controller (`gearbox_controller.py`) and Three.js client runtime (`app.js`) with $4.5\text{ ms}$ seamless shift dog engagement.
+2. Implemented active electro-hydraulic LSD preload curves (Entry 65%, Apex 25%, Exit 85%) and 50 kJ RIS energy absorption verification with 4 Hz pulsing rain light. 5/5 unit tests passing (100%).
+
+---
+
+## 2026-09-26 · OGA-CAD · f1_2026_rear_wing_twin [DIAG-028]
+
+| Field    | Value                     |
+| -------- | ------------------------- |
+| Status   | resolved                  |
+| Machine  | `f1_2026_rear_wing_twin`  |
+| Severity | medium                    |
+
+**Problem:** 
+1. 2026 Active Rear Wing (FIA Article C3.10) requires 3-element aerodynamic articulation from Z-Mode ($26.0^\circ$ AoA, $C_L = 2.15$) to X-Mode ($3.0^\circ$ AoA, $C_L = 0.72$) achieving a $58.8\%$ rear wing drag reduction on straights, while guaranteeing mechanical snap-shut in under $140\text{ ms}$ if hydraulic line pressure drops below $120\text{ bar}$.
+2. Braking safety interlock (Article C3.11): deceleration $\ge 1.8\text{g}$ must force immediate high downforce re-engagement to prevent aerodynamic detachment entering braking zones.
+3. 3D procedural CAD fidelity: avoid generic boxes/cylinders; require 3D contoured spoon airfoil geometry with $45\text{ mm}$ center droop, twin swan-neck goosenecks, Moog hydraulic ram with braided hoses, dual helical return springs with guide arbors, and genuine socket head cap screws with recessed hex sockets.
+
+**Fix:** 
+1. Implemented dual-truth aerodynamics and kinematic transition timing ($180\text{ ms}$ normal, $140\text{ ms}$ spring snap-shut) in pure Python controller (`rear_wing_controller.py`) and client JS runtime (`app.js`).
+2. Programmed deceleration threshold interlock ($>1.8\text{g}$) and hydraulic pressure monitor ($<120\text{ bar}$ trigger) in both controller and UI.
+3. Modeled genuine 3D procedural spoon airfoil, aux flap, active upper flap, swan-neck pylons, Moog actuator, dual helical springs, 6 slot-gap separators, and 16 countersunk/socket-head fasteners with recessed sockets. 5/5 tests passing (100%). Closed-loop visual QA audited via CDP screenshot `scratch/rear_wing_cdp.png`.
+
 

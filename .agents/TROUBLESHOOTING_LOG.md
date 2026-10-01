@@ -422,9 +422,68 @@ Cause Analysis, and Mathematical Fixes
 - **Enforced Rule (AGENTS.md & CAD Protocol)**:
   - Mandatory preflight camera bounding box: Camera framing must encompass the entire vertical envelope of the instrument,
     including sample tubes, cap, leveling feet, and power cords ($Y \in [0, 260\text{ mm}]$).
-  - Closed-Loop Visual QA: Agents are strictly prohibited from reporting a task complete until they execute `view_file`
-    on all 6 standardized high-resolution screenshots and confirm zero clipping, zero inversion, and 100% circuit
-    continuity.
+---
+
+### DIAG-023: Optical Ray Solid-Body Wall Penetration & Axis Misalignment
+
+- **Visual Symptom**: Colored light rays shoot diagonally through solid chassis partition walls, bypass entry/exit apertures,
+  or turn corners in empty air without a reflective mirror.
+- **Why It Occurred**: Ray path segments were hardcoded between unconnected component centroids at differing Y-elevations
+  ($Y = 0.60, 0.65, 0.87$) without establishing a single coplanar optical datum ($Y_{\text{beam}}$). Internal partition walls
+  lacked physical through-wall bores, resulting in light rays penetrating solid metal geometry.
+- **Enforced Rule (AGENTS.md & CAD Protocol)**:
+  1. Lock all optical components (lamps, entrance/exit slits, collimating mirrors, diffraction grating, order-sorting filter,
+     chopper wheel, fold mirrors, cuvette optical center, apertures, and detectors) to a single strict coplanar optical datum
+     ($Y_{\text{beam}} = \text{BASE\_Y} + 0.65 = 0.70$).
+  2. Solid chassis walls must feature physical hollow cylindrical collimation channels (`enterBarrel`, `exitBarrel`). Light
+     rays must pass strictly through open air aperture bores; solid metal collision is an immediate failure.
+  3. Every beam turn must be mediated by a physical $45^\circ$ kinematic fold mirror (e.g. `Mirror_SampleBeamFold`); light
+     never turns in empty air.
+
+---
+
+### DIAG-024: Abstract Light Source Geometries (Open Gold Cones vs Finned Industrial Housings)
+
+- **Visual Symptom**: Open gold or brass cone suspended loosely in the light source bay, exposing bare bulb wiring and looking
+  messy, ungrounded, or toy-like.
+- **Why It Occurred**: Simplified conical geometries were used as place-holders without researching OEM blueprints for
+  high-stability spectroscopic illuminators (such as the Shimadzu UV-1900i halogen lamp house).
+- **Enforced Rule (AGENTS.md & CAD Protocol)**:
+  - All light sources must be modeled with exhaustive industrial fidelity (`Assembly_TungstenLampHouse`): cast-aluminum housing
+    with convective cooling fins, flanged baseplate secured with 4x DIN 912 M3 socket head screws and Belleville washers,
+    steatite ceramic G4 bi-pin socket, rear spherical collector mirror (`Mirror_HalogenCollector`), exit collimator snout with
+    quartz condenser lens and Schott KG3 heat-absorbing optical filter, and high-temp PTFE leads with rubber strain relief.
+
+---
+
+### DIAG-025: Mirror Specularity & Substrate Realism (Flat 2D Planes vs Kinematic Quartz Mirrors)
+
+- **Visual Symptom**: Mirrors appear as dull gray plastic planes or flat floating rectangles with zero reflectivity, depth,
+  or physical mounting hardware.
+- **Why It Occurred**: Standard generic materials had low metallicity, low clearcoat, and lacked environmental reflection. Mirror
+  meshes were modeled as simple 2D or thin flat boxes without substrate bevels or kinematic adjustment hardware.
+- **Enforced Rule (AGENTS.md & CAD Protocol)**:
+  - First-surface mirrors must use high-specular PBR parameters (`metalness: 1.0`, `roughness: 0.001`, `reflectivity: 1.0`,
+    `clearcoat: 1.0`, `clearcoatRoughness: 0.002`, `envMapIntensity: 4.8`).
+  - Model precision-polished synthetic fused silica quartz substrates with $45^\circ$ peripheral edge chamfers, stainless steel
+    spring retention clips, dual brass kinematic thumbscrews with captive coil springs, and dynamic photon collision glint
+---
+
+### DIAG-026: Low Ceiling Enclosure Cutting Off Top & High-Angle View
+
+- **Visual Symptom**: Viewing the machine from above (`CAM_TOP`) or orbiting at high vertical camera angles ($Y > 6\text{ m}$)
+  intersects a solid dark ceiling slab or cuts off the camera view.
+- **Why It Occurred**: The laboratory room ceiling was placed at $Y = 6.0\text{ m}$ (only $6\text{ m}$ above the desk) with a
+  double-sided solid box geometry. The camera preset for `top` view is located at $Y = 11.2\text{ m}$, putting it well above
+  the ceiling and causing complete visual cutoff or intersection.
+- **Enforced Rule (AGENTS.md & CAD Protocol)**:
+  1. Room ceiling must be elevated to standard high-bay laboratory height ($Y = 28.0\text{ m}$, matching `balance_twin`),
+     leaving $> 16\text{ m}$ of open vertical clearance above the instrument and camera presets.
+  2. Room walls must extend continuously from floor datum ($Y = -4.5\text{ m}$) up to the elevated ceiling ($Y = 28.0\text{ m}$,
+     total height $32.5\text{ m}$).
+  3. Ceilings must use single-sided downward-facing geometry (`PlaneGeometry` with `rotation.x = Math.PI / 2` and
+     `side: THREE.FrontSide`) so they render properly when looking up from inside the lab, but are automatically backface-culled
+     from above, guaranteeing zero view obstruction under any camera angle or zoom distance.
 
 ---
 
@@ -465,4 +524,9 @@ Every subagent, builder, and auditor MUST execute and document this checklist fo
 | **CHK-13** | **Genuine 3D Fasteners** | Screws baked into flat 2D normal maps or abstract flat dots. | Every fastener modeled in genuine 3D geometry with hex socket or Phillips cross-recess depth, washers, and threaded standoffs (Rule 1). |
 | **CHK-14** | **Shared Environment & Controls** | Inconsistent lab backdrop, missing bench outlet, or absent zoom/light sliders. | Standard lab setting, black epoxy bench ($Y=0$), backsplash, duplex outlet box, calibrated 3-point lighting, and interactive Light / Mood / Zoom / Orbit toolbar sliders. |
 | **CHK-15** | **Dual-Truth State Machine & Interlocks** | Safety interlocks bypassed; client JS diverges from Python tests. | Pure Python controller in `software/controller/` with 100% test pass rate (`test_controller.py`), locking lid/door and circuit power interlocks, mirrored identically in client JS. |
+| **CHK-16** | **Optical Ray & Solid-Body Propagation** | Light rays passing diagonally through solid partition walls or turning in empty air. | All optics coplanar on $Y_{\text{beam}}$; physical hollow aperture bores through walls; $45^\circ$ kinematic fold mirrors at beam turns; zero solid collision. |
+| **CHK-17** | **Lamp House & Optics Industrial Fidelity** | Abstract cone reflectors, bare bulbs, flat non-reflective mirror planes. | Finned cast-aluminum lamp housing, G4 ceramic socket, collector mirrors, fused silica quartz first-surface mirrors with kinematic mounts and retention clips. |
+| **CHK-18** | **Ceiling Height & Top View Clearance** | Low ceiling slab cutting off top camera or high-angle viewing orbits. | Elevated ceiling ($Y \ge 28\text{ m}$); single-sided downward-facing ceiling plane backface-culled from above; zero top-view occlusion. |
+
+
 

@@ -68,6 +68,9 @@
   - Standardized interactive Zoom slider ($0\text{--}100\%$) mapped smoothly between `minDistance` and `maxDistance`.
   - Orbit slider ($0.2\times$ to $4.0\times$, default $1.1\times$) controlling OrbitControls auto-rotation speed.
   - Mouse / touch orbit, pan, and scroll wheel zooming constrained within ergonomic min/max limits.
+- [ ] **Elevated Lab Ceiling & Top-View Clearance (DIAG-026)**:
+  - Standard laboratory ceiling elevated to high-bay height ($Y \ge 28.0\text{ m}$, leaving $> 16\text{ m}$ vertical headroom above instrument and camera presets).
+  - Ceiling modeled with single-sided downward-facing geometry (`PlaneGeometry` with `rotation.x = Math.PI / 2` and `side: THREE.FrontSide`) so it renders properly when looking up from inside the lab, but is automatically backface-culled from above, guaranteeing zero view obstruction under any camera angle or zoom distance.
 
 ---
 
@@ -250,7 +253,27 @@
 
 ---
 
-## Category 11: Pre-Flight Visual QA & Release Verification Process
+## Category 11: Optical Systems & Ray Propagation
+
+- [ ] **Optical Datum Coplanarity (DIAG-023)**:
+  - All optical train elements (lamps, slits, collimating mirrors, diffraction grating, order-sorting filter, chopper wheel, fold mirrors, cuvettes, apertures, detectors) must be co-axially aligned on a single horizontal datum plane ($Y_{\text{beam}}$).
+  - Zero arbitrary ray jumps or diagonal clipping through partition walls.
+- [ ] **Solid-Body Ray Propagation & Hollow Aperture Barrels (DIAG-023)**:
+  - Light rays must pass strictly through modeled hollow cylindrical collimation channels (`enterBarrel`, `exitBarrel`) bored into internal partition walls.
+  - Zero beam penetration through solid opaque metal walls; every beam turn must be mediated by a physical $45^\circ$ mirror.
+- [ ] **First-Surface Kinematic Mirrors (DIAG-025)**:
+  - High-specular optical mirror PBR materials (`metalness: 1.0`, `roughness: 0.001`, `clearcoat: 1.0`, `envMapIntensity: 4.8`).
+  - Precision-polished synthetic fused silica quartz blank with $45^\circ$ peripheral bevels, stainless spring retention clips, and dual brass kinematic adjustment thumbscrews.
+- [ ] **Authentic Light Source Housings (DIAG-024)**:
+  - Tungsten-Halogen lamp modeled as an industrial cast-aluminum housing (`Assembly_TungstenLampHouse`) with convective cooling fins, steatite ceramic G4 bi-pin socket, DIN 912 M3 mounting fasteners, spherical collector mirror, and exit collimating snout with Schott KG3 filter.
+  - Deuterium arc lamp modeled with high-temperature anodized can, UV-transmitting quartz window, ceramic terminal block, and high-voltage ignition leads.
+- [ ] **Certified Chemical Standards & Meniscus Physics**:
+  - Multi-position rotary cuvette turret pre-loaded with standard spectroscopic analytes (Blank, $\text{KMnO}_4$, DNA, Bradford BSA, Chlorophyll a, Cytochrome c).
+  - Authentic surface tension fluid meniscus modeled in each cuvette cell; UI displays synchronized dynamic spectrum upon scan.
+
+---
+
+## Category 12: Pre-Flight Visual QA & Release Verification Process
 
 - [ ] **Local Server Active**: Server running at `http://127.0.0.1:8765`.
 - [ ] **Automated Multi-Angle CDP Audit**:
