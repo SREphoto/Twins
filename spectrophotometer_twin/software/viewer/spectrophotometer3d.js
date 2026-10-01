@@ -401,18 +401,16 @@ function createRealisticRockerSwitch(options = {}) {
   const tiltAngle = options.isOn !== false ? 0.22 : -0.22; // 12.6 degrees
   rockerPivot.rotation.x = tiltAngle;
 
-  const matRedRocker = new THREE.MeshStandardMaterial({
-    color: 0xdc2626,
-    roughness: 0.35,
-    metalness: 0.15,
-    emissive: 0x7f1d1d,
-    emissiveIntensity: options.isOn !== false ? 0.8 : 0.1,
+  const matRockerPaddle = new THREE.MeshStandardMaterial({
+    color: 0x181c22,
+    roughness: 0.55,
+    metalness: 0.12,
   });
 
   // Top facet (I - ON position)
   const facetTop = new THREE.Mesh(
     new THREE.BoxGeometry(0.126, 0.118, 0.022),
-    matRedRocker
+    matRockerPaddle
   );
   facetTop.position.set(0, 0.059, 0.005);
   rockerPivot.add(facetTop);
@@ -425,10 +423,26 @@ function createRealisticRockerSwitch(options = {}) {
   markI.position.set(0, 0.059, 0.017);
   rockerPivot.add(markI);
 
+  // Green LED power pilot dot on top facet when powered ON
+  if (options.isOn !== false) {
+    const pilotDot = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.008, 0.008, 0.006, 12),
+      new THREE.MeshStandardMaterial({
+        color: 0x22c55e,
+        emissive: 0x16a34a,
+        emissiveIntensity: 2.0,
+        roughness: 0.2,
+      })
+    );
+    pilotDot.rotation.x = Math.PI / 2;
+    pilotDot.position.set(0, 0.095, 0.017);
+    rockerPivot.add(pilotDot);
+  }
+
   // Bottom facet (O - OFF position)
   const facetBottom = new THREE.Mesh(
     new THREE.BoxGeometry(0.126, 0.118, 0.022),
-    matRedRocker
+    matRockerPaddle
   );
   facetBottom.position.set(0, -0.059, 0.005);
   rockerPivot.add(facetBottom);
@@ -1146,10 +1160,10 @@ export function createInternalWiring(opticsGroup, BASE_Y, CHAMBER_FLOOR_Y, CHAMB
   const wireGroup = new THREE.Group();
   wireGroup.name = 'Assembly_InternalWiring';
 
-  // Helper for 3D curved wire runs
+  // Helper for 3D curved wire runs (centripetal curve eliminates looping and twisted black quads)
   function addWireRun(points, radius, material, name) {
-    const curve = new THREE.CatmullRomCurve3(points);
-    const geom = new THREE.TubeGeometry(curve, Math.max(16, points.length * 8), radius, 8, false);
+    const curve = new THREE.CatmullRomCurve3(points, false, 'centripetal');
+    const geom = new THREE.TubeGeometry(curve, Math.max(24, points.length * 10), radius, 10, false);
     const mesh = new THREE.Mesh(geom, material);
     mesh.name = name;
     mesh.castShadow = true;
@@ -1241,24 +1255,25 @@ export function createInternalWiring(opticsGroup, BASE_Y, CHAMBER_FLOOR_Y, CHAMB
     new THREE.Vector3(-0.76, BASE_Y + 0.45, 2.33),
   ], 0.016, MAT_WIRE_WHITE, 'Wire_AC_NeutralInletToSwitch');
 
-  // Switched AC lines running along left chassis gutter forward to SMPS barrier block
+  // Switched AC lines running along perimeter gutter forward to SMPS barrier block
+  // Stays in floor gutter and approaches barrier strip strictly from the front air gap!
   addWireRun([
     new THREE.Vector3(-0.80, BASE_Y + 0.42, 2.31),
-    new THREE.Vector3(-0.80, BASE_Y + 0.18, 2.18),
-    new THREE.Vector3(-1.95, BASE_Y + 0.18, 2.18),
-    new THREE.Vector3(-1.95, BASE_Y + 0.18, 1.00),
-    new THREE.Vector3(-1.95, BASE_Y + 0.18, -0.55),
-    new THREE.Vector3(-1.00, BASE_Y + 0.36, -0.65),
+    new THREE.Vector3(-0.80, BASE_Y + 0.22, 2.22),
+    new THREE.Vector3(-1.95, BASE_Y + 0.22, 2.22),
+    new THREE.Vector3(-1.95, BASE_Y + 0.22, 1.00),
+    new THREE.Vector3(-1.95, BASE_Y + 0.22, -0.98),
+    new THREE.Vector3(-1.15, BASE_Y + 0.22, -0.98),
     new THREE.Vector3(-1.00, BASE_Y + 0.38, -0.83),
   ], 0.016, MAT_WIRE_BLACK, 'Wire_AC_SwitchedLive');
 
   addWireRun([
     new THREE.Vector3(-0.76, BASE_Y + 0.42, 2.31),
-    new THREE.Vector3(-0.76, BASE_Y + 0.16, 2.16),
-    new THREE.Vector3(-1.91, BASE_Y + 0.16, 2.16),
-    new THREE.Vector3(-1.91, BASE_Y + 0.16, 1.00),
-    new THREE.Vector3(-1.91, BASE_Y + 0.16, -0.55),
-    new THREE.Vector3(-0.96, BASE_Y + 0.36, -0.65),
+    new THREE.Vector3(-0.76, BASE_Y + 0.20, 2.20),
+    new THREE.Vector3(-1.91, BASE_Y + 0.20, 2.20),
+    new THREE.Vector3(-1.91, BASE_Y + 0.20, 1.00),
+    new THREE.Vector3(-1.91, BASE_Y + 0.20, -0.98),
+    new THREE.Vector3(-1.15, BASE_Y + 0.20, -0.98),
     new THREE.Vector3(-0.96, BASE_Y + 0.38, -0.83),
   ], 0.016, MAT_WIRE_WHITE, 'Wire_AC_SwitchedNeutral');
 
@@ -1276,8 +1291,8 @@ export function createInternalWiring(opticsGroup, BASE_Y, CHAMBER_FLOOR_Y, CHAMB
   // Chassis Earth Ground Conductor with Ring Terminal on Brass Ground Stud
   addWireRun([
     new THREE.Vector3(-1.40, BASE_Y + 0.40, 2.33),
-    new THREE.Vector3(-1.40, BASE_Y + 0.20, 2.25),
-    new THREE.Vector3(-1.35, BASE_Y + 0.14, 2.10),
+    new THREE.Vector3(-1.40, BASE_Y + 0.22, 2.25),
+    new THREE.Vector3(-1.35, BASE_Y + 0.18, 2.10),
   ], 0.018, MAT_WIRE_GREEN_YELLOW, 'Wire_AC_EarthGround');
 
   // Brass ground stud bolted to die-cast baseplate
@@ -1286,7 +1301,7 @@ export function createInternalWiring(opticsGroup, BASE_Y, CHAMBER_FLOOR_Y, CHAMB
     MAT_BRASS_FITTING
   );
   groundStud.name = 'Fastener_GroundLug_M4';
-  groundStud.position.set(-1.35, BASE_Y + 0.14, 2.10);
+  groundStud.position.set(-1.35, BASE_Y + 0.18, 2.10);
   wireGroup.add(groundStud);
 
   const groundLugRing = new THREE.Mesh(
@@ -1294,15 +1309,15 @@ export function createInternalWiring(opticsGroup, BASE_Y, CHAMBER_FLOOR_Y, CHAMB
     MAT_BRASS_FITTING
   );
   groundLugRing.rotation.x = Math.PI / 2;
-  groundLugRing.position.set(-1.35, BASE_Y + 0.135, 2.10);
+  groundLugRing.position.set(-1.35, BASE_Y + 0.175, 2.10);
   wireGroup.add(groundLugRing);
 
   // Earth ground wire from stud to SMPS barrier screw 3 (PE)
   addWireRun([
-    new THREE.Vector3(-1.35, BASE_Y + 0.14, 2.10),
-    new THREE.Vector3(-1.91, BASE_Y + 0.16, 1.50),
-    new THREE.Vector3(-1.91, BASE_Y + 0.16, -0.55),
-    new THREE.Vector3(-0.92, BASE_Y + 0.36, -0.65),
+    new THREE.Vector3(-1.35, BASE_Y + 0.18, 2.10),
+    new THREE.Vector3(-1.87, BASE_Y + 0.18, 1.50),
+    new THREE.Vector3(-1.87, BASE_Y + 0.18, -0.98),
+    new THREE.Vector3(-1.15, BASE_Y + 0.20, -0.98),
     new THREE.Vector3(-0.92, BASE_Y + 0.38, -0.83),
   ], 0.016, MAT_WIRE_GREEN_YELLOW, 'Wire_SMPS_Earth');
 
@@ -1360,16 +1375,17 @@ export function createInternalWiring(opticsGroup, BASE_Y, CHAMBER_FLOOR_Y, CHAMB
 
   // Physical rubber grommet feed-through seals on partition walls
   addBulkheadGrommet(-1.95, BASE_Y + 0.18, 0.02); // Left bulkhead: D2 HV and Halogen DC leads
-  addBulkheadGrommet(-0.75, BASE_Y + 0.18, 0.02); // Left-center bulkhead: Stepper motor ribbons
+  addBulkheadGrommet(-0.48, BASE_Y + 0.16, 0.02); // Selector motor ribbon
+  addBulkheadGrommet(-0.45, BASE_Y + 0.16, 0.02); // Grating motor ribbon
   addBulkheadGrommet(0.05, BASE_Y + 0.16, 0.02);  // Center bulkhead: Fan 12V and rear IO harnesses
   addBulkheadGrommet(0.10, BASE_Y + 0.13, -0.33, Math.PI / 2); // Floor trough: Carousel drive ribbon
 
   // 3. Deuterium Lamp High-Voltage Silicone Ignition Cable
-  // Routes cleanly along the far left perimeter trough (datum X = -1.95, ZERO overlap with Motherboard)
-  // held firmly by 4 discrete high-voltage standoff P-clips into tapped M6 holes
+  // Routes from Motherboard ballast header along front trough to outer gutter at X = -1.95
+  // Zero overlap with SMPS or optical components
   addWireRun([
-    new THREE.Vector3(-1.50, BASE_Y + 0.22, -0.55),
-    new THREE.Vector3(-1.95, BASE_Y + 0.18, -0.55),
+    new THREE.Vector3(-1.35, BASE_Y + 0.19, -1.29),
+    new THREE.Vector3(-1.95, BASE_Y + 0.18, -1.29),
     new THREE.Vector3(-1.95, BASE_Y + 0.18, -0.10),
     new THREE.Vector3(-1.95, BASE_Y + 0.18, 0.02),
     new THREE.Vector3(-1.95, BASE_Y + 0.18, 0.40),
@@ -1390,8 +1406,8 @@ export function createInternalWiring(opticsGroup, BASE_Y, CHAMBER_FLOOR_Y, CHAMB
     new THREE.Vector3(-1.57, BASE_Y + 0.42, 0.40),
     new THREE.Vector3(-1.95, BASE_Y + 0.20, 0.35),
     new THREE.Vector3(-1.95, BASE_Y + 0.20, 0.02),
-    new THREE.Vector3(-1.95, BASE_Y + 0.20, -0.40),
-    new THREE.Vector3(-1.10, BASE_Y + 0.22, -0.55),
+    new THREE.Vector3(-1.95, BASE_Y + 0.20, -1.25),
+    new THREE.Vector3(-1.25, BASE_Y + 0.19, -1.29),
   ], 0.014, MAT_WIRE_WHITE, 'Wire_Halogen_Lead1');
 
   addWireRun([
@@ -1399,12 +1415,12 @@ export function createInternalWiring(opticsGroup, BASE_Y, CHAMBER_FLOOR_Y, CHAMB
     new THREE.Vector3(-1.57, BASE_Y + 0.40, 0.40),
     new THREE.Vector3(-1.95, BASE_Y + 0.20, 0.33),
     new THREE.Vector3(-1.95, BASE_Y + 0.20, 0.02),
-    new THREE.Vector3(-1.95, BASE_Y + 0.20, -0.38),
-    new THREE.Vector3(-1.10, BASE_Y + 0.22, -0.59),
+    new THREE.Vector3(-1.95, BASE_Y + 0.20, -1.23),
+    new THREE.Vector3(-1.25, BASE_Y + 0.19, -1.29),
   ], 0.014, MAT_WIRE_RED, 'Wire_Halogen_Lead2');
 
   // 5. Monochromator Grating Stepper Motor Ribbon Cable (4-conductor)
-  // Connects Header_Stepper_Grating on Motherboard to grating sine-bar motor
+  // Connects Header_Stepper_Grating on Motherboard to grating sine-bar motor via aisle channel
   const plugGratingMB = createJSTMatingPlug(4);
   plugGratingMB.name = 'Plug_Stepper_Grating_MB';
   plugGratingMB.position.set(-1.18, BASE_Y + 0.19, -1.29);
@@ -1413,10 +1429,11 @@ export function createInternalWiring(opticsGroup, BASE_Y, CHAMBER_FLOOR_Y, CHAMB
 
   addWireRun([
     new THREE.Vector3(-1.18, BASE_Y + 0.19, -1.29),
-    new THREE.Vector3(-1.18, BASE_Y + 0.16, -0.95),
-    new THREE.Vector3(-0.50, BASE_Y + 0.16, 0.02),
-    new THREE.Vector3(-0.25, BASE_Y + 0.16, 0.30),
-    new THREE.Vector3(-0.25, BASE_Y + 0.16, 0.85),
+    new THREE.Vector3(-1.18, BASE_Y + 0.15, -1.02),
+    new THREE.Vector3(-0.45, BASE_Y + 0.15, -1.02),
+    new THREE.Vector3(-0.45, BASE_Y + 0.15, 0.02),
+    new THREE.Vector3(-0.35, BASE_Y + 0.16, 0.45),
+    new THREE.Vector3(-0.25, BASE_Y + 0.18, 0.85),
     new THREE.Vector3(-0.25, BASE_Y + 0.28, 1.05),
   ], 0.024, MAT_WIRE_BLUE, 'Ribbon_GratingStepper');
 
@@ -1434,16 +1451,17 @@ export function createInternalWiring(opticsGroup, BASE_Y, CHAMBER_FLOOR_Y, CHAMB
 
   addWireRun([
     new THREE.Vector3(-1.32, BASE_Y + 0.19, -1.29),
-    new THREE.Vector3(-1.32, BASE_Y + 0.16, -0.95),
-    new THREE.Vector3(-0.75, BASE_Y + 0.16, 0.02),
-    new THREE.Vector3(-0.75, BASE_Y + 0.16, 0.40),
-    new THREE.Vector3(-1.08, BASE_Y + 0.25, 0.70),
-    new THREE.Vector3(-1.08, BASE_Y + 0.35, 0.94),
+    new THREE.Vector3(-1.32, BASE_Y + 0.15, -1.06),
+    new THREE.Vector3(-0.48, BASE_Y + 0.15, -1.06),
+    new THREE.Vector3(-0.48, BASE_Y + 0.15, 0.02),
+    new THREE.Vector3(-0.65, BASE_Y + 0.22, 0.45),
+    new THREE.Vector3(-1.08, BASE_Y + 0.35, 0.80),
+    new THREE.Vector3(-1.08, BASE_Y + 0.52, 1.08),
   ], 0.018, MAT_WIRE_RED, 'Ribbon_SourceSelector');
 
   const plugSelectorMotor = createJSTMatingPlug(4);
   plugSelectorMotor.name = 'Plug_Stepper_Selector_Motor';
-  plugSelectorMotor.position.set(-1.08, BASE_Y + 0.35, 0.94);
+  plugSelectorMotor.position.set(-1.08, BASE_Y + 0.52, 1.08);
   wireGroup.add(plugSelectorMotor);
 
   // 7. Cuvette Carousel Turret Drive Ribbon
@@ -1455,30 +1473,33 @@ export function createInternalWiring(opticsGroup, BASE_Y, CHAMBER_FLOOR_Y, CHAMB
 
   addWireRun([
     new THREE.Vector3(-1.05, BASE_Y + 0.19, -1.29),
-    new THREE.Vector3(-1.05, BASE_Y + 0.13, -1.15),
-    new THREE.Vector3(-0.50, BASE_Y + 0.13, -1.15),
-    new THREE.Vector3(0.10, BASE_Y + 0.13, -1.18),
-    new THREE.Vector3(0.55, BASE_Y + 0.13, -1.18),
-    new THREE.Vector3(1.05, BASE_Y + 0.10, -1.18),
+    new THREE.Vector3(-1.05, BASE_Y + 0.17, -1.15),
+    new THREE.Vector3(-0.50, BASE_Y + 0.17, -1.15),
+    new THREE.Vector3(0.10, BASE_Y + 0.17, -1.18),
+    new THREE.Vector3(0.55, BASE_Y + 0.17, -1.18),
+    new THREE.Vector3(1.05, BASE_Y + 0.17, -1.18),
   ], 0.022, MAT_WIRE_BLUE, 'Ribbon_CarouselMotor');
 
   const plugCarouselMotor = createJSTMatingPlug(4);
   plugCarouselMotor.name = 'Plug_Stepper_Carousel_Motor';
-  plugCarouselMotor.position.set(1.05, BASE_Y + 0.10, -1.18);
+  plugCarouselMotor.position.set(1.05, BASE_Y + 0.17, -1.18);
   wireGroup.add(plugCarouselMotor);
 
   // 8. Low-Noise Shielded Detector Coaxial Cable with Precision Gold SMA Plugs
+  // Reconnects Plug_SMA_PreAmp firmly into Socket_PreAmp_SMA at (1.80, BASE_Y + 0.82, -2.05)
   const smaPreAmpPlug = createSMAPlugMale();
   smaPreAmpPlug.name = 'Plug_SMA_PreAmp';
-  smaPreAmpPlug.position.set(1.59, BASE_Y + 0.65, -2.10);
-  smaPreAmpPlug.rotation.z = Math.PI / 2;
+  smaPreAmpPlug.position.set(1.80, BASE_Y + 0.82, -2.05);
+  smaPreAmpPlug.rotation.x = -Math.PI / 2; // Mates with female jack facing upward
   wireGroup.add(smaPreAmpPlug);
 
   addWireRun([
-    new THREE.Vector3(1.59, BASE_Y + 0.65, -2.10),
-    new THREE.Vector3(1.59, BASE_Y + 0.16, -2.10),
-    new THREE.Vector3(0.05, BASE_Y + 0.16, -2.15),
-    new THREE.Vector3(-0.55, BASE_Y + 0.16, -2.15),
+    new THREE.Vector3(1.80, BASE_Y + 0.82, -2.05),
+    new THREE.Vector3(1.80, BASE_Y + 0.86, -2.05),
+    new THREE.Vector3(1.86, BASE_Y + 0.50, -2.05),
+    new THREE.Vector3(1.86, BASE_Y + 0.18, -2.05),
+    new THREE.Vector3(0.05, BASE_Y + 0.18, -2.15),
+    new THREE.Vector3(-0.55, BASE_Y + 0.18, -2.15),
     new THREE.Vector3(-0.74, BASE_Y + 0.205, -1.90),
   ], 0.017, MAT_WIRE_COAX, 'Cable_DetectorCoax_RG174');
 
@@ -1487,6 +1508,22 @@ export function createInternalWiring(opticsGroup, BASE_Y, CHAMBER_FLOOR_Y, CHAMB
   smaMBPlug.position.set(-0.74, BASE_Y + 0.205, -1.90);
   smaMBPlug.rotation.z = Math.PI / 2;
   wireGroup.add(smaMBPlug);
+
+  // Detector Pigtail Leads connecting silicon photodiodes into pre-amp PCB
+  // Sample Photodiode pigtail (1.59, BASE_Y + 0.65, -2.12) -> Pre-Amp (1.78, BASE_Y + 0.65, -2.05)
+  addWireRun([
+    new THREE.Vector3(1.59, BASE_Y + 0.65, -2.12),
+    new THREE.Vector3(1.72, BASE_Y + 0.65, -2.12),
+    new THREE.Vector3(1.78, BASE_Y + 0.65, -2.05),
+  ], 0.014, MAT_WIRE_COAX, 'Wire_Pigtail_SampleDet');
+
+  // Reference Photodiode pigtail (0.55, BASE_Y + 0.65, -2.12) -> Pre-Amp (1.78, BASE_Y + 0.65, -2.05)
+  addWireRun([
+    new THREE.Vector3(0.55, BASE_Y + 0.65, -2.12),
+    new THREE.Vector3(0.55, BASE_Y + 0.40, -2.15),
+    new THREE.Vector3(1.70, BASE_Y + 0.40, -2.15),
+    new THREE.Vector3(1.78, BASE_Y + 0.62, -2.05),
+  ], 0.014, MAT_WIRE_COAX, 'Wire_Pigtail_RefDet');
 
   // 9. Display Flexible Flat Cable (FPC Ribbon)
   // Continuous 40-pin Kapton ribbon connecting Socket_FPC_ZIF_MB on Motherboard to Socket_FPC_ZIF_LCD on LCD sub-board
@@ -1515,7 +1552,8 @@ export function createInternalWiring(opticsGroup, BASE_Y, CHAMBER_FLOOR_Y, CHAMB
     new THREE.Vector3(0.80, BASE_Y + 0.18, 2.16),
     new THREE.Vector3(0.05, BASE_Y + 0.18, 2.16),
     new THREE.Vector3(0.05, BASE_Y + 0.16, 0.02),
-    new THREE.Vector3(-0.20, BASE_Y + 0.16, -0.65),
+    new THREE.Vector3(-0.45, BASE_Y + 0.16, 0.02),
+    new THREE.Vector3(-0.45, BASE_Y + 0.16, -0.98),
     new THREE.Vector3(-0.95, BASE_Y + 0.19, -1.29),
   ], 0.015, MAT_WIRE_BLACK, 'Cable_CoolingFan_12V');
 
@@ -1648,7 +1686,9 @@ export function createSpectrophotometerModel(options = {}) {
     [1.9, 0, 2.1, 'RR'],
   ];
   footPositions.forEach(([fx, fy, fz, id]) => {
-    const foot = createVibrationFoot(0.25, 0.28, 0.18);
+    // Threaded stud length 0.09m threads securely into blind tapped boss in baseplate (datum top = 0.30m)
+    // stud top at 0.18 + 0.09 = 0.27m: 100% blind containment, zero floor penetration
+    const foot = createVibrationFoot(0.09, 0.28, 0.18);
     foot.name = `Foot_Leveling_${id}`;
     foot.position.set(fx, fy, fz);
     root.add(foot);
@@ -2016,8 +2056,9 @@ export function createSpectrophotometerModel(options = {}) {
   });
 
   // 7. SREdesigns Brand Emblem Badge (Badge_SREdesigns)
+  // Positioned in upper right quadrant of front fascia (above louvers, directly under console trim)
   const badge = makeSREdesignsBadge(0.55);
-  badge.position.set(-1.09, BASE_Y + 0.70, -2.385);
+  badge.position.set(-1.62, BASE_Y + 1.18, -2.385);
   badge.rotation.y = Math.PI; // Faces -Z forward towards operator and front camera
   chassisGroup.add(badge);
 
@@ -2061,37 +2102,37 @@ export function createSpectrophotometerModel(options = {}) {
   explodedShellGroup.add(deckCollarRear);
   chassisMeshes.push(deckCollarRear);
 
-  // Solid Left Full-Depth Cheek Enclosure (X in [1.95, 2.18], Z in [-2.38, 0.00], zero empty side holes)
+  // Solid Left Full-Depth Cheek Enclosure (X in [1.95, 2.18], Z in [-2.38, 0.00], 100% watertight from baseplate to deck)
   const cheekLeftFull = new THREE.Mesh(
-    new THREE.BoxGeometry(0.23, 1.07, 2.38),
+    new THREE.BoxGeometry(0.23, 1.35, 2.38),
     MAT_CHASSIS
   );
   cheekLeftFull.name = 'Chassis_Cheek_Left';
-  cheekLeftFull.position.set(2.065, BASE_Y + 0.12 + 0.535 + 0.28, -1.19);
+  cheekLeftFull.position.set(2.065, BASE_Y + 0.12 + 0.675, -1.19);
   cheekLeftFull.castShadow = true;
   cheekLeftFull.receiveShadow = true;
   explodedShellGroup.add(cheekLeftFull);
   chassisMeshes.push(cheekLeftFull);
 
-  // Solid Center Full-Depth Cheek Enclosure (X in [0.00, 0.15], Z in [-2.38, 0.00], zero empty side holes)
+  // Solid Center Full-Depth Cheek Enclosure (X in [0.00, 0.15], Z in [-2.38, 0.00], 100% watertight from baseplate to deck)
   const cheekCenterFull = new THREE.Mesh(
-    new THREE.BoxGeometry(0.15, 1.07, 2.38),
+    new THREE.BoxGeometry(0.15, 1.35, 2.38),
     MAT_CHASSIS
   );
   cheekCenterFull.name = 'Chassis_Cheek_Center';
-  cheekCenterFull.position.set(0.075, BASE_Y + 0.12 + 0.535 + 0.28, -1.19);
+  cheekCenterFull.position.set(0.075, BASE_Y + 0.12 + 0.675, -1.19);
   cheekCenterFull.castShadow = true;
   cheekCenterFull.receiveShadow = true;
   explodedShellGroup.add(cheekCenterFull);
   chassisMeshes.push(cheekCenterFull);
 
   // Labyrinth light-baffle gaskets on cheek inner returns sealing shadow lines light-tight
-  const gasketLeft = new THREE.Mesh(new THREE.BoxGeometry(0.015, 1.05, 2.20), MAT_CHAMBER_INNER);
-  gasketLeft.position.set(1.94, BASE_Y + 0.12 + 0.535 + 0.28, -1.22);
+  const gasketLeft = new THREE.Mesh(new THREE.BoxGeometry(0.015, 1.33, 2.20), MAT_CHAMBER_INNER);
+  gasketLeft.position.set(1.94, BASE_Y + 0.12 + 0.675, -1.22);
   explodedShellGroup.add(gasketLeft);
 
-  const gasketRight = new THREE.Mesh(new THREE.BoxGeometry(0.015, 1.05, 2.20), MAT_CHAMBER_INNER);
-  gasketRight.position.set(0.16, BASE_Y + 0.12 + 0.535 + 0.28, -1.22);
+  const gasketRight = new THREE.Mesh(new THREE.BoxGeometry(0.015, 1.33, 2.20), MAT_CHAMBER_INNER);
+  gasketRight.position.set(0.16, BASE_Y + 0.12 + 0.675, -1.22);
   explodedShellGroup.add(gasketRight);
 
   // Front lower sill under door apron (Y in [0.30, 0.58], Z = -2.35)
@@ -2459,19 +2500,19 @@ export function createSpectrophotometerModel(options = {}) {
   animTargets.probeBeam = probeBeam;
   animTargets.probeBeamMat = beamMat;
 
-  // Cuvette Carousel Turret Drive Stepper Motor (located in chassis sub-floor under chamber floor)
+  // Cuvette Carousel Turret Drive Stepper Motor (bolted to sub-floor chassis mounting boss)
   const carouselMotor = new THREE.Mesh(
     new THREE.BoxGeometry(0.18, 0.10, 0.18),
     new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.5, metalness: 0.7 })
   );
   carouselMotor.name = 'Motor_CarouselTurret';
-  carouselMotor.position.set(1.05, BASE_Y + 0.06, -1.18);
+  carouselMotor.position.set(1.05, BASE_Y + 0.12, -1.18);
   root.add(carouselMotor);
 
-  // 4-Pin JST Stepper Header on carousel drive motor (mates with plugCarouselMotor at 1.05, BASE_Y + 0.10, -1.18)
+  // 4-Pin JST Stepper Header on carousel drive motor (mates with plugCarouselMotor at 1.05, BASE_Y + 0.17, -1.18)
   const hdrCarouselMotor = createJSTHeader(4);
   hdrCarouselMotor.name = 'Header_Motor_Carousel';
-  hdrCarouselMotor.position.set(1.05, BASE_Y + 0.10, -1.18);
+  hdrCarouselMotor.position.set(1.05, BASE_Y + 0.17, -1.18);
   root.add(hdrCarouselMotor);
 
   // =========================================================================
@@ -2598,9 +2639,9 @@ export function createSpectrophotometerModel(options = {}) {
   for (const bx of [-0.07, 0.15]) {
     for (const bz of [-0.10, 0.10]) {
       const washer = createWasher(0.016, 0.034, 0.006, { material: MAT_CHROME });
-      washer.position.set(bx, -0.207, bz);
+      washer.position.set(bx, -0.207 + 0.003, bz);
       const screw = createHexSocketScrew(0.014, 0.035, { material: MAT_CHROME });
-      screw.position.set(bx, -0.207, bz);
+      screw.position.set(bx, -0.207 + 0.006, bz);
       wAssembly.add(washer);
       wAssembly.add(screw);
     }
@@ -2746,11 +2787,15 @@ export function createSpectrophotometerModel(options = {}) {
   selPedestalFlange.position.y = -0.445;
   sourceSelectorGroup.add(selPedestalFlange);
 
-  // 4x DIN 912 M4 socket cap screws bolting pedestal firmly into tapped holes on breadboard
+  // 4x DIN 912 M4 socket cap screws with washers bolting pedestal firmly into tapped holes on breadboard
   for (let bi = 0; bi < 4; bi++) {
     const bAngle = (bi * Math.PI) / 2 + Math.PI / 4;
+    const bWasher = createWasher(0.014, 0.030, 0.005, { material: MAT_CHROME });
+    bWasher.position.set(Math.cos(bAngle) * 0.14, -0.430 + 0.0025, Math.sin(bAngle) * 0.14);
+    sourceSelectorGroup.add(bWasher);
+
     const bScrew = createHexSocketScrew(0.012, 0.030, { material: MAT_CHROME });
-    bScrew.position.set(Math.cos(bAngle) * 0.14, -0.44, Math.sin(bAngle) * 0.14);
+    bScrew.position.set(Math.cos(bAngle) * 0.14, -0.430 + 0.005, Math.sin(bAngle) * 0.14);
     sourceSelectorGroup.add(bScrew);
   }
 
@@ -2878,22 +2923,101 @@ export function createSpectrophotometerModel(options = {}) {
   hdrGratingMotor.position.set(-0.25, BASE_Y + 0.28, 1.05);
   opticsGroup.add(hdrGratingMotor);
 
+  // Helper: Precision 1-inch Optical Post, Post Holder with Thumbscrew, and Clamping Fork
+  // Bolted directly to optical breadboard datum or monochromator base (Rule 1: Exhaustive physical geometry)
+  function createOpticalPostAssembly(mountHeight = 0.27) {
+    const postGroup = new THREE.Group();
+    // 1. Heavy stainless steel 1-inch (25mm) optical mounting post
+    const postMesh = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.024, 0.024, mountHeight, 20),
+      MAT_CHROME
+    );
+    postMesh.position.y = -mountHeight / 2;
+    postMesh.castShadow = true;
+    postGroup.add(postMesh);
+
+    // 2. Anodized aluminum post holder collar (Thorlabs PH-series style)
+    const holderH = mountHeight * 0.72;
+    const holderMesh = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.038, 0.038, holderH, 20),
+      MAT_ALUM_ANODIZED
+    );
+    holderMesh.position.y = -mountHeight + holderH / 2;
+    holderMesh.castShadow = true;
+    postGroup.add(holderMesh);
+
+    // Brass knurled spring-loaded thumbscrew on post holder
+    const thumbScrew = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.010, 0.010, 0.028, 16),
+      new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.25, metalness: 0.9 })
+    );
+    thumbScrew.rotation.z = Math.PI / 2;
+    thumbScrew.position.set(0.042, -mountHeight + holderH * 0.75, 0);
+    postGroup.add(thumbScrew);
+
+    // 3. CNC Aluminum Pedestal Clamping Fork anchored to breadboard/base
+    const forkMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(0.075, 0.018, 0.12),
+      MAT_ALUM_ANODIZED
+    );
+    forkMesh.position.set(0, -mountHeight + 0.009, 0.035);
+    postGroup.add(forkMesh);
+
+    // DIN 912 M6 Hex Socket Cap Screw clamping fork to breadboard
+    const m6Screw = createHexSocketScrew(0.016, 0.035, { material: MAT_CHROME });
+    m6Screw.position.set(0, -mountHeight + 0.018, 0.065);
+    postGroup.add(m6Screw);
+
+    return postGroup;
+  }
+
   // Entrance Slit with precision micrometer jaws
-  const enterSlit = new THREE.Mesh(
+  // Aligned strictly collinear along the optical ray from Selector Mirror (-1.08, 1.00)
+  // to Collimating Mirror (-0.646, 1.668) at t = 0.45: X = -0.885, Z = 1.300
+  // Oriented normal to the incoming beam so rays pass 100% straight through aperture (Zero kink!)
+  const enterSlitGroup = new THREE.Group();
+  enterSlitGroup.name = 'Slit_MonochromatorEntrance';
+  enterSlitGroup.position.set(-0.885, BASE_Y + 0.65, 1.300);
+  enterSlitGroup.rotation.y = -Math.atan2(0.434, 0.668); // ~0.576 rad (33.0°)
+  opticsGroup.add(enterSlitGroup);
+
+  const enterSlitBody = new THREE.Mesh(
     new THREE.BoxGeometry(0.06, 0.18, 0.12),
     MAT_CHROME
   );
-  enterSlit.name = 'Slit_MonochromatorEntrance';
-  enterSlit.position.set(-0.90, BASE_Y + 0.65, 1.00);
-  enterSlit.userData = {
-    name: enterSlit.name,
+  enterSlitGroup.add(enterSlitBody);
+
+  // Precision bilateral knife-edge slit jaws (1.0 nm spectral bandwidth)
+  for (const jx of [-0.012, 0.012]) {
+    const jaw = new THREE.Mesh(
+      new THREE.BoxGeometry(0.008, 0.12, 0.04),
+      MAT_CHASSIS_DARK
+    );
+    jaw.position.set(jx, 0, 0);
+    enterSlitGroup.add(jaw);
+  }
+
+  // Top micrometer adjustment drum with calibrated knurling
+  const micrometerDrum = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.016, 0.016, 0.06, 16),
+    MAT_CHROME
+  );
+  micrometerDrum.position.set(0, 0.12, 0);
+  enterSlitGroup.add(micrometerDrum);
+
+  // Rigid mounting post connecting slit down to monochromator base
+  const enterSlitPost = createOpticalPostAssembly(0.27);
+  enterSlitGroup.add(enterSlitPost);
+
+  enterSlitGroup.userData = {
+    name: 'Slit_MonochromatorEntrance',
     title: 'Czerny-Turner Entrance Slit (1.0 nm Bandwidth)',
     action: 'Entrance Slit: Precision micrometer bilateral knife-edge optical aperture defining monochromator resolution',
   };
-  opticsGroup.add(enterSlit);
-  interactiveObjects.push(enterSlit);
+  enterSlitBody.userData = enterSlitGroup.userData;
+  interactiveObjects.push(enterSlitGroup, enterSlitBody);
 
-  // Collimating Concave Spherical Mirror with 3-point kinematic gimbal mount
+  // Collimating Concave Spherical Mirror with 3-point kinematic gimbal mount & rigid pedestal post
   const colMirrorGroup = new THREE.Group();
   colMirrorGroup.name = 'Mirror_CollimatingConcave';
   colMirrorGroup.position.set(-0.65, BASE_Y + 0.65, 1.70);
@@ -2945,6 +3069,10 @@ export function createSpectrophotometerModel(options = {}) {
   colBezel.position.z = 0.033;
   colMirrorGroup.add(colBezel);
 
+  // Rigid 1-inch Optical Post, Post Holder, and Clamping Fork anchored down to monoBase (datum top Y = BASE_Y + 0.38)
+  const colPostAssembly = createOpticalPostAssembly(0.27);
+  colMirrorGroup.add(colPostAssembly);
+
   colMirrorGroup.userData = {
     name: colMirrorGroup.name,
     title: 'Collimating Concave Spherical Mirror',
@@ -2982,7 +3110,7 @@ export function createSpectrophotometerModel(options = {}) {
   gratingTile.userData = gratingGroup.userData;
   interactiveObjects.push(gratingGroup, gratingTile);
 
-  // Focusing Concave Spherical Mirror
+  // Focusing Concave Spherical Mirror with 3-point kinematic gimbal mount & rigid pedestal post
   const focMirrorGroup = new THREE.Group();
   focMirrorGroup.name = 'Mirror_FocusingConcave';
   focMirrorGroup.position.set(0.15, BASE_Y + 0.65, 1.70);
@@ -3031,6 +3159,10 @@ export function createSpectrophotometerModel(options = {}) {
   focBezel.position.z = 0.033;
   focMirrorGroup.add(focBezel);
 
+  // Rigid 1-inch Optical Post, Post Holder, and Clamping Fork anchored down to monoBase (datum top Y = BASE_Y + 0.38)
+  const focPostAssembly = createOpticalPostAssembly(0.27);
+  focMirrorGroup.add(focPostAssembly);
+
   focMirrorGroup.userData = {
     name: focMirrorGroup.name,
     title: 'Focusing Concave Spherical Mirror',
@@ -3071,103 +3203,104 @@ export function createSpectrophotometerModel(options = {}) {
   interactiveObjects.push(filterWheel);
 
   // E. Dual-Beam Rotating Sector Chopper Subsystem (Assembly_OpticalChopper)
-  // Real industrial assembly: rigid CNC aluminum pedestal anchored to baseplate,
-  // precision BLDC motor with M2.5 screws, rotor hub with dual grub screws,
-  // true 4-quadrant sector wheel (alternating transmission apertures & mirror blades),
-  // and optoelectronic index sensor.
+  // Kinematically decoupled: Motor shaft axis lowered to BASE_Y + 0.42 (0.60m world datum).
+  // Sector wheel outer diameter R = 0.25m allows top blade quadrant to intercept optical beam at BASE_Y + 0.65 (r = 0.23m).
+  // Precision BLDC motor body mounted facing +Z (between filter wheel Z = 0.90 and chopper Z = 0.60),
+  // leaving the entire -Z space completely open for fold mirrors M1 (Z = 0.48) and M3 (Z = 0.32).
+  // Zero motor penetration, zero mirror collisions! (DIAG-001, DIAG-003, DIAG-020)
   const chopperAssembly = new THREE.Group();
   chopperAssembly.name = 'Assembly_OpticalChopper';
-  chopperAssembly.position.set(0.18, BASE_Y + 0.65, 0.60);
+  chopperAssembly.position.set(0.18, BASE_Y + 0.42, 0.60);
   opticsGroup.add(chopperAssembly);
 
   // 1. Rigid CNC Aluminum Mounting Pedestal
-  // Baseplate foot rests on breadboard at Y = -0.46 (relative to BASE_Y + 0.65)
+  // Breadboard datum top is at BASE_Y + 0.16 (relative Y = -0.26)
   const pedestalBase = new THREE.Mesh(
-    new THREE.BoxGeometry(0.24, 0.025, 0.20),
+    new THREE.BoxGeometry(0.24, 0.025, 0.18),
     MAT_ALUM_ANODIZED
   );
-  pedestalBase.position.set(0, -0.448, -0.06);
+  pedestalBase.position.set(0, -0.248, 0.125);
   chopperAssembly.add(pedestalBase);
 
   // 2 DIN 912 M3 socket head cap screws with washers clamping pedestal to breadboard
   for (const bx of [-0.08, 0.08]) {
     const washer = createWasher(0.016, 0.034, 0.006, { material: MAT_CHROME });
-    washer.position.set(bx, -0.435, -0.06);
+    washer.position.set(bx, -0.2355 + 0.003, 0.125);
     const screw = createHexSocketScrew(0.014, 0.04, { material: MAT_CHROME });
-    screw.position.set(bx, -0.435, -0.06);
+    screw.position.set(bx, -0.2355 + 0.006, 0.125);
     chopperAssembly.add(washer);
     chopperAssembly.add(screw);
   }
 
-  // Vertical structural column
+  // Vertical structural column supporting motor cradle
   const pedestalColumn = new THREE.Mesh(
-    new THREE.BoxGeometry(0.14, 0.38, 0.08),
+    new THREE.BoxGeometry(0.14, 0.22, 0.08),
     MAT_ALUM_ANODIZED
   );
-  pedestalColumn.position.set(0, -0.24, -0.06);
+  pedestalColumn.position.set(0, -0.125, 0.125);
   chopperAssembly.add(pedestalColumn);
 
   // Stiffening gussets
   const gussetL = new THREE.Mesh(
-    new THREE.BoxGeometry(0.02, 0.20, 0.06),
+    new THREE.BoxGeometry(0.02, 0.16, 0.06),
     MAT_ALUM_ANODIZED
   );
-  gussetL.position.set(-0.06, -0.34, -0.06);
-  gussetL.rotation.x = 0.25;
+  gussetL.position.set(-0.06, -0.15, 0.125);
+  gussetL.rotation.x = -0.25;
   chopperAssembly.add(gussetL);
 
   const gussetR = new THREE.Mesh(
-    new THREE.BoxGeometry(0.02, 0.20, 0.06),
+    new THREE.BoxGeometry(0.02, 0.16, 0.06),
     MAT_ALUM_ANODIZED
   );
-  gussetR.position.set(0.06, -0.34, -0.06);
-  gussetR.rotation.x = 0.25;
+  gussetR.position.set(0.06, -0.15, 0.125);
+  gussetR.rotation.x = -0.25;
   chopperAssembly.add(gussetR);
 
-  // Motor mounting face cradle plate
+  // Motor mounting face cradle plate (facing -Z towards chopper disc)
   const motorCradle = new THREE.Mesh(
-    new THREE.BoxGeometry(0.22, 0.22, 0.03),
+    new THREE.BoxGeometry(0.20, 0.20, 0.025),
     MAT_ALUM_ANODIZED
   );
-  motorCradle.position.set(0, 0, -0.03);
+  motorCradle.position.set(0, 0, 0.04);
   chopperAssembly.add(motorCradle);
 
   // 4 M2.5 socket cap screws securing BLDC motor face to cradle
   for (let mi = 0; mi < 4; mi++) {
     const mAngle = (mi * Math.PI) / 2 + Math.PI / 4;
-    const msX = Math.cos(mAngle) * 0.075;
-    const msY = Math.sin(mAngle) * 0.075;
+    const msX = Math.cos(mAngle) * 0.072;
+    const msY = Math.sin(mAngle) * 0.072;
     const mScrew = createHexSocketScrew(0.010, 0.025, { material: MAT_CHROME });
-    mScrew.rotation.x = Math.PI / 2;
-    mScrew.position.set(msX, msY, -0.015);
+    mScrew.rotation.x = -Math.PI / 2;
+    mScrew.position.set(msX, msY, 0.028);
     chopperAssembly.add(mScrew);
   }
 
-  // 2. Precision BLDC Motor Body
+  // 2. Precision BLDC Motor Body (Mounted on +Z side in open air gap toward filter wheel)
   const chopperMotor = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.078, 0.078, 0.16, 20),
+    new THREE.CylinderGeometry(0.072, 0.072, 0.15, 20),
     new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.35, metalness: 0.85 })
   );
   chopperMotor.rotation.x = Math.PI / 2;
-  chopperMotor.position.set(0, 0, -0.125);
+  chopperMotor.position.set(0, 0, 0.125);
   chopperAssembly.add(chopperMotor);
 
   // Motor rear bearing cap
   const motorCap = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.05, 0.05, 0.02, 16),
+    new THREE.CylinderGeometry(0.046, 0.046, 0.02, 16),
     MAT_ALUM_ANODIZED
   );
   motorCap.rotation.x = Math.PI / 2;
-  motorCap.position.set(0, 0, -0.215);
+  motorCap.position.set(0, 0, 0.210);
   chopperAssembly.add(motorCap);
 
-  // Grounded stainless motor drive shaft
+  // Grounded stainless motor drive shaft extending forward along -Z through cradle to wheel hub
   const driveShaft = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.012, 0.012, 0.09, 16),
+    new THREE.CylinderGeometry(0.012, 0.012, 0.08, 16),
     MAT_CHROME
   );
   driveShaft.rotation.x = Math.PI / 2;
-  driveShaft.position.set(0, 0, 0.02);
+  driveShaft.position.set(0, 0, 0.005);
   chopperAssembly.add(driveShaft);
 
   // 3. Rotating Rotor Assembly (Hub + Dual-Sector Chopper Wheel)
@@ -3392,15 +3525,14 @@ export function createSpectrophotometerModel(options = {}) {
     return g;
   }
 
-  // Reference Channel Fold Mirrors M1 & M2 (Strictly coplanar at BASE_Y + 0.65 on breadboard in Optics Bay)
-  const refMirror1 = createKinematicFoldMirror(0.18, BASE_Y + 0.65, 0.45, Math.PI / 4, 'Mirror_DualBeamFold_1', 0x38bdf8);
-  const refMirror2 = createKinematicFoldMirror(0.55, BASE_Y + 0.65, 0.45, -Math.PI / 4, 'Mirror_DualBeamFold_2', 0x38bdf8);
+  // Reference Channel Fold Mirrors M1 & M2 (Strictly coplanar at BASE_Y + 0.65 on breadboard in Optics Bay, Z = 0.48)
+  const refMirror1 = createKinematicFoldMirror(0.18, BASE_Y + 0.65, 0.48, Math.PI / 4, 'Mirror_DualBeamFold_1', 0x38bdf8);
+  const refMirror2 = createKinematicFoldMirror(0.55, BASE_Y + 0.65, 0.48, -Math.PI / 4, 'Mirror_DualBeamFold_2', 0x38bdf8);
 
-  // Sample Channel Kinematic Fold Mirrors M3 & M4 (Coplanar at BASE_Y + 0.65 on breadboard in Optics Bay)
-  // M3 redirects chopper transmission beam from -Z into +X toward M4
-  // M4 redirects beam into -Z toward Sample Chamber rear aperture barrel
-  const sampleFoldMirrorM3 = createKinematicFoldMirror(0.18, BASE_Y + 0.65, 0.35, Math.PI / 4, 'Mirror_SampleBeamFold_M3', 0x00ffff);
-  const sampleFoldMirrorM4 = createKinematicFoldMirror(1.59, BASE_Y + 0.65, 0.35, -Math.PI / 4, 'Mirror_SampleBeamFold_M4', 0x00ffff);
+  // Sample Channel Kinematic Fold Mirrors M3 & M4 (Coplanar at BASE_Y + 0.65 on breadboard in Optics Bay, Z = 0.32)
+  // Generous 160mm center-to-center spacing prevents any contact between M1 and M3 kinematic gimbals!
+  const sampleFoldMirrorM3 = createKinematicFoldMirror(0.18, BASE_Y + 0.65, 0.32, Math.PI / 4, 'Mirror_SampleBeamFold_M3', 0x00ffff);
+  const sampleFoldMirrorM4 = createKinematicFoldMirror(1.59, BASE_Y + 0.65, 0.32, -Math.PI / 4, 'Mirror_SampleBeamFold_M4', 0x00ffff);
 
   // Reference cell holder & quartz reference cuvette (Coplanar with reference beam at X = 0.55, Z = -1.18)
   const refCellHolder = new THREE.Mesh(
@@ -3437,81 +3569,194 @@ export function createSpectrophotometerModel(options = {}) {
   refLiquid.position.set(0.55, BASE_Y + 0.62, -1.18);
   opticsGroup.add(refLiquid);
 
-  // G. Dual Silicon Photodiode Detector Bays (Coplanar at BASE_Y + 0.65, mounted on front chamber wall Z = -2.10)
-  // Reference Detector
-  const refDetector = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.06, 0.06, 0.14, 20),
+  // G. Dual Silicon Photodiode Detector Bays & Rigid Bulkhead Flanges (Rule 1: Exhaustive Physical Assembly)
+  // Replaces bare floating cylinders with authentic CNC aluminum bulkhead mounting flanges,
+  // 4x DIN 912 M2.5 retention screws, active silicon PIN photodiode sensor dies, and sealed pigtail boots.
+  function createPhotodiodeDetector(x, y, z, name, title, action) {
+    const detGroup = new THREE.Group();
+    detGroup.name = name;
+    detGroup.position.set(x, y, z);
+
+    // 1. CNC Aluminum Bulkhead Mounting Flange seated against front chamber wall
+    const flange = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.088, 0.088, 0.024, 24),
+      MAT_ALUM_ANODIZED
+    );
+    flange.rotation.x = Math.PI / 2;
+    flange.position.z = -0.06;
+    detGroup.add(flange);
+
+    // 4 DIN 912 M2.5 socket head cap screws bolting flange to front bulkhead
+    for (let i = 0; i < 4; i++) {
+      const ang = (i * Math.PI) / 2 + Math.PI / 4;
+      const sx = Math.cos(ang) * 0.068;
+      const sy = Math.sin(ang) * 0.068;
+      const screw = createHexSocketScrew(0.009, 0.024, { material: MAT_CHROME });
+      screw.rotation.x = -Math.PI / 2;
+      screw.position.set(sx, sy, -0.07);
+      detGroup.add(screw);
+    }
+
+    // 2. Anodized aluminum cylindrical detector barrel housing
+    const barrel = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.062, 0.062, 0.12, 24),
+      MAT_ALUM_ANODIZED
+    );
+    barrel.rotation.x = Math.PI / 2;
+    barrel.position.z = 0.0;
+    detGroup.add(barrel);
+
+    // 3. Precision Optical Aperture Bezel Ring
+    const frontBezel = new THREE.Mesh(
+      new THREE.TorusGeometry(0.058, 0.005, 8, 24),
+      MAT_CHROME
+    );
+    frontBezel.position.z = 0.06;
+    detGroup.add(frontBezel);
+
+    // 4. Active Silicon PIN Photodiode Sensor Chip (Recessed at z = 0.052)
+    // Dark photosensitive silicon die with anti-reflective optical glass window
+    const sensorDie = new THREE.Mesh(
+      new THREE.BoxGeometry(0.038, 0.038, 0.006),
+      new THREE.MeshPhysicalMaterial({
+        color: 0x0f172a,
+        roughness: 0.12,
+        metalness: 0.85,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.05,
+      })
+    );
+    sensorDie.position.z = 0.052;
+    detGroup.add(sensorDie);
+
+    // Gold active chip bonding wires
+    for (const bx of [-0.015, 0.015]) {
+      const wireBond = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.0015, 0.0015, 0.015, 6),
+        MAT_GOLD_PIN
+      );
+      wireBond.position.set(bx, 0.022, 0.054);
+      detGroup.add(wireBond);
+    }
+
+    // Specular Laser Collision Glint Spot on detector window
+    const detGlint = new THREE.Mesh(
+      new THREE.CircleGeometry(0.015, 16),
+      new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.95, side: THREE.DoubleSide })
+    );
+    detGlint.position.z = 0.056;
+    detGroup.add(detGlint);
+    animTargets.opticalRayMats.push(detGlint.material);
+
+    // 5. Shielded signal pigtail lead with molded strain-relief boot exiting to pre-amp
+    const boot = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.014, 0.018, 0.04, 12),
+      MAT_CHASSIS_DARK
+    );
+    boot.rotation.x = Math.PI / 2;
+    boot.position.z = -0.09;
+    detGroup.add(boot);
+
+    detGroup.userData = { name, title, action };
+    barrel.userData = detGroup.userData;
+    interactiveObjects.push(detGroup, barrel);
+    opticsGroup.add(detGroup);
+    return detGroup;
+  }
+
+  // Reference Channel Silicon PIN Photodiode Detector (Coplanar at BASE_Y + 0.65, Z = -2.12)
+  const refDetector = createPhotodiodeDetector(
+    0.55, BASE_Y + 0.65, -2.12,
+    'Detector_ReferencePhotodiode',
+    'Reference Silicon Photodiode Detector',
+    'Reference Photodiode (I₀ Channel): Low-noise silicon PIN detector monitoring incident source beam intensity'
+  );
+
+  // Sample Channel Silicon PIN Photodiode Detector (Coplanar at BASE_Y + 0.65, Z = -2.12)
+  const sampleDetector = createPhotodiodeDetector(
+    1.59, BASE_Y + 0.65, -2.12,
+    'Detector_SamplePhotodiode',
+    'Sample Silicon Photodiode Detector',
+    'Sample Photodiode (I Channel): Ultra-low-noise PIN detector measuring transmitted light through active sample cuvette'
+  );
+
+  // Low-Noise Preamplifier Analog PCB Assembly (Rigidly mounted on front chamber wall cavity)
+  // Heavy CNC aluminum mounting bracket, 4x brass hexagonal standoffs, ground strap, and Mu-metal shield can
+  const preAmpGroup = new THREE.Group();
+  preAmpGroup.name = 'Assembly_DetectorPreAmp';
+  preAmpGroup.position.set(1.80, BASE_Y + 0.65, -2.05);
+  opticsGroup.add(preAmpGroup);
+
+  // 1. CNC Aluminum Bulkhead Mounting Bracket & Standoff Frame
+  const preAmpBracket = new THREE.Mesh(
+    new THREE.BoxGeometry(0.06, 0.36, 0.42),
     MAT_ALUM_ANODIZED
   );
-  refDetector.name = 'Detector_ReferencePhotodiode';
-  refDetector.rotation.x = Math.PI / 2;
-  refDetector.position.set(0.55, BASE_Y + 0.65, -2.12);
-  refDetector.userData = {
-    name: 'Detector_ReferencePhotodiode',
-    title: 'Reference Silicon Photodiode Detector',
-    action: 'Reference Photodiode (I₀ Channel): Low-noise silicon PIN detector monitoring incident source beam intensity',
-  };
-  opticsGroup.add(refDetector);
-  interactiveObjects.push(refDetector);
+  preAmpBracket.position.set(0.02, 0, -0.03);
+  preAmpGroup.add(preAmpBracket);
 
-  // Sample Detector
-  const sampleDetector = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.06, 0.06, 0.14, 20),
-    MAT_ALUM_ANODIZED
-  );
-  sampleDetector.name = 'Detector_SamplePhotodiode';
-  sampleDetector.rotation.x = Math.PI / 2;
-  sampleDetector.position.set(1.59, BASE_Y + 0.65, -2.12);
-  sampleDetector.userData = {
-    name: 'Detector_SamplePhotodiode',
-    title: 'Sample Silicon Photodiode Detector',
-    action: 'Sample Photodiode (I Channel): Ultra-low-noise PIN detector measuring transmitted light through active sample cuvette',
-  };
-  opticsGroup.add(sampleDetector);
-  interactiveObjects.push(sampleDetector);
+  // 4 Hexagonal Brass Standoffs (M2.5 x 12mm) holding PCB off bracket
+  for (const sy of [-0.14, 0.14]) {
+    for (const sz of [-0.16, 0.16]) {
+      const standoff = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.008, 0.008, 0.025, 6),
+        MAT_BRASS_FITTING
+      );
+      standoff.rotation.z = Math.PI / 2;
+      standoff.position.set(0.012, sy, sz);
+      preAmpGroup.add(standoff);
 
-  // Low-noise preamplifier analog PCB board mounted on front chamber wall cavity (X = 1.80, Z = -2.05)
+      const standoffScrew = createHexSocketScrew(0.008, 0.015, { material: MAT_CHROME });
+      standoffScrew.rotation.z = -Math.PI / 2;
+      standoffScrew.position.set(-0.008, sy, sz);
+      preAmpGroup.add(standoffScrew);
+    }
+  }
+
+  // 2. Multi-layer FR-4 Green PCB board with analog ground plane
   const preAmpPCB = new THREE.Mesh(
     new THREE.BoxGeometry(0.014, 0.32, 0.38),
     MAT_PCB_GREEN
   );
   preAmpPCB.name = 'PCB_DetectorPreAmp';
-  preAmpPCB.position.set(1.80, BASE_Y + 0.65, -2.05);
-  preAmpPCB.userData = {
-    name: 'PCB_DetectorPreAmp',
-    title: 'Low-Noise Pre-Amplifier PCB',
-    action: 'Photodiode Pre-Amplifier: Ultra-low-noise transimpedance amplifier converting picoampere photocurrents into microvolts',
-  };
-  opticsGroup.add(preAmpPCB);
-  interactiveObjects.push(preAmpPCB);
+  preAmpGroup.add(preAmpPCB);
 
-  // Female gold SMA bulkhead receptacle mounted on pre-amp board
+  // 3. Female Gold SMA Bulkhead Receptacle mounted on top edge
   const preAmpSMA = createSMAJackFemale();
   preAmpSMA.name = 'Socket_PreAmp_SMA';
-  preAmpSMA.position.set(1.80, BASE_Y + 0.65, -2.05);
+  preAmpSMA.position.set(0, 0.17, 0);
   preAmpSMA.rotation.y = Math.PI / 2;
-  preAmpSMA.userData = {
-    name: 'Socket_PreAmp_SMA',
-    title: 'Gold SMA Detector Coax Jack',
-    action: 'SMA Female Bulkhead: Transmits shielded analog absorbance signal to motherboard 24-bit Delta-Sigma ADC',
-  };
-  opticsGroup.add(preAmpSMA);
-  interactiveObjects.push(preAmpSMA);
+  preAmpGroup.add(preAmpSMA);
 
-  // Mu-metal shield can enclosed around pre-amp PCB
+  // 4. Mu-Metal Magnetic Shield Enclosure (enclosing analog transimpedance amplifier)
   const shieldCan = new THREE.Mesh(
     new THREE.BoxGeometry(0.024, 0.22, 0.28),
     MAT_CHROME
   );
   shieldCan.name = 'Shield_MuMetal_Detector';
-  shieldCan.position.set(1.82, BASE_Y + 0.65, -2.05);
+  shieldCan.position.set(0.016, -0.02, 0);
+  preAmpGroup.add(shieldCan);
+
+  // 5. Braided copper chassis ground bonding strap
+  const gndStrap = new THREE.Mesh(
+    new THREE.BoxGeometry(0.004, 0.22, 0.018),
+    MAT_BRASS_FITTING
+  );
+  gndStrap.position.set(0.018, -0.18, 0.16);
+  preAmpGroup.add(gndStrap);
+
+  preAmpGroup.userData = {
+    name: 'PCB_DetectorPreAmp',
+    title: 'Low-Noise Pre-Amplifier Subsystem',
+    action: 'Photodiode Pre-Amplifier: Ultra-low-noise transimpedance amplifier converting picoampere photocurrents into microvolts',
+  };
+  preAmpPCB.userData = preAmpGroup.userData;
   shieldCan.userData = {
-    name: shieldCan.name,
+    name: 'Shield_MuMetal_Detector',
     title: 'Mu-Metal Magnetic Shield Enclosure',
     action: 'Mu-Metal Shielding: Prevents electromagnetic interference (EMI) from motor steppers reaching sensitive photodiode pre-amp',
   };
-  opticsGroup.add(shieldCan);
-  interactiveObjects.push(shieldCan);
+  interactiveObjects.push(preAmpGroup, preAmpPCB, shieldCan);
 
   // =========================================================================
   // =========================================================================
@@ -3579,20 +3824,42 @@ export function createSpectrophotometerModel(options = {}) {
     smpsGroup.add(cap);
   }
 
-  // Dedicated 50mm DC Brushless Cooling Fan on rear of SMPS chassis
+  // Dedicated 50mm DC Brushless Cooling Fan on outer side face of SMPS chassis
+  // Vents warm air directly OUTSIDE the machine through chassis side louvers!
+  // Completely isolated from optical bench & sample testing area!
   const smpsFan = createSMPSFan();
-  smpsFan.position.set(0, 0.12, 0.30);
-  smpsFan.rotation.y = 0; // Points +Z towards rear exhaust cowl
-  // Capture fanHub reference before overwriting userData with tooltip
+  smpsFan.position.set(-0.46, 0.12, 0.0);
+  smpsFan.rotation.y = -Math.PI / 2; // Faces -X towards outer side chassis wall
   const smpsFanHubRef = smpsFan.userData.fanHub;
   smpsFan.userData = {
     name: 'Fan_SMPS_Cooling',
     title: 'SMPS Dedicated Cooling Fan (50mm)',
-    action: '50mm Brushless DC Cooling Fan: Forced convection cooling for SMPS power semiconductors & transformer',
+    action: '50mm Brushless DC Cooling Fan: Forced convection cooling venting directly OUTSIDE via side louvers, isolated from optics & sample chamber',
   };
   smpsGroup.add(smpsFan);
   interactiveObjects.push(smpsFan);
   animTargets.smpsFanHub = smpsFanHubRef;
+
+  // Flexible molded silicone exhaust duct boot sealing fan directly to exterior chassis wall
+  // Spans from fan frame (x = -0.46) across to outer chassis side wall at X = -2.18 (x = -1.08)
+  const smpsDuct = new THREE.Mesh(
+    new THREE.BoxGeometry(0.62, 0.18, 0.18),
+    new THREE.MeshStandardMaterial({ color: 0x141820, roughness: 0.85, metalness: 0.1 })
+  );
+  smpsDuct.position.set(-0.77, 0.12, 0.0);
+  smpsGroup.add(smpsDuct);
+
+  // Stamped exterior chassis exhaust louvers on side wall at X = -2.18 (Z = -0.55)
+  // Directs warm SMPS exhaust safely outside the instrument
+  for (let sl = 0; sl < 5; sl++) {
+    const sideLouver = new THREE.Mesh(
+      new THREE.BoxGeometry(0.012, 0.016, 0.22),
+      MAT_CHASSIS_DARK
+    );
+    sideLouver.position.set(-2.182, BASE_Y + 0.20 + (sl * 0.038), -0.55);
+    sideLouver.rotation.z = -0.35; // Downward angled rain/dust baffle
+    chassisGroup.add(sideLouver);
+  }
 
   // 6-position phenolic barrier terminal block for AC Mains input and DC outputs
   // Mounted on front face of SMPS facing forward towards Motherboard
@@ -4156,36 +4423,36 @@ export function createSpectrophotometerModel(options = {}) {
   ];
 
   fanCornerOffsets.forEach(([cx, cy, id], idx) => {
-    // 1. Vulcanized silicone elastomer vibration damper bushing
+    // 1. Vulcanized silicone elastomer vibration damper bushing seated flush against fan frame
     const damper = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.034, 0.034, 0.015, 12),
+      new THREE.CylinderGeometry(0.034, 0.034, 0.012, 16),
       new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 })
     );
     damper.name = `Elastomer_FanDamper_${id}`;
     damper.rotation.x = Math.PI / 2;
-    damper.position.set(cx, cy, -0.038);
+    damper.position.set(cx, cy, -0.041);
     fanGroup.add(damper);
 
-    // 2. DIN 125 M4 flat washer
-    const washer = createWasher(0.018, 0.036, 0.008, { material: MAT_CHROME });
+    // 2. DIN 125 M4 flat washer seated on damper
+    const washer = createWasher(0.018, 0.036, 0.006, { material: MAT_CHROME });
     washer.rotation.x = Math.PI / 2;
-    washer.position.set(cx, cy, -0.046);
+    washer.position.set(cx, cy, -0.050);
     fanGroup.add(washer);
 
-    // 3. Genuine DIN 912 M4 Hex Socket Head Cap Screw
-    const screw = createHexSocketScrew(0.016, 0.09, { material: MAT_CHROME });
+    // 3. Genuine DIN 912 M4 Hex Socket Head Cap Screw clamping through frame & bracket into nut
+    const screw = createHexSocketScrew(0.016, 0.130, { material: MAT_CHROME });
     screw.name = `Fastener_FanMount_M4_${idx + 1}`;
     screw.rotation.x = -Math.PI / 2;
-    screw.position.set(cx, cy, -0.048);
+    screw.position.set(cx, cy, -0.053);
     fanGroup.add(screw);
 
-    // 4. Threaded brass clinch nut on bracket rear
+    // 4. Threaded brass clinch nut seated flush against bracket rear
     const clinchNut = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.026, 0.026, 0.020, 6),
+      new THREE.CylinderGeometry(0.026, 0.026, 0.018, 6),
       MAT_BRASS_FITTING
     );
     clinchNut.rotation.x = Math.PI / 2;
-    clinchNut.position.set(cx, cy, 0.055);
+    clinchNut.position.set(cx, cy, 0.064);
     fanGroup.add(clinchNut);
   });
 
@@ -4298,11 +4565,10 @@ export function createSpectrophotometerModel(options = {}) {
   animTargets.raySourceD2 = raySourceD2;
   animTargets.raySourceW = raySourceW;
 
-  // 2. Selector Mirror -> Entrance Slit
-  createLaserRay(new THREE.Vector3(-1.08, BASE_Y + 0.65, 1.00), new THREE.Vector3(-0.90, BASE_Y + 0.65, 1.00), 0x38bdf8);
-
-  // 3. Entrance Slit -> Collimating Mirror (Reflective front face at Z = 1.668)
-  createLaserRay(new THREE.Vector3(-0.90, BASE_Y + 0.65, 1.00), new THREE.Vector3(-0.646, BASE_Y + 0.65, 1.668), 0x38bdf8);
+  // 2. Selector Mirror -> Entrance Slit -> Collimating Mirror (Reflective front face at Z = 1.668)
+  // Perfectly straight collinear ray passing straight through the bilateral knife-edge aperture (Zero kink!)
+  createLaserRay(new THREE.Vector3(-1.08, BASE_Y + 0.65, 1.00), new THREE.Vector3(-0.885, BASE_Y + 0.65, 1.300), 0x38bdf8);
+  createLaserRay(new THREE.Vector3(-0.885, BASE_Y + 0.65, 1.300), new THREE.Vector3(-0.646, BASE_Y + 0.65, 1.668), 0x38bdf8);
 
   // 4. Collimating Mirror -> Holographic Diffraction Grating
   createLaserRay(new THREE.Vector3(-0.646, BASE_Y + 0.65, 1.668), new THREE.Vector3(-0.25, BASE_Y + 0.65, 1.15), 0x38bdf8);
@@ -4323,30 +4589,30 @@ export function createSpectrophotometerModel(options = {}) {
   createLaserRay(new THREE.Vector3(0.18, BASE_Y + 0.65, 1.05), new THREE.Vector3(0.18, BASE_Y + 0.65, 0.60), 0x00ffff);
 
   // 7. Chopper Transmission -> Sample Channel (I Beam)
-  // 7a. Chopper transmission -> Sample Fold Mirror M3 at (0.18, BASE_Y + 0.65, 0.35)
-  createLaserRay(new THREE.Vector3(0.18, BASE_Y + 0.65, 0.60), new THREE.Vector3(0.18, BASE_Y + 0.65, 0.35), 0x00ffff);
-  // 7b. Sample Fold Mirror M3 -> 90° reflection into +X along Z = 0.35 to Fold Mirror M4 at (1.59, BASE_Y + 0.65, 0.35)
-  createLaserRay(new THREE.Vector3(0.18, BASE_Y + 0.65, 0.35), new THREE.Vector3(1.59, BASE_Y + 0.65, 0.35), 0x00ffff);
+  // 7a. Chopper transmission -> Sample Fold Mirror M3 at (0.18, BASE_Y + 0.65, 0.32)
+  createLaserRay(new THREE.Vector3(0.18, BASE_Y + 0.65, 0.60), new THREE.Vector3(0.18, BASE_Y + 0.65, 0.32), 0x00ffff);
+  // 7b. Sample Fold Mirror M3 -> 90° reflection into +X along Z = 0.32 to Fold Mirror M4 at (1.59, BASE_Y + 0.65, 0.32)
+  createLaserRay(new THREE.Vector3(0.18, BASE_Y + 0.65, 0.32), new THREE.Vector3(1.59, BASE_Y + 0.65, 0.32), 0x00ffff);
   // 7c. Fold Mirror M4 -> 90° reflection into -Z through rear bulkhead aperture barrel at Z = -0.15
-  createLaserRay(new THREE.Vector3(1.59, BASE_Y + 0.65, 0.35), new THREE.Vector3(1.59, BASE_Y + 0.65, -0.15), 0x00ffff);
+  createLaserRay(new THREE.Vector3(1.59, BASE_Y + 0.65, 0.32), new THREE.Vector3(1.59, BASE_Y + 0.65, -0.15), 0x00ffff);
   // 7d. From rear aperture barrel along -Z through active quartz cuvette (Z in [-1.09, -1.27])
   createLaserRay(new THREE.Vector3(1.59, BASE_Y + 0.65, -0.15), new THREE.Vector3(1.59, BASE_Y + 0.65, -1.09), 0x00ffff);
   createLaserRay(new THREE.Vector3(1.59, BASE_Y + 0.65, -1.09), new THREE.Vector3(1.59, BASE_Y + 0.65, -1.27), 0x00ffff);
-  // 7e. Exiting cuvette along -Z to Sample Photodiode Detector at front wall (1.59, BASE_Y + 0.65, -2.10)
-  createLaserRay(new THREE.Vector3(1.59, BASE_Y + 0.65, -1.27), new THREE.Vector3(1.59, BASE_Y + 0.65, -2.10), 0x00ffff);
+  // 7e. Exiting cuvette along -Z to Sample Photodiode Detector die at front wall (1.59, BASE_Y + 0.65, -2.12)
+  createLaserRay(new THREE.Vector3(1.59, BASE_Y + 0.65, -1.27), new THREE.Vector3(1.59, BASE_Y + 0.65, -2.12), 0x00ffff);
 
   // 8. Chopper Reflection -> Reference Channel (I₀ Beam)
-  // 8a. Chopper reflection -> Ref Fold Mirror M1 at (0.18, BASE_Y + 0.65, 0.45)
-  createLaserRay(new THREE.Vector3(0.18, BASE_Y + 0.65, 0.60), new THREE.Vector3(0.18, BASE_Y + 0.65, 0.45), 0x38bdf8);
-  // 8b. Ref Fold Mirror M1 -> 90° reflection into +X along Z = 0.45 to Ref Fold Mirror M2 at (0.55, BASE_Y + 0.65, 0.45)
-  createLaserRay(new THREE.Vector3(0.18, BASE_Y + 0.65, 0.45), new THREE.Vector3(0.55, BASE_Y + 0.65, 0.45), 0x38bdf8);
+  // 8a. Chopper reflection -> Ref Fold Mirror M1 at (0.18, BASE_Y + 0.65, 0.48)
+  createLaserRay(new THREE.Vector3(0.18, BASE_Y + 0.65, 0.60), new THREE.Vector3(0.18, BASE_Y + 0.65, 0.48), 0x38bdf8);
+  // 8b. Ref Fold Mirror M1 -> 90° reflection into +X along Z = 0.48 to Ref Fold Mirror M2 at (0.55, BASE_Y + 0.65, 0.48)
+  createLaserRay(new THREE.Vector3(0.18, BASE_Y + 0.65, 0.48), new THREE.Vector3(0.55, BASE_Y + 0.65, 0.48), 0x38bdf8);
   // 8c. Ref Fold Mirror M2 -> 90° reflection into -Z through rear bulkhead aperture barrel at Z = -0.15
-  createLaserRay(new THREE.Vector3(0.55, BASE_Y + 0.65, 0.45), new THREE.Vector3(0.55, BASE_Y + 0.65, -0.15), 0x38bdf8);
+  createLaserRay(new THREE.Vector3(0.55, BASE_Y + 0.65, 0.48), new THREE.Vector3(0.55, BASE_Y + 0.65, -0.15), 0x38bdf8);
   // 8d. From rear aperture barrel along -Z through Reference Cuvette (Z in [-1.09, -1.27])
   createLaserRay(new THREE.Vector3(0.55, BASE_Y + 0.65, -0.15), new THREE.Vector3(0.55, BASE_Y + 0.65, -1.09), 0x38bdf8);
   createLaserRay(new THREE.Vector3(0.55, BASE_Y + 0.65, -1.09), new THREE.Vector3(0.55, BASE_Y + 0.65, -1.27), 0x38bdf8);
-  // 8e. Exiting reference cuvette along -Z to Reference Photodiode Detector at front wall (0.55, BASE_Y + 0.65, -2.10)
-  createLaserRay(new THREE.Vector3(0.55, BASE_Y + 0.65, -1.27), new THREE.Vector3(0.55, BASE_Y + 0.65, -2.10), 0x38bdf8);
+  // 8e. Exiting reference cuvette along -Z to Reference Photodiode Detector die at front wall (0.55, BASE_Y + 0.65, -2.12)
+  createLaserRay(new THREE.Vector3(0.55, BASE_Y + 0.65, -1.27), new THREE.Vector3(0.55, BASE_Y + 0.65, -2.12), 0x38bdf8);
 
   // J. Internal Optics Bay Inspection Spotlight (illuminates breadboard & optics train)
   const interiorLight = new THREE.PointLight(0xffffff, 2.8, 8);
@@ -4440,18 +4706,10 @@ export function createSpectrophotometerModel(options = {}) {
     return pl;
   }
 
-  // Authentic IEC Silkscreen Markings: POWER header centered above switch, 'I' at top, 'O' at bottom
+  // Authentic IEC Silkscreen Markings: POWER header centered cleanly above switch
   const lblPower = makeRearLabel('POWER', 0.22, 0.05);
   lblPower.position.set(-0.8, BASE_Y + 0.68, rearZ + 0.005);
   root.add(lblPower);
-
-  const lblPowerI = makeRearLabel('I', 0.06, 0.04);
-  lblPowerI.position.set(-0.64, BASE_Y + 0.52, rearZ + 0.005);
-  root.add(lblPowerI);
-
-  const lblPowerO = makeRearLabel('○', 0.06, 0.04);
-  lblPowerO.position.set(-0.64, BASE_Y + 0.38, rearZ + 0.005);
-  root.add(lblPowerO);
 
   const lblInlet = makeRearLabel('100-240V~ 160VA', 0.36, 0.06);
   lblInlet.position.set(-1.4, BASE_Y + 0.65, rearZ + 0.005);

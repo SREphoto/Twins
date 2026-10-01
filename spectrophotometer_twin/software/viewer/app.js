@@ -9,7 +9,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import {
   createSpectrophotometerModel,
   wavelengthToRGB,
-} from './spectrophotometer3d.js?v=20260930-v6';
+} from './spectrophotometer3d.js?v=20261001-v9';
 import { sfx } from './sfx.js';
 
 // --- State Engine ---
@@ -818,157 +818,296 @@ document.querySelectorAll('.panel-collapsible').forEach((panel) => {
   });
 });
 
+// Auto-collapse side panels on small screens / mobile viewports (< 900px)
+if (window.innerWidth < 900) {
+  document.querySelectorAll('.panel-collapsible').forEach((panel) => {
+    panel.classList.add('collapsed');
+    const btn = panel.querySelector('.panel-collapse-btn');
+    if (btn) {
+      btn.textContent = '▸';
+      btn.title = 'Expand panel';
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  });
+}
+
 // Raycasting Interaction (Screen Touch, Keycaps, Lid, Cuvettes)
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 const tooltip = document.getElementById('hud-tooltip');
+let tooltipHideTimeout = null;
 
-window.addEventListener('mousemove', (e) => {
-  const rect = renderer.domElement.getBoundingClientRect();
-  if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
-    if (tooltip) tooltip.style.display = 'none';
-    return;
+renderer.domElement.style.touchAction = 'none';
+
+function showTooltipAt(clientX, clientY, obj, autoHide = false) {
+  if (!tooltip) return;
+  tooltip.style.display = 'block';
+  tooltip.style.left = `${clientX + 14}px`;
+  tooltip.style.top = `${clientY + 14}px`;
+  const title = obj.userData.title || obj.userData.name?.replace(/_/g, ' ') || obj.name;
+  const desc = obj.userData.action || obj.userData.desc || '';
+  if (desc) {
+    tooltip.innerHTML = `<div class="hud-title">${title}</div><div class="hud-desc">${desc}</div>`;
+  } else {
+    tooltip.innerHTML = `<div class="hud-title">${title}</div>`;
   }
+  if (tooltipHideTimeout) clearTimeout(tooltipHideTimeout);
+  if (autoHide) {
+    tooltipHideTimeout = setTimeout(() => {
+      if (tooltip) tooltip.style.display = 'none';
+    }, 3200);
+  }
+}
 
-  mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-  mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-
+function getPointerIntersects(clientX, clientY) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  if (clientX < rect.left - 12 || clientX > rect.right + 12 || clientY < rect.top - 12 || clientY > rect.bottom + 12) return [];
+  const clampedX = Math.max(rect.left, Math.min(rect.right, clientX));
+  const clampedY = Math.max(rect.top, Math.min(rect.bottom, clientY));
+  mouse.x = ((clampedX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((clampedY - rect.top) / rect.height) * 2 + 1;
   raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(interactiveObjects, true);
+  return raycaster.intersectObjects(interactiveObjects, true);
+}
 
+function executeObjectAction(obj, intersects, clientX, clientY, isTouch = false) {
+  const name = obj.userData.name || obj.name;
+
+  if (name === 'Btn_Power' || obj.name?.includes('Switch_Rocker')) {
+    triggerKeycapPress('Btn_Power');
+    document.getElementById('btn-power')?.click();
+  } else if (name === 'Btn_Zero') {
+    triggerKeycapPress('Btn_Zero');
+    handleAutoZero();
+  } else if (name === 'Btn_Scan') {
+    triggerKeycapPress('Btn_Scan');
+    handleStartScan();
+  } else if (name === 'Btn_Mode') {
+    triggerKeycapPress('Btn_Mode');
+    document.getElementById('btn-mode')?.click();
+  } else if (name === 'Btn_CellNext') {
+    triggerKeycapPress('Btn_CellNext');
+    handleAdvanceCell();
+  } else if (name === 'Btn_Lid' || name === 'Btn_Lid_Handle' || obj.name?.includes('Lid') || obj.name?.includes('Door') || obj.name === 'Chassis_FrontSill') {
+    handleToggleDoor();
+  } else if (obj.userData.cellNumber != null) {
+    state.activeCell = obj.userData.cellNumber;
+    state.targetCarouselAngle = -((state.activeCell - 1) * Math.PI) / 3;
+    sfx.click();
+    const selectEl = document.getElementById('select-cell');
+    if (selectEl) selectEl.value = state.activeCell.toString();
+    logGLP(`CAROUSEL: Selected Cell ${state.activeCell} (${SAMPLES[state.activeCell]?.name || 'Sample'}).`);
+    performMeasurement();
+  } else if (name === 'UI_LCD_TOUCH' || obj.name === 'UI_LCD' || name === 'UI_LCD') {
+    // Capacitive Touchscreen Digitizer
+    const hit = intersects.find(h => h.object.name === 'UI_LCD' || h.object.userData.name === 'UI_LCD_TOUCH') || intersects[0];
+    const localPoint = animTargets.lcdMesh.worldToLocal(hit.point.clone());
+    const normX = Math.max(0, Math.min(1, (0.82 - localPoint.x) / 1.64));
+    const normY = Math.max(0, Math.min(1, (0.47 - localPoint.z) / 0.94));
+    const touchX = normX * lcdCanvas.width;
+    const touchY = normY * lcdCanvas.height;
+
+    state.touchRipples.push({
+      x: touchX,
+      y: touchY,
+      birth: performance.now(),
+    });
+    sfx.beep(1600, 0.035);
+
+    if (touchY >= 570) {
+      // Footer cell buttons: 6 cells
+      const cellIdx = Math.min(6, Math.max(1, Math.floor(normX * 6) + 1));
+      state.activeCell = cellIdx;
+      state.targetCarouselAngle = -((state.activeCell - 1) * Math.PI) / 3;
+      const selectEl = document.getElementById('select-cell');
+      if (selectEl) selectEl.value = state.activeCell.toString();
+      logGLP(`TOUCHSCREEN: Cell ${state.activeCell} selected via capacitive touch.`);
+      performMeasurement();
+    } else if (touchX >= 830) {
+      // Right softkey column
+      if (touchY >= 70 && touchY < 145) {
+        handleAutoZero();
+      } else if (touchY >= 145 && touchY < 220) {
+        handleStartScan();
+      } else if (touchY >= 220 && touchY < 295) {
+        document.getElementById('btn-mode')?.click();
+      } else if (touchY >= 295 && touchY < 370) {
+        handleToggleDoor();
+      } else if (touchY >= 370 && touchY < 445) {
+        toggleOpticsView();
+      } else if (touchY >= 445 && touchY < 520) {
+        document.getElementById('btn-export-glp')?.click();
+      }
+    } else if (touchY <= 60) {
+      // Header tabs
+      if (touchX >= 280 && touchX < 500) {
+        document.getElementById('btn-mode')?.click();
+      } else if (touchX >= 750) {
+        document.getElementById('btn-power')?.click();
+      }
+    } else if (state.mode === 'SPECTRUM' && touchX >= 75 && touchX <= 820 && touchY >= 75 && touchY <= 520) {
+      // Spectrum plot tap-to-seek
+      const frac = (touchX - 75) / (820 - 75);
+      const targetWl = Math.round((state.scanStartWl + frac * (state.scanEndWl - state.scanStartWl)) * 2) / 2;
+      const clampedWl = Math.max(state.scanStartWl, Math.min(state.scanEndWl, targetWl));
+      state.currentWl = clampedWl;
+      const sliderEl = document.getElementById('slider-wl');
+      if (sliderEl) sliderEl.value = clampedWl.toString();
+      const inputEl = document.getElementById('input-wl');
+      if (inputEl) inputEl.value = clampedWl.toFixed(1);
+      logGLP(`TOUCHSCREEN: Tuned monochromator to ${clampedWl.toFixed(1)} nm.`);
+      performMeasurement();
+    } else {
+      document.getElementById('btn-mode')?.click();
+    }
+  } else if (isTouch && obj.userData.action) {
+    // On mobile touch: show educational component tooltip on tap
+    showTooltipAt(clientX, clientY, obj, true);
+  }
+}
+
+let pointerDownPos = null;
+let pointerDownTime = 0;
+let pointerDownTarget = null;
+let pointerDownIntersects = null;
+let pointerDownIsAction = false;
+let lastInteractionHandledTime = 0;
+
+function handlePointerDown(e) {
+  pointerDownPos = { x: e.clientX, y: e.clientY };
+  pointerDownTime = performance.now();
+  pointerDownTarget = null;
+  pointerDownIntersects = null;
+  pointerDownIsAction = false;
+
+  const intersects = getPointerIntersects(e.clientX, e.clientY);
   if (intersects.length > 0) {
     let obj = intersects[0].object;
     while (obj && !obj.userData.name && obj.parent) {
       obj = obj.parent;
     }
-    if (obj && obj.userData.name) {
-      container.style.cursor = 'pointer';
-      if (tooltip) {
-        tooltip.style.display = 'block';
-        tooltip.style.left = `${e.clientX + 14}px`;
-        tooltip.style.top = `${e.clientY + 14}px`;
-        const title = obj.userData.title || obj.userData.name.replace(/_/g, ' ');
-        const desc = obj.userData.action || obj.userData.desc || '';
-        if (desc) {
-          tooltip.innerHTML = `<div class="hud-title">${title}</div><div class="hud-desc">${desc}</div>`;
-        } else {
-          tooltip.innerHTML = `<div class="hud-title">${title}</div>`;
+    if (obj && (obj.userData.name || obj.name)) {
+      pointerDownTarget = obj;
+      pointerDownIntersects = intersects;
+      const name = obj.userData.name || obj.name;
+
+      const isActionable =
+        name.startsWith('Btn_') ||
+        name === 'UI_LCD_TOUCH' ||
+        obj.name === 'UI_LCD' ||
+        name === 'Btn_Lid_Handle' ||
+        name === 'Btn_Lid' ||
+        obj.name?.includes('Door') ||
+        obj.name?.includes('Lid') ||
+        obj.name?.includes('Switch_Rocker') ||
+        obj.userData.cellNumber != null;
+
+      if (isActionable) {
+        pointerDownIsAction = true;
+        controls.enabled = false;
+        if (typeof e.stopPropagation === 'function') {
+          e.stopPropagation();
         }
       }
-      return;
+
+      if (name.startsWith('Btn_')) {
+        triggerKeycapPress(name);
+      }
     }
   }
-  container.style.cursor = 'default';
-  if (tooltip) tooltip.style.display = 'none';
+}
+
+renderer.domElement.addEventListener('pointerdown', handlePointerDown, { capture: true });
+
+renderer.domElement.addEventListener('pointermove', (e) => {
+  // If user moved pointer/finger significantly and not on an actionable button, treat as camera orbit/pan
+  if (pointerDownPos && !pointerDownIsAction) {
+    const dist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
+    if (dist > 18) {
+      pointerDownTarget = null;
+      controls.enabled = true;
+    }
+  }
+
+  // Hover detection for desktop mouse pointer
+  if (e.pointerType === 'mouse') {
+    const intersects = getPointerIntersects(e.clientX, e.clientY);
+    if (intersects.length > 0) {
+      let obj = intersects[0].object;
+      while (obj && !obj.userData.name && obj.parent) {
+        obj = obj.parent;
+      }
+      if (obj && (obj.userData.name || obj.name)) {
+        container.style.cursor = 'pointer';
+        showTooltipAt(e.clientX, e.clientY, obj, false);
+        return;
+      }
+    }
+    container.style.cursor = 'default';
+    if (tooltip) tooltip.style.display = 'none';
+  }
 });
 
+function finishPointer(e) {
+  const isTouch = e.pointerType === 'touch' || e.pointerType === 'pen';
+  const endX = e.clientX || pointerDownPos?.x || 0;
+  const endY = e.clientY || pointerDownPos?.y || 0;
+
+  if (pointerDownPos && pointerDownTarget) {
+    const dist = Math.hypot(endX - pointerDownPos.x, endY - pointerDownPos.y);
+    const elapsed = performance.now() - pointerDownTime;
+    const isTap = (pointerDownIsAction && dist < 36 && elapsed < 1200) || (!pointerDownIsAction && dist < 24 && elapsed < 800);
+
+    if (isTap) {
+      lastInteractionHandledTime = performance.now();
+      executeObjectAction(pointerDownTarget, pointerDownIntersects || [], endX, endY, isTouch);
+    }
+  }
+
+  controls.enabled = true;
+  pointerDownPos = null;
+  pointerDownTarget = null;
+  pointerDownIntersects = null;
+  pointerDownIsAction = false;
+}
+
+renderer.domElement.addEventListener('pointerup', finishPointer);
+renderer.domElement.addEventListener('pointercancel', () => {
+  controls.enabled = true;
+  pointerDownPos = null;
+  pointerDownTarget = null;
+  pointerDownIntersects = null;
+  pointerDownIsAction = false;
+});
+
+// Explicit TouchEvent support for iOS Safari
+renderer.domElement.addEventListener('touchstart', (e) => {
+  if (e.touches.length === 1) {
+    const t = e.touches[0];
+    handlePointerDown({ clientX: t.clientX, clientY: t.clientY, stopPropagation: () => e.stopPropagation(), pointerType: 'touch' });
+  }
+}, { passive: true, capture: true });
+
+renderer.domElement.addEventListener('touchend', (e) => {
+  if (pointerDownTarget && pointerDownPos) {
+    const touch = e.changedTouches?.[0];
+    finishPointer({ clientX: touch ? touch.clientX : pointerDownPos.x, clientY: touch ? touch.clientY : pointerDownPos.y, pointerType: 'touch' });
+  }
+}, { passive: true });
+
+// Fallback click listener for desktop browsers
 window.addEventListener('click', (e) => {
-  const rect = renderer.domElement.getBoundingClientRect();
-  if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) return;
+  // If already executed by pointerup within 350ms, prevent double execution
+  if (performance.now() - lastInteractionHandledTime < 350) return;
 
-  mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-  mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-
-  raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(interactiveObjects, true);
-
+  const intersects = getPointerIntersects(e.clientX, e.clientY);
   if (intersects.length > 0) {
     let obj = intersects[0].object;
     while (obj && !obj.userData.name && obj.parent) {
       obj = obj.parent;
     }
-
-    if (obj && obj.userData.name) {
-      const name = obj.userData.name;
-
-      if (name === 'Btn_Power') {
-        triggerKeycapPress('Btn_Power');
-        document.getElementById('btn-power')?.click();
-      } else if (name === 'Btn_Zero') {
-        triggerKeycapPress('Btn_Zero');
-        handleAutoZero();
-      } else if (name === 'Btn_Scan') {
-        triggerKeycapPress('Btn_Scan');
-        handleStartScan();
-      } else if (name === 'Btn_Mode') {
-        triggerKeycapPress('Btn_Mode');
-        document.getElementById('btn-mode')?.click();
-      } else if (name === 'Btn_CellNext') {
-        triggerKeycapPress('Btn_CellNext');
-        handleAdvanceCell();
-      } else if (name === 'Btn_Lid' || obj.name?.includes('Lid') || obj.name?.includes('Door')) {
-        handleToggleDoor();
-      } else if (obj.userData.cellNumber) {
-        state.activeCell = obj.userData.cellNumber;
-        state.targetCarouselAngle = -((state.activeCell - 1) * Math.PI) / 3;
-        sfx.click();
-        const selectEl = document.getElementById('select-cell');
-        if (selectEl) selectEl.value = state.activeCell.toString();
-        logGLP(`CAROUSEL: Clicked Cell ${state.activeCell} directly.`);
-        performMeasurement();
-      } else if (name === 'UI_LCD_TOUCH' || obj.name === 'UI_LCD') {
-        // Capacitive Touchscreen Digitizer
-        const hit = intersects.find(h => h.object.name === 'UI_LCD' || h.object.userData.name === 'UI_LCD_TOUCH') || intersects[0];
-        const localPoint = animTargets.lcdMesh.worldToLocal(hit.point.clone());
-        const normX = Math.max(0, Math.min(1, (0.82 - localPoint.x) / 1.64));
-        const normY = Math.max(0, Math.min(1, (0.47 - localPoint.z) / 0.94));
-        const touchX = normX * lcdCanvas.width;
-        const touchY = normY * lcdCanvas.height;
-
-        state.touchRipples.push({
-          x: touchX,
-          y: touchY,
-          birth: performance.now(),
-        });
-        sfx.beep(1600, 0.035);
-
-        if (touchY >= 570) {
-          // Footer cell buttons: 6 cells
-          const cellIdx = Math.min(6, Math.max(1, Math.floor(normX * 6) + 1));
-          state.activeCell = cellIdx;
-          state.targetCarouselAngle = -((state.activeCell - 1) * Math.PI) / 3;
-          const selectEl = document.getElementById('select-cell');
-          if (selectEl) selectEl.value = state.activeCell.toString();
-          logGLP(`TOUCHSCREEN: Cell ${state.activeCell} selected via capacitive touch.`);
-          performMeasurement();
-        } else if (touchX >= 830) {
-          // Right softkey column
-          if (touchY >= 70 && touchY < 145) {
-            handleAutoZero();
-          } else if (touchY >= 145 && touchY < 220) {
-            handleStartScan();
-          } else if (touchY >= 220 && touchY < 295) {
-            document.getElementById('btn-mode')?.click();
-          } else if (touchY >= 295 && touchY < 370) {
-            handleToggleDoor();
-          } else if (touchY >= 370 && touchY < 445) {
-            toggleOpticsView();
-          } else if (touchY >= 445 && touchY < 520) {
-            document.getElementById('btn-export-glp')?.click();
-          }
-        } else if (touchY <= 60) {
-          // Header tabs
-          if (touchX >= 280 && touchX < 500) {
-            document.getElementById('btn-mode')?.click();
-          } else if (touchX >= 750) {
-            document.getElementById('btn-power')?.click();
-          }
-        } else if (state.mode === 'SPECTRUM' && touchX >= 75 && touchX <= 820 && touchY >= 75 && touchY <= 520) {
-          // Spectrum plot tap-to-seek
-          const frac = (touchX - 75) / (820 - 75);
-          const targetWl = Math.round((state.scanStartWl + frac * (state.scanEndWl - state.scanStartWl)) * 2) / 2;
-          const clampedWl = Math.max(state.scanStartWl, Math.min(state.scanEndWl, targetWl));
-          state.currentWl = clampedWl;
-          const sliderEl = document.getElementById('slider-wl');
-          if (sliderEl) sliderEl.value = clampedWl.toString();
-          const inputEl = document.getElementById('input-wl');
-          if (inputEl) inputEl.value = clampedWl.toFixed(1);
-          logGLP(`TOUCHSCREEN: Tuned monochromator to ${clampedWl.toFixed(1)} nm.`);
-          performMeasurement();
-        } else {
-          document.getElementById('btn-mode')?.click();
-        }
-      }
+    if (obj && (obj.userData.name || obj.name)) {
+      executeObjectAction(obj, intersects, e.clientX, e.clientY, false);
     }
   }
 });
