@@ -2056,9 +2056,9 @@ export function createSpectrophotometerModel(options = {}) {
   });
 
   // 7. SREdesigns Brand Emblem Badge (Badge_SREdesigns)
-  // Positioned in upper right quadrant of front fascia (above louvers, directly under console trim)
+  // Positioned in upper right quadrant of front fascia: ~1 inch (0.25 units) from top and side edges
   const badge = makeSREdesignsBadge(0.55);
-  badge.position.set(-1.62, BASE_Y + 1.18, -2.385);
+  badge.position.set(-1.60, BASE_Y + 0.92, -2.385);
   badge.rotation.y = Math.PI; // Faces -Z forward towards operator and front camera
   chassisGroup.add(badge);
 

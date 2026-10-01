@@ -131,6 +131,16 @@ class SpectroAudio {
       }, idx * 90);
     });
   }
+
+  error() {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+
+    // Dual low error buzz
+    this.beep(220, 0.12, 'sawtooth');
+    setTimeout(() => this.beep(180, 0.16, 'sawtooth'), 140);
+  }
 }
 
 export const sfx = new SpectroAudio();

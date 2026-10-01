@@ -581,7 +581,7 @@ function toggleOpticsView(forcedState) {
 // Controller Handlers
 function handleAutoZero() {
   if (state.chamberOpen) {
-    sfx.error();
+    sfx.error?.();
     logGLP('ERROR: Cannot Auto-Zero with chamber lid open!');
     return;
   }
@@ -600,7 +600,7 @@ function handleAutoZero() {
 
 function handleStartScan() {
   if (state.chamberOpen) {
-    sfx.error();
+    sfx.error?.();
     logGLP('ERROR: Cannot start spectrum scan with chamber lid open!');
     return;
   }
