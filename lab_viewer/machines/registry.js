@@ -128,6 +128,16 @@ export const MACHINES = [
     transitionKind: "box",
     panelHint: "Czerny-Turner optics, Beer-Lambert law, 6-cell carousel, spectrum scan",
   },
+  {
+    id: "ftir",
+    name: "FTIR Spectrometer",
+    tag: "Fourier-Transform Infrared Spectrometer with Diamond ATR",
+    packageDir: "ftir_twin",
+    status: "ready",
+    viewerUrl: "../ftir_twin/software/viewer/",
+    transitionKind: "box",
+    panelHint: "Michelson voice-coil interferometer, HeNe 632.8nm lock, monolithic diamond ATR, functional group peaks",
+  },
 ];
 
 export function getMachine(id) {

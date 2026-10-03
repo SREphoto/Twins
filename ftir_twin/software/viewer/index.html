@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FTIR-7000x · FTIR Spectrometer Twin</title>
+  <link rel="stylesheet" href="style.css?v=20261002-v1" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">SREdesigns</span>
+        <span class="brand-model">FTIR-7000x</span>
+        <span class="badge-sredesigns">SREdesigns</span>
+        <span class="brand-tag">Research-Grade Fourier-Transform Infrared Spectrometer Twin</span>
+      </div>
+      <div class="topbar-status">
+        <span id="status-pill" class="pill run">READY</span>
+        <span id="status-detail" class="muted">Ready for infrared absorption analysis</span>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <!-- 3D Stage -->
+      <section class="stage">
+        <div class="view-toolbar">
+          <button type="button" class="view-btn active" id="btn-cam-iso" title="Isometric view">ISO</button>
+          <button type="button" class="view-btn" id="btn-cam-front" title="Front view">Front</button>
+          <button type="button" class="view-btn" id="btn-cam-side" title="Side view">Side</button>
+          <button type="button" class="view-btn" id="btn-cam-top" title="Top view">Top</button>
+          <button type="button" class="view-btn" id="btn-cam-rear" title="Rear view">Rear</button>
+          <button type="button" class="view-btn" id="btn-explode" title="Separate assemblies">Exploded view</button>
+          <button type="button" class="view-btn" id="btn-optics-view" title="Inspect internal optical train & rays">Optics View</button>
+          <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe">Wireframe</button>
+          <button type="button" class="view-btn" id="btn-auto-rotate" title="Orbit camera automatically">Auto-rotate</button>
+          
+          <label class="orbit-speed-ctrl" title="Auto-orbit speed">
+            <span>Orbit</span>
+            <input type="range" id="orbit-speed" min="0.2" max="4" step="0.1" value="1.0" />
+            <span id="orbit-speed-val">1.0×</span>
+          </label>
+          <label class="orbit-speed-ctrl" title="Camera zoom">
+            <span>Zoom</span>
+            <input type="range" id="camera-zoom" min="0" max="100" step="1" value="45" />
+            <span id="camera-zoom-val">45%</span>
+          </label>
+          <label class="orbit-speed-ctrl" title="Lab lighting intensity">
+            <span>Light</span>
+            <input type="range" id="lab-light" min="0.2" max="2.5" step="0.1" value="1.0" />
+            <span id="lab-light-val">1.0×</span>
+          </label>
+          <button type="button" class="view-btn" id="btn-sfx-mute" title="Mute audio sounds">Mute SFX</button>
+        </div>
+
+        <div id="viewport3d" class="viewport"></div>
+        <div id="hud-tooltip" class="hud-tooltip" style="display: none;"></div>
+        <div class="stage-hint">Interactive 3D Twin: click touchscreen buttons, ATR clamp tower, diamond crystal, or rear power cord</div>
+      </section>
+
+      <!-- Instrument Controls Panel -->
+      <aside class="instrument panel-collapsible" id="panel-instrument" data-panel="instrument">
+        <div class="panel-header">
+          <h2>Spectrometer Controls</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="instrument" title="Collapse panel" aria-expanded="true">▾</button>
+        </div>
+        <div class="panel-body">
+          <div class="btn-grid">
+            <button type="button" class="btn btn-primary" id="btn-zero">COLLECT BACKGROUND</button>
+            <button type="button" class="btn btn-scan" id="btn-scan">SCAN SAMPLE</button>
+          </div>
+
+          <div class="btn-grid">
+            <button type="button" class="btn" id="btn-mode">CYCLE MODE (%T / A)</button>
+            <button type="button" class="btn" id="btn-cell-next">SWIVEL ATR TOWER</button>
+          </div>
+
+          <div class="btn-grid">
+            <button type="button" class="btn" id="btn-chamber">CYCLE CLAMP PRESSURE</button>
+            <button type="button" class="btn" id="btn-power">STANDBY (ON/OFF)</button>
+          </div>
+
+          <div class="control-group">
+            <label>Spectral Range (cm⁻¹): <span id="lbl-range">4000.0 – 400.0</span></label>
+            <div style="font-size: 0.8rem; color: var(--muted); font-family: var(--mono); margin-top: 4px;">
+              Resolution: 4.0 cm⁻¹ · Co-added Scans: 16
+            </div>
+          </div>
+
+          <!-- Status Readouts -->
+          <div class="readout-box">
+            <div class="readout-item">
+              <span class="readout-label">HE-NE LASER LOCK</span>
+              <span class="readout-value" id="val-laser" style="color: var(--green);">632.8 nm (LOCKED)</span>
+            </div>
+            <div class="readout-item">
+              <span class="readout-label">DRY GAS PURGE</span>
+              <span class="readout-value" id="val-purge" style="color: var(--cyan);">N₂ PURGE ACTIVE</span>
+            </div>
+          </div>
+
+          <!-- Subsystem Info -->
+          <div class="subsystem-info">
+            <div class="subsystem-title">OPTICAL SUBSYSTEM</div>
+            <div class="subsystem-detail"><strong>IR Source:</strong> Polaris Ever-Glo (1200°C Ceramic)</div>
+            <div class="subsystem-detail"><strong>Interferometer:</strong> Michelson Voice-Coil Linear Drive</div>
+            <div class="subsystem-detail"><strong>Beam Splitter:</strong> KBr Substrate (Ge-coated mid-IR)</div>
+            <div class="subsystem-detail"><strong>Sampling Deck:</strong> Monolithic Type IIa Diamond ATR</div>
+            <div class="subsystem-detail"><strong>Detector:</strong> DTGS Pyroelectric (KBr Window)</div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Lab Reagents & GLP Panel -->
+      <aside class="lab panel-collapsible" id="panel-lab" data-panel="lab">
+        <div class="panel-header">
+          <h2>Lab Reagents & GLP</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="lab" title="Collapse panel" aria-expanded="true">▾</button>
+        </div>
+        <div class="panel-body">
+          <div class="control-group">
+            <label for="sample-select">Select Analyte on Diamond ATR:</label>
+            <select id="sample-select" class="sample-select"></select>
+          </div>
+
+          <div class="sample-info-card">
+            <div class="sample-info-name" id="sample-title">Isopropanol (IPA, 99.9%)</div>
+            <div class="sample-info-desc" id="sample-desc">Secondary alcohol with intense broad H-bonded O-H stretch at 3350 cm⁻¹ and gem-dimethyl doublet.</div>
+            <div class="sample-info-bands" id="sample-bands">Diagnostic Bands: O-H (3350 cm⁻¹), C-H (2970 cm⁻¹), C-O (1129 cm⁻¹)</div>
+          </div>
+
+          <div class="sop-box">
+            <div class="sop-title">Standard ATR-FTIR Protocol:</div>
+            <ol class="sop-steps">
+              <li>Clean diamond prism with lint-free optical wipe and ethanol.</li>
+              <li>Collect <strong>BACKGROUND</strong> spectrum of ambient air / clean crystal.</li>
+              <li>Apply 2–5 µL liquid or place solid sample onto diamond center.</li>
+              <li>For solids, swivel pressure tower and tighten slip-clutch knob.</li>
+              <li>Click <strong>SCAN SAMPLE</strong> to acquire ratioed %T spectrum.</li>
+              <li>Export GLP audit log for 21 CFR Part 11 compliance.</li>
+            </ol>
+          </div>
+
+          <!-- GLP Audit Log -->
+          <div class="glp-box">
+            <div class="glp-title">GLP Compliance Log</div>
+            <textarea id="glp-log-console" class="glp-console" readonly></textarea>
+            <button type="button" class="btn btn-export" id="btn-export-glp">Export GLP Log</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script src="sfx.js?v=20261002-v1"></script>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="app.js?v=20261002-v1"></script>
+</body>
+</html>
