@@ -6,7 +6,7 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { FTIR3D } from './ftir3d.js?v=20261002-v1';
+import { FTIR3D } from './ftir3d.js?v=20261005-v2';
 
 // Chemical Analyte Profiles
 const SAMPLES = {
@@ -216,12 +216,12 @@ class FTIRApp {
 
   setupViewPresets() {
     const presets = {
-      'btn-cam-iso': { pos: [5.2, 3.8, 5.8], target: [0.0, 1.0, 0.0] },
-      'btn-cam-front': { pos: [0.0, 1.8, 7.8], target: [0.0, 1.0, 0.0] },
-      'btn-cam-side': { pos: [7.8, 1.8, 0.0], target: [0.0, 1.0, 0.0] },
-      'btn-cam-top': { pos: [0.0, 8.8, 0.01], target: [0.0, 0.8, 0.0] },
-      'btn-cam-rear': { pos: [0.0, 2.4, -7.5], target: [0.0, 1.0, 0.0] },
-      'btn-optics-view': { pos: [-2.6, 3.6, 3.8], target: [-1.05, 0.6, 0.0] }
+      'btn-cam-iso': { pos: [5.6, 4.2, -7.2], target: [0.0, 1.15, -0.2] },
+      'btn-cam-front': { pos: [0.0, 1.6, -8.2], target: [0.0, 1.15, -0.2] },
+      'btn-cam-side': { pos: [8.6, 1.8, -0.1], target: [0.0, 1.1, -0.1] },
+      'btn-cam-top': { pos: [0.0, 11.2, -0.21], target: [0.0, 1.0, -0.2] },
+      'btn-cam-rear': { pos: [0.0, 2.6, 6.8], target: [0.0, 1.05, 0.6] },
+      'btn-optics-view': { pos: [2.8, 4.2, -3.2], target: [0.5, 0.8, 0.5] }
     };
 
     Object.entries(presets).forEach(([btnId, cam]) => {
