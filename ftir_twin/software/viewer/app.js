@@ -6,7 +6,7 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { FTIR3D } from './ftir3d.js?v=20261005-v2';
+import { FTIR3D } from './ftir3d.js?v=20261005-v3';
 
 // Chemical Analyte Profiles
 const SAMPLES = {
