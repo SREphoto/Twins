@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SREdesigns Parr 4560 / 4848 · High-Pressure Stirred Mini-Reactor Twin</title>
-  <link rel="stylesheet" href="style.css?v=20260925-gold1" />
+  <link rel="stylesheet" href="style.css?v=20261005-gold-tier" />
   <script type="importmap">
     {
       "imports": {
@@ -25,8 +25,8 @@
         <span class="brand-tag">300 mL 200-Bar Stirred Mini-Reactor with Split-Ring Closure &amp; Modular PID Controller</span>
       </div>
       <div class="topbar-status">
-        <span id="status-pill" class="pill idle">STANDBY</span>
-        <span id="status-detail" class="muted">Vessel sealed · Ready for catalytic hydrogenation</span>
+        <span id="status-pill" class="pill ready">READY</span>
+        <span id="status-detail" class="muted">AC Mains Connected · Vessel Sealed</span>
       </div>
     </header>
 
@@ -38,27 +38,49 @@
           <button type="button" class="view-btn" id="btn-cam-front" title="Front vessel & controller view">Front</button>
           <button type="button" class="view-btn" id="btn-cam-side" title="Side view of reactor mast">Side</button>
           <button type="button" class="view-btn" id="btn-cam-top" title="Top overhead view">Top</button>
-          <button type="button" class="view-btn" id="btn-explode" title="Separate assemblies">Exploded</button>
+          <button type="button" class="view-btn" id="btn-explode" title="Separate assemblies">Exploded view</button>
           <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe">Wireframe</button>
           <button type="button" class="view-btn" id="btn-auto-rotate" title="Orbit camera automatically">Auto-rotate</button>
 
-          <label class="orbit-speed-ctrl" title="Auto-orbit speed" style="display:flex;align-items:center;gap:0.3rem;font-size:0.75rem;color:var(--muted);margin-left:0.4rem;">
-            <span>Speed</span>
-            <input type="range" id="orbit-speed" min="0.2" max="4" step="0.1" value="1.0" style="width:60px;" />
+          <label class="orbit-speed-ctrl" title="Auto-orbit speed">
+            <span>Orbit</span>
+            <input type="range" id="orbit-speed" min="0.2" max="4" step="0.1" value="1.0" />
             <span id="orbit-speed-val">1.0×</span>
           </label>
+          <label class="orbit-speed-ctrl" title="Camera zoom (distance to instrument)">
+            <span>Zoom</span>
+            <input type="range" id="camera-zoom" min="0" max="100" step="1" value="45" />
+            <span id="camera-zoom-val">45%</span>
+          </label>
+          <label class="orbit-speed-ctrl" title="Overall lab brightness">
+            <span>Light</span>
+            <input type="range" id="lab-light" min="0.2" max="2.5" step="0.1" value="1.0" />
+            <span id="lab-light-val">1.0×</span>
+          </label>
+          <label class="orbit-speed-ctrl" title="Lighting mood">
+            <span>Mood</span>
+            <select id="lab-light-mood" aria-label="Lighting mood">
+              <option value="neutral" selected>Neutral</option>
+              <option value="bright">Bright</option>
+              <option value="dim">Dim</option>
+              <option value="cool">Cool</option>
+              <option value="warm">Warm</option>
+            </select>
+          </label>
+          <button type="button" class="view-btn" id="btn-view-reset" title="Reset camera view">Reset view</button>
           <button type="button" class="view-btn" id="btn-sfx-mute" title="Mute audio sounds">Mute SFX</button>
         </div>
 
         <div id="viewport3d" class="viewport"></div>
-        <div class="stage-hint">Interactive 3D Twin: Use orbit controls to inspect 6-bolt split rings, magnetic drive, and Parr 4848 console</div>
+        <div id="hud-tooltip" class="hud-tooltip" style="display: none;"></div>
+        <div class="stage-hint">Interactive 3D Twin: Click valves, rocker switches, potentiometer dial, or power plug in 3D</div>
       </section>
 
-      <!-- Instrument Controls Panel -->
-      <aside class="instrument panel-collapsible" id="panel-instrument">
-        <div class="panel-header">
-          <h2>Instrument Controls</h2>
-          <button type="button" class="panel-collapse-btn" data-collapse="instrument" title="Collapse panel">▾</button>
+      <!-- Panel 1: Instrument Controls -->
+      <aside class="instrument panel-collapsible" id="panel-instrument" data-panel="instrument">
+        <div class="panel-head">
+          <h2 class="panel-title">Instrument Controls</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="instrument" title="Collapse panel" aria-expanded="true">▾</button>
         </div>
         <div class="panel-body">
           <div class="btn-grid">
@@ -71,8 +93,9 @@
             <button type="button" class="btn" id="btn-vent">VENT: CLOSED</button>
           </div>
 
-          <div>
-            <button type="button" class="btn" id="btn-cooling" style="width:100%;">COOLING: OFF</button>
+          <div class="btn-grid">
+            <button type="button" class="btn" id="btn-sample">SAMPLE: CLOSED</button>
+            <button type="button" class="btn" id="btn-cooling">COOLING: OFF</button>
           </div>
 
           <!-- Temperature Setpoint Control -->
@@ -96,59 +119,161 @@
             <div class="slider-ctrl">
               <input type="range" id="slider-rpm" min="0" max="1700" step="50" value="600" />
             </div>
-            <p class="hint">A1120HC6 hermetic magnetic coupling with 4-blade turbine impeller.</p>
+            <p class="hint">A1120HC6 hermetic magnetic coupling with 6-blade Rushton turbine.</p>
           </div>
 
-          <div style="margin-top:0.3rem;">
-            <button type="button" class="btn btn-primary" id="btn-demo" style="width:100%;">Run Classroom Demo</button>
+          <!-- Initial Gas Charge Control -->
+          <div class="control-card">
+            <div class="card-title">
+              <span>Charge Initial Pressure</span>
+              <span class="card-val" id="val-charge">30.0 bar</span>
+            </div>
+            <div class="slider-ctrl">
+              <input type="range" id="slider-charge" min="1" max="100" step="1" value="30" />
+            </div>
+            <div style="margin-top:0.4rem;">
+              <button type="button" class="btn" id="btn-charge-gas" style="width:100%;">Charge Gas Manifold</button>
+            </div>
+          </div>
+
+          <!-- Automated Demonstration Workflows -->
+          <div class="btn-grid" style="margin-top:0.3rem;">
+            <button type="button" class="btn btn-primary" id="btn-demo" style="width:100%;">Run Hydrogenation Demo</button>
+            <button type="button" class="btn btn-danger" id="btn-quench" style="width:100%;">Emergency Safety Quench</button>
+          </div>
+
+          <!-- Live Instrument Telemetry Card -->
+          <div class="control-card" style="margin-top:0.6rem;">
+            <div class="card-title">
+              <span>Live Process Telemetry</span>
+            </div>
+            <div class="telem-row">
+              <span class="telem-label">Process Temp (PV):</span>
+              <span class="telem-value highlight" id="telem-temp">22.0 °C</span>
+            </div>
+            <div class="telem-row">
+              <span class="telem-label">Setpoint Temp (SV):</span>
+              <span class="telem-value" id="telem-sv-temp">150.0 °C</span>
+            </div>
+            <div class="telem-row">
+              <span class="telem-label">Vessel Pressure:</span>
+              <span class="telem-value highlight" id="telem-pressure">1.0 bar</span>
+            </div>
+            <div class="telem-row">
+              <span class="telem-label">Stirrer Tachometer:</span>
+              <span class="telem-value" id="telem-rpm">0 RPM</span>
+            </div>
+            <div class="telem-row">
+              <span class="telem-label">Heater SSR Power:</span>
+              <span class="telem-value" id="telem-power">0%</span>
+            </div>
+            <div class="telem-row">
+              <span class="telem-label">Impeller Shaft Torque:</span>
+              <span class="telem-value" id="telem-torque">0.00 N·m</span>
+            </div>
+            <div class="telem-row">
+              <span class="telem-label">Burst Disc Rating:</span>
+              <span class="telem-value warn" id="telem-burst">250 bar (INTACT)</span>
+            </div>
           </div>
         </div>
       </aside>
 
-      <!-- Real-time Telemetry Panel -->
-      <aside class="telemetry panel-collapsible" id="panel-telemetry">
-        <div class="panel-header">
-          <h2>Live Telemetry</h2>
-          <button type="button" class="panel-collapse-btn" data-collapse="telemetry" title="Collapse panel">▾</button>
+      <!-- Panel 2: Part Explorer -->
+      <aside class="parts panel-collapsible" id="parts-panel" data-panel="parts">
+        <div class="panel-head">
+          <h2 class="panel-title">Part Explorer</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="parts" title="Collapse panel" aria-expanded="true">▾</button>
         </div>
         <div class="panel-body">
-          <div class="telem-row">
-            <span class="telem-label">Process Temp (PV)</span>
-            <span class="telem-value highlight" id="telem-temp">22.0 °C</span>
+          <p class="hint">Click any named part to isolate (others wireframe), center camera, and orbit.</p>
+          <div style="display:flex;gap:0.4rem;align-items:center;">
+            <button type="button" class="btn" id="btn-parts-clear" style="flex:1;">Clear Focus</button>
+            <input type="text" id="parts-search" placeholder="Filter parts..." style="flex:1.2;padding:0.4rem 0.5rem;font-size:0.75rem;border-radius:6px;border:1px solid var(--border);background:#0a0e14;color:#fff;" />
           </div>
-          <div class="telem-row">
-            <span class="telem-label">Setpoint Temp (SV)</span>
-            <span class="telem-value" id="telem-sv-temp">150.0 °C</span>
+          <p id="parts-focus-status" class="lab-status muted">No part focused</p>
+          <p id="parts-count" class="hint"></p>
+          <div id="parts-list" class="parts-list" role="list"></div>
+        </div>
+      </aside>
+
+      <!-- Panel 3: Lab Bench & GLP Log -->
+      <aside class="lab panel-collapsible" id="panel-lab" data-panel="lab">
+        <div class="panel-head">
+          <h2 class="panel-title">Lab Bench</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="lab" title="Collapse panel" aria-expanded="true">▾</button>
+        </div>
+        <div class="panel-body">
+          <!-- Electrical Continuity Gate -->
+          <div class="control-card">
+            <div class="card-title">
+              <span>AC Mains Circuit Continuity</span>
+              <span class="pill ready" id="plug-status-pill">PLUGGED IN</span>
+            </div>
+            <p class="hint">Commercial NEMA 5-15R duplex bench pedestal outlet. Unplugging cuts 100% electrical power.</p>
+            <button type="button" class="btn btn-primary" id="btn-toggle-plug" style="width:100%;margin-top:0.3rem;">Disconnect Power Plug</button>
           </div>
-          <div class="telem-row">
-            <span class="telem-label">Vessel Pressure</span>
-            <span class="telem-value highlight" id="telem-pressure">1.0 bar</span>
+
+          <!-- Reactant Mixture Selection -->
+          <div class="field">
+            <span>Reaction Solvent &amp; Volume</span>
+            <select id="select-solvent" class="select-ctrl">
+              <option value="water" selected>Deionized Water (150 mL — Standard)</option>
+              <option value="ethanol">Absolute Ethanol (150 mL — 1.2 cP)</option>
+              <option value="cyclohexane">Cyclohexane (150 mL — Hydrogenation)</option>
+              <option value="toluene">Toluene (150 mL — High Temp)</option>
+              <option value="mineral_oil">Heavy Mineral Oil (150 mL — Viscous 80 cP)</option>
+            </select>
           </div>
-          <div class="telem-row">
-            <span class="telem-label">Stirrer Tachometer</span>
-            <span class="telem-value" id="telem-rpm">0 RPM</span>
+
+          <div class="field">
+            <span>Reactant Gas Feed</span>
+            <select id="select-gas" class="select-ctrl">
+              <option value="h2" selected>H₂ Hydrogen (Molecular wt: 2.016 g/mol)</option>
+              <option value="n2">N₂ Inert Nitrogen Purge</option>
+              <option value="co2">CO₂ Supercritical Carbon Dioxide</option>
+              <option value="ar">Ar Argon Shielding Gas</option>
+            </select>
           </div>
-          <div class="telem-row">
-            <span class="telem-label">Heater SSR Power</span>
-            <span class="telem-value" id="telem-power">0%</span>
+
+          <div class="field">
+            <span>Heterogeneous Catalyst Slurry</span>
+            <select id="select-catalyst" class="select-ctrl">
+              <option value="pd_c" selected>5% Palladium on Activated Carbon (Pd/C)</option>
+              <option value="raney_ni">Raney Nickel Active Slurry</option>
+              <option value="homogeneous_ru">Homogeneous Ruthenium Complex</option>
+              <option value="none">None (Blank Thermal Simulation)</option>
+            </select>
           </div>
-          <div class="telem-row">
-            <span class="telem-label">Design Max Pressure</span>
-            <span class="telem-value">200 bar</span>
-          </div>
-          <div class="telem-row">
-            <span class="telem-label">Rupture Disc Rating</span>
-            <span class="telem-value warn">250 bar</span>
-          </div>
-          <div class="telem-row">
-            <span class="telem-label">Mantle Power</span>
-            <span class="telem-value">780 W</span>
+
+          <!-- GLP Compliance Batch Log -->
+          <div class="control-card" style="margin-top:0.6rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+              <span style="font-weight:600;font-size:0.85rem;">GLP Reaction Audit Log</span>
+              <button type="button" class="btn" id="btn-export-log" style="padding:0.25rem 0.5rem;font-size:0.7rem;">Export CSV</button>
+            </div>
+            <div style="max-height:160px;overflow-y:auto;border:1px solid var(--border);border-radius:6px;">
+              <table class="log-table" id="log-table">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Temp (°C)</th>
+                    <th>Pressure</th>
+                    <th>RPM</th>
+                    <th>Power</th>
+                  </tr>
+                </thead>
+                <tbody id="log-tbody">
+                  <!-- Dynamic log entries -->
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </aside>
     </div>
   </div>
 
-  <script type="module" src="app.js?v=20260925-gold1"></script>
+  <script type="module" src="app.js?v=20261005-gold-tier"></script>
 </body>
 </html>

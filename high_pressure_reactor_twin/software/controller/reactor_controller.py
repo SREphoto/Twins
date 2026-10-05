@@ -2,6 +2,7 @@
 High Pressure Reactor Controller State Engine
 Pure Python state machine for industrial Parr 4560 mini high-pressure stirred reactor
 with Parr 4848 modular digital controller (PTM, MCM, PDM, SVM, HTM).
+Strictly adheres to Dual-Truth Logic and Physical Circuit Continuity (Rule 9 & DIAG-014).
 """
 
 from enum import Enum, auto
@@ -9,6 +10,7 @@ from typing import Dict, Any
 
 
 class ReactorState(Enum):
+    UNPOWERED = auto()     # Disconnected from AC mains or mains switch OFF
     IDLE = auto()
     HEATING = auto()
     STIRRING = auto()
@@ -22,7 +24,6 @@ class ReactorState(Enum):
 
 class ReactorController:
     """Industrial Parr 4560 / 4848 reactor control system with PID thermal dynamics,
-
     closed-loop motor tachometer, Gay-Lussac gas pressure, and redundant safety interlocks.
     """
 
@@ -37,6 +38,10 @@ class ReactorController:
         self.burst_disc_bar = float(burst_disc_bar)
         self.max_temp_c = float(max_temp_c)
         self.max_rpm = int(max_rpm)
+
+        # Physical circuit continuity state
+        self.is_plugged_in = True
+        self.mains_power_on = True
 
         self.state = ReactorState.IDLE
         self.current_temp_c = 22.0
@@ -78,6 +83,33 @@ class ReactorController:
 
         self.alarm_message = ""
 
+    def set_plugged_in(self, plugged: bool) -> None:
+        """Physical circuit continuity: connecting/disconnecting power cord."""
+        self.is_plugged_in = bool(plugged)
+        if not self.is_plugged_in:
+            self._cut_power()
+        else:
+            self._update_state()
+
+    def set_mains_power(self, power: bool) -> None:
+        """Toggles primary AC mains rocker switch on controller."""
+        self.mains_power_on = bool(power)
+        if not self.mains_power_on:
+            self._cut_power()
+        else:
+            self._update_state()
+
+    def _cut_power(self) -> None:
+        """Immediate electrical power cutoff (DIAG-014)."""
+        self.heater_on = False
+        self.stirrer_on = False
+        self.heater_power_pct = 0.0
+        self.state = ReactorState.UNPOWERED
+
+    @property
+    def has_power(self) -> bool:
+        return self.is_plugged_in and self.mains_power_on
+
     def set_target_temp(self, temp_c: float) -> bool:
         if 0.0 <= temp_c <= self.max_temp_c:
             self.target_temp_c = float(temp_c)
@@ -91,6 +123,8 @@ class ReactorController:
         return False
 
     def toggle_heater(self, enable: bool) -> bool:
+        if not self.has_power:
+            return False
         if self.state in (
             ReactorState.FAULT_OVERPRESSURE,
             ReactorState.FAULT_OVERTEMP,
@@ -111,6 +145,8 @@ class ReactorController:
         return True
 
     def toggle_stirrer(self, enable: bool) -> bool:
+        if not self.has_power:
+            return False
         if self.state in (ReactorState.FAULT_OVERPRESSURE, ReactorState.FAULT_OVERTEMP):
             return False
         self.stirrer_on = enable
@@ -139,6 +175,8 @@ class ReactorController:
             self.alarm_message = "FAULT: THERMOCOUPLE OPEN CIRCUIT"
 
     def acknowledge_alarms(self) -> bool:
+        if not self.has_power:
+            return False
         if self.burst_disc_ruptured:
             return False  # Hardware replacement required
         if self.tc_broken:
@@ -151,6 +189,10 @@ class ReactorController:
         return False
 
     def _update_state(self) -> None:
+        if not self.has_power:
+            self.state = ReactorState.UNPOWERED
+            return
+
         if self.state in (
             ReactorState.FAULT_OVERPRESSURE,
             ReactorState.FAULT_OVERTEMP,
@@ -173,10 +215,20 @@ class ReactorController:
 
     def tick(self, dt_sec: float = 1.0) -> None:
         """Execute physical simulation tick: PID thermal loop, Gay-Lussac gas expansion,
-
         motor tachometer regulation, and safety interlocks.
         """
         dt = max(0.001, dt_sec)
+
+        # 0. Power check
+        if not self.has_power:
+            self.heater_power_pct = 0.0
+            self.current_rpm = max(0.0, self.current_rpm - 400.0 * dt)
+            self.motor_torque_nm = 0.0
+            self.motor_current_amps = 0.0
+            # Natural thermal cooldown
+            q_loss = self.convective_loss_w_k * (self.current_temp_c - self.ambient_temp_c)
+            self.current_temp_c = max(self.ambient_temp_c, self.current_temp_c - (q_loss / self.thermal_mass_j_k) * dt)
+            return
 
         # 1. Overpressure / Burst Disc check (Pre-check)
         if self.current_pressure_bar >= self.burst_disc_bar:
@@ -246,7 +298,7 @@ class ReactorController:
         if self.burst_disc_ruptured:
             self.current_pressure_bar = 1.0
         elif self.gas_inlet_valve_open:
-            # Gas supply pushes pressure up towards 150 bar
+            # Gas supply pushes pressure up towards 180 bar
             self.current_pressure_bar = min(180.0, self.current_pressure_bar + 20.0 * dt)
             self.charge_pressure_bar = self.current_pressure_bar
             self.charge_temp_c = self.current_temp_c
@@ -263,7 +315,6 @@ class ReactorController:
         if not self.gas_inlet_valve_open and not self.vent_valve_open and not self.burst_disc_ruptured:
             temp_k = self.current_temp_c + 273.15
             charge_k = max(273.15, self.charge_temp_c + 273.15)
-            # Gas thermal expansion + vapor pressure component
             thermal_p = self.charge_pressure_bar * (temp_k / charge_k)
             # Add solvent expansion effect if heating above 100°C
             if self.current_temp_c > 100.0:
@@ -282,6 +333,9 @@ class ReactorController:
         """Export comprehensive telemetry packet for UI and data logging."""
         return {
             "state": self.state.name,
+            "has_power": self.has_power,
+            "is_plugged_in": self.is_plugged_in,
+            "mains_power_on": self.mains_power_on,
             "pv_temp_c": round(self.current_temp_c, 1),
             "sv_temp_c": self.target_temp_c,
             "pressure_bar": round(self.current_pressure_bar, 1),

@@ -129,6 +129,36 @@ class TestReactorController(unittest.TestCase):
         self.assertTrue(self.ctrl.acknowledge_alarms())
         self.assertEqual(self.ctrl.state, ReactorState.IDLE)
 
+    def test_physical_circuit_continuity_unplugged(self):
+        # When unplugged, machine drops to UNPOWERED, heater/stirrer fail to start
+        self.ctrl.toggle_heater(True)
+        self.ctrl.toggle_stirrer(True)
+        self.ctrl.set_plugged_in(False)
+        self.assertEqual(self.ctrl.state, ReactorState.UNPOWERED)
+        self.assertFalse(self.ctrl.heater_on)
+        self.assertFalse(self.ctrl.stirrer_on)
+        self.assertEqual(self.ctrl.heater_power_pct, 0.0)
+
+        # Attempts to toggle heater/stirrer while unplugged return False
+        self.assertFalse(self.ctrl.toggle_heater(True))
+        self.assertFalse(self.ctrl.toggle_stirrer(True))
+
+        # Re-plugging restores power capability
+        self.ctrl.set_plugged_in(True)
+        self.assertEqual(self.ctrl.state, ReactorState.IDLE)
+        self.assertTrue(self.ctrl.toggle_heater(True))
+
+    def test_mains_power_switch(self):
+        # Turning off mains rocker switch cuts power immediately
+        self.ctrl.toggle_heater(True)
+        self.ctrl.set_mains_power(False)
+        self.assertEqual(self.ctrl.state, ReactorState.UNPOWERED)
+        self.assertFalse(self.ctrl.heater_on)
+        self.assertFalse(self.ctrl.toggle_heater(True))
+
+        self.ctrl.set_mains_power(True)
+        self.assertEqual(self.ctrl.state, ReactorState.IDLE)
+
 
 if __name__ == '__main__':
     unittest.main()
