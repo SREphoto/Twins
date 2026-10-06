@@ -6,7 +6,7 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { FTIR3D } from './ftir3d.js?v=20261005-v3';
+import { FTIR3D } from './ftir3d.js?v=20261005-v4';
 
 // Chemical Analyte Profiles
 const SAMPLES = {
@@ -244,7 +244,7 @@ class FTIRApp {
         btnExplode.classList.toggle('active', isExploded);
         this.twin.setExploded(isExploded ? 1.0 : 0.0);
         this.sfx.shutter();
-        this.logGLP(`MECHANICS: Exploded view ${isExploded ? 'ACTIVATED (+140mm offset)' : 'COLLAPSED'}`);
+        this.logGLP(`MECHANICS: Exploded view ${isExploded ? 'ACTIVATED (+220mm offset)' : 'COLLAPSED'}`);
       });
     }
 
