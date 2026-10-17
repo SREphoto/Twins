@@ -157,13 +157,26 @@ const MAT_RUBBER_FEET = new THREE.MeshStandardMaterial({
   metalness: 0.02,
 });
 
-const MAT_CHASSIS_GLASS = new THREE.MeshPhysicalMaterial({
-  color: 0xffffff,
-  transmission: 0.96,
-  ior: 1.52,
-  roughness: 0.02,
+const MAT_CHASSIS_GLASS = new THREE.MeshStandardMaterial({
+  color: 0x93c5fd,
+  roughness: 0.15,
+  metalness: 0.10,
   transparent: true,
-  opacity: 0.90,
+  opacity: 0.20,
+  depthWrite: false,
+  side: THREE.DoubleSide,
+});
+
+const MAT_OPTICAL_GLASS = new THREE.MeshPhysicalMaterial({
+  color: 0xf8fafc,
+  roughness: 0.02,
+  metalness: 0.05,
+  transparent: true,
+  opacity: 0.12,
+  depthWrite: false,
+  reflectivity: 0.95,
+  clearcoat: 1.0,
+  clearcoatRoughness: 0.02,
 });
 
 const MAT_HEX_RECESS = new THREE.MeshBasicMaterial({ color: 0x0a0d14 });
@@ -496,19 +509,7 @@ function createLabeledKeycap(cfg) {
   const g = new THREE.Group();
   g.name = cfg.id;
 
-  const capGroup = new THREE.Group();
-  g.add(capGroup);
-
-  // Keycap body (chamfered block)
-  const cap = new THREE.Mesh(
-    new THREE.BoxGeometry(0.24, 0.05, 0.12),
-    new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.35, metalness: 0.25 })
-  );
-  cap.position.y = 0.025;
-  cap.castShadow = true;
-  capGroup.add(cap);
-
-  // Bezel surround collar
+  // Recessed well collar
   const collar = new THREE.Mesh(
     new THREE.BoxGeometry(0.27, 0.02, 0.15),
     MAT_CHROME
@@ -516,37 +517,70 @@ function createLabeledKeycap(cfg) {
   collar.position.y = 0.01;
   g.add(collar);
 
-  // Canvas label face
+  // Depressible keycap group (spring depression animation target)
+  const capGroup = new THREE.Group();
+  capGroup.position.set(0, 0.025, 0);
+  g.add(capGroup);
+
+  // Keycap solid body (chamfered block)
+  const cap = new THREE.Mesh(
+    new THREE.BoxGeometry(0.24, 0.038, 0.12),
+    new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.35, metalness: 0.25 })
+  );
+  cap.position.y = 0.019;
+  cap.castShadow = true;
+  capGroup.add(cap);
+
+  // High-resolution canvas texture for laser-etched keycap label
   const canvas = document.createElement('canvas');
   canvas.width = 256;
-  canvas.height = 128;
+  canvas.height = 140;
   const ctx = canvas.getContext('2d');
 
-  ctx.fillStyle = '#1e293b';
-  ctx.fillRect(0, 0, 256, 128);
+  // Background gradient
+  const grad = ctx.createLinearGradient(0, 0, 0, 140);
+  grad.addColorStop(0, '#242b36');
+  grad.addColorStop(1, '#181e28');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 256, 140);
 
-  // Indicator accent strip on top
+  // Top color accent bar
   ctx.fillStyle = cfg.color || '#38bdf8';
-  ctx.fillRect(0, 0, 256, 18);
+  ctx.fillRect(6, 6, 244, 8);
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 36px -apple-system, BlinkMacSystemFont, sans-serif';
-  ctx.fillText(cfg.label, 128, 62);
 
+  // Icon / symbol
+  if (cfg.icon) {
+    ctx.fillStyle = cfg.color || '#ffffff';
+    ctx.font = 'bold 30px sans-serif';
+    ctx.fillText(cfg.icon, 128, 44);
+  }
+
+  // Main bold label
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 28px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+  ctx.fillText(cfg.label, 128, cfg.icon ? 84 : 64);
+
+  // Subtitle
   if (cfg.sub) {
     ctx.fillStyle = '#94a3b8';
-    ctx.font = 'bold 20px monospace';
-    ctx.fillText(cfg.sub, 128, 102);
+    ctx.font = '600 15px monospace';
+    ctx.fillText(cfg.sub, 128, cfg.icon ? 118 : 104);
   }
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.flipY = false;
+  tex.minFilter = THREE.LinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.needsUpdate = true;
+
   const labelGeo = new THREE.PlaneGeometry(0.23, 0.11);
+  // DIAG-005 & CHK-02: Match UI_LCD mapping: flipY = false + horizontal UV inversion on buffer geometry
   const uvAttr = labelGeo.attributes.uv;
   for (let i = 0; i < uvAttr.count; i++) {
-    uvAttr.setY(i, 1.0 - uvAttr.getY(i));
+    uvAttr.setX(i, 1.0 - uvAttr.getX(i));
   }
   uvAttr.needsUpdate = true;
 
@@ -555,17 +589,23 @@ function createLabeledKeycap(cfg) {
     new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide })
   );
   labelMesh.rotation.x = -Math.PI / 2;
-  labelMesh.position.set(0, 0.051, 0);
+  labelMesh.position.set(0, 0.039, 0);
   capGroup.add(labelMesh);
 
-  g.userData = {
-    capGroup,
+  const actionData = {
+    id: cfg.id,
     action: cfg.id,
     name: cfg.name,
+    label: cfg.label,
+    capGroup,
+    role: 'PhysicalButton',
     tooltip: `${cfg.label} - ${cfg.sub || ''}`
   };
+  g.userData = actionData;
+  cap.userData = actionData;
+  labelMesh.userData = actionData;
 
-  return g;
+  return { group: g, capGroup, cap, labelMesh };
 }
 
 // ==========================================
@@ -1319,26 +1359,46 @@ function createSMPSAssembly() {
   const g = new THREE.Group();
   g.name = 'Subsystem_PowerSupply_SMPS';
 
-  // Perforated aluminum shielding cage (0.95 x 0.38 x 1.25m)
-  const cage = new THREE.Mesh(
-    new THREE.BoxGeometry(0.95, 0.38, 1.25),
-    MAT_ALUM_BREADBOARD
-  );
-  cage.position.set(0, 0.19, 0);
-  cage.castShadow = true;
-  g.add(cage);
+  const w = 0.92;
+  const h = 0.28;
+  const d = 0.72;
 
-  // Perforated ventilation top cover
-  const topCover = new THREE.Mesh(
-    new THREE.BoxGeometry(0.91, 0.005, 1.21),
-    MAT_CHASSIS_DARK
-  );
-  topCover.position.set(0, 0.382, 0);
-  g.add(topCover);
+  // Base tray & 4 perimeter walls (open cutaway top so internal toroid, caps & heatsink are 100% visible)
+  const floor = new THREE.Mesh(new THREE.BoxGeometry(w, 0.015, d), MAT_ALUM_BREADBOARD);
+  floor.position.set(0, 0.008, 0);
+  g.add(floor);
+
+  const wallL = new THREE.Mesh(new THREE.BoxGeometry(0.016, h, d), MAT_ALUM_ANODIZED);
+  wallL.position.set(-w / 2 + 0.008, h / 2, 0);
+  g.add(wallL);
+
+  const wallR = new THREE.Mesh(new THREE.BoxGeometry(0.016, h, d), MAT_ALUM_ANODIZED);
+  wallR.position.set(w / 2 - 0.008, h / 2, 0);
+  g.add(wallR);
+
+  const wallBack = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.016), MAT_ALUM_ANODIZED);
+  wallBack.position.set(0, h / 2, d / 2 - 0.008);
+  g.add(wallBack);
+
+  const wallFront = new THREE.Mesh(new THREE.BoxGeometry(w, h * 0.65, 0.016), MAT_ALUM_ANODIZED);
+  wallFront.position.set(0, (h * 0.65) / 2, -d / 2 + 0.008);
+  g.add(wallFront);
+
+  // Internal green FR-4 power supply board
+  const smpsPCB = new THREE.Mesh(new THREE.BoxGeometry(w - 0.04, 0.012, d - 0.04), MAT_PCB_GREEN);
+  smpsPCB.position.set(0, 0.022, 0);
+  g.add(smpsPCB);
+
+  // Cutaway top protective grill bars (allows unobstructed view of internal components)
+  for (let gz = -0.26; gz <= 0.28; gz += 0.09) {
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(w - 0.02, 0.008, 0.018), MAT_CHASSIS_DARK);
+    bar.position.set(0, h - 0.004, gz);
+    g.add(bar);
+  }
 
   // 4 corner mounting feet with M3 hex cap screws bolting SMPS to baseplate
   for (const sx of [-0.42, 0.42]) {
-    for (const sz of [-0.55, 0.55]) {
+    for (const sz of [-0.32, 0.32]) {
       const foot = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.015, 0.06), MAT_ALUM_ANODIZED);
       foot.position.set(sx, 0.008, sz);
       g.add(foot);
@@ -1349,51 +1409,74 @@ function createSMPSAssembly() {
     }
   }
 
-  // Toroidal transformer with copper magnet wire windings
+  // Toroidal transformer with heavy copper magnet wire windings
   const toroid = new THREE.Mesh(
-    new THREE.TorusGeometry(0.16, 0.065, 16, 32),
+    new THREE.TorusGeometry(0.12, 0.048, 16, 32),
     MAT_COPPER_WIRE
   );
-  toroid.position.set(-0.20, 0.14, 0.15);
+  toroid.name = 'Transformer_SMPS_Toroid';
+  toroid.position.set(-0.20, 0.12, 0.06);
   toroid.rotation.x = Math.PI / 2;
   g.add(toroid);
+
+  // Inner ceramic core of toroid
+  const core = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.08, 0.08, 0.08, 24),
+    MAT_CERAMIC_WHITE
+  );
+  core.position.set(-0.20, 0.12, 0.06);
+  g.add(core);
 
   // Dual primary 450V electrolytic filter capacitors with aluminum scored vent tops
   for (let c = 0; c < 2; c++) {
     const cap = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.075, 0.075, 0.24, 20),
-      new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.4 })
+      new THREE.CylinderGeometry(0.065, 0.065, 0.20, 20),
+      new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.35, metalness: 0.2 })
     );
-    cap.position.set(0.18, 0.12, -0.20 + c * 0.28);
+    cap.position.set(0.22, 0.12, -0.10 + c * 0.22);
     g.add(cap);
 
     const vent = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.072, 0.072, 0.008, 20),
+      new THREE.CylinderGeometry(0.062, 0.062, 0.006, 20),
       MAT_CHROME
     );
-    vent.position.set(0.18, 0.244, -0.20 + c * 0.28);
+    vent.position.set(0.22, 0.224, -0.10 + c * 0.22);
     g.add(vent);
   }
 
-  // Extruded comb aluminum heatsink with dual TO-220 power FETs
+  // Extruded comb aluminum heatsink with dual TO-220 MOSFETs
   const heatSink = new THREE.Mesh(
-    new THREE.BoxGeometry(0.18, 0.14, 0.28),
-    MAT_ALUM_ANODIZED
+    new THREE.BoxGeometry(0.03, 0.18, 0.26),
+    MAT_CHROME
   );
-  heatSink.position.set(-0.20, 0.12, -0.25);
+  heatSink.position.set(0.02, 0.11, 0.05);
   g.add(heatSink);
+  for (let f = -0.10; f <= 0.10; f += 0.04) {
+    const fin = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.17, 0.008), MAT_CHROME);
+    fin.position.set(0.05, 0.11, 0.05 + f);
+    g.add(fin);
+  }
 
-  // Dedicated 50mm DC brushless cooling fan on outer side of SMPS cage
+  // Dedicated 50mm DC brushless cooling fan on outer (-X) side of SMPS cage
   const smpsFan = createSMPSFan();
-  smpsFan.position.set(-0.485, 0.18, 0.0);
+  smpsFan.position.set(-w / 2 - 0.018, 0.14, 0.0);
   smpsFan.rotation.y = -Math.PI / 2;
   g.add(smpsFan);
   g.userData.smpsFanHub = smpsFan.userData.fanHub;
 
-  // 6-Position Barrier Terminal Block on front face (Z = -0.63)
+  // Molded silicone exhaust duct boot sealing 50mm fan to outer right chassis wall louvers
+  const smpsDuct = new THREE.Mesh(
+    new THREE.BoxGeometry(0.55, 0.17, 0.17),
+    new THREE.MeshStandardMaterial({ color: 0x141820, roughness: 0.85, metalness: 0.1 })
+  );
+  smpsDuct.name = 'Duct_SMPS_Exhaust';
+  smpsDuct.position.set(-w / 2 - 0.29, 0.14, 0.0);
+  g.add(smpsDuct);
+
+  // 6-Position Barrier Terminal Block on front face (Z = -0.38, facing -Z toward Motherboard)
   const barrier = createBarrierTerminalBlock(6);
   barrier.name = 'TerminalBlock_SMPS_Mains';
-  barrier.position.set(0.05, 0.06, -0.63);
+  barrier.position.set(0.08, 0.18, -d / 2 - 0.02);
   g.add(barrier);
 
   return g;
@@ -1426,9 +1509,15 @@ export class FTIR3D {
     this.towerSwiveled = false;
     this.clampPressurePct = 80;
 
-    // Actionable click targets
+    // Actionable click targets & animation targets
     this.actionableMeshes = [];
-    this.animTargets = {};
+    this.chassisMeshes = [];
+    this.opticsRoof = null;
+    this.interiorLight = null;
+    this.animTargets = { keycaps: {}, lcdMesh: null };
+    this.touchRipples = [];
+    this.keycapAnims = [];
+    this.cursorWn = 3350;
 
     // Active electro-mechanical animation & indicator references
     this.fanBlades = null;
@@ -1476,7 +1565,7 @@ export class FTIR3D {
   }
 
   setupLighting() {
-    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+    this.ambientLight = new THREE.AmbientLight(0xffffff, 1.05);
     this.scene.add(this.ambientLight);
 
     // Key Light (studio top-right front)
@@ -1491,7 +1580,7 @@ export class FTIR3D {
     this.scene.add(this.keyLight);
 
     // Fill Light (cool blue diffuse from rear left)
-    const fillLight = new THREE.DirectionalLight(0xdbeafe, 1.3);
+    const fillLight = new THREE.DirectionalLight(0xdbeafe, 1.4);
     fillLight.position.set(5.5, 5.0, 4.5);
     this.scene.add(fillLight);
 
@@ -1499,6 +1588,12 @@ export class FTIR3D {
     const rimLight = new THREE.DirectionalLight(0xffffff, 1.4);
     rimLight.position.set(0.0, 6.0, 5.5);
     this.scene.add(rimLight);
+
+    // Dedicated Interior Inspection Light (illuminates internal bays in Optics View & Exploded View)
+    this.interiorLight = new THREE.PointLight(0xf8fafc, 2.8, 9.0);
+    this.interiorLight.position.set(-0.2, 1.75, 0.1);
+    this.interiorLight.visible = false;
+    this.scene.add(this.interiorLight);
   }
 
   buildLabBench() {
@@ -1543,6 +1638,9 @@ export class FTIR3D {
 
     this.interferometerGroup = new THREE.Group();
     this.interferometerGroup.name = 'Subsystem_Michelson_Interferometer';
+
+    this.atrTransferGroup = new THREE.Group();
+    this.atrTransferGroup.name = 'Assembly_ATR_TransferOptics';
 
     this.atrStationGroup = new THREE.Group();
     this.atrStationGroup.name = 'Subsystem_Diamond_ATR_Station';
@@ -1742,19 +1840,86 @@ export class FTIR3D {
       [-1.95, 0.0, -2.15], [1.95, 0.0, -2.15],
       [-1.95, 0.0, 2.15], [1.95, 0.0, 2.15]
     ];
-    footOffsets.forEach(([fx, fy, fz]) => {
+    footOffsets.forEach(([fx, fy, fz], idx) => {
       const foot = createVibrationFoot(0.13, 0.08);
+      foot.name = `Foot_Leveling_${idx + 1}`;
       foot.position.set(fx, fy, fz);
       this.chassisBaseGroup.add(foot);
     });
 
-    // 2. Heavy Cast Aluminum Base Pan with precision dark finish
-    const basePanGeo = new THREE.BoxGeometry(4.36, 0.16, 4.76);
-    const basePan = new THREE.Mesh(basePanGeo, MAT_CHASSIS_DARK);
-    basePan.position.set(0, BASE_Y + 0.08, 0);
-    basePan.receiveShadow = true;
-    basePan.castShadow = true;
-    this.chassisBaseGroup.add(basePan);
+    // 2. Heavy Die-Cast Aluminum Base Pan (Dark outer skirt + high-contrast machined aluminum deck)
+    const baseSkirtGeo = new THREE.BoxGeometry(4.36, 0.14, 4.76);
+    const baseSkirt = new THREE.Mesh(baseSkirtGeo, MAT_CHASSIS_DARK);
+    baseSkirt.name = 'Baseplate_OuterSkirt';
+    baseSkirt.position.set(0, BASE_Y + 0.07, 0);
+    baseSkirt.receiveShadow = true;
+    baseSkirt.castShadow = true;
+    this.chassisBaseGroup.add(baseSkirt);
+
+    const baseDeckMat = new THREE.MeshStandardMaterial({
+      color: 0x475569,
+      roughness: 0.36,
+      metalness: 0.72,
+    });
+    const baseDeckGeo = new THREE.BoxGeometry(4.28, 0.025, 4.68);
+    const baseDeck = new THREE.Mesh(baseDeckGeo, baseDeckMat);
+    baseDeck.name = 'Baseplate_MachinedDeck';
+    baseDeck.position.set(0, BASE_Y + 0.148, 0);
+    baseDeck.receiveShadow = true;
+    this.chassisBaseGroup.add(baseDeck);
+
+    // --- REAR BULKHEAD I/O SUB-PANEL ANCHORED TO BASEPLATE (Z = +2.36) ---
+    // Keeps AC Mains & Data ports physically mated to internal harnesses during Exploded View!
+    const ioBulkhead = new THREE.Mesh(
+      new THREE.BoxGeometry(3.50, 0.42, 0.03),
+      MAT_CHASSIS_DARK
+    );
+    ioBulkhead.name = 'Bracket_Rear_Bulkhead';
+    ioBulkhead.position.set(0, BASE_Y + 0.37, 2.365);
+    this.chassisBaseGroup.add(ioBulkhead);
+
+    // IEC-320 C14 AC inlet socket
+    const iecInlet = createIECInlet();
+    iecInlet.position.set(-1.40, 0.45, 2.385);
+    this.chassisBaseGroup.add(iecInlet);
+
+    // Illuminated Rocker Power Switch
+    this.rockerSwitch = createRockerSwitch({
+      isOn: true,
+      onChange: (state) => this.setPowerSwitch(state),
+    });
+    this.rockerSwitch.position.set(-0.90, 0.45, 2.385);
+    this.rockerSwitch.userData = { name: 'Switch_Power', action: 'toggle_switch', tooltip: 'Rear AC Power Switch (I/O)' };
+    this.actionableMeshes.push(this.rockerSwitch);
+    this.chassisBaseGroup.add(this.rockerSwitch);
+
+    // 1/4" Swagelok Dry N2 Purge Port
+    const swagelok = createSwagelokPurgeFitting();
+    swagelok.position.set(1.40, 0.45, 2.385);
+    this.chassisBaseGroup.add(swagelok);
+
+    // Gold-Plated Chassis Grounding Binding Post
+    const groundLug = createGroundingLug();
+    groundLug.position.set(1.05, 0.45, 2.385);
+    this.chassisBaseGroup.add(groundLug);
+
+    // DB-9 RS-232 Serial Telemetry Port
+    const db9 = createDB9Port();
+    db9.position.set(0.40, 0.45, 2.385);
+    this.chassisBaseGroup.add(db9);
+
+    // Shielded USB-B 2.0 Instrument Control Port
+    const usbB = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.11, 0.02), MAT_CHROME);
+    usbB.name = 'Port_USB_B';
+    usbB.position.set(0.00, 0.45, 2.385);
+    this.chassisBaseGroup.add(usbB);
+
+    // Shielded RJ45 Gigabit Ethernet Port
+    const rj45 = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.13, 0.02), MAT_CHASSIS_DARK);
+    rj45.name = 'Port_RJ45_Ethernet';
+    rj45.position.set(-0.35, 0.45, 2.385);
+    this.chassisBaseGroup.add(rj45);
+
     this.rootGroup.add(this.chassisBaseGroup);
 
     // 3. Removable Unibody Shroud (Elevates smoothly along +Y in Exploded View)
@@ -1766,40 +1931,60 @@ export class FTIR3D {
       new THREE.BoxGeometry(4.36, 1.80, 0.04),
       MAT_CHASSIS
     );
+    rearWall.name = 'Body_Chassis_RearWall';
     rearWall.position.set(0, BASE_Y + 0.16 + 0.90, 2.38 - 0.02);
     rearWall.castShadow = true;
     rearWall.receiveShadow = true;
     this.chassisShellGroup.add(rearWall);
+    this.chassisMeshes.push(rearWall);
 
     // Rear Left Wall (X = +2.18, Z in [0, 2.38])
     const rearLeftWall = new THREE.Mesh(
       new THREE.BoxGeometry(0.04, 1.80, 2.38),
       MAT_CHASSIS
     );
+    rearLeftWall.name = 'Body_Chassis_RearLeftWall';
     rearLeftWall.position.set(2.18 - 0.02, BASE_Y + 0.16 + 0.90, 1.19);
     rearLeftWall.castShadow = true;
     rearLeftWall.receiveShadow = true;
     this.chassisShellGroup.add(rearLeftWall);
+    this.chassisMeshes.push(rearLeftWall);
 
     // Rear Right Wall (X = -2.18, Z in [0, 2.38])
     const rearRightWall = new THREE.Mesh(
       new THREE.BoxGeometry(0.04, 1.80, 2.38),
       MAT_CHASSIS
     );
+    rearRightWall.name = 'Body_Chassis_RearRightWall';
     rearRightWall.position.set(-2.18 + 0.02, BASE_Y + 0.16 + 0.90, 1.19);
     rearRightWall.castShadow = true;
     rearRightWall.receiveShadow = true;
     this.chassisShellGroup.add(rearRightWall);
+    this.chassisMeshes.push(rearRightWall);
+
+    // Stamped Side Exhaust Louvers on Right Wall (X = -2.18, Z = +0.70) for 50mm SMPS Fan Duct
+    for (let sl = 0; sl < 5; sl++) {
+      const sideLouver = new THREE.Mesh(
+        new THREE.BoxGeometry(0.015, 0.018, 0.24),
+        MAT_CHASSIS_DARK
+      );
+      sideLouver.position.set(-2.183, BASE_Y + 0.28 + sl * 0.04, 0.70);
+      sideLouver.rotation.z = -0.35;
+      this.chassisShellGroup.add(sideLouver);
+    }
 
     // Optics Bay Roof Deck (Z in [0, 2.38], Y = BASE_Y + 0.16 + 1.80)
     const opticsRoof = new THREE.Mesh(
       new THREE.BoxGeometry(4.36, 0.04, 2.38),
       MAT_CHASSIS
     );
+    opticsRoof.name = 'Body_Chassis_RoofDeck';
     opticsRoof.position.set(0, BASE_Y + 0.16 + 1.80 - 0.02, 1.19);
     opticsRoof.castShadow = true;
     opticsRoof.receiveShadow = true;
     this.chassisShellGroup.add(opticsRoof);
+    this.chassisMeshes.push(opticsRoof);
+    this.opticsRoof = opticsRoof;
 
     // Polished Chrome Crown Seam Runner along Z = 0
     const crownRunner = new THREE.Mesh(
@@ -1809,36 +1994,50 @@ export class FTIR3D {
     crownRunner.position.set(0, BASE_Y + 0.16 + 1.80 + 0.005, 0.0);
     this.chassisShellGroup.add(crownRunner);
 
-    // Internal Optics Bulkhead at Z = 0 (dividing rear optics from front ATR & console)
+    // Upper-Left Step Wall at Z = 0 (from top of ATR deck Y = 0.90 to Rear Roof Y = 2.04, X in [0, 2.18])
     const opticsBulkhead = new THREE.Mesh(
-      new THREE.BoxGeometry(4.36, 1.80, 0.04),
+      new THREE.BoxGeometry(2.18, 1.14, 0.04),
       MAT_CHASSIS
     );
-    opticsBulkhead.position.set(0, BASE_Y + 0.16 + 0.90, 0.0);
+    opticsBulkhead.name = 'Body_Chassis_Bulkhead';
+    opticsBulkhead.position.set(1.09, 1.47, 0.0);
     opticsBulkhead.castShadow = true;
+    opticsBulkhead.receiveShadow = true;
     this.chassisShellGroup.add(opticsBulkhead);
+    this.chassisMeshes.push(opticsBulkhead);
 
-    // Two KBr Optical Windows on Bulkhead at Z = 0 (Modulated IR Beam Out / Detector In)
-    [0.94, 1.45].forEach((wx) => {
+    // Internal Machined Optical Port Bracket at Z = 0 (Anchored to Baseplate for KBr Beam Windows)
+    const kbrPortBracket = new THREE.Mesh(
+      new THREE.BoxGeometry(0.92, 0.34, 0.04),
+      MAT_ALUM_ANODIZED
+    );
+    kbrPortBracket.name = 'Bracket_KBr_OpticalPorts';
+    kbrPortBracket.position.set(1.20, 0.41, 0.0);
+    this.chassisBaseGroup.add(kbrPortBracket);
+
+    // Two KBr Optical Windows on Optical Port Bracket at Z = 0, Y = 0.48 (Modulated IR Beam Out / Detector In)
+    [0.94, 1.45].forEach((wx, idx) => {
       const portBezel = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.09, 0.09, 0.05, 24),
+        new THREE.CylinderGeometry(0.085, 0.085, 0.05, 24),
         MAT_CHROME
       );
+      portBezel.name = `Window_KBr_Bulkhead_${idx + 1}`;
       portBezel.rotation.x = Math.PI / 2;
-      portBezel.position.set(wx, BASE_Y + 0.16 + 0.40, -0.02);
-      this.chassisShellGroup.add(portBezel);
+      portBezel.position.set(wx, 0.48, 0.0);
+      this.chassisBaseGroup.add(portBezel);
 
       const kbrWin = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.075, 0.075, 0.015, 24),
+        new THREE.CylinderGeometry(0.070, 0.070, 0.018, 24),
         MAT_KBR_CRYSTAL
       );
       kbrWin.rotation.x = Math.PI / 2;
-      kbrWin.position.set(wx, BASE_Y + 0.16 + 0.40, -0.02);
-      this.chassisShellGroup.add(kbrWin);
+      kbrWin.position.set(wx, 0.48, 0.0);
+      this.chassisBaseGroup.add(kbrWin);
     });
 
     // Desiccant Service Hatch on Optics Roof Deck
     const hatchGroup = new THREE.Group();
+    hatchGroup.name = 'Hatch_Desiccant_Service';
     hatchGroup.position.set(0.65, BASE_Y + 0.16 + 1.80, 1.19);
 
     const hatchRim = new THREE.Mesh(
@@ -1864,6 +2063,7 @@ export class FTIR3D {
 
     // Sealed Silica Gel Humidity Indicator Window
     const humidGroup = new THREE.Group();
+    humidGroup.name = 'Indicator_Humidity_Silica';
     humidGroup.position.set(1.45, BASE_Y + 0.16 + 1.80, 1.19);
 
     const humidBezel = new THREE.Mesh(
@@ -1881,19 +2081,18 @@ export class FTIR3D {
 
     const humidLens = new THREE.Mesh(
       new THREE.CylinderGeometry(0.085, 0.085, 0.005, 24),
-      MAT_CHASSIS_GLASS
+      MAT_OPTICAL_GLASS
     );
     humidLens.position.y = 0.018;
     humidGroup.add(humidLens);
     this.chassisShellGroup.add(humidGroup);
 
-    // --- SOLID 3D SLOPED CONSOLE WEDGE (Front Right: X in [-2.18, 0], Z in [-2.38, 0]) ---
-    // True 3D solid trapezoidal wedge with verified outward normals on all 6 faces!
-    // Right exterior cheek wall slopes WITH the console (ZERO PARAPET TRENCH).
-    // Left cheek wall forms a smooth molded flank meeting the ATR deck.
+    // --- HOLLOW 3D SLOPED CONSOLE HOOD (Front Right: X in [-2.18, 0], Z in [-2.38, 0]) ---
+    // Open bottom & open rear at Z = 0 so electronics bay and FPC ribbon are completely unobstructed!
     const v0 = [-2.18, 0.24, -2.38]; // front-right-bottom
     const v1 = [ 0.00, 0.24, -2.38]; // front-left-bottom
-    const v2 = [ 0.00, 0.24,  0.00]; // rear-left-bottom
+    const v1m = [0.00, 0.90, -2.38]; // front-left at ATR deck height
+    const v2m = [0.00, 0.90,  0.00]; // rear-left at ATR deck height
     const v3 = [-2.18, 0.24,  0.00]; // rear-right-bottom
 
     const v4 = [-2.18, 1.38, -2.38]; // front-right-top
@@ -1902,18 +2101,14 @@ export class FTIR3D {
     const v7 = [-2.18, 2.04,  0.00]; // rear-right-top
 
     const wedgePositions = new Float32Array([
-      // 1. Top sloped face (outward normal: up and forward)
+      // 1. Sloped Top Console Deck
       ...v4, ...v7, ...v6,   ...v4, ...v6, ...v5,
-      // 2. Left cheek wall at X = 0 (outward normal: [+1, 0, 0] facing ATR deck)
-      ...v1, ...v6, ...v2,   ...v1, ...v5, ...v6,
-      // 3. Right cheek wall at X = -2.18 (outward normal: [-1, 0, 0] facing right exterior)
+      // 2. Center-Left Cheek Wall (above ATR deck Y >= 0.90)
+      ...v1m, ...v6, ...v2m, ...v1m, ...v5, ...v6,
+      // 3. Outer Right Flank Wall (X = -2.18)
       ...v0, ...v3, ...v7,   ...v0, ...v7, ...v4,
-      // 4. Front vertical apron at Z = -2.38 (outward normal: [0, 0, -1] facing operator)
+      // 4. Front Vertical Fascia Apron (Z = -2.38)
       ...v0, ...v5, ...v1,   ...v0, ...v4, ...v5,
-      // 5. Rear vertical bulkhead at Z = 0 (outward normal: [0, 0, +1])
-      ...v3, ...v2, ...v6,   ...v3, ...v6, ...v7,
-      // 6. Bottom face at Y = 0.24 (outward normal: [0, -1, 0])
-      ...v0, ...v1, ...v2,   ...v0, ...v2, ...v3,
     ]);
 
     const wedgeUvs = new Float32Array([
@@ -1921,8 +2116,6 @@ export class FTIR3D {
       0,0, 1,1, 1,0,  0,0, 0,1, 1,1,
       0,0, 1,0, 1,1,  0,0, 1,1, 0,1,
       0,0, 1,1, 1,0,  0,0, 0,1, 1,1,
-      0,0, 1,0, 1,1,  0,0, 1,1, 0,1,
-      0,0, 1,0, 1,1,  0,0, 1,1, 0,1,
     ]);
 
     const wedgeGeo = new THREE.BufferGeometry();
@@ -1935,6 +2128,7 @@ export class FTIR3D {
     consoleWedgeMesh.castShadow = true;
     consoleWedgeMesh.receiveShadow = true;
     this.chassisShellGroup.add(consoleWedgeMesh);
+    this.chassisMeshes.push(consoleWedgeMesh);
 
     // Front sill accent runner between front apron and sloped deck
     const frontSill = new THREE.Mesh(
@@ -1960,84 +2154,47 @@ export class FTIR3D {
       this.chassisShellGroup.add(louver);
     }
 
-    // --- OPEN ERGONOMIC ATR SAMPLING DECK BASE CURB (Front Left: X in [0, 2.18], Z in [-2.38, 0]) ---
-    // Low-profile molded base curb (Y <= 0.90) providing 180° unobstructed hand & pipette access!
-    // ZERO tall vertical walls!
-    const curbLeft = new THREE.Mesh(
-      new THREE.BoxGeometry(0.08, 0.66, 2.38),
-      MAT_CHASSIS
+    // --- SIDE BUMPER RAILS & RECESSED LIFT HANDLES ---
+    // Right flank (-2.18): full-length bumper rail (Z in [-2.30, +2.30])
+    const rightBumper = new THREE.Mesh(
+      new THREE.BoxGeometry(0.025, 0.08, 4.60),
+      MAT_ALUM_ANODIZED
     );
-    curbLeft.position.set(2.18 - 0.04, 0.24 + 0.33, -1.19);
-    curbLeft.castShadow = true;
-    this.chassisShellGroup.add(curbLeft);
+    rightBumper.position.set(-2.18 + 0.012, BASE_Y + 0.40, 0);
+    this.chassisShellGroup.add(rightBumper);
 
-    const curbFront = new THREE.Mesh(
-      new THREE.BoxGeometry(2.18, 0.66, 0.08),
-      MAT_CHASSIS
+    for (let bz = -1.8; bz <= 1.8; bz += 0.9) {
+      const screw = createHexSocketScrew(0.014, 0.03, { material: MAT_CHROME });
+      screw.rotation.z = Math.PI / 2;
+      screw.position.set(-2.18 + 0.012, BASE_Y + 0.40, bz);
+      this.chassisShellGroup.add(screw);
+    }
+
+    // Left flank (+2.18): rear optics section bumper rail (Z in [+0.05, +2.30])
+    const leftRearBumper = new THREE.Mesh(
+      new THREE.BoxGeometry(0.025, 0.08, 2.25),
+      MAT_ALUM_ANODIZED
     );
-    curbFront.position.set(1.09, 0.24 + 0.33, -2.38 + 0.04);
-    curbFront.castShadow = true;
-    this.chassisShellGroup.add(curbFront);
+    leftRearBumper.position.set(2.18 - 0.012, BASE_Y + 0.40, 1.175);
+    this.chassisShellGroup.add(leftRearBumper);
 
-    // Smooth chamfer caps along top of low curbs
-    const capLeft = new THREE.Mesh(
-      new THREE.BoxGeometry(0.08, 0.02, 2.38),
-      MAT_CHROME
-    );
-    capLeft.position.set(2.18 - 0.04, 0.90 + 0.01, -1.19);
-    this.chassisShellGroup.add(capLeft);
+    for (const bz of [0.35, 1.175, 2.00]) {
+      const screw = createHexSocketScrew(0.014, 0.03, { material: MAT_CHROME });
+      screw.rotation.z = -Math.PI / 2;
+      screw.position.set(2.18 - 0.012, BASE_Y + 0.40, bz);
+      this.chassisShellGroup.add(screw);
+    }
 
-    const capFront = new THREE.Mesh(
-      new THREE.BoxGeometry(2.18, 0.02, 0.08),
-      MAT_CHROME
-    );
-    capFront.position.set(1.09, 0.90 + 0.01, -2.38 + 0.04);
-    this.chassisShellGroup.add(capFront);
-
-    // --- SIDE BUMPER RAILS & RECESSED LIFT HANDLES (Both Flanks) ---
     for (const sx of [-2.18, 2.18]) {
-      // Anodized aluminum side bumper rail
-      const bumper = new THREE.Mesh(
-        new THREE.BoxGeometry(0.025, 0.08, 4.60),
-        MAT_ALUM_ANODIZED
-      );
-      bumper.position.set(sx + (sx > 0 ? -0.012 : 0.012), BASE_Y + 0.40, 0);
-      this.chassisShellGroup.add(bumper);
-
-      // Countersunk M3 hex socket screws along bumper rail
-      for (let bz = -1.8; bz <= 1.8; bz += 0.9) {
-        const screw = createHexSocketScrew(0.014, 0.03, { material: MAT_CHROME });
-        screw.rotation.z = (sx > 0 ? -Math.PI / 2 : Math.PI / 2);
-        screw.position.set(sx + (sx > 0 ? -0.012 : 0.012), BASE_Y + 0.40, bz);
-        this.chassisShellGroup.add(screw);
-      }
-
-      // Recessed molded urethane hand-lift pocket
       const pocketBezel = new THREE.Mesh(
         new THREE.BoxGeometry(0.03, 0.16, 0.45),
         MAT_CHASSIS_DARK
       );
-      pocketBezel.position.set(sx + (sx > 0 ? -0.015 : 0.015), BASE_Y + 0.65, 0.4);
+      pocketBezel.position.set(sx + (sx > 0 ? -0.015 : 0.015), BASE_Y + 0.65, 0.65);
       this.chassisShellGroup.add(pocketBezel);
     }
 
-    // --- REAR PANEL I/O & INFRASTRUCTURE (Z = +2.38) ---
-    // IEC-320 C14 AC inlet socket
-    const iecInlet = createIECInlet();
-    iecInlet.position.set(-1.40, 0.45, 2.385);
-    this.chassisShellGroup.add(iecInlet);
-
-    // Illuminated Rocker Power Switch
-    this.rockerSwitch = createRockerSwitch({
-      isOn: true,
-      onChange: (state) => this.setPowerSwitch(state),
-    });
-    this.rockerSwitch.position.set(-0.90, 0.45, 2.385);
-    this.rockerSwitch.userData = { name: 'Switch_Power', action: 'toggle_switch', tooltip: 'Rear AC Power Switch (I/O)' };
-    this.actionableMeshes.push(this.rockerSwitch);
-    this.chassisShellGroup.add(this.rockerSwitch);
-
-    // 80mm Convective Exhaust Fan Louvers
+    // 80mm Convective Exhaust Fan Louvers on Rear Shroud Wall
     for (let f = 0; f < 8; f++) {
       const fanLouver = new THREE.Mesh(
         new THREE.BoxGeometry(0.72, 0.024, 0.04),
@@ -2048,42 +2205,18 @@ export class FTIR3D {
       this.chassisShellGroup.add(fanLouver);
     }
 
-    // 1/4" Swagelok Dry N2 Purge Port
-    const swagelok = createSwagelokPurgeFitting();
-    swagelok.position.set(1.40, 0.45, 2.385);
-    this.chassisShellGroup.add(swagelok);
-
-    // Gold-Plated Chassis Grounding Binding Post
-    const groundLug = createGroundingLug();
-    groundLug.position.set(1.05, 0.45, 2.385);
-    this.chassisShellGroup.add(groundLug);
-
-    // DB-9 RS-232 Serial Telemetry Port
-    const db9 = createDB9Port();
-    db9.position.set(0.40, 0.45, 2.385);
-    this.chassisShellGroup.add(db9);
-
-    // Shielded USB-B 2.0 Instrument Control Port
-    const usbB = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.11, 0.02), MAT_CHROME);
-    usbB.position.set(0.00, 0.45, 2.385);
-    this.chassisShellGroup.add(usbB);
-
-    // Shielded RJ45 Gigabit Ethernet Port
-    const rj45 = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.13, 0.02), MAT_CHASSIS_DARK);
-    rj45.position.set(-0.35, 0.45, 2.385);
-    this.chassisShellGroup.add(rj45);
-
     // Silkscreened Aluminum GLP Specification Rating Plate
     const ratingPlate = createRatingPlate();
     ratingPlate.position.set(0.50, 1.25, 2.385);
     this.chassisShellGroup.add(ratingPlate);
 
-    // Fasteners securing top unibody to chassis base (exclusively on structural horizontal surfaces)
+    // Fasteners securing top unibody to chassis base
     [
       [-1.95, 2.25], [1.95, 2.25],
       [-1.95, 0.15], [1.95, 0.15]
-    ].forEach(([sx, sz]) => {
+    ].forEach(([sx, sz], idx) => {
       const screw = createHexSocketScrew(0.02, 0.05, { material: MAT_CHROME });
+      screw.name = `Fastener_RoofHex_${idx + 1}`;
       screw.position.set(sx, BASE_Y + 0.16 + 1.80, sz);
       this.chassisShellGroup.add(screw);
     });
@@ -2092,16 +2225,130 @@ export class FTIR3D {
   }
 
   // ==========================================
-  // Open Diamond ATR Sampling Station
+  // Open Diamond ATR Sampling Station & Under-Deck Transfer Optics
   // (Mounted on Front Left: X in [0, 2.18], Z in [-2.38, 0])
   // ==========================================
   buildDiamondATRStation() {
     const BASE_Y = 0.08;
+    const FLOOR_Y = BASE_Y + 0.16; // 0.24
+
+    // -----------------------------------------------------------------
+    // A. UNDER-DECK ATR TRANSFER OPTICS & LOAD-CELL SENSOR (Anchored to Baseplate)
+    // Exposed when ATR top deck elevates in Exploded View or in Optics View!
+    // -----------------------------------------------------------------
+    this.atrTransferGroup.position.set(1.09, FLOOR_Y, -1.19);
+
+    // Cast aluminum ATR optical sub-plate
+    const subPlate = new THREE.Mesh(
+      new THREE.BoxGeometry(1.75, 0.04, 1.90),
+      MAT_ALUM_BREADBOARD
+    );
+    subPlate.name = 'Plate_ATR_OpticalBench';
+    subPlate.position.set(0, 0.02, 0);
+    this.atrTransferGroup.add(subPlate);
+
+    // 45° Off-Axis Gold ZnSe Input Condensing Mirror (bounces IR beam up into diamond prism)
+    const mirrorInGroup = new THREE.Group();
+    mirrorInGroup.name = 'Mirror_ATR_Input_ZnSe';
+    mirrorInGroup.position.set(-0.15, 0.24, 0.0);
+    const mInHolder = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.28, 0.24), MAT_BRASS_FITTING);
+    mirrorInGroup.add(mInHolder);
+    const mInOptic = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.02, 24), MAT_GOLD_MIRROR);
+    mInOptic.rotation.z = Math.PI / 4;
+    mInOptic.position.set(0.06, 0.06, 0);
+    mirrorInGroup.add(mInOptic);
+    this.atrTransferGroup.add(mirrorInGroup);
+
+    // 45° Off-Axis Gold ZnSe Output Condensing Mirror (collects ATR beam back to DTGS detector)
+    const mirrorOutGroup = new THREE.Group();
+    mirrorOutGroup.name = 'Mirror_ATR_Output_ZnSe';
+    mirrorOutGroup.position.set(0.36, 0.24, 0.0);
+    const mOutHolder = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.28, 0.24), MAT_BRASS_FITTING);
+    mirrorOutGroup.add(mOutHolder);
+    const mOutOptic = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.02, 24), MAT_GOLD_MIRROR);
+    mOutOptic.rotation.z = -Math.PI / 4;
+    mOutOptic.position.set(-0.06, 0.06, 0);
+    mirrorOutGroup.add(mOutOptic);
+    this.atrTransferGroup.add(mirrorOutGroup);
+
+    // Strain-Gauge Load-Cell Force Transducer under ATR Tower Pedestal (reads 0-150N clamp force)
+    const loadCell = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.16, 0.18, 0.34, 24),
+      MAT_ALUM_ANODIZED
+    );
+    loadCell.name = 'Sensor_LoadCell_ATR';
+    loadCell.position.set(0, 0.21, 0.65);
+    this.atrTransferGroup.add(loadCell);
+
+    const hdrLoadCell = createJSTHeader(3);
+    hdrLoadCell.name = 'Header_LoadCell_Sensor';
+    hdrLoadCell.position.set(-0.20, 0.04, 0.65);
+    hdrLoadCell.rotation.y = -Math.PI / 2;
+    this.atrTransferGroup.add(hdrLoadCell);
+
+    this.chassisBaseGroup.add(this.atrTransferGroup);
+
+    // -----------------------------------------------------------------
+    // B. MODULAR ATR SAMPLING STATION TOP DECK & PERIMETER CURB SKIRT
+    // (Elevates as an intermediate tier +0.85m in Exploded View)
+    // -----------------------------------------------------------------
     this.atrStationGroup.position.set(1.09, BASE_Y + 0.16 + 0.66, -1.19);
 
-    // 1. Mirror-Polished 316L Stainless Steel Deck Plate (1.95m x 0.06m x 2.15m)
-    const plateGeo = new THREE.BoxGeometry(1.95, 0.06, 2.15);
+    // Integral molded low-profile perimeter curb skirts (hang down -0.66m from deck to baseplate)
+    const curbLeft = new THREE.Mesh(
+      new THREE.BoxGeometry(0.08, 0.66, 2.38),
+      MAT_CHASSIS
+    );
+    curbLeft.name = 'Chassis_ATR_CurbLeft';
+    curbLeft.position.set(1.09 - 0.04, -0.33, 0);
+    curbLeft.castShadow = true;
+    this.atrStationGroup.add(curbLeft);
+    this.chassisMeshes.push(curbLeft);
+
+    const curbFront = new THREE.Mesh(
+      new THREE.BoxGeometry(2.18, 0.66, 0.08),
+      MAT_CHASSIS
+    );
+    curbFront.name = 'Chassis_ATR_CurbFront';
+    curbFront.position.set(0, -0.33, -1.19 + 0.04);
+    curbFront.castShadow = true;
+    this.atrStationGroup.add(curbFront);
+    this.chassisMeshes.push(curbFront);
+
+    // Smooth chamfer chrome caps along top of low curbs
+    const capLeft = new THREE.Mesh(
+      new THREE.BoxGeometry(0.08, 0.02, 2.38),
+      MAT_CHROME
+    );
+    capLeft.position.set(1.09 - 0.04, 0.01, 0);
+    this.atrStationGroup.add(capLeft);
+
+    const capFront = new THREE.Mesh(
+      new THREE.BoxGeometry(2.18, 0.02, 0.08),
+      MAT_CHROME
+    );
+    capFront.position.set(0, 0.01, -1.19 + 0.04);
+    this.atrStationGroup.add(capFront);
+
+    // Front-Left Bumper Rail on ATR Curb (matches Rear-Left Bumper Rail at Y = 0.48)
+    const leftFrontBumper = new THREE.Mesh(
+      new THREE.BoxGeometry(0.025, 0.08, 2.25),
+      MAT_ALUM_ANODIZED
+    );
+    leftFrontBumper.position.set(1.09 - 0.012, -0.42, 0.015);
+    this.atrStationGroup.add(leftFrontBumper);
+
+    for (const bz of [-0.80, 0.015, 0.83]) {
+      const screw = createHexSocketScrew(0.014, 0.03, { material: MAT_CHROME });
+      screw.rotation.z = -Math.PI / 2;
+      screw.position.set(1.09 - 0.012, -0.42, bz);
+      this.atrStationGroup.add(screw);
+    }
+
+    // 1. Mirror-Polished 316L Stainless Steel Deck Plate (2.02m x 0.06m x 2.22m)
+    const plateGeo = new THREE.BoxGeometry(2.02, 0.06, 2.22);
     const plate = new THREE.Mesh(plateGeo, MAT_STAINLESS_ATR);
+    plate.name = 'Plate_ATR_StainlessDeck';
     plate.castShadow = true;
     plate.receiveShadow = true;
     this.atrStationGroup.add(plate);
@@ -2132,6 +2379,7 @@ export class FTIR3D {
     // Monolithic Type IIa Synthetic Diamond Prism
     const diamondGeo = new THREE.CylinderGeometry(0.065, 0.045, 0.024, 16);
     this.diamondMesh = new THREE.Mesh(diamondGeo, MAT_DIAMOND_PRISM);
+    this.diamondMesh.name = 'Diamond_ATR_Crystal';
     this.diamondMesh.position.y = 0.042;
     this.diamondMesh.castShadow = true;
     this.diamondMesh.userData = { name: 'Diamond_ATR_Crystal', action: 'cycle_sample', tooltip: 'Monolithic Type IIa Diamond Crystal (Click to swap sample)' };
@@ -2143,7 +2391,6 @@ export class FTIR3D {
     this.towerGroup.name = 'Tower_Clamp_Swivel';
     this.towerGroup.position.set(0, 0.03, 0.65);
 
-    // Solid mounting pedestal with 2 hex socket cap screws
     const towerBase = new THREE.Mesh(
       new THREE.BoxGeometry(0.32, 0.12, 0.32),
       MAT_CHASSIS_DARK
@@ -2158,7 +2405,6 @@ export class FTIR3D {
       this.towerGroup.add(bolt);
     }
 
-    // Heavy vertical forged pillar
     const pillar = new THREE.Mesh(
       new THREE.CylinderGeometry(0.075, 0.085, 0.68, 24),
       MAT_CHASSIS_DARK
@@ -2167,7 +2413,6 @@ export class FTIR3D {
     pillar.castShadow = true;
     this.towerGroup.add(pillar);
 
-    // Stainless steel precision swivel hinge pin
     const hingePin = new THREE.Mesh(
       new THREE.CylinderGeometry(0.022, 0.022, 0.14, 16),
       MAT_CHROME
@@ -2176,7 +2421,6 @@ export class FTIR3D {
     hingePin.position.set(0, 0.72, 0);
     this.towerGroup.add(hingePin);
 
-    // Overhanging horizontal clamp arm reaching forward over diamond crystal
     const arm = new THREE.Mesh(
       new THREE.BoxGeometry(0.14, 0.12, 0.72),
       MAT_CHASSIS_DARK
@@ -2185,16 +2429,15 @@ export class FTIR3D {
     arm.castShadow = true;
     this.towerGroup.add(arm);
 
-    // Calibrated slip-clutch knurled torque knob on top of arm
     this.torqueKnob = new THREE.Mesh(
       new THREE.CylinderGeometry(0.12, 0.12, 0.14, 32),
       MAT_CHASSIS_DARK
     );
+    this.torqueKnob.name = 'Knob_ATR_Torque';
     this.torqueKnob.position.set(0, 0.85, -0.65);
     this.torqueKnob.castShadow = true;
     this.towerGroup.add(this.torqueKnob);
 
-    // Fine knurling chrome ring around knob
     const knurlRing = new THREE.Mesh(
       new THREE.CylinderGeometry(0.124, 0.124, 0.04, 32),
       MAT_CHROME
@@ -2202,7 +2445,6 @@ export class FTIR3D {
     knurlRing.position.set(0, 0.85, -0.65);
     this.towerGroup.add(knurlRing);
 
-    // Self-aligning sapphire tip anvil pointing down to diamond
     const anvilRod = new THREE.Mesh(
       new THREE.CylinderGeometry(0.024, 0.024, 0.22, 16),
       MAT_CHROME
@@ -2213,13 +2455,16 @@ export class FTIR3D {
 
     const sapphireTip = new THREE.Mesh(
       new THREE.ConeGeometry(0.022, 0.04, 16),
-      MAT_CHASSIS_GLASS
+      MAT_OPTICAL_GLASS
     );
     sapphireTip.rotation.x = Math.PI;
     sapphireTip.position.set(0, 0.50, -0.65);
     this.towerGroup.add(sapphireTip);
 
-    this.towerGroup.userData = { name: 'Tower_Clamp_Swivel', action: 'toggle_tower', tooltip: 'Click to swivel pressure clamp tower' };
+    const towerUserData = { name: 'Tower_Clamp_Swivel', action: 'toggle_tower', tooltip: 'Click to swivel pressure clamp tower' };
+    this.towerGroup.userData = towerUserData;
+    arm.userData = towerUserData;
+    this.torqueKnob.userData = { name: 'Knob_ATR_Torque', action: 'cycle_pressure', tooltip: 'Slip-Clutch Torque Knob (Click to adjust pressure)' };
     this.actionableMeshes.push(arm);
     this.actionableMeshes.push(this.torqueKnob);
 
@@ -2466,48 +2711,49 @@ export class FTIR3D {
 
   // ==========================================
   // Internal Electronics & Convective Cooling Fans
-  // (Anchored to chassisBaseGroup: X in [-2.18, 0], Z in [0, 2.38])
-  // ==========================================
-  // ==========================================
-  // Internal Electronics & Convective Cooling Fans
-  // (Anchored to chassisBaseGroup: X in [-2.18, 0], Z in [0, 2.38])
+  // - SMPS in Mid-Right Bay (X = -1.24, Z = +0.70)
+  // - DSP Motherboard in Front-Right Bay under Console (X = -1.10, Z = -1.35)
+  // - 80mm Exhaust Fan on Rear Bulkhead Bracket (X = -1.40, Z = +2.20)
   // ==========================================
   buildElectronicsAndFans() {
     const BASE_Y = 0.08;
-    this.electronicsGroup.position.set(-1.09, BASE_Y + 0.16, 1.19);
+    const FLOOR_Y = BASE_Y + 0.16; // 0.24
+    this.electronicsGroup.position.set(0, FLOOR_Y, 0);
 
-    // 1. High-Fidelity Switch-Mode Power Supply (SMPS)
+    // 1. High-Fidelity Switch-Mode Power Supply (SMPS) in Mid-Right Bay
     const smps = createSMPSAssembly();
-    smps.position.set(-0.45, 0, 0.10);
+    smps.position.set(-1.24, 0, 0.70);
     this.smpsFanHub = smps.userData.smpsFanHub;
     this.electronicsGroup.add(smps);
 
-    // 2. High-Speed 32-Bit DSP Motherboard (Assembly_Motherboard_DSP)
+    // 2. High-Speed 32-Bit DSP Motherboard (Assembly_Motherboard_DSP) in Front-Right Bay
     const mbGroup = new THREE.Group();
     mbGroup.name = 'Assembly_Motherboard_DSP';
-    mbGroup.position.set(0.25, 0, -0.05);
+    mbGroup.position.set(-1.10, 0, -1.35);
 
-    // FR-4 Substrate PCB Board (1.10 x 0.02 x 1.30m)
-    const pcbGeo = new THREE.BoxGeometry(1.10, 0.02, 1.30);
+    // 6-Layer FR-4 Substrate PCB Board (0.96 x 0.02 x 1.06m)
+    const pcbGeo = new THREE.BoxGeometry(0.96, 0.02, 1.06);
     const pcb = new THREE.Mesh(pcbGeo, MAT_PCB_GREEN);
     pcb.name = 'PCB_Motherboard_Substrate';
     pcb.position.y = 0.03;
     pcb.receiveShadow = true;
+    pcb.castShadow = true;
     mbGroup.add(pcb);
 
     // High-DPI Silk & Trace Canvas Surface Plane
     const mbTex = createFTIRMotherboardCanvasTexture();
     const mbSurface = new THREE.Mesh(
-      new THREE.PlaneGeometry(1.10, 1.30),
+      new THREE.PlaneGeometry(0.96, 1.06),
       new THREE.MeshStandardMaterial({ map: mbTex, roughness: 0.35, metalness: 0.15 })
     );
+    mbSurface.name = 'PCB_Motherboard_TopSurface';
     mbSurface.rotation.x = -Math.PI / 2;
     mbSurface.position.y = 0.041;
     mbGroup.add(mbSurface);
 
     // 4 Corner Brass Standoff Pillars with M3 Hex Screws
-    for (const sx of [-0.50, 0.50]) {
-      for (const sz of [-0.60, 0.60]) {
+    for (const sx of [-0.43, 0.43]) {
+      for (const sz of [-0.48, 0.48]) {
         const standoff = new THREE.Mesh(
           new THREE.CylinderGeometry(0.016, 0.016, 0.04, 6),
           MAT_BRASS_FITTING
@@ -2523,36 +2769,80 @@ export class FTIR3D {
 
     // Main 32-Bit DSP Processor (TI TMS320C6748)
     const dspChip = new THREE.Mesh(
-      new THREE.BoxGeometry(0.24, 0.018, 0.24),
+      new THREE.BoxGeometry(0.22, 0.018, 0.22),
       new THREE.MeshStandardMaterial({ color: 0x111317, roughness: 0.3, metalness: 0.4 })
     );
     dspChip.name = 'IC_DSP_Processor';
-    dspChip.position.set(-0.08, 0.048, 0.05);
+    dspChip.position.set(-0.04, 0.048, 0.02);
     mbGroup.add(dspChip);
 
     // Black anodized micro-finned aluminum heatsink on DSP processor
     const dspSinkBase = new THREE.Mesh(
-      new THREE.BoxGeometry(0.20, 0.016, 0.20),
+      new THREE.BoxGeometry(0.18, 0.016, 0.18),
       MAT_ALUM_ANODIZED
     );
-    dspSinkBase.position.set(-0.08, 0.065, 0.05);
+    dspSinkBase.position.set(-0.04, 0.065, 0.02);
     mbGroup.add(dspSinkBase);
-    for (let h = -0.08; h <= 0.08; h += 0.024) {
+    for (let h = -0.072; h <= 0.072; h += 0.024) {
       const fin = new THREE.Mesh(
-        new THREE.BoxGeometry(0.20, 0.035, 0.006),
+        new THREE.BoxGeometry(0.18, 0.035, 0.006),
         MAT_ALUM_ANODIZED
       );
-      fin.position.set(-0.08, 0.088, 0.05 + h);
+      fin.position.set(-0.04, 0.088, 0.02 + h);
       mbGroup.add(fin);
     }
 
+    // 3 Modular Daughterboard Driver Modules (Blue PCBs with Extruded Heatsinks & Gold Pin Headers)
+    const driverModules = [
+      { name: 'Driver_VoiceCoil_Servo', z: 0.24 },
+      { name: 'Driver_IRSource_Regulator', z: 0.04 },
+      { name: 'Driver_Purge_Telemetry', z: -0.16 },
+    ];
+    driverModules.forEach((dm) => {
+      const drvG = new THREE.Group();
+      drvG.name = dm.name;
+      drvG.position.set(-0.30, 0.048, dm.z);
+
+      const drvPCB = new THREE.Mesh(
+        new THREE.BoxGeometry(0.10, 0.008, 0.13),
+        new THREE.MeshStandardMaterial({ color: 0x1d4ed8, roughness: 0.3, metalness: 0.2 })
+      );
+      drvPCB.position.y = 0.008;
+      drvG.add(drvPCB);
+
+      for (const px of [-0.042, 0.042]) {
+        const pinHeader = new THREE.Mesh(
+          new THREE.BoxGeometry(0.008, 0.018, 0.11),
+          MAT_CHASSIS_DARK
+        );
+        pinHeader.position.set(px, 0.0, 0);
+        drvG.add(pinHeader);
+      }
+
+      const miniSink = new THREE.Mesh(
+        new THREE.BoxGeometry(0.055, 0.024, 0.055),
+        MAT_ALUM_ANODIZED
+      );
+      miniSink.position.set(0, 0.026, -0.01);
+      drvG.add(miniSink);
+
+      const trimPot = new THREE.Mesh(
+        new THREE.BoxGeometry(0.020, 0.012, 0.020),
+        MAT_BRASS_FITTING
+      );
+      trimPot.position.set(0, 0.016, 0.042);
+      drvG.add(trimPot);
+
+      mbGroup.add(drvG);
+    });
+
     // 24-Bit Sigma-Delta ADC (Analog Devices AD7799)
     const adcChip = new THREE.Mesh(
-      new THREE.BoxGeometry(0.16, 0.015, 0.12),
+      new THREE.BoxGeometry(0.14, 0.015, 0.11),
       MAT_CHASSIS_DARK
     );
     adcChip.name = 'IC_ADC_24Bit';
-    adcChip.position.set(0.32, 0.048, -0.28);
+    adcChip.position.set(0.24, 0.048, 0.26);
     mbGroup.add(adcChip);
 
     // Dual Micron DDR3 SDRAM memory chips
@@ -2561,16 +2851,18 @@ export class FTIR3D {
         new THREE.BoxGeometry(0.14, 0.014, 0.08),
         MAT_CHASSIS_DARK
       );
-      ram.position.set(0.18, 0.048, 0.12 + m * 0.14);
+      ram.name = `IC_RAM_DDR3_${m + 1}`;
+      ram.position.set(0.20, 0.048, -0.02 - m * 0.12);
       mbGroup.add(ram);
     }
 
-    // SPI Flash Memory Chip (128M)
+    // 8 GB eMMC Non-Volatile Flash Memory Chip
     const flashChip = new THREE.Mesh(
-      new THREE.BoxGeometry(0.10, 0.012, 0.08),
+      new THREE.BoxGeometry(0.12, 0.014, 0.10),
       MAT_CHASSIS_DARK
     );
-    flashChip.position.set(0.18, 0.048, -0.08);
+    flashChip.name = 'IC_Flash_eMMC';
+    flashChip.position.set(0.20, 0.048, 0.12);
     mbGroup.add(flashChip);
 
     // HeNe Laser High-Voltage Ballast Inverter Module (Shielded potted metal can)
@@ -2579,29 +2871,15 @@ export class FTIR3D {
       MAT_ALUM_ANODIZED
     );
     hvBallast.name = 'Module_HeNe_Inverter';
-    hvBallast.position.set(-0.35, 0.068, -0.22);
+    hvBallast.position.set(0.22, 0.068, -0.32);
     mbGroup.add(hvBallast);
-
-    // Voice-Coil Moving Mirror H-Bridge Driver IC with heatsink tab
-    const vcoilDriver = new THREE.Mesh(
-      new THREE.BoxGeometry(0.12, 0.020, 0.08),
-      MAT_CHASSIS_DARK
-    );
-    vcoilDriver.position.set(-0.35, 0.048, -0.02);
-    mbGroup.add(vcoilDriver);
-    const drvTab = new THREE.Mesh(
-      new THREE.BoxGeometry(0.10, 0.035, 0.008),
-      MAT_CHROME
-    );
-    drvTab.position.set(-0.35, 0.065, 0.025);
-    mbGroup.add(drvTab);
 
     // Real-Time Clock CR2032 Lithium Coin Cell Battery in chrome socket
     const rtcHolder = new THREE.Mesh(
       new THREE.CylinderGeometry(0.065, 0.065, 0.024, 20),
       MAT_CHROME
     );
-    rtcHolder.position.set(-0.32, 0.048, 0.35);
+    rtcHolder.position.set(-0.28, 0.048, -0.34);
     mbGroup.add(rtcHolder);
 
     const rtcBattery = new THREE.Mesh(
@@ -2609,27 +2887,27 @@ export class FTIR3D {
       new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.2, metalness: 0.9 })
     );
     rtcBattery.name = 'Battery_RTC_CR2032';
-    rtcBattery.position.set(-0.32, 0.056, 0.35);
+    rtcBattery.position.set(-0.28, 0.056, -0.34);
     mbGroup.add(rtcBattery);
 
     // System Clock Crystals (25.000 MHz HC-49SM and 32.768 kHz RTC cylinder)
     const xtal25 = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.018, 0.028), MAT_CHROME);
-    xtal25.position.set(-0.08, 0.048, -0.15);
+    xtal25.position.set(-0.04, 0.048, -0.16);
     mbGroup.add(xtal25);
 
     const xtal32k = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.034, 12), MAT_CHROME);
     xtal32k.rotation.z = Math.PI / 2;
-    xtal32k.position.set(-0.20, 0.048, 0.35);
+    xtal32k.position.set(-0.16, 0.048, -0.34);
     mbGroup.add(xtal32k);
 
     // 6 Radial Aluminum Electrolytic Filter Capacitors with scored vents
     const capCoords = [
-      { x: -0.42, z: 0.16, h: 0.08, r: 0.026 },
-      { x: -0.42, z: 0.26, h: 0.08, r: 0.026 },
-      { x: 0.05, z: -0.32, h: 0.06, r: 0.022 },
-      { x: 0.14, z: -0.32, h: 0.06, r: 0.022 },
-      { x: 0.36, z: 0.22, h: 0.06, r: 0.022 },
-      { x: 0.36, z: 0.34, h: 0.06, r: 0.022 },
+      { x: -0.38, z: 0.36, h: 0.075, r: 0.024 },
+      { x: -0.30, z: 0.36, h: 0.075, r: 0.024 },
+      { x: -0.04, z: 0.22, h: 0.055, r: 0.020 },
+      { x: 0.04, z: 0.22, h: 0.055, r: 0.020 },
+      { x: 0.04, z: -0.26, h: 0.055, r: 0.020 },
+      { x: -0.04, z: -0.26, h: 0.055, r: 0.020 },
     ];
     capCoords.forEach((cc) => {
       const can = new THREE.Mesh(
@@ -2647,13 +2925,14 @@ export class FTIR3D {
       mbGroup.add(topCap);
     });
 
-    // 16 SMD 0805 Ceramic Capacitors & Resistors Decoupling Arrays
+    // 15 SMD 0805 Ceramic Capacitors & Resistors Decoupling Arrays
     const smdPositions = [
-      [-0.18, 0.044, -0.06], [-0.15, 0.044, -0.06], [-0.12, 0.044, -0.06],
-      [-0.18, 0.044, 0.16], [-0.15, 0.044, 0.16], [-0.12, 0.044, 0.16],
-      [0.02, 0.044, 0.16], [0.05, 0.044, 0.16], [0.08, 0.044, 0.16],
-      [0.26, 0.044, -0.18], [0.29, 0.044, -0.18], [0.32, 0.044, -0.18],
-      [0.26, 0.044, -0.38], [0.29, 0.044, -0.38], [0.32, 0.044, -0.38],
+      [-0.16, 0.044, -0.06], [-0.16, 0.044, -0.02], [-0.16, 0.044, 0.02],
+      [-0.16, 0.044, 0.06], [-0.16, 0.044, 0.10],
+      [0.08, 0.044, -0.06], [0.08, 0.044, -0.02], [0.08, 0.044, 0.02],
+      [0.08, 0.044, 0.06], [0.08, 0.044, 0.10],
+      [0.14, 0.044, 0.24], [0.14, 0.044, 0.28], [0.14, 0.044, 0.32],
+      [0.08, 0.044, -0.32], [0.08, 0.044, -0.36],
     ];
     smdPositions.forEach(([sx, sy, sz], idx) => {
       const smdMat = idx % 2 === 0 ? MAT_SMD_CAP : MAT_SMD_BODY;
@@ -2669,78 +2948,105 @@ export class FTIR3D {
     });
 
     // Diagnostic Status LEDs (PWR Green, ACT Amber)
-    this.ledPwr = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.010, 0.010), MAT_LED_GREEN);
+    this.ledPwr = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.010, 0.012), MAT_LED_GREEN);
     this.ledPwr.name = 'LED_Motherboard_PWR';
-    this.ledPwr.position.set(-0.46, 0.046, -0.42);
+    this.ledPwr.position.set(-0.40, 0.046, -0.38);
     mbGroup.add(this.ledPwr);
 
-    this.ledAct = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.010, 0.010), MAT_LED_AMBER);
+    this.ledAct = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.010, 0.012), MAT_LED_AMBER);
     this.ledAct.name = 'LED_Motherboard_ACT';
-    this.ledAct.position.set(-0.46, 0.046, -0.36);
+    this.ledAct.position.set(-0.40, 0.046, -0.32);
     mbGroup.add(this.ledAct);
 
-    // --- SOLDERED HEADERS ON MOTHERBOARD ---
-    // 1. DC Power Input Header (4-Pin JST-VH)
+    // --- 10 SOLDERED PERIMETER HEADERS ON MOTHERBOARD ---
+    // Rear Edge Headers (z = +0.46, facing +Z toward bulkhead grommets)
     const hdrDCPower = createJSTHeader(4);
     hdrDCPower.name = 'Header_DC_Power';
-    hdrDCPower.position.set(-0.46, 0.04, 0.48);
-    hdrDCPower.rotation.y = -Math.PI / 2;
+    hdrDCPower.position.set(-0.34, 0.04, 0.46);
+    hdrDCPower.rotation.y = Math.PI;
     mbGroup.add(hdrDCPower);
 
-    // 2. Cooling Fan Header (3-Pin JST-XH)
     const hdrFan = createJSTHeader(3);
     hdrFan.name = 'Header_Fan_3Pin';
-    hdrFan.position.set(-0.32, 0.04, 0.52);
+    hdrFan.position.set(-0.20, 0.04, 0.46);
     hdrFan.rotation.y = Math.PI;
     mbGroup.add(hdrFan);
 
-    // 3. Voice-Coil Linear Actuator Header (2-Pin JST-XH)
     const hdrVoiceCoil = createJSTHeader(2);
     hdrVoiceCoil.name = 'Header_VoiceCoil';
-    hdrVoiceCoil.position.set(-0.15, 0.04, 0.52);
+    hdrVoiceCoil.position.set(-0.08, 0.04, 0.46);
     hdrVoiceCoil.rotation.y = Math.PI;
     mbGroup.add(hdrVoiceCoil);
 
-    // 4. RS-232 UART IDC Box Header (10-Pin)
+    const hdrIRSource = createJSTHeader(2);
+    hdrIRSource.name = 'Header_IRSource_Power';
+    hdrIRSource.position.set(0.04, 0.04, 0.46);
+    hdrIRSource.rotation.y = Math.PI;
+    mbGroup.add(hdrIRSource);
+
     const hdrRS232 = createIDCBoxHeader(10);
     hdrRS232.name = 'Header_RS232_UART';
-    hdrRS232.position.set(0.05, 0.04, 0.52);
-    hdrRS232.rotation.y = Math.PI;
+    hdrRS232.position.set(0.18, 0.04, 0.46);
+    hdrRS232.rotation.y = Math.PI / 2;
     mbGroup.add(hdrRS232);
 
-    // 5. Internal USB 5-Pin Header
     const hdrUSB = createJSTHeader(5);
     hdrUSB.name = 'Header_USB_Internal';
-    hdrUSB.position.set(0.25, 0.04, 0.52);
+    hdrUSB.position.set(0.34, 0.04, 0.46);
     hdrUSB.rotation.y = Math.PI;
     mbGroup.add(hdrUSB);
 
-    // 6. Internal RJ45 8-Pin Header
-    const hdrRJ45 = createJSTHeader(8);
-    hdrRJ45.name = 'Header_RJ45_Internal';
-    hdrRJ45.position.set(0.42, 0.04, 0.52);
-    hdrRJ45.rotation.y = Math.PI;
-    mbGroup.add(hdrRJ45);
-
-    // 7. FPC ZIF Connector for Touchscreen Console
-    const zifSocket = createFPCZIFConnector(0.18);
-    zifSocket.name = 'Socket_FPC_ZIF_MB';
-    zifSocket.position.set(-0.10, 0.04, -0.52);
-    mbGroup.add(zifSocket);
-
-    // 8. Gold SMA Bulkhead Receptacle for DTGS Coaxial Signal
+    // Inner (+X) Edge Headers (x = +0.42, facing +X toward center gutter)
     const smaOnboard = createSMAJackFemale();
     smaOnboard.name = 'Socket_Motherboard_SMA';
-    smaOnboard.position.set(0.46, 0.055, -0.28);
-    smaOnboard.rotation.y = Math.PI / 2;
+    smaOnboard.position.set(0.42, 0.055, 0.34);
     mbGroup.add(smaOnboard);
+
+    const hdrRJ45 = createJSTHeader(8);
+    hdrRJ45.name = 'Header_RJ45_Internal';
+    hdrRJ45.position.set(0.42, 0.04, 0.14);
+    hdrRJ45.rotation.y = -Math.PI / 2;
+    mbGroup.add(hdrRJ45);
+
+    const hdrLoadCell = createJSTHeader(3);
+    hdrLoadCell.name = 'Header_LoadCell_MB';
+    hdrLoadCell.position.set(0.42, 0.04, -0.08);
+    hdrLoadCell.rotation.y = -Math.PI / 2;
+    mbGroup.add(hdrLoadCell);
+
+    // Front (-Z) Edge FPC ZIF Connector for Touchscreen Console
+    const zifSocket = createFPCZIFConnector(0.18);
+    zifSocket.name = 'Socket_FPC_ZIF_MB';
+    zifSocket.position.set(0.00, 0.04, -0.44);
+    mbGroup.add(zifSocket);
 
     this.electronicsGroup.add(mbGroup);
 
-    // 3. 80mm Convective Exhaust Cooling Fan
+    // 3. 80mm Convective Exhaust Cooling Fan on Sheet-Aluminum Baseplate Bracket
     this.fanGroup = new THREE.Group();
     this.fanGroup.name = 'Fan_80mm_Exhaust';
-    this.fanGroup.position.set(-0.31, 0.65, 1.15); // Aligned with rear louvers at X = -1.40, Y = 0.89, Z = 2.34
+    this.fanGroup.position.set(-1.40, 0.96, 2.22);
+
+    // Heavy-gauge sheet-aluminum mounting bracket anchored to baseplate
+    const fanBracket = new THREE.Mesh(
+      new THREE.BoxGeometry(0.76, 0.76, 0.02),
+      MAT_ALUM_ANODIZED
+    );
+    fanBracket.position.set(0, 0, 0.05);
+    this.fanGroup.add(fanBracket);
+
+    for (const bx of [-0.34, 0.34]) {
+      const riser = new THREE.Mesh(
+        new THREE.BoxGeometry(0.04, 0.96, 0.06),
+        MAT_ALUM_ANODIZED
+      );
+      riser.position.set(bx, -0.48, 0.05);
+      this.fanGroup.add(riser);
+
+      const footScrew = createHexSocketScrew(0.014, 0.03, { material: MAT_CHROME });
+      footScrew.position.set(bx, -0.95, 0.02);
+      this.fanGroup.add(footScrew);
+    }
 
     const fanFrame = new THREE.Mesh(
       new THREE.BoxGeometry(0.70, 0.70, 0.12),
@@ -2755,11 +3061,12 @@ export class FTIR3D {
     fanAperture.rotation.x = Math.PI / 2;
     this.fanGroup.add(fanAperture);
 
-    // 4 Corner DIN 912 M3 hex socket cap screws bolting fan to rear chassis wall
+    // 4 Corner DIN 912 M4 hex socket cap screws bolting fan to bracket
     for (const sx of [-0.28, 0.28]) {
       for (const sy of [-0.28, 0.28]) {
         const screw = createHexSocketScrew(0.016, 0.04, { material: MAT_CHROME });
-        screw.position.set(sx, sy, 0.06);
+        screw.rotation.x = Math.PI / 2;
+        screw.position.set(sx, sy, -0.06);
         this.fanGroup.add(screw);
       }
     }
@@ -2792,7 +3099,7 @@ export class FTIR3D {
         new THREE.TorusGeometry(r, 0.008, 8, 32),
         MAT_CHROME
       );
-      ring.position.z = 0.07;
+      ring.position.z = -0.065;
       this.fanGroup.add(ring);
     }
     for (let a = 0; a < 4; a++) {
@@ -2801,7 +3108,7 @@ export class FTIR3D {
         MAT_CHROME
       );
       spoke.rotation.z = (a * Math.PI) / 4;
-      spoke.position.z = 0.07;
+      spoke.position.z = -0.065;
       this.fanGroup.add(spoke);
     }
 
@@ -2812,12 +3119,12 @@ export class FTIR3D {
 
   // ==========================================
   // Internal Procedural Wiring Harnesses
+  // (Clean Floor Gutters, Grommet Pass-Throughs, Zero Chip Crossings)
   // ==========================================
   buildInternalWiringHarnesses() {
     const BASE_Y = 0.08;
     const FLOOR_Y = BASE_Y + 0.16; // 0.24
 
-    // Helper for 3D curved wire runs (centripetal curve eliminates looping and twisted black quads)
     const addWireRun = (points, radius, material, name) => {
       const curve = new THREE.CatmullRomCurve3(points, false, 'centripetal');
       const geom = new THREE.TubeGeometry(curve, Math.max(24, points.length * 8), radius, 8, false);
@@ -2828,7 +3135,6 @@ export class FTIR3D {
       return mesh;
     };
 
-    // Helper for genuine 3D physical nylon P-clips with M3 mounting screws
     const addCableClip = (pos, rotY = 0) => {
       const clipG = new THREE.Group();
       clipG.position.copy(pos);
@@ -2865,11 +3171,11 @@ export class FTIR3D {
 
     // -------------------------------------------------------------
     // 1. PRIMARY AC MAINS POWER HARNESS (Live Black, Neutral White, Earth Green/Yellow)
+    // Rear IEC-320 C14 Inlet at (-1.40, 0.45, 2.385) -> Rocker Switch (-0.90, 0.45, 2.385)
+    // -> SMPS Barrier Strip at (-1.26.. -1.05, 0.42, 0.32)
     // -------------------------------------------------------------
-    // Rear IEC-320 C14 Inlet at (-1.40, 0.45, 2.385)
-    // Three FASTON quick-disconnect spade receptacles at IEC inlet prongs
     const fastonIECLive = createFastonDisconnect(MAT_CRIMP_BLUE);
-    fastonIECLive.position.set(-1.40, 0.45, 2.35);
+    fastonIECLive.position.set(-1.42, 0.45, 2.35);
     this.wiringGroup.add(fastonIECLive);
 
     const fastonIECNeutral = createFastonDisconnect(MAT_CRIMP_BLUE);
@@ -2880,37 +3186,38 @@ export class FTIR3D {
     fastonIECEarth.position.set(-1.40, 0.40, 2.35);
     this.wiringGroup.add(fastonIECEarth);
 
-    // FASTON terminals at Rear Illuminated Rocker Switch (-0.90, 0.45, 2.385)
     const fastonSwIn = createFastonDisconnect(MAT_CRIMP_BLUE);
-    fastonSwIn.position.set(-0.90, 0.45, 2.35);
+    fastonSwIn.position.set(-0.92, 0.45, 2.35);
     this.wiringGroup.add(fastonSwIn);
 
     const fastonSwOut = createFastonDisconnect(MAT_CRIMP_BLUE);
     fastonSwOut.position.set(-0.86, 0.45, 2.35);
     this.wiringGroup.add(fastonSwOut);
 
-    // Live wire from IEC inlet to Power Switch
+    // Live jumper from IEC inlet to Rocker Switch
     addWireRun([
-      new THREE.Vector3(-1.40, 0.45, 2.35),
-      new THREE.Vector3(-1.15, 0.48, 2.32),
-      new THREE.Vector3(-0.90, 0.45, 2.35),
+      new THREE.Vector3(-1.42, 0.45, 2.35),
+      new THREE.Vector3(-1.16, 0.47, 2.30),
+      new THREE.Vector3(-0.92, 0.45, 2.35),
     ], 0.012, MAT_WIRE_BLACK, 'Wire_AC_Live_InletToSwitch');
 
-    // Neutral wire from IEC inlet to SMPS barrier position 2
-    addWireRun([
-      new THREE.Vector3(-1.36, 0.45, 2.35),
-      new THREE.Vector3(-1.36, 0.28, 2.15),
-      new THREE.Vector3(-1.50, 0.28, 1.80),
-      new THREE.Vector3(-1.50, 0.32, 0.65),
-    ], 0.012, MAT_WIRE_WHITE, 'Wire_AC_Neutral_InletToSMPS');
-
-    // Live switched wire from Power Switch to SMPS barrier position 1
+    // Switched Live from Rocker Switch along inner SMPS gutter to Barrier Terminal 1 (-1.265, 0.42, 0.32)
     addWireRun([
       new THREE.Vector3(-0.86, 0.45, 2.35),
-      new THREE.Vector3(-0.86, 0.28, 2.10),
-      new THREE.Vector3(-1.45, 0.28, 1.80),
-      new THREE.Vector3(-1.54, 0.32, 0.65),
+      new THREE.Vector3(-0.70, FLOOR_Y + 0.04, 2.10),
+      new THREE.Vector3(-0.70, FLOOR_Y + 0.04, 0.22),
+      new THREE.Vector3(-1.265, FLOOR_Y + 0.06, 0.22),
+      new THREE.Vector3(-1.265, 0.42, 0.30),
     ], 0.012, MAT_WIRE_BLACK, 'Wire_AC_Live_SwitchToSMPS');
+
+    // Neutral from IEC inlet along inner SMPS gutter to Barrier Terminal 2 (-1.223, 0.42, 0.32)
+    addWireRun([
+      new THREE.Vector3(-1.36, 0.45, 2.35),
+      new THREE.Vector3(-0.74, FLOOR_Y + 0.05, 2.12),
+      new THREE.Vector3(-0.74, FLOOR_Y + 0.05, 0.24),
+      new THREE.Vector3(-1.223, FLOOR_Y + 0.06, 0.24),
+      new THREE.Vector3(-1.223, 0.42, 0.30),
+    ], 0.012, MAT_WIRE_WHITE, 'Wire_AC_Neutral_InletToSMPS');
 
     // Solid brass M4 chassis earth grounding stud bolted to baseplate
     const groundStud = new THREE.Mesh(
@@ -2918,7 +3225,7 @@ export class FTIR3D {
       MAT_BRASS_FITTING
     );
     groundStud.name = 'Fastener_GroundLug_M4';
-    groundStud.position.set(-1.20, FLOOR_Y + 0.02, 2.15);
+    groundStud.position.set(-1.05, FLOOR_Y + 0.02, 2.15);
     this.wiringGroup.add(groundStud);
 
     const groundLugRing = new THREE.Mesh(
@@ -2926,150 +3233,131 @@ export class FTIR3D {
       MAT_BRASS_FITTING
     );
     groundLugRing.rotation.x = Math.PI / 2;
-    groundLugRing.position.set(-1.20, FLOOR_Y + 0.025, 2.15);
+    groundLugRing.position.set(-1.05, FLOOR_Y + 0.025, 2.15);
     this.wiringGroup.add(groundLugRing);
 
-    // Earth ground lead from IEC inlet down to grounding stud
+    // Earth ground lead from IEC inlet + Rear Ground Binding Post to chassis stud, then to SMPS Terminal 3 (-1.181)
     addWireRun([
       new THREE.Vector3(-1.40, 0.40, 2.35),
-      new THREE.Vector3(-1.35, 0.28, 2.25),
-      new THREE.Vector3(-1.20, FLOOR_Y + 0.025, 2.15),
-    ], 0.014, MAT_WIRE_GREEN_YELLOW, 'Wire_AC_Earth_InletToStud');
+      new THREE.Vector3(-1.25, FLOOR_Y + 0.03, 2.22),
+      new THREE.Vector3(-1.05, FLOOR_Y + 0.025, 2.15),
+      new THREE.Vector3(-0.66, FLOOR_Y + 0.03, 1.95),
+      new THREE.Vector3(-0.66, FLOOR_Y + 0.03, 0.26),
+      new THREE.Vector3(-1.181, FLOOR_Y + 0.06, 0.26),
+      new THREE.Vector3(-1.181, 0.42, 0.30),
+    ], 0.013, MAT_WIRE_GREEN_YELLOW, 'Wire_AC_Earth_ChassisToSMPS');
 
-    // Earth ground lead from stud to SMPS barrier position 3
-    addWireRun([
-      new THREE.Vector3(-1.20, FLOOR_Y + 0.025, 2.15),
-      new THREE.Vector3(-1.40, FLOOR_Y + 0.04, 1.90),
-      new THREE.Vector3(-1.46, 0.30, 0.65),
-    ], 0.014, MAT_WIRE_GREEN_YELLOW, 'Wire_AC_Earth_StudToSMPS');
-
-    // Insulated blue spade crimp fork terminals clamped under SMPS barrier screws 1, 2, 3
-    const spadeSMPSLive = createSpadeCrimpTerminal(MAT_CRIMP_BLUE);
-    spadeSMPSLive.position.set(-1.54, 0.32, 0.65);
-    spadeSMPSLive.rotation.x = -Math.PI / 2;
-    this.wiringGroup.add(spadeSMPSLive);
-
-    const spadeSMPSNeutral = createSpadeCrimpTerminal(MAT_CRIMP_BLUE);
-    spadeSMPSNeutral.position.set(-1.50, 0.32, 0.65);
-    spadeSMPSNeutral.rotation.x = -Math.PI / 2;
-    this.wiringGroup.add(spadeSMPSNeutral);
-
-    const spadeSMPSEarth = createSpadeCrimpTerminal(MAT_CRIMP_BLUE);
-    spadeSMPSEarth.position.set(-1.46, 0.30, 0.65);
-    spadeSMPSEarth.rotation.x = -Math.PI / 2;
-    this.wiringGroup.add(spadeSMPSEarth);
+    // Insulated spade fork crimp terminals at SMPS Barrier Strip (Positions 1..6)
+    const barrierX = [-1.265, -1.223, -1.181, -1.139, -1.097, -1.055];
+    barrierX.forEach((bx, idx) => {
+      const spade = createSpadeCrimpTerminal(idx === 3 ? MAT_CRIMP_RED : MAT_CRIMP_BLUE);
+      spade.position.set(bx, 0.42, 0.30);
+      this.wiringGroup.add(spade);
+    });
 
     // -------------------------------------------------------------
-    // 2. SMPS TO MOTHERBOARD REGULATED DC POWER BUS HARNESS (+24V, +12V, -12V, GND)
+    // 2. SMPS TO MOTHERBOARD REGULATED DC POWER BUS HARNESS (+24V, +12V, GND)
+    // Passes cleanly through Grommet_Bulkhead_Power at (-0.95, 0.30, 0.0) to Header_DC_Power (-1.44, 0.28, -0.89)
     // -------------------------------------------------------------
-    // Insulated spade crimps at SMPS barrier terminals 4, 5, 6
-    const spadeSMPS24V = createSpadeCrimpTerminal(MAT_CRIMP_RED);
-    spadeSMPS24V.position.set(-1.42, 0.30, 0.65);
-    spadeSMPS24V.rotation.x = Math.PI / 2;
-    this.wiringGroup.add(spadeSMPS24V);
-
-    const spadeSMPS12V = createSpadeCrimpTerminal(MAT_CRIMP_BLUE);
-    spadeSMPS12V.position.set(-1.38, 0.30, 0.65);
-    spadeSMPS12V.rotation.x = Math.PI / 2;
-    this.wiringGroup.add(spadeSMPS12V);
-
-    const spadeSMPSGND = createSpadeCrimpTerminal(MAT_CRIMP_BLUE);
-    spadeSMPSGND.position.set(-1.34, 0.30, 0.65);
-    spadeSMPSGND.rotation.x = Math.PI / 2;
-    this.wiringGroup.add(spadeSMPSGND);
-
-    // 4-conductor DC bus routing across chassis base
     addWireRun([
-      new THREE.Vector3(-1.42, 0.30, 0.65),
-      new THREE.Vector3(-1.42, FLOOR_Y + 0.05, 0.85),
-      new THREE.Vector3(-1.30, FLOOR_Y + 0.05, 1.45),
-      new THREE.Vector3(-1.30, FLOOR_Y + 0.05, 1.62),
+      new THREE.Vector3(-1.139, 0.42, 0.30),
+      new THREE.Vector3(-1.10, FLOOR_Y + 0.06, 0.15),
+      new THREE.Vector3(-0.97, FLOOR_Y + 0.06, 0.00),
+      new THREE.Vector3(-1.20, FLOOR_Y + 0.05, -0.45),
+      new THREE.Vector3(-1.44, FLOOR_Y + 0.04, -0.85),
     ], 0.014, MAT_WIRE_RED, 'Harness_DC_24V');
 
     addWireRun([
-      new THREE.Vector3(-1.38, 0.30, 0.65),
-      new THREE.Vector3(-1.38, FLOOR_Y + 0.05, 0.85),
-      new THREE.Vector3(-1.28, FLOOR_Y + 0.05, 1.45),
-      new THREE.Vector3(-1.30, FLOOR_Y + 0.05, 1.62),
+      new THREE.Vector3(-1.097, 0.42, 0.30),
+      new THREE.Vector3(-1.06, FLOOR_Y + 0.05, 0.15),
+      new THREE.Vector3(-0.95, FLOOR_Y + 0.05, 0.00),
+      new THREE.Vector3(-1.18, FLOOR_Y + 0.04, -0.45),
+      new THREE.Vector3(-1.44, FLOOR_Y + 0.04, -0.85),
     ], 0.012, MAT_WIRE_YELLOW, 'Harness_DC_12V');
 
     addWireRun([
-      new THREE.Vector3(-1.34, 0.30, 0.65),
-      new THREE.Vector3(-1.34, FLOOR_Y + 0.05, 0.85),
-      new THREE.Vector3(-1.26, FLOOR_Y + 0.05, 1.45),
-      new THREE.Vector3(-1.30, FLOOR_Y + 0.05, 1.62),
+      new THREE.Vector3(-1.055, 0.42, 0.30),
+      new THREE.Vector3(-1.02, FLOOR_Y + 0.04, 0.15),
+      new THREE.Vector3(-0.93, FLOOR_Y + 0.04, 0.00),
+      new THREE.Vector3(-1.16, FLOOR_Y + 0.03, -0.45),
+      new THREE.Vector3(-1.44, FLOOR_Y + 0.04, -0.85),
     ], 0.014, MAT_WIRE_BLACK, 'Harness_DC_GND');
 
-    // Mating 4-pin JST-VH plug inserted into Header_DC_Power on Motherboard
     const plugDCPower = createJSTMatingPlug(4);
     plugDCPower.name = 'Plug_DC_Power_4Pin';
-    plugDCPower.position.set(-1.30, FLOOR_Y + 0.04, 1.62);
-    plugDCPower.rotation.y = -Math.PI / 2;
+    plugDCPower.position.set(-1.44, FLOOR_Y + 0.04, -0.89);
+    plugDCPower.rotation.y = Math.PI;
     this.wiringGroup.add(plugDCPower);
 
     // -------------------------------------------------------------
-    // 3. 80mm CONVECTIVE EXHAUST FAN 3-PIN SLEEVED CABLE
+    // 3. 80mm CONVECTIVE EXHAUST FAN 3-PIN PWM/TACH CABLE
     // -------------------------------------------------------------
     const plugFanHub = createJSTMatingPlug(3);
     plugFanHub.name = 'Plug_Fan_MotorFrame';
-    plugFanHub.position.set(-1.40, 0.75, 2.28);
+    plugFanHub.position.set(-1.12, 0.85, 2.20);
     this.wiringGroup.add(plugFanHub);
 
     addWireRun([
-      new THREE.Vector3(-1.40, 0.75, 2.28),
-      new THREE.Vector3(-1.40, FLOOR_Y + 0.06, 2.15),
-      new THREE.Vector3(-1.25, FLOOR_Y + 0.06, 1.95),
-      new THREE.Vector3(-1.16, FLOOR_Y + 0.04, 1.66),
-    ], 0.014, MAT_WIRE_BLACK, 'Cable_CoolingFan_12V');
+      new THREE.Vector3(-1.12, 0.85, 2.20),
+      new THREE.Vector3(-0.62, FLOOR_Y + 0.05, 1.95),
+      new THREE.Vector3(-0.62, FLOOR_Y + 0.05, 0.35),
+      new THREE.Vector3(-0.95, FLOOR_Y + 0.05, 0.00),
+      new THREE.Vector3(-1.30, FLOOR_Y + 0.04, -0.85),
+    ], 0.012, MAT_WIRE_BLACK, 'Cable_CoolingFan_12V');
 
-    // Mating 3-pin JST-XH plug inserted into Header_Fan_3Pin on Motherboard
     const plugFanMB = createJSTMatingPlug(3);
     plugFanMB.name = 'Plug_Fan_Motherboard';
-    plugFanMB.position.set(-1.16, FLOOR_Y + 0.04, 1.66);
+    plugFanMB.position.set(-1.30, FLOOR_Y + 0.04, -0.89);
     plugFanMB.rotation.y = Math.PI;
     this.wiringGroup.add(plugFanMB);
 
     // -------------------------------------------------------------
     // 4. HeNe LASER HIGH-VOLTAGE ANODE LEAD WITH GENUINE ALDEN CONNECTOR
+    // From Motherboard Module_HeNe_Inverter (-0.88, 0.33, -1.67) to HeNe Laser Anode (1.67, 0.54, 2.04)
     // -------------------------------------------------------------
     addWireRun([
-      new THREE.Vector3(-1.19, 0.30, 0.92),
-      new THREE.Vector3(-0.60, FLOOR_Y + 0.12, 1.15),
-      new THREE.Vector3(0.00, FLOOR_Y + 0.12, 1.35),
-      new THREE.Vector3(0.80, FLOOR_Y + 0.14, 1.65),
+      new THREE.Vector3(-0.88, FLOOR_Y + 0.08, -1.67),
+      new THREE.Vector3(-0.48, FLOOR_Y + 0.06, -1.55),
+      new THREE.Vector3(-0.48, FLOOR_Y + 0.06, 0.00),
+      new THREE.Vector3(-0.15, FLOOR_Y + 0.06, 1.85),
+      new THREE.Vector3(1.45, FLOOR_Y + 0.14, 2.04),
       new THREE.Vector3(1.67, 0.54, 2.04),
-    ], 0.016, MAT_WIRE_RED, 'Cable_HeNe_HighVoltage_Anode');
+    ], 0.015, MAT_WIRE_RED, 'Cable_HeNe_HighVoltage_Anode');
 
-    // Molded red silicone Alden HV connector mating to laser anode pin
     const plugAlden = createAldenHVConnector();
     plugAlden.name = 'Plug_Alden_HV_Laser';
     plugAlden.position.set(1.67, 0.54, 2.04);
     plugAlden.rotation.y = Math.PI / 2;
     this.wiringGroup.add(plugAlden);
 
-    // HeNe cathode ground return wire
-    addWireRun([
-      new THREE.Vector3(1.19 - 0.35, 0.54, 2.04),
-      new THREE.Vector3(0.60, FLOOR_Y + 0.05, 1.85),
-      new THREE.Vector3(0.00, FLOOR_Y + 0.05, 1.55),
-      new THREE.Vector3(-1.19, 0.30, 0.95),
-    ], 0.012, MAT_WIRE_BLACK, 'Wire_HeNe_CathodeReturn');
-
     // -------------------------------------------------------------
-    // 5. MOVING MIRROR VOICE-COIL LINEAR ACTUATOR DRIVE HARNESS
+    // 5. MOVING MIRROR VOICE-COIL & EVER-GLO IR SOURCE DRIVE HARNESSES
     // -------------------------------------------------------------
     const plugVoiceCoilMB = createJSTMatingPlug(2);
     plugVoiceCoilMB.name = 'Plug_VoiceCoil_Motherboard';
-    plugVoiceCoilMB.position.set(-0.99, FLOOR_Y + 0.04, 1.66);
+    plugVoiceCoilMB.position.set(-1.18, FLOOR_Y + 0.04, -0.89);
     plugVoiceCoilMB.rotation.y = Math.PI;
     this.wiringGroup.add(plugVoiceCoilMB);
 
     addWireRun([
-      new THREE.Vector3(-0.99, FLOOR_Y + 0.04, 1.66),
-      new THREE.Vector3(-0.40, FLOOR_Y + 0.05, 1.25),
-      new THREE.Vector3(0.20, FLOOR_Y + 0.08, 0.85),
+      new THREE.Vector3(-1.18, FLOOR_Y + 0.04, -0.85),
+      new THREE.Vector3(-0.92, FLOOR_Y + 0.05, 0.00),
+      new THREE.Vector3(-0.20, FLOOR_Y + 0.05, 0.45),
       new THREE.Vector3(0.94, 0.64, 0.54),
-    ], 0.014, MAT_WIRE_RED, 'Cable_VoiceCoil_Drive');
+    ], 0.013, MAT_WIRE_RED, 'Cable_VoiceCoil_Drive');
+
+    const plugIRSourceMB = createJSTMatingPlug(2);
+    plugIRSourceMB.name = 'Plug_IRSource_Motherboard';
+    plugIRSourceMB.position.set(-1.06, FLOOR_Y + 0.04, -0.89);
+    plugIRSourceMB.rotation.y = Math.PI;
+    this.wiringGroup.add(plugIRSourceMB);
+
+    addWireRun([
+      new THREE.Vector3(-1.06, FLOOR_Y + 0.04, -0.85),
+      new THREE.Vector3(-0.90, FLOOR_Y + 0.05, 0.00),
+      new THREE.Vector3(-0.25, FLOOR_Y + 0.05, 1.55),
+      new THREE.Vector3(0.44, 0.55, 1.84),
+    ], 0.014, MAT_WIRE_YELLOW, 'Cable_IRSource_1200C');
 
     // -------------------------------------------------------------
     // 6. LOW-NOISE SHIELDED DTGS DETECTOR COAXIAL CABLE WITH GOLD SMA PLUGS
@@ -3082,28 +3370,48 @@ export class FTIR3D {
 
     addWireRun([
       new THREE.Vector3(1.74, 0.75, 0.44),
-      new THREE.Vector3(1.74, FLOOR_Y + 0.06, 0.44),
-      new THREE.Vector3(1.00, FLOOR_Y + 0.05, 0.40),
-      new THREE.Vector3(0.20, FLOOR_Y + 0.05, 0.55),
-      new THREE.Vector3(-0.38, FLOOR_Y + 0.05, 0.70),
-      new THREE.Vector3(-0.38, 0.30, 0.86),
+      new THREE.Vector3(1.74, FLOOR_Y + 0.05, 0.25),
+      new THREE.Vector3(0.10, FLOOR_Y + 0.05, 0.15),
+      new THREE.Vector3(-0.56, FLOOR_Y + 0.05, 0.00),
+      new THREE.Vector3(-0.56, FLOOR_Y + 0.055, -1.01),
+      new THREE.Vector3(-0.66, FLOOR_Y + 0.055, -1.01),
     ], 0.014, MAT_WIRE_COAX, 'Cable_DTGS_Detector_RG174');
 
     const smaMBPlug = createSMAPlugMale();
     smaMBPlug.name = 'Plug_SMA_Motherboard';
-    smaMBPlug.position.set(-0.38, 0.30, 0.86);
-    smaMBPlug.rotation.y = -Math.PI / 2;
+    smaMBPlug.position.set(-0.66, FLOOR_Y + 0.055, -1.01);
     this.wiringGroup.add(smaMBPlug);
 
     // -------------------------------------------------------------
-    // 7. TOUCHSCREEN CONSOLE FLEXIBLE FLAT CABLE (KAPTON FPC RIBBON)
+    // 7. ATR LOAD-CELL FORCE TRANSDUCER TELEMETRY HARNESS
+    // -------------------------------------------------------------
+    const plugLoadCellSensor = createJSTMatingPlug(3);
+    plugLoadCellSensor.position.set(0.89, FLOOR_Y + 0.04, -0.54);
+    plugLoadCellSensor.rotation.y = -Math.PI / 2;
+    this.wiringGroup.add(plugLoadCellSensor);
+
+    addWireRun([
+      new THREE.Vector3(0.89, FLOOR_Y + 0.04, -0.54),
+      new THREE.Vector3(0.15, FLOOR_Y + 0.04, -0.65),
+      new THREE.Vector3(-0.45, FLOOR_Y + 0.04, -1.45),
+      new THREE.Vector3(-0.66, FLOOR_Y + 0.04, -1.45),
+    ], 0.012, MAT_WIRE_BLUE, 'Cable_ATR_LoadCell');
+
+    const plugLoadCellMB = createJSTMatingPlug(3);
+    plugLoadCellMB.position.set(-0.68, FLOOR_Y + 0.04, -1.45);
+    plugLoadCellMB.rotation.y = -Math.PI / 2;
+    this.wiringGroup.add(plugLoadCellMB);
+
+    // -------------------------------------------------------------
+    // 8. TOUCHSCREEN CONSOLE FLEXIBLE FLAT CABLE (KAPTON FPC RIBBON)
+    // Vertical run from Motherboard Socket_FPC_ZIF_MB (-1.10, 0.28, -1.79)
+    // straight up to LCD Controller Sub-Board Socket_FPC_ZIF_LCD (-1.09, 1.56, -1.35)
     // -------------------------------------------------------------
     const fpcPoints = [
-      new THREE.Vector3(-0.94, FLOOR_Y + 0.04, 0.62),
-      new THREE.Vector3(-0.94, FLOOR_Y + 0.12, 0.20),
-      new THREE.Vector3(-1.05, FLOOR_Y + 0.25, -0.40),
-      new THREE.Vector3(-1.09, 1.20, -0.95),
-      new THREE.Vector3(-1.09, 1.68, -1.15),
+      new THREE.Vector3(-1.10, FLOOR_Y + 0.04, -1.79),
+      new THREE.Vector3(-1.10, FLOOR_Y + 0.35, -1.85),
+      new THREE.Vector3(-1.10, 1.05, -1.65),
+      new THREE.Vector3(-1.09, 1.55, -1.32),
     ];
     const fpcCurve = new THREE.CatmullRomCurve3(fpcPoints, false, 'centripetal');
     const fpcGeo = new THREE.TubeGeometry(fpcCurve, 32, 0.032, 4, false);
@@ -3112,7 +3420,8 @@ export class FTIR3D {
     this.wiringGroup.add(fpcMesh);
 
     // -------------------------------------------------------------
-    // 8. REAR DB-9 RS-232 PORT 10-CONDUCTOR RIBBON CABLE
+    // 9. REAR DB-9 RS-232, USB 2.0, AND RJ45 ETHERNET DATA CABLES
+    // Routed through Grommet_Bulkhead_Data at (-0.58, 0.30, 0.0)
     // -------------------------------------------------------------
     const idcDB9Rear = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.035, 0.04), MAT_CHASSIS_DARK);
     idcDB9Rear.position.set(0.40, 0.45, 2.34);
@@ -3121,56 +3430,57 @@ export class FTIR3D {
     addWireRun([
       new THREE.Vector3(0.40, 0.45, 2.34),
       new THREE.Vector3(0.40, FLOOR_Y + 0.05, 2.15),
-      new THREE.Vector3(-0.20, FLOOR_Y + 0.05, 2.05),
-      new THREE.Vector3(-0.79, FLOOR_Y + 0.04, 1.66),
-    ], 0.018, MAT_WIRE_BLUE, 'Harness_DB9_RS232');
+      new THREE.Vector3(-0.56, FLOOR_Y + 0.05, 2.00),
+      new THREE.Vector3(-0.56, FLOOR_Y + 0.05, 0.00),
+      new THREE.Vector3(-0.92, FLOOR_Y + 0.04, -0.85),
+    ], 0.016, MAT_WIRE_BLUE, 'Harness_DB9_RS232');
 
-    const idcDB9MB = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.040, 0.12), MAT_CHASSIS_DARK);
-    idcDB9MB.position.set(-0.79, FLOOR_Y + 0.04, 1.66);
+    const idcDB9MB = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.040, 0.05), MAT_CHASSIS_DARK);
+    idcDB9MB.position.set(-0.92, FLOOR_Y + 0.04, -0.89);
     this.wiringGroup.add(idcDB9MB);
 
-    // -------------------------------------------------------------
-    // 9. REAR USB 2.0 PORT SHIELDED DATA CABLE
-    // -------------------------------------------------------------
+    // USB 2.0 Shielded Cable
     addWireRun([
       new THREE.Vector3(0.00, 0.45, 2.34),
-      new THREE.Vector3(0.00, FLOOR_Y + 0.05, 2.15),
-      new THREE.Vector3(-0.35, FLOOR_Y + 0.05, 2.05),
-      new THREE.Vector3(-0.59, FLOOR_Y + 0.04, 1.66),
-    ], 0.016, MAT_WIRE_BLACK, 'Harness_USB_Shielded');
+      new THREE.Vector3(0.00, FLOOR_Y + 0.05, 2.12),
+      new THREE.Vector3(-0.58, FLOOR_Y + 0.04, 1.95),
+      new THREE.Vector3(-0.58, FLOOR_Y + 0.04, 0.00),
+      new THREE.Vector3(-0.78, FLOOR_Y + 0.04, -0.85),
+    ], 0.015, MAT_WIRE_BLACK, 'Harness_USB_Shielded');
 
     const plugUSBMB = createJSTMatingPlug(5);
     plugUSBMB.name = 'Plug_USB_Motherboard';
-    plugUSBMB.position.set(-0.59, FLOOR_Y + 0.04, 1.66);
+    plugUSBMB.position.set(-0.78, FLOOR_Y + 0.04, -0.89);
     plugUSBMB.rotation.y = Math.PI;
     this.wiringGroup.add(plugUSBMB);
 
-    // -------------------------------------------------------------
-    // 10. REAR RJ45 ETHERNET DATA CABLE
-    // -------------------------------------------------------------
+    // RJ45 Gigabit Ethernet Cable
     addWireRun([
       new THREE.Vector3(-0.35, 0.45, 2.34),
-      new THREE.Vector3(-0.35, FLOOR_Y + 0.06, 2.10),
-      new THREE.Vector3(-0.42, FLOOR_Y + 0.04, 1.66),
-    ], 0.018, MAT_WIRE_BLUE, 'Harness_RJ45_Ethernet');
+      new THREE.Vector3(-0.35, FLOOR_Y + 0.06, 2.08),
+      new THREE.Vector3(-0.60, FLOOR_Y + 0.06, 1.90),
+      new THREE.Vector3(-0.60, FLOOR_Y + 0.06, 0.00),
+      new THREE.Vector3(-0.52, FLOOR_Y + 0.05, -1.15),
+      new THREE.Vector3(-0.66, FLOOR_Y + 0.04, -1.15),
+    ], 0.016, MAT_WIRE_BLUE, 'Harness_RJ45_Ethernet');
 
     const plugRJ45MB = createJSTMatingPlug(8);
     plugRJ45MB.name = 'Plug_RJ45_Motherboard';
-    plugRJ45MB.position.set(-0.42, FLOOR_Y + 0.04, 1.66);
-    plugRJ45MB.rotation.y = Math.PI;
+    plugRJ45MB.position.set(-0.68, FLOOR_Y + 0.04, -1.15);
+    plugRJ45MB.rotation.y = -Math.PI / 2;
     this.wiringGroup.add(plugRJ45MB);
 
     // -------------------------------------------------------------
-    // 11. GENUINE NYLON CHASSIS CABLE P-CLIPS BOLTED TO BASEPLATE
+    // 10. GENUINE NYLON CHASSIS CABLE P-CLIPS BOLTED TO BASEPLATE
     // -------------------------------------------------------------
-    addCableClip(new THREE.Vector3(-1.38, FLOOR_Y + 0.01, 1.85));
-    addCableClip(new THREE.Vector3(-1.38, FLOOR_Y + 0.01, 1.25));
-    addCableClip(new THREE.Vector3(-1.30, FLOOR_Y + 0.01, 0.95));
-    addCableClip(new THREE.Vector3(-0.60, FLOOR_Y + 0.01, 2.10), Math.PI / 2);
-    addCableClip(new THREE.Vector3(0.20, FLOOR_Y + 0.01, 2.15), Math.PI / 2);
-    addCableClip(new THREE.Vector3(0.00, FLOOR_Y + 0.01, 1.40));
-    addCableClip(new THREE.Vector3(0.50, FLOOR_Y + 0.01, 0.60), -Math.PI / 4);
-    addCableClip(new THREE.Vector3(1.20, FLOOR_Y + 0.01, 0.45), Math.PI / 2);
+    addCableClip(new THREE.Vector3(-0.68, FLOOR_Y + 0.01, 1.85));
+    addCableClip(new THREE.Vector3(-0.68, FLOOR_Y + 0.01, 1.15));
+    addCableClip(new THREE.Vector3(-0.68, FLOOR_Y + 0.01, 0.45));
+    addCableClip(new THREE.Vector3(-0.58, FLOOR_Y + 0.01, -0.35));
+    addCableClip(new THREE.Vector3(-1.18, FLOOR_Y + 0.01, -0.45));
+    addCableClip(new THREE.Vector3(0.05, FLOOR_Y + 0.01, 2.08), Math.PI / 2);
+    addCableClip(new THREE.Vector3(0.45, FLOOR_Y + 0.01, 0.15), Math.PI / 2);
+    addCableClip(new THREE.Vector3(0.15, FLOOR_Y + 0.01, -0.65), Math.PI / 2);
 
     this.chassisBaseGroup.add(this.wiringGroup);
   }
@@ -3235,31 +3545,77 @@ export class FTIR3D {
     this.lcdScreen.name = 'UI_LCD';
     this.lcdScreen.rotation.x = -Math.PI / 2; // Lies flat on top face of tilted tray
     this.lcdScreen.position.set(0, 0.036, 0.16);
-    this.lcdScreen.userData = { name: 'UI_LCD', action: 'tap_screen', tooltip: 'FTIR Capacitive Touchscreen (Click to cycle view/mode)' };
+    this.lcdScreen.userData = {
+      name: 'UI_LCD',
+      action: 'tap_screen',
+      role: 'Touchscreen',
+      tooltip: 'FTIR Capacitive Touchscreen (Seek wavenumber cursor or tap softkeys)'
+    };
     this.actionableMeshes.push(this.lcdScreen);
+    this.animTargets.lcdMesh = this.lcdScreen;
     this.consoleGroup.add(this.lcdScreen);
 
-    // Protective Optical Glass Lens over LCD
+    // Protective Anti-Reflective Optical Glass Lens over LCD
+    // (Not added to actionableMeshes so raycasts hit UI_LCD directly with exact calibrated UVs)
     const lensGeo = new THREE.PlaneGeometry(lcdW, lcdH);
-    const lens = new THREE.Mesh(lensGeo, MAT_CHASSIS_GLASS);
+    const lens = new THREE.Mesh(lensGeo, MAT_OPTICAL_GLASS);
+    lens.name = 'UI_LCD_LENS';
     lens.rotation.x = -Math.PI / 2;
     lens.position.set(0, 0.040, 0.16);
     this.consoleGroup.add(lens);
 
+    // Internal LCD Controller Sub-Board & Backlight Driver PCB (Mounted on underside of bezel)
+    const lcdDriverPCB = new THREE.Mesh(
+      new THREE.BoxGeometry(1.52, 0.012, 0.86),
+      MAT_PCB_GREEN
+    );
+    lcdDriverPCB.name = 'PCB_LCD_Controller';
+    lcdDriverPCB.position.set(0, -0.042, 0.16);
+    this.consoleGroup.add(lcdDriverPCB);
+
+    // 4 Brass Standoffs with M3 Hex Screws securing LCD Controller PCB to console tray
+    for (const sx of [-0.68, 0.68]) {
+      for (const sz of [-0.36, 0.36]) {
+        const standoff = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.014, 0.014, 0.038, 6),
+          MAT_BRASS_FITTING
+        );
+        standoff.position.set(sx, -0.020, 0.16 + sz);
+        this.consoleGroup.add(standoff);
+
+        const screw = createHexSocketScrew(0.010, 0.018, { material: MAT_CHROME });
+        screw.rotation.x = Math.PI;
+        screw.position.set(sx, -0.049, 0.16 + sz);
+        this.consoleGroup.add(screw);
+      }
+    }
+
+    // 30-Pin FPC ZIF Socket on underside of LCD Controller Board receiving Kapton ribbon
+    const lcdZIF = createFPCZIFConnector(0.18);
+    lcdZIF.name = 'Socket_FPC_ZIF_LCD';
+    lcdZIF.position.set(0.0, -0.050, -0.18);
+    lcdZIF.rotation.x = Math.PI;
+    this.consoleGroup.add(lcdZIF);
+
     // 5 Physical Tactile Push Buttons below Screen on console face
+    // Ordered LEFT (+X) to RIGHT (-X) from operator's front perspective!
     const buttons = [
-      { id: 'btn_pwr', name: 'Btn_Power', label: 'POWER', sub: 'STANDBY', color: '#f43f5e', x: -0.64 },
-      { id: 'btn_bg', name: 'Btn_Background', label: 'BG', sub: 'AIR REF', color: '#0284c7', x: -0.32 },
-      { id: 'btn_scan', name: 'Btn_Scan', label: 'SCAN', sub: 'SAMPLE', color: '#a855f7', x: 0.0 },
-      { id: 'btn_mode', name: 'Btn_Mode', label: 'MODE', sub: '%T / A', color: '#06b6d4', x: 0.32 },
-      { id: 'btn_tower', name: 'Btn_Tower', label: 'TOWER', sub: 'SWIVEL', color: '#f59e0b', x: 0.64 },
+      { id: 'Btn_Power', name: 'Btn_Power', label: 'POWER', sub: 'STANDBY', icon: '⏻', color: '#f43f5e', x: 0.64, action: 'btn_pwr' },
+      { id: 'Btn_Background', name: 'Btn_Background', label: 'BG', sub: 'AIR REF', icon: '0.00', color: '#0284c7', x: 0.32, action: 'btn_bg' },
+      { id: 'Btn_Scan', name: 'Btn_Scan', label: 'SCAN', sub: 'SAMPLE', icon: '▶', color: '#a855f7', x: 0.0, action: 'btn_scan' },
+      { id: 'Btn_Mode', name: 'Btn_Mode', label: 'MODE', sub: '%T / ABS', icon: '⇄', color: '#06b6d4', x: -0.32, action: 'btn_mode' },
+      { id: 'Btn_Tower', name: 'Btn_Tower', label: 'TOWER', sub: 'SWIVEL', icon: '↷', color: '#f59e0b', x: -0.64, action: 'btn_tower' },
     ];
 
     buttons.forEach((bCfg) => {
-      const btn = createLabeledKeycap(bCfg);
-      btn.position.set(bCfg.x, 0.036, -0.52);
-      this.actionableMeshes.push(btn);
-      this.consoleGroup.add(btn);
+      const keyItem = createLabeledKeycap(bCfg);
+      keyItem.group.position.set(bCfg.x, 0.024, -0.52);
+      this.actionableMeshes.push(keyItem.group);
+      this.actionableMeshes.push(keyItem.cap);
+      this.actionableMeshes.push(keyItem.labelMesh);
+      this.consoleGroup.add(keyItem.group);
+      this.animTargets.keycaps[bCfg.id] = keyItem.capGroup;
+      this.animTargets.keycaps[bCfg.action] = keyItem.capGroup;
     });
 
     this.chassisShellGroup.add(this.consoleGroup);
@@ -3276,8 +3632,9 @@ export class FTIR3D {
       new THREE.Vector3(0.94, 0.48, 1.19),   // Return to BS
       new THREE.Vector3(0.94, 0.48, 0.54),   // Moving Voice-Coil Mirror
       new THREE.Vector3(0.94, 0.48, 1.19),   // Recombined at BS
+      new THREE.Vector3(0.94, 0.48, -1.19),  // ATR Input ZnSe Mirror
       new THREE.Vector3(1.09, 0.94, -1.19),  // ATR Diamond bottom facet
-      new THREE.Vector3(1.09, 0.95, -1.19),  // Internal reflection
+      new THREE.Vector3(1.45, 0.48, -1.19),  // ATR Output ZnSe Mirror
       new THREE.Vector3(1.74, 0.48, 0.44),   // DTGS Pyroelectric detector
     ];
 
@@ -3285,8 +3642,9 @@ export class FTIR3D {
     const rayGeo = new THREE.TubeGeometry(curve, 64, 0.016, 8, false);
     this.rayMesh = new THREE.Mesh(
       rayGeo,
-      new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.75 })
+      new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.78 })
     );
+    this.rayMesh.name = 'Beam_IR_Modulated';
     this.raysGroup.add(this.rayMesh);
 
     // HeNe Laser Reference Beam (632.8 nm Red Ray)
@@ -3298,6 +3656,7 @@ export class FTIR3D {
     const heneCurve = new THREE.CatmullRomCurve3(henePoints);
     const heneGeo = new THREE.TubeGeometry(heneCurve, 24, 0.008, 8, false);
     const heneRay = new THREE.Mesh(heneGeo, new THREE.MeshBasicMaterial({ color: 0xef4444 }));
+    heneRay.name = 'Beam_HeNe_632nm';
     this.raysGroup.add(heneRay);
 
     this.chassisBaseGroup.add(this.raysGroup);
@@ -3310,6 +3669,7 @@ export class FTIR3D {
     const ctx = this.lcdCtx;
     const w = this.lcdCanvas.width;
     const h = this.lcdCanvas.height;
+    const now = performance.now();
 
     // Unpowered blackout state
     if (!this.hasPower) {
@@ -3319,54 +3679,87 @@ export class FTIR3D {
       return;
     }
 
-    ctx.fillStyle = '#080d14';
+    // Modern laboratory dark LCD background
+    ctx.fillStyle = '#070c14';
     ctx.fillRect(0, 0, w, h);
 
-    // Top Status Header Bar
-    ctx.fillStyle = '#0f1724';
-    ctx.fillRect(0, 0, w, 52);
-    ctx.fillStyle = '#1e2d42';
-    ctx.fillRect(0, 52, w, 2);
+    // ==========================================
+    // 1. Top Status Header Bar (Y: 0 - 54)
+    // ==========================================
+    const headGrad = ctx.createLinearGradient(0, 0, 0, 54);
+    headGrad.addColorStop(0, '#0f172a');
+    headGrad.addColorStop(1, '#090e17');
+    ctx.fillStyle = headGrad;
+    ctx.fillRect(0, 0, w, 54);
 
-    ctx.font = 'bold 22px monospace';
-    ctx.fillStyle = '#00d4e8';
-    ctx.fillText('SREdesigns FTIR-7000x', 24, 35);
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, 54);
+    ctx.lineTo(w, 54);
+    ctx.stroke();
 
-    // System State Indicator Pill
-    let stateColor = '#3dd68c';
-    let stateText = 'READY';
+    // Brand logo
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.font = 'bold 20px -apple-system, BlinkMacSystemFont, "Segoe UI", monospace';
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillText('SREdesigns', 20, 27);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('FTIR-7000x', 145, 27);
+
+    // System state pill
+    let stateColor = '#22c55e';
+    let stateText = 'SYSTEM READY';
     if (this.isScanning) {
-      stateColor = '#a855f7';
+      stateColor = '#c084fc';
       stateText = `SCANNING [${Math.floor(this.scanProgress * 100)}%]`;
     }
     ctx.fillStyle = stateColor;
     ctx.beginPath();
-    ctx.arc(380, 31, 7, 0, Math.PI * 2);
+    ctx.arc(310, 27, 6, 0, Math.PI * 2);
     ctx.fill();
-    ctx.font = 'bold 16px monospace';
-    ctx.fillText(stateText, 396, 37);
 
-    // Laser & Purge Status
-    ctx.font = '600 15px monospace';
+    ctx.font = 'bold 14px monospace';
+    ctx.fillStyle = stateColor;
+    ctx.fillText(stateText, 324, 27);
+
+    // Laser & Purge Hardware Status
+    ctx.font = '600 13px monospace';
     ctx.fillStyle = '#38bdf8';
-    ctx.fillText('HeNe: 632.8nm (LOCKED) | N₂ PURGE: OK', 640, 36);
+    ctx.fillText('HeNe: 632.8nm LOCKED', 510, 27);
+    ctx.fillStyle = '#64748b';
+    ctx.fillText('|', 685, 27);
+    ctx.fillStyle = '#10b981';
+    ctx.fillText('N₂ PURGE: OK', 700, 27);
 
-    // Main Mid-IR Spectrum Chart Area
-    const chartX = 70;
-    const chartY = 85;
-    const chartW = 880;
+    // Wavenumber cursor readout
+    ctx.textAlign = 'right';
+    ctx.font = 'bold 14px monospace';
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillText(`ν: ${this.cursorWn.toFixed(0)} cm⁻¹`, 1005, 27);
+
+    // ==========================================
+    // 2. Main Mid-IR Spectrum Chart (X: 65-835, Y: 68-498)
+    // ==========================================
+    const chartX = 65;
+    const chartY = 68;
+    const chartW = 770;
     const chartH = 430;
 
-    ctx.fillStyle = '#0c1322';
+    // Chart Background
+    ctx.fillStyle = '#050a12';
     ctx.fillRect(chartX, chartY, chartW, chartH);
     ctx.strokeStyle = '#1e2d42';
     ctx.lineWidth = 1.5;
     ctx.strokeRect(chartX, chartY, chartW, chartH);
 
-    // Grid lines & Wavenumber X-axis calibration (4000 to 400 cm-1)
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+    // Grid lines & Wavenumber X-axis calibration (4000 to 400 cm⁻¹)
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
     ctx.fillStyle = '#64748b';
     ctx.font = '12px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
 
     const wnTicks = [4000, 3500, 3000, 2500, 2000, 1500, 1000, 500];
     wnTicks.forEach((wn) => {
@@ -3376,10 +3769,12 @@ export class FTIR3D {
       ctx.moveTo(x, chartY);
       ctx.lineTo(x, chartY + chartH);
       ctx.stroke();
-      ctx.fillText(wn.toString(), x - 14, chartY + chartH + 18);
+      ctx.fillText(wn.toString(), x, chartY + chartH + 5);
     });
 
     // Y-axis calibration (% Transmittance or Absorbance)
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
     const yTicks = (this.viewMode === 'transmittance')
       ? [100, 75, 50, 25, 0]
       : [0.0, 0.5, 1.0, 1.5, 2.0];
@@ -3389,80 +3784,324 @@ export class FTIR3D {
       ctx.moveTo(chartX, y);
       ctx.lineTo(chartX + chartW, y);
       ctx.stroke();
-      ctx.fillText(val.toString() + (this.viewMode === 'transmittance' ? '%' : ''), 20, y + 4);
+      ctx.fillText(val.toString() + (this.viewMode === 'transmittance' ? '%' : ''), chartX - 8, y);
     });
 
-    // Draw Infrared Absorption Spectrum Curve
-    ctx.strokeStyle = this.isScanning ? '#a855f7' : '#38bdf8';
-    ctx.lineWidth = 2.2;
-    ctx.beginPath();
-
+    // Chemical Absorption Band Models
     const analyteBands = {
       isopropanol: [
-        { wn: 3350, fwhm: 260, depth: 0.85 }, // O-H stretch
-        { wn: 2970, fwhm: 80, depth: 0.72 },  // C-H stretch
-        { wn: 1381, fwhm: 50, depth: 0.60 },  // Gem-dimethyl
-        { wn: 1129, fwhm: 60, depth: 0.90 },  // C-O stretch
+        { wn: 3350, fwhm: 260, depth: 0.85, name: 'O-H STRETCH (BROAD H-BOND)' },
+        { wn: 2970, fwhm: 80, depth: 0.72, name: 'C-H ALKYL STRETCH (sp³)' },
+        { wn: 1381, fwhm: 50, depth: 0.60, name: 'GEM-DIMETHYL DOUBLET' },
+        { wn: 1129, fwhm: 60, depth: 0.90, name: 'C-O SEC-ALCOHOL STRETCH' },
       ],
       acetone: [
-        { wn: 1715, fwhm: 70, depth: 0.94 },  // C=O carbonyl stretch
-        { wn: 1362, fwhm: 45, depth: 0.55 },  // C-H bend
-        { wn: 1222, fwhm: 55, depth: 0.70 },  // C-C stretch
+        { wn: 1715, fwhm: 70, depth: 0.94, name: 'C=O CARBONYL STRETCH (STRONG)' },
+        { wn: 1362, fwhm: 45, depth: 0.55, name: 'CH₃ SYMMETRIC BEND' },
+        { wn: 1222, fwhm: 55, depth: 0.70, name: 'C-C SKELETAL VIBRATION' },
       ],
       toluene: [
-        { wn: 3028, fwhm: 65, depth: 0.65 },  // Aromatic C-H
-        { wn: 1604, fwhm: 40, depth: 0.58 },  // Aromatic ring
-        { wn: 1495, fwhm: 45, depth: 0.62 },  // Ring stretch
-        { wn: 728, fwhm: 50, depth: 0.92 },   // Out-of-plane C-H
+        { wn: 3028, fwhm: 65, depth: 0.65, name: 'AROMATIC C-H STRETCH' },
+        { wn: 1604, fwhm: 40, depth: 0.58, name: 'AROMATIC RING C=C' },
+        { wn: 1495, fwhm: 45, depth: 0.62, name: 'RING QUADRANT STRETCH' },
+        { wn: 728, fwhm: 50, depth: 0.92, name: 'ORTHO/META/PARA OUT-OF-PLANE' },
       ],
       polystyrene: [
-        { wn: 3026, fwhm: 50, depth: 0.68 },
-        { wn: 1601, fwhm: 35, depth: 0.74 },
-        { wn: 1492, fwhm: 40, depth: 0.70 },
-        { wn: 1452, fwhm: 40, depth: 0.65 },
-        { wn: 1028, fwhm: 35, depth: 0.55 },
-        { wn: 698, fwhm: 45, depth: 0.92 },
+        { wn: 3026, fwhm: 50, depth: 0.68, name: 'AROMATIC C-H STRETCH' },
+        { wn: 1601, fwhm: 35, depth: 0.74, name: 'BENZENE RING STRETCH' },
+        { wn: 1492, fwhm: 40, depth: 0.70, name: 'RING SEMICIRCLE STRETCH' },
+        { wn: 1452, fwhm: 40, depth: 0.65, name: 'CH₂ SCISSORING' },
+        { wn: 1028, fwhm: 35, depth: 0.55, name: 'IN-PLANE C-H BEND' },
+        { wn: 698, fwhm: 45, depth: 0.92, name: 'MONOSUBSTITUTED RING OOP' },
       ],
       benzoic_acid: [
-        { wn: 2850, fwhm: 400, depth: 0.75 }, // Broad H-bonded O-H
-        { wn: 1685, fwhm: 60, depth: 0.92 },  // Carboxylic C=O
-        { wn: 1290, fwhm: 55, depth: 0.78 },  // C-O stretch
-        { wn: 708, fwhm: 50, depth: 0.85 },   // Monosubstituted ring
+        { wn: 2850, fwhm: 400, depth: 0.75, name: 'DIMER O-H FERMI ENVELOPE' },
+        { wn: 1685, fwhm: 60, depth: 0.92, name: 'CONJUGATED CARBOXYLIC C=O' },
+        { wn: 1290, fwhm: 55, depth: 0.78, name: 'C-O CARBOXYL STRETCH' },
+        { wn: 708, fwhm: 50, depth: 0.85, name: 'MONOSUBSTITUTED RING BEND' },
       ]
     };
 
     const bands = analyteBands[this.activeSampleId] || analyteBands.isopropanol;
 
-    for (let px = 0; px <= chartW; px += 2) {
-      const wn = 4000 - (px / chartW) * 3600;
-      let absorb = 0.04; // Baseline noise
-      absorb += (Math.sin(px * 0.2) + Math.cos(px * 0.05)) * 0.005;
-
+    // Helper to compute curve absorbance at any wavenumber
+    const getAbsorbAtWn = (wn) => {
+      let absorb = 0.035;
+      absorb += Math.sin(wn * 0.08) * 0.003;
       bands.forEach((b) => {
         const diff = wn - b.wn;
         absorb += b.depth * Math.exp(-(diff * diff) / (2 * (b.fwhm / 2.355) ** 2));
       });
+      return absorb;
+    };
 
+    // Plot points
+    const points = [];
+    for (let px = 0; px <= chartW; px += 2) {
+      const wn = 4000 - (px / chartW) * 3600;
+      const absorb = getAbsorbAtWn(wn);
       let yNorm = (this.viewMode === 'transmittance')
-        ? Math.max(0.05, 1.0 - absorb)
+        ? Math.max(0.04, 1.0 - absorb)
         : Math.min(2.0, absorb * 1.5) / 2.0;
 
-      if (this.viewMode === 'transmittance') {
-        const yPx = chartY + (1.0 - yNorm) * chartH;
-        if (px === 0) ctx.moveTo(chartX + px, yPx);
-        else ctx.lineTo(chartX + px, yPx);
-      } else {
-        const yPx = chartY + chartH - yNorm * chartH;
-        if (px === 0) ctx.moveTo(chartX + px, yPx);
-        else ctx.lineTo(chartX + px, yPx);
-      }
+      const yPx = (this.viewMode === 'transmittance')
+        ? chartY + (1.0 - yNorm) * chartH
+        : chartY + chartH - yNorm * chartH;
+
+      points.push({ x: chartX + px, y: yPx });
+    }
+
+    // Subtle area gradient fill beneath curve
+    const areaGrad = ctx.createLinearGradient(0, chartY, 0, chartY + chartH);
+    if (this.viewMode === 'transmittance') {
+      areaGrad.addColorStop(0, 'rgba(56, 189, 248, 0.15)');
+      areaGrad.addColorStop(1, 'rgba(56, 189, 248, 0.00)');
+    } else {
+      areaGrad.addColorStop(0, 'rgba(56, 189, 248, 0.00)');
+      areaGrad.addColorStop(1, 'rgba(56, 189, 248, 0.18)');
+    }
+    ctx.fillStyle = areaGrad;
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
+    }
+    if (this.viewMode === 'transmittance') {
+      ctx.lineTo(chartX + chartW, chartY);
+      ctx.lineTo(chartX, chartY);
+    } else {
+      ctx.lineTo(chartX + chartW, chartY + chartH);
+      ctx.lineTo(chartX, chartY + chartH);
+    }
+    ctx.closePath();
+    ctx.fill();
+
+    // Draw spectrum line with smooth anti-aliasing
+    ctx.strokeStyle = this.isScanning ? '#c084fc' : '#38bdf8';
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
     }
     ctx.stroke();
 
-    // Chart Footer
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '13px monospace';
-    ctx.fillText(`ANALYTE: ${this.activeSampleId.toUpperCase()} | MODE: ${this.viewMode.toUpperCase()} | RES: 4.0 cm⁻¹ | SCANS: 16`, chartX + 10, chartY + chartH - 12);
+    // ==========================================
+    // Interactive Peak Cursor & Callout
+    // ==========================================
+    const cursorFrac = Math.max(0, Math.min(1, (4000 - this.cursorWn) / 3600));
+    const cursorX = chartX + cursorFrac * chartW;
+    const cursorAbsorb = getAbsorbAtWn(this.cursorWn);
+    const cursorYNorm = (this.viewMode === 'transmittance')
+      ? Math.max(0.04, 1.0 - cursorAbsorb)
+      : Math.min(2.0, cursorAbsorb * 1.5) / 2.0;
+    const cursorY = (this.viewMode === 'transmittance')
+      ? chartY + (1.0 - cursorYNorm) * chartH
+      : chartY + chartH - cursorYNorm * chartH;
+
+    // Dashed vertical cursor line
+    ctx.save();
+    ctx.strokeStyle = '#00d4e8';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(cursorX, chartY);
+    ctx.lineTo(cursorX, chartY + chartH);
+    ctx.stroke();
+    ctx.restore();
+
+    // Target pip on curve
+    ctx.fillStyle = '#00d4e8';
+    ctx.beginPath();
+    ctx.arc(cursorX, cursorY, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Find closest diagnostic chemical band
+    let closestBand = null;
+    let minDiff = Infinity;
+    bands.forEach(b => {
+      const diff = Math.abs(b.wn - this.cursorWn);
+      if (diff < b.fwhm && diff < minDiff) {
+        minDiff = diff;
+        closestBand = b;
+      }
+    });
+
+    const calloutText = closestBand
+      ? `${closestBand.name} (${closestBand.wn} cm⁻¹)`
+      : `${(this.cursorWn).toFixed(0)} cm⁻¹ | ${(cursorYNorm * 100).toFixed(1)}% T`;
+
+    // Tooltip Callout Box
+    ctx.font = 'bold 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+    const textW = ctx.measureText(calloutText).width;
+    const calloutW = textW + 24;
+    const calloutH = 28;
+    let calloutBoxX = cursorX - calloutW / 2;
+    if (calloutBoxX < chartX + 10) calloutBoxX = chartX + 10;
+    if (calloutBoxX + calloutW > chartX + chartW - 10) calloutBoxX = chartX + chartW - calloutW - 10;
+    const calloutBoxY = Math.max(chartY + 12, cursorY - 42);
+
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+    ctx.strokeStyle = '#00d4e8';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(calloutBoxX, calloutBoxY, calloutW, calloutH, 6);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(calloutText, calloutBoxX + calloutW / 2, calloutBoxY + calloutH / 2);
+
+    // Chart Footer Metadata
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'bottom';
+    ctx.fillStyle = '#64748b';
+    ctx.font = '12px monospace';
+    ctx.fillText(`ANALYTE: ${this.activeSampleId.toUpperCase()} | MODE: ${this.viewMode.toUpperCase()} | RES: 4.0 cm⁻¹ | SCANS: 16 CO-ADDED`, chartX + 10, chartY + chartH - 8);
+
+    // ==========================================
+    // 3. Right-Column Capacitive Softkeys (X: 855-1005, W: 150)
+    // ==========================================
+    const softkeys = [
+      { id: 'soft_pwr', icon: '⏻', label: 'POWER', sub: 'STANDBY', color: '#f43f5e', y: 68 },
+      { id: 'soft_bg', icon: '0.00', label: 'BG REF', sub: 'AIR BASELINE', color: '#0284c7', y: 141 },
+      { id: 'soft_scan', icon: '▶', label: 'SCAN', sub: 'SAMPLE', color: '#a855f7', y: 214 },
+      { id: 'soft_mode', icon: '⇄', label: '%T / ABS', sub: this.viewMode === 'transmittance' ? '% TRANS' : 'ABSORB', color: '#06b6d4', y: 287 },
+      { id: 'soft_tower', icon: '↷', label: 'TOWER', sub: this.towerSwiveled ? 'OPEN 90°' : 'CLAMPED', color: '#f59e0b', y: 360 },
+      { id: 'soft_clamp', icon: '⚙', label: 'CLAMP', sub: `${this.clampPressurePct}% (${(this.clampPressurePct * 1.5).toFixed(0)}N)`, color: '#10b981', y: 433 },
+    ];
+
+    softkeys.forEach((sk) => {
+      const skX = 855;
+      const skY = sk.y;
+      const skW = 150;
+      const skH = 64;
+
+      // Softkey base gradient
+      const skGrad = ctx.createLinearGradient(skX, skY, skX, skY + skH);
+      skGrad.addColorStop(0, '#1e293b');
+      skGrad.addColorStop(1, '#0f172a');
+      ctx.fillStyle = skGrad;
+      ctx.beginPath();
+      ctx.roundRect(skX, skY, skW, skH, 8);
+      ctx.fill();
+
+      // Top color accent bar
+      ctx.fillStyle = sk.color;
+      ctx.fillRect(skX + 8, skY + 5, skW - 16, 3);
+
+      // Border with subtle bevel
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Glyph icon
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = sk.color;
+      ctx.font = 'bold 20px sans-serif';
+      ctx.fillText(sk.icon, skX + 14, skY + 28);
+
+      // Label
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 15px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+      ctx.fillText(sk.label, skX + 46, skY + 26);
+
+      // Subtitle
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '600 11px monospace';
+      ctx.fillText(sk.sub, skX + 46, skY + 46);
+    });
+
+    // ==========================================
+    // 4. Bottom Analyte Selector Pills (Y: 512-582, X: 65-835)
+    // ==========================================
+    const analytePills = [
+      { id: 'isopropanol', label: 'ISOPROPANOL', sub: 'IPA 99.9%' },
+      { id: 'acetone', label: 'ACETONE', sub: 'HPLC GRADE' },
+      { id: 'polystyrene', label: 'POLYSTYRENE', sub: 'SRM 1921b' },
+      { id: 'toluene', label: 'TOLUENE', sub: 'ANHYDROUS' },
+      { id: 'benzoic_acid', label: 'BENZOIC ACID', sub: 'CRYSTALS' },
+    ];
+
+    const pillGap = 8;
+    const totalPillW = chartW;
+    const pillW = (totalPillW - (analytePills.length - 1) * pillGap) / analytePills.length;
+    const pillH = 68;
+    const pillY = 514;
+
+    analytePills.forEach((p, idx) => {
+      const pX = chartX + idx * (pillW + pillGap);
+      const isActive = (this.activeSampleId === p.id);
+
+      // Pill Background
+      if (isActive) {
+        const activeGrad = ctx.createLinearGradient(pX, pillY, pX, pillY + pillH);
+        activeGrad.addColorStop(0, '#0284c7');
+        activeGrad.addColorStop(1, '#0369a1');
+        ctx.fillStyle = activeGrad;
+      } else {
+        ctx.fillStyle = '#0f172a';
+      }
+      ctx.beginPath();
+      ctx.roundRect(pX, pillY, pillW, pillH, 8);
+      ctx.fill();
+
+      // Border
+      ctx.strokeStyle = isActive ? '#38bdf8' : '#334155';
+      ctx.lineWidth = isActive ? 2 : 1;
+      ctx.stroke();
+
+      // Top active light indicator
+      if (isActive) {
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(pX + 12, pillY + 4, pillW - 24, 3);
+      }
+
+      // Title & Subtitle
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = 'bold 13px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+      ctx.fillStyle = isActive ? '#ffffff' : '#cbd5e1';
+      ctx.fillText(p.label, pX + pillW / 2, pillY + 28);
+
+      ctx.font = '600 11px monospace';
+      ctx.fillStyle = isActive ? '#bae6fd' : '#64748b';
+      ctx.fillText(p.sub, pX + pillW / 2, pillY + 48);
+    });
+
+    // ==========================================
+    // 5. Capacitive Touch Ripple Animations
+    // ==========================================
+    for (let i = this.touchRipples.length - 1; i >= 0; i--) {
+      const rip = this.touchRipples[i];
+      const age = now - rip.birth;
+      if (age > 450) {
+        this.touchRipples.splice(i, 1);
+      } else {
+        const prog = age / 450;
+        const radius = 8 + prog * 48;
+        const alpha = 1.0 - prog;
+
+        // Expanding cyan ring
+        ctx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.arc(rip.x, rip.y, radius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // White contact point
+        ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.7})`;
+        ctx.beginPath();
+        ctx.arc(rip.x, rip.y, 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
 
     this.lcdTexture.needsUpdate = true;
   }
@@ -3558,6 +4197,9 @@ export class FTIR3D {
 
   setExplodedView(offset) {
     this.explodedOffset = offset;
+    if (this.interiorLight) {
+      this.interiorLight.visible = (this.xRayMode || this.explodedOffset > 0.05);
+    }
   }
 
   setExploded(offset) {
@@ -3565,20 +4207,31 @@ export class FTIR3D {
   }
 
   setXRayMode(enable) {
-    this.xRayMode = enable;
-    MAT_CHASSIS.transparent = enable;
-    MAT_CHASSIS.opacity = enable ? 0.35 : 1.0;
-    MAT_CHASSIS.depthWrite = !enable;
+    this.xRayMode = Boolean(enable);
+    this.opticsViewActive = this.xRayMode;
+    this.chassisMeshes.forEach((m) => {
+      m.material = this.xRayMode ? MAT_CHASSIS_GLASS : MAT_CHASSIS;
+    });
+    if (this.opticsRoof) {
+      this.opticsRoof.visible = !this.xRayMode;
+    }
+    if (this.interiorLight) {
+      this.interiorLight.visible = (this.xRayMode || this.explodedOffset > 0.05);
+    }
+  }
+
+  setOpticsView(enable) {
+    this.setXRayMode(enable);
   }
 
   toggleOpticsView() {
-    this.opticsViewActive = !this.opticsViewActive;
-    this.setXRayMode(this.opticsViewActive);
+    this.setXRayMode(!this.xRayMode);
   }
 
   toggleSwivel() {
     this.swivelTower();
     this.towerSwiveled = (this.towerAngle !== 0.0);
+    this.renderLCD();
   }
 
   setPressure(pct) {
@@ -3587,10 +4240,25 @@ export class FTIR3D {
     if (this.torqueKnob) {
       this.torqueKnob.rotation.y += Math.PI / 4;
     }
+    this.renderLCD();
+  }
+
+  triggerKeycapPress(keyId) {
+    const cap = this.animTargets.keycaps[keyId];
+    if (cap) {
+      this.keycapAnims.push({
+        cap,
+        startTime: performance.now(),
+        baseY: 0.025,
+        pressY: 0.013,
+        duration: 160
+      });
+    }
   }
 
   animate(time = 0) {
     requestAnimationFrame(this.animate.bind(this));
+    const now = performance.now();
 
     // 1. Convective cooling fans rotation (80mm exhaust fan + 50mm dedicated SMPS fan)
     if (this.hasPower) {
@@ -3604,10 +4272,36 @@ export class FTIR3D {
       this.movingMirrorPuck.position.z = 0.20 + osc;
     }
 
-    // 3. Smooth Exploded View vertical elevation (+220mm offset)
+    // 3. Smooth Two-Tier Exploded View Vertical Elevation
+    // Tier 1: ATR Sampling Deck (+0.85m above baseplate, exposing ZnSe transfer mirrors & load-cell)
+    if (this.atrStationGroup) {
+      const baseAtrY = 0.90;
+      const targetAtrY = baseAtrY + this.explodedOffset * 0.85;
+      this.atrStationGroup.position.y += (targetAtrY - this.atrStationGroup.position.y) * 0.12;
+    }
+    // Tier 2: Upper Unibody Shroud & Sloped Console (+2.15m above baseplate)
     if (this.chassisShellGroup) {
-      const targetY = this.explodedOffset * 2.20;
-      this.chassisShellGroup.position.y += (targetY - this.chassisShellGroup.position.y) * 0.12;
+      const targetShellY = this.explodedOffset * 2.15;
+      this.chassisShellGroup.position.y += (targetShellY - this.chassisShellGroup.position.y) * 0.12;
+    }
+
+    // 4. Keycap Spring Depression Kinematics
+    for (let i = this.keycapAnims.length - 1; i >= 0; i--) {
+      const anim = this.keycapAnims[i];
+      const elapsed = now - anim.startTime;
+      if (elapsed >= anim.duration) {
+        anim.cap.position.y = anim.baseY;
+        this.keycapAnims.splice(i, 1);
+      } else {
+        const prog = elapsed / anim.duration;
+        const delta = Math.sin(prog * Math.PI);
+        anim.cap.position.y = anim.baseY - (anim.baseY - anim.pressY) * delta;
+      }
+    }
+
+    // 5. Touchscreen Ripple Updates
+    if (this.touchRipples.length > 0) {
+      this.renderLCD();
     }
 
     if (this.renderer && this.scene && this.camera) {

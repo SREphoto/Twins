@@ -421,18 +421,65 @@ body {
   margin: 0;
 }
 
-.glp-log {
+.glp-log, .glp-console {
   background: #080b0f;
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 8px;
   font-family: var(--mono);
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   color: #94a3b8;
+  min-height: 130px;
   max-height: 180px;
+  width: 100%;
+  resize: vertical;
   overflow-y: auto;
   white-space: pre-wrap;
   margin: 0;
+}
+
+.part-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.part-item {
+  padding: 7px 10px;
+  background: #0f1520;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.76rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.15s ease;
+}
+
+.part-item:hover {
+  border-color: var(--cyan);
+  background: #162030;
+}
+
+.part-item.selected {
+  border-color: var(--cyan);
+  background: rgba(0, 212, 232, 0.15);
+  color: var(--cyan);
+}
+
+.part-item .part-cat {
+  font-size: 0.65rem;
+  font-family: var(--mono);
+  color: var(--muted);
+  background: #1a2330;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 /* Interactive Engineering Schematics Modal */

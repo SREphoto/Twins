@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FTIR-7000x · FTIR Spectrometer Twin</title>
-  <link rel="stylesheet" href="style.css?v=20261002-v1" />
+  <link rel="stylesheet" href="style.css?v=20261016-v5" />
 </head>
 <body>
   <div id="app">
@@ -27,11 +27,12 @@
         <div class="view-toolbar">
           <button type="button" class="view-btn active" id="btn-cam-iso" title="Isometric view">ISO</button>
           <button type="button" class="view-btn" id="btn-cam-front" title="Front view">Front</button>
+          <button type="button" class="view-btn" id="btn-cam-console" title="Zoom to Touchscreen & Keypad">Console</button>
           <button type="button" class="view-btn" id="btn-cam-side" title="Side view">Side</button>
           <button type="button" class="view-btn" id="btn-cam-top" title="Top view">Top</button>
           <button type="button" class="view-btn" id="btn-cam-rear" title="Rear view">Rear</button>
           <button type="button" class="view-btn" id="btn-explode" title="Separate assemblies">Exploded view</button>
-          <button type="button" class="view-btn" id="btn-optics-view" title="Inspect internal optical train & rays">Optics View</button>
+          <button type="button" class="view-btn" id="btn-optics-view" title="Inspect internal optical train, DSP motherboard & SMPS">Optics View</button>
           <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe">Wireframe</button>
           <button type="button" class="view-btn" id="btn-auto-rotate" title="Orbit camera automatically">Auto-rotate</button>
           
@@ -51,11 +52,12 @@
             <span id="lab-light-val">1.0×</span>
           </label>
           <button type="button" class="view-btn" id="btn-sfx-mute" title="Mute audio sounds">Mute SFX</button>
+          <button type="button" class="view-btn" id="btn-schematics" title="View optical, DSP & power schematics" style="border-color: #f59e0b; color: #fbbf24;">📐 Schematics</button>
         </div>
 
         <div id="viewport3d" class="viewport"></div>
         <div id="hud-tooltip" class="hud-tooltip" style="display: none;"></div>
-        <div class="stage-hint">Interactive 3D Twin: click touchscreen buttons, ATR clamp tower, diamond crystal, or rear power cord</div>
+        <div class="stage-hint">Interactive 3D Twin: tap touchscreen softkeys/pills/spectrum, physical buttons, ATR clamp tower, diamond crystal, or rear power cord</div>
       </section>
 
       <!-- Instrument Controls Panel -->
@@ -101,12 +103,13 @@
 
           <!-- Subsystem Info -->
           <div class="subsystem-info">
-            <div class="subsystem-title">OPTICAL SUBSYSTEM</div>
+            <div class="subsystem-title">OPTICAL &amp; DSP SUBSYSTEMS</div>
             <div class="subsystem-detail"><strong>IR Source:</strong> Polaris Ever-Glo (1200°C Ceramic)</div>
             <div class="subsystem-detail"><strong>Interferometer:</strong> Michelson Voice-Coil Linear Drive</div>
             <div class="subsystem-detail"><strong>Beam Splitter:</strong> KBr Substrate (Ge-coated mid-IR)</div>
-            <div class="subsystem-detail"><strong>Sampling Deck:</strong> Monolithic Type IIa Diamond ATR</div>
-            <div class="subsystem-detail"><strong>Detector:</strong> DTGS Pyroelectric (KBr Window)</div>
+            <div class="subsystem-detail"><strong>Sampling Deck:</strong> Monolithic Type IIa Diamond ATR + ZnSe Condensing Mirrors</div>
+            <div class="subsystem-detail"><strong>Detector:</strong> Shielded DTGS Pyroelectric (50Ω Gold SMA)</div>
+            <div class="subsystem-detail"><strong>Motherboard:</strong> TI TMS320C6748 32-Bit DSP + AD7799 24-Bit ADC + 3 Modular Drivers</div>
           </div>
         </div>
       </aside>
@@ -114,7 +117,7 @@
       <!-- Lab Reagents & GLP Panel -->
       <aside class="lab panel-collapsible" id="panel-lab" data-panel="lab">
         <div class="panel-header">
-          <h2>Lab Reagents & GLP</h2>
+          <h2>Lab Reagents &amp; GLP</h2>
           <button type="button" class="panel-collapse-btn" data-collapse="lab" title="Collapse panel" aria-expanded="true">▾</button>
         </div>
         <div class="panel-body">
@@ -136,7 +139,7 @@
               <li>Collect <strong>BACKGROUND</strong> spectrum of ambient air / clean crystal.</li>
               <li>Apply 2–5 µL liquid or place solid sample onto diamond center.</li>
               <li>For solids, swivel pressure tower and tighten slip-clutch knob.</li>
-              <li>Click <strong>SCAN SAMPLE</strong> to acquire ratioed %T spectrum.</li>
+              <li>Tap <strong>SCAN SAMPLE</strong> (or touchscreen softkey) to acquire ratioed %T spectrum.</li>
               <li>Export GLP audit log for 21 CFR Part 11 compliance.</li>
             </ol>
           </div>
@@ -149,10 +152,168 @@
           </div>
         </div>
       </aside>
+
+      <!-- Part Explorer Panel -->
+      <aside class="parts panel-collapsible collapsed" id="panel-parts" data-panel="parts">
+        <div class="panel-header">
+          <h2>Part Explorer</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="parts" title="Expand panel" aria-expanded="false">▸</button>
+        </div>
+        <div class="panel-body">
+          <div class="field">
+            <span>Subsystem Filter</span>
+            <select id="part-filter">
+              <option value="all">All Subsystems</option>
+              <option value="Optics">Michelson Interferometer &amp; Optics</option>
+              <option value="ATR">Diamond ATR &amp; Transfer Mirrors</option>
+              <option value="Electronics">DSP Motherboard, SMPS &amp; Fans</option>
+              <option value="Wiring">Power &amp; Data Harnesses</option>
+              <option value="Chassis">Unibody Housing &amp; Console</option>
+            </select>
+          </div>
+          <div class="field">
+            <span>Search Component</span>
+            <input type="text" id="part-search" placeholder="e.g. DSP, SMPS, Diamond, HeNe, SMA..." />
+          </div>
+          <div class="btn-grid">
+            <button type="button" class="btn" id="btn-isolate" disabled>Isolate Part</button>
+            <button type="button" class="btn" id="btn-show-all">Show All</button>
+          </div>
+          <ul id="part-list" class="part-list"></ul>
+        </div>
+      </aside>
     </div>
   </div>
 
-  <script src="sfx.js?v=20261002-v1"></script>
+  <!-- Interactive Engineering Schematics Modal -->
+  <div id="schematic-modal" class="schematic-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="schematic-modal-title">
+    <div class="schematic-dialog">
+      <div class="schematic-header">
+        <div class="schematic-title">
+          <span class="schematic-brand">SREdesigns · ENGINEERING DOCUMENTATION</span>
+          <h3 id="schematic-modal-title">FTIR-7000x Optical, DSP &amp; Electrical Schematics</h3>
+        </div>
+        <button type="button" id="btn-schematic-close" class="schematic-close-btn" title="Close Schematics">✕</button>
+      </div>
+
+      <div class="schematic-nav">
+        <button type="button" class="schematic-tab active" data-tab="tab-optics">1. Michelson Interferometer &amp; ATR Optics</button>
+        <button type="button" class="schematic-tab" data-tab="tab-dsp">2. TI C6748 DSP Motherboard &amp; 24-Bit ADC</button>
+        <button type="button" class="schematic-tab" data-tab="tab-power">3. AC Continuity &amp; SMPS Power Distribution</button>
+      </div>
+
+      <div class="schematic-body">
+        <!-- TAB 1: MICHELSON INTERFEROMETER & ATR OPTICS -->
+        <div class="schematic-pane active" id="tab-optics">
+          <div class="schematic-legend-box">
+            <h4>Michelson Interferometer &amp; Single-Bounce Diamond ATR Evanescent Wave</h4>
+            <p>
+              Mid-IR radiation from the <strong>1200°C Polaris Ever-Glo Ceramic Source</strong> is collimated onto a <strong>45° Ge-coated KBr Beamsplitter</strong>. One half reflects to the <strong>Fixed Gold Reference Mirror</strong> while the transmitted half reflects off the <strong>Voice-Coil Moving Mirror</strong> (tracked to $\pm 0.5\text{ nm}$ by the <strong>632.8 nm HeNe Reference Laser</strong>). The recombined modulated beam bounces off the under-deck <strong>45° ZnSe Input Mirror</strong> into the <strong>Type IIa Diamond ATR Crystal</strong>, generating an evanescent wave in the sample before reaching the <strong>DTGS Pyroelectric Detector</strong>.
+              <br/>
+              <span class="formula">Interferogram: I(δ) = ∫ B(ν̃) · cos(2π · ν̃ · δ) dν̃ &nbsp;|&nbsp; Fast Fourier Transform → %T(ν̃) = [I_sample(ν̃) / I_bg(ν̃)] × 100%</span>
+            </p>
+          </div>
+          <div class="schematic-diagram-wrap">
+            <svg viewBox="0 0 900 320" class="schematic-svg">
+              <rect width="900" height="320" rx="8" fill="#090d14" stroke="#1e293b" stroke-width="2"/>
+              <rect x="30" y="120" width="95" height="75" rx="6" fill="#1e293b" stroke="#ff5500" stroke-width="2"/>
+              <text x="77" y="150" fill="#ff7733" font-size="11" font-weight="bold" text-anchor="middle" font-family="monospace">EVER-GLO IR</text>
+              <text x="77" y="168" fill="#cbd5e1" font-size="10" text-anchor="middle" font-family="monospace">1200°C Ceramic</text>
+              <line x1="125" y1="158" x2="265" y2="158" stroke="#38bdf8" stroke-width="4"/>
+              <line x1="235" y1="125" x2="295" y2="185" stroke="#7dd3fc" stroke-width="6"/>
+              <text x="265" y="210" fill="#7dd3fc" font-size="11" font-weight="bold" text-anchor="middle" font-family="monospace">KBr Beamsplitter (45°)</text>
+              <rect x="220" y="25" width="90" height="22" rx="3" fill="#ffd700"/>
+              <text x="265" y="18" fill="#fbbf24" font-size="11" font-weight="bold" text-anchor="middle" font-family="monospace">Fixed Gold Mirror</text>
+              <line x1="265" y1="155" x2="265" y2="47" stroke="#38bdf8" stroke-width="3" stroke-dasharray="5,3"/>
+              <rect x="395" y="120" width="22" height="76" rx="3" fill="#ffd700"/>
+              <rect x="417" y="130" width="68" height="56" rx="4" fill="#1e293b" stroke="#b87333" stroke-width="2"/>
+              <text x="451" y="155" fill="#fbbf24" font-size="10" font-weight="bold" text-anchor="middle" font-family="monospace">VOICE-COIL</text>
+              <text x="451" y="170" fill="#cbd5e1" font-size="9" text-anchor="middle" font-family="monospace">Moving Mirror ±δ</text>
+              <line x1="265" y1="158" x2="395" y2="158" stroke="#38bdf8" stroke-width="3" stroke-dasharray="5,3"/>
+              <rect x="30" y="230" width="95" height="45" rx="5" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+              <text x="77" y="250" fill="#f87171" font-size="10" font-weight="bold" text-anchor="middle" font-family="monospace">HeNe LASER</text>
+              <text x="77" y="264" fill="#cbd5e1" font-size="9" text-anchor="middle" font-family="monospace">632.8 nm Lock</text>
+              <line x1="125" y1="252" x2="265" y2="165" stroke="#ef4444" stroke-width="2"/>
+              <line x1="265" y1="160" x2="560" y2="250" stroke="#38bdf8" stroke-width="4"/>
+              <polygon points="545,260 580,260 562,240" fill="#ffd700"/>
+              <text x="562" y="280" fill="#fbbf24" font-size="10" text-anchor="middle" font-family="monospace">ZnSe In (45°)</text>
+              <polygon points="585,115 655,115 638,140 602,140" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/>
+              <text x="620" y="98" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle" font-family="monospace">Type IIa Diamond ATR</text>
+              <line x1="562" y1="248" x2="620" y2="140" stroke="#38bdf8" stroke-width="4"/>
+              <line x1="620" y1="140" x2="678" y2="248" stroke="#22c55e" stroke-width="4"/>
+              <polygon points="660,260 695,260 678,240" fill="#ffd700"/>
+              <text x="678" y="280" fill="#fbbf24" font-size="10" text-anchor="middle" font-family="monospace">ZnSe Out (45°)</text>
+              <rect x="755" y="195" width="115" height="75" rx="6" fill="#1e293b" stroke="#22c55e" stroke-width="2"/>
+              <text x="812" y="225" fill="#4ade80" font-size="11" font-weight="bold" text-anchor="middle" font-family="monospace">DTGS DETECTOR</text>
+              <text x="812" y="243" fill="#cbd5e1" font-size="10" text-anchor="middle" font-family="monospace">Pyroelectric + SMA</text>
+              <line x1="678" y1="248" x2="755" y2="232" stroke="#22c55e" stroke-width="4"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- TAB 2: DSP MOTHERBOARD -->
+        <div class="schematic-pane" id="tab-dsp">
+          <div class="schematic-legend-box">
+            <h4>Front-Right Bay DSP Motherboard (Assembly_Motherboard_DSP)</h4>
+            <p>
+              Seated directly beneath the sloped touchscreen console, the 6-layer FR-4 motherboard integrates a <strong>TI TMS320C6748 32-Bit Floating-Point DSP</strong> (with anodized heatsink), <strong>Analog Devices AD7799 24-Bit Sigma-Delta ADC</strong> (connected via shielded RG-174 50Ω gold SMA coax to the DTGS detector), <strong>8 GB eMMC Flash</strong>, <strong>Dual DDR3 SDRAM</strong>, <strong>HeNe HV Ballast Inverter</strong>, and <strong>3 Modular Daughterboards</strong> (Voice-Coil Servo, IR Source Regulator, Load-Cell/Purge Telemetry).
+            </p>
+          </div>
+          <div class="schematic-diagram-wrap">
+            <svg viewBox="0 0 900 280" class="schematic-svg">
+              <rect width="900" height="280" rx="8" fill="#062e16" stroke="#22c55e" stroke-width="2"/>
+              <rect x="40" y="40" width="180" height="85" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+              <text x="130" y="75" fill="#fbbf24" font-size="12" font-weight="bold" text-anchor="middle" font-family="monospace">AD7799 24-BIT ADC</text>
+              <text x="130" y="95" fill="#cbd5e1" font-size="10" text-anchor="middle" font-family="monospace">Gold SMA Input (RG-174)</text>
+              <rect x="290" y="35" width="230" height="105" rx="6" fill="#111827" stroke="#38bdf8" stroke-width="2.5"/>
+              <text x="405" y="72" fill="#38bdf8" font-size="13" font-weight="bold" text-anchor="middle" font-family="monospace">TI TMS320C6748 DSP</text>
+              <text x="405" y="92" fill="#cbd5e1" font-size="10" text-anchor="middle" font-family="monospace">Real-Time Radix-2 FFT Engine</text>
+              <text x="405" y="112" fill="#4ade80" font-size="10" text-anchor="middle" font-family="monospace"> Norton-Beer Apodization</text>
+              <rect x="600" y="35" width="250" height="95" rx="6" fill="#1e293b" stroke="#a855f7" stroke-width="2"/>
+              <text x="725" y="68" fill="#c084fc" font-size="12" font-weight="bold" text-anchor="middle" font-family="monospace">DDR3 SDRAM + 8GB eMMC</text>
+              <text x="725" y="90" fill="#cbd5e1" font-size="10" text-anchor="middle" font-family="monospace">Spectral Library &amp; 30-Pin ZIF LCD</text>
+              <rect x="40" y="165" width="810" height="80" rx="6" fill="#0f172a" stroke="#3b82f6" stroke-width="2"/>
+              <text x="445" y="198" fill="#60a5fa" font-size="12" font-weight="bold" text-anchor="middle" font-family="monospace">3x MODULAR DAUGHTERBOARDS + PERIMETER JST/IDC HEADERS</text>
+              <text x="445" y="220" fill="#cbd5e1" font-size="10" text-anchor="middle" font-family="monospace">J1: DC Bus | J2: 80mm Fan | J3: Voice-Coil | J4: Ever-Glo IR | J5: RS-232 IDC | J6: USB-B | J7: RJ45 | J8: Load-Cell</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- TAB 3: POWER CONTINUITY -->
+        <div class="schematic-pane" id="tab-power">
+          <div class="schematic-legend-box">
+            <h4>Hard Circuit Continuity &amp; Mid-Right Bay SMPS</h4>
+            <p>
+              Electrical continuity requires both the <strong>Benchtop NEMA 5-15P Plug (`isPluggedIn`)</strong> and the <strong>Rear Illuminated Rocker Switch (`switchOn`)</strong> to be closed (`hasPower = isPluggedIn && switchOn`). The open-frame <strong>SMPS (`Subsystem_PowerSupply_SMPS`)</strong> with toroidal transformer, dual 450V filter caps, 50mm side fan + exhaust duct, and 6-position barrier strip delivers regulated `+24V`, `+12V`, and `+5V` rails to the DSP motherboard.
+            </p>
+          </div>
+          <div class="schematic-diagram-wrap">
+            <svg viewBox="0 0 900 240" class="schematic-svg">
+              <rect width="900" height="240" rx="8" fill="#090d14" stroke="#1e293b" stroke-width="2"/>
+              <rect x="30" y="75" width="160" height="85" rx="6" fill="#1e293b" stroke="#22c55e" stroke-width="2"/>
+              <text x="110" y="110" fill="#4ade80" font-size="11" font-weight="bold" text-anchor="middle" font-family="monospace">BENCH RECEPTACLE</text>
+              <text x="110" y="130" fill="#cbd5e1" font-size="10" text-anchor="middle" font-family="monospace">120V AC NEMA 5-15R</text>
+              <line x1="190" y1="118" x2="270" y2="118" stroke="#f8fafc" stroke-width="3"/>
+              <rect x="270" y="75" width="165" height="85" rx="6" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+              <text x="352" y="110" fill="#f87171" font-size="11" font-weight="bold" text-anchor="middle" font-family="monospace">IEC C14 + ROCKER SW</text>
+              <text x="352" y="130" fill="#cbd5e1" font-size="10" text-anchor="middle" font-family="monospace">FASTON Spade Disconnects</text>
+              <line x1="435" y1="118" x2="515" y2="118" stroke="#ef4444" stroke-width="3"/>
+              <rect x="515" y="60" width="190" height="115" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+              <text x="610" y="95" fill="#fbbf24" font-size="11" font-weight="bold" text-anchor="middle" font-family="monospace">SMPS POWER SUPPLY</text>
+              <text x="610" y="115" fill="#cbd5e1" font-size="10" text-anchor="middle" font-family="monospace">Toroid + 2x 450V Caps</text>
+              <text x="610" y="135" fill="#38bdf8" font-size="10" text-anchor="middle" font-family="monospace">6-Pos Barrier Strip + 50mm Fan</text>
+              <line x1="705" y1="118" x2="765" y2="118" stroke="#eab308" stroke-width="4"/>
+              <rect x="765" y="75" width="110" height="85" rx="6" fill="#064e3b" stroke="#22c55e" stroke-width="2"/>
+              <text x="820" y="110" fill="#4ade80" font-size="11" font-weight="bold" text-anchor="middle" font-family="monospace">DSP BOARD</text>
+              <text x="820" y="130" fill="#cbd5e1" font-size="9" text-anchor="middle" font-family="monospace">+24V / +12V / +5V</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="sfx.js?v=20261017-v7"></script>
   <script type="importmap">
   {
     "imports": {
@@ -161,6 +322,6 @@
     }
   }
   </script>
-  <script type="module" src="app.js?v=20261005-v3"></script>
+  <script type="module" src="app.js?v=20261017-v7"></script>
 </body>
 </html>
