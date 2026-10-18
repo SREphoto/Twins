@@ -4,19 +4,70 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MICRO 5424-R · Centrifuge App</title>
-  <link rel="stylesheet" href="style.css?v=20260724-zoom-light" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=20261017-viewchooser" />
 </head>
 <body>
   <div id="app">
     <header class="topbar">
-      <div class="brand">
-        <span class="brand-mark">MICRO</span>
-        <span class="brand-model">5424-R</span>
-        <span class="brand-tag">Refrigerated microcentrifuge twin</span>
+      <div class="brand-cluster">
+        <div class="cm-brand" aria-label="ChemMate">
+          <span class="cm-cross-box" aria-hidden="true">+</span>
+          <span class="cm-brand-text">ChemMate</span>
+          <span class="cm-brand-divider" aria-hidden="true">|</span>
+        </div>
+        <div class="brand">
+          <span class="brand-num">03</span>
+          <span class="brand-mark">MICRO</span>
+          <span class="brand-model">5424-R</span>
+          <span class="brand-tag">Refrigerated microcentrifuge twin</span>
+        </div>
+        <nav class="cm-topnav" aria-label="ChemMate sections">
+          <span class="cm-nav-item">CURRICULUM</span>
+          <span class="cm-nav-item is-active">INTERACTIVE LABS</span>
+          <span class="cm-nav-item">AI SOLVER</span>
+          <span class="cm-nav-item">VIDEO LESSONS</span>
+        </nav>
       </div>
-      <div class="topbar-status">
-        <span id="status-pill" class="pill">LID OPEN</span>
-        <span id="status-detail" class="muted">Ready to load samples</span>
+
+      <div class="topbar-right">
+        <div class="cm-motto" aria-hidden="true">
+          BETTER THINKERS<br />BUILD A BRIGHTER FUTURE
+        </div>
+
+        <div class="view-chooser" role="group" aria-label="Visual view style">
+          <span class="view-chooser-label">VIEW:</span>
+          <div class="view-chooser-group">
+            <button type="button" class="view-choice-btn active" id="btn-view-modern" title="Modern View (Default high-tech instrument theme)">
+              <span class="view-choice-text">MODERN</span>
+            </button>
+            <button type="button" class="view-choice-btn" id="btn-view-retro" title="Retro View (ChemMate warm archival paper & Swiss red educational style)">
+              <span class="view-choice-text retro"><span class="cm-mini-plus">+</span> RETRO</span>
+            </button>
+            <button type="button" class="view-choice-btn" id="btn-view-night" title="Night View (Dark greys, deep blacks, and precision Swiss reds)">
+              <span class="view-choice-text night"><span class="night-glyph">☾</span> NIGHT</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="cm-stage-switcher" id="cm-stage-switcher" role="group" aria-label="3D backdrop stage options" hidden>
+          <button type="button" class="cm-sub-btn active" id="btn-cm-plate" title="Diagram plate backdrop with leader-line callouts">
+            Diagram Plate
+          </button>
+          <button type="button" class="cm-sub-btn" id="btn-cm-bench" title="Laboratory room & bench environment">
+            Lab Room
+          </button>
+          <button type="button" class="cm-sub-btn active" id="btn-cm-callouts" title="Toggle red leader-line diagram callouts">
+            Callouts
+          </button>
+        </div>
+
+        <div class="topbar-status">
+          <span id="status-pill" class="pill">LID OPEN</span>
+          <span id="status-detail" class="muted">Ready to load samples</span>
+        </div>
       </div>
     </header>
 
@@ -50,6 +101,8 @@
               <option value="dim">Dim</option>
               <option value="cool">Cool</option>
               <option value="warm">Warm</option>
+              <option value="chemmate">ChemMate Paper</option>
+              <option value="night">Night Red</option>
             </select>
           </label>
           <button type="button" class="view-btn btn-story" id="btn-tube-story" title="Follow one tube fill → spin → layers">
@@ -64,6 +117,96 @@
           <button type="button" class="view-btn" id="btn-sfx-mute" title="Mute soft button sounds">Mute SFX</button>
         </div>
         <div id="viewport3d" class="viewport"></div>
+
+        <!-- ChemMate Retro-Educational Archival Plate Overlay -->
+        <div id="cm-plate-overlay" class="cm-plate-overlay" aria-hidden="true">
+          <!-- Plate header bar -->
+          <div class="cm-plate-header">
+            <div class="cm-plate-header-left">
+              <span class="cm-reg-cross">+</span>
+              <span class="cm-plate-idx">03</span>
+              <span class="cm-plate-rule">|</span>
+              <span class="cm-plate-heading">MICRO 5424-R — Centrifugal Sedimentation &amp; Rotor Assembly</span>
+            </div>
+            <div class="cm-plate-header-right">
+              DENSITY SEPARATION AT RADIAL ACCELERATION.<br />
+              TIER 1 · INTERACTIVE LAB INSTRUMENT
+            </div>
+          </div>
+
+          <!-- Dynamic SVG leader lines connecting 3D anchors to editorial callouts -->
+          <svg id="cm-callouts-svg" class="cm-callouts-svg" preserveAspectRatio="none"></svg>
+
+          <!-- Editorial Callout Cards (left & right columns) -->
+          <div id="cm-callouts-layer" class="cm-callouts-layer">
+            <button type="button" class="cm-callout cm-callout-left" data-callout="lid" style="top: 22%;">
+              <span class="cm-callout-title">Safety Lid &amp; Port</span>
+              <span class="cm-callout-desc">Impact-resistant polycarbonate lid with motorized solenoid safety lock.</span>
+            </button>
+            <button type="button" class="cm-callout cm-callout-left" data-callout="rotor" style="top: 45%;">
+              <span class="cm-callout-title">Fixed-Angle Rotor</span>
+              <span class="cm-callout-badge">FA-45-24-11</span>
+              <span class="cm-callout-desc">24 × 1.5/2.0 mL bores at 45° angle · R = 8.4 cm · Max 21,130 ×g.</span>
+            </button>
+            <button type="button" class="cm-callout cm-callout-left" data-callout="rack" style="top: 70%;">
+              <span class="cm-callout-title">Sample Prep Rack (24×)</span>
+              <span class="cm-callout-desc">Load counterbalanced tube pairs across opposite slots (n &amp; n + 12).</span>
+            </button>
+
+            <button type="button" class="cm-callout cm-callout-right" data-callout="chamber" style="top: 26%;">
+              <span class="cm-callout-title">Refrigerated Bowl</span>
+              <span class="cm-callout-badge">−10 °C to +40 °C</span>
+              <span class="cm-callout-desc">Stainless rotor chamber with PID thermal regulation for heat-labile samples.</span>
+            </button>
+            <button type="button" class="cm-callout cm-callout-right" data-callout="console" style="top: 54%;">
+              <span class="cm-callout-title">Digital Control Fascia</span>
+              <span class="cm-callout-desc">High-contrast telemetry display + tactile speed, time &amp; temperature rockers.</span>
+            </button>
+          </div>
+
+          <!-- Bottom-left Sample Layer Legend (matches NaCl sphere legend in reference) -->
+          <div class="cm-legend-box" id="cm-legend-box">
+            <div class="cm-legend-kicker" id="cm-legend-title">Sample Fractions (Whole Blood)</div>
+            <div class="cm-legend-items" id="cm-legend-items"></div>
+          </div>
+
+          <!-- Bottom-right Physics Equation & Worksheet Card (matches equation balancer card in reference) -->
+          <div class="cm-equation-card">
+            <span class="cm-paperclip" aria-hidden="true"></span>
+            <div class="cm-eq-head">
+              <span class="cm-eq-badge">LAB</span>
+              <span class="cm-eq-kicker">SEDIMENTATION PHYSICS</span>
+              <span class="cm-eq-sub">LIVE TELEMETRY</span>
+            </div>
+            <div class="cm-eq-formula">
+              <div class="cm-eq-side">
+                <div class="cm-eq-expr" id="cm-eq-rpm">12,000 RPM</div>
+                <span class="cm-eq-pill" id="cm-eq-state-pill">LID OPEN</span>
+              </div>
+              <span class="cm-eq-arrow">⟶</span>
+              <div class="cm-eq-side">
+                <div class="cm-eq-expr" id="cm-eq-rcf">13,523 ×g</div>
+                <span class="cm-eq-pill is-balanced" id="cm-eq-balance-pill">BALANCED</span>
+              </div>
+            </div>
+            <div class="cm-eq-steps">
+              <div class="cm-eq-steps-title">RCF = 1.118 × 10⁻⁵ · r(cm) · RPM²</div>
+              <ol>
+                <li>Select sample &amp; load opposite rotor slots</li>
+                <li>Close lid to engage safety interlock</li>
+                <li>Spin above threshold RCF to stratify layers</li>
+              </ol>
+            </div>
+          </div>
+
+          <!-- Bottom registration crosshairs -->
+          <span class="cm-reg-cross cm-reg-bl">+</span>
+          <div class="cm-plate-footer-right">
+            <span>REASON THROUGH CHEMISTRY.<br />BUILD A BRIGHTER TOMORROW.</span>
+            <span class="cm-reg-cross">+</span>
+          </div>
+        </div>
+
         <div id="music-chat" class="music-chat" hidden>
           <div class="music-chat-head">
             <div>
@@ -73,7 +216,7 @@
             <button type="button" class="music-chat-close" id="btn-music-chat-close" title="Close">×</button>
           </div>
           <div id="music-chat-log" class="music-chat-log" aria-live="polite"></div>
-          <div class="music-chat-chips" id="music-chat-chips"></div>
+          <div id="music-chat-chips" id="music-chat-chips"></div>
           <form id="music-chat-form" class="music-chat-form">
             <input id="music-chat-input" type="text" autocomplete="off" placeholder="make it lo-fi · add strings · calmer…" />
             <button type="submit" class="btn">Send</button>
@@ -99,7 +242,10 @@
       <!-- Instrument control panel -->
       <aside class="instrument panel-collapsible" id="panel-instrument" data-panel="instrument">
         <div class="panel-head">
-          <h2 class="panel-title">Control panel</h2>
+          <div class="panel-head-title-wrap">
+            <span class="cm-panel-num">01</span>
+            <h2 class="panel-title">Control panel</h2>
+          </div>
           <button type="button" class="panel-collapse-btn" data-collapse="instrument" title="Collapse panel" aria-expanded="true">▾</button>
         </div>
         <div class="panel-body">
@@ -159,7 +305,10 @@
       <!-- Part explorer -->
       <aside class="parts panel-collapsible" id="parts-panel" data-panel="parts">
         <div class="panel-head">
-          <h2 class="panel-title">Part explorer</h2>
+          <div class="panel-head-title-wrap">
+            <span class="cm-panel-num">02</span>
+            <h2 class="panel-title">Part explorer</h2>
+          </div>
           <button type="button" class="panel-collapse-btn" data-collapse="parts" title="Collapse panel" aria-expanded="true">▾</button>
         </div>
         <div class="panel-body">
@@ -176,7 +325,10 @@
       <!-- Lab bench -->
       <aside class="lab panel-collapsible" id="panel-lab" data-panel="lab">
         <div class="panel-head">
-          <h2 class="panel-title">Lab bench</h2>
+          <div class="panel-head-title-wrap">
+            <span class="cm-panel-num">03</span>
+            <h2 class="panel-title">Lab bench</h2>
+          </div>
           <button type="button" class="panel-collapse-btn" data-collapse="lab" title="Collapse panel" aria-expanded="true">▾</button>
         </div>
         <div class="panel-body">
@@ -231,6 +383,6 @@
     }
   }
   </script>
-  <script type="module" src="app.js?v=20260724-zoom-light"></script>
+  <script type="module" src="app.js?v=20261017-chemmate"></script>
 </body>
 </html>

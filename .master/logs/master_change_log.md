@@ -4,6 +4,83 @@ Newest first. Template: `templates/change_log_entry.md`.
 
 ---
 
+## 2026-10-18 · OGA-UI & SRE-TWIN · lab-viewer-view-chooser-integration
+
+| Field   | Value                                                                                                                                                                                                                                                            |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | OGA-UI (Master UI Architecture) / Digital Twin Architecture Team                                                                                                                                                                                                 |
+| Machine | `lab_viewer`, `centrifuge_twin`, `workspace`                                                                                                                                                                                                                     |
+| Intent  | Propagate the unified View Chooser (`MODERN`, `+ RETRO`, `☾ NIGHT`) to the top-level `lab_viewer` multi-machine desk, establishing bidirectional theme synchronization across parent and child iframe twins via postMessage, URL query propagation (`?theme=...`), localStorage persistence, dynamic desk transition scene restyling (`transition_scene.js`), and complete multi-angle visual verification. |
+
+### Changed
+
+- `lab_viewer/index.html`: Integrated the `.view-chooser` segmented control (`#btn-view-modern`, `#btn-view-retro`, `#btn-view-night`) directly into the master topbar between `.brand` and `.machine-picker`.
+- `lab_viewer/style.css`: Added styles for `.view-chooser` and comprehensive `body[data-theme="retro"]` and `body[data-theme="night"]` tokens for the master lab viewer topbar, machine selector, status pill, switch banner, and desk footer.
+- `lab_viewer/transition_scene.js`: Added `setTheme(theme)` method to dynamically restyle the 3D switch transition scene background, fog, and studio lighting (slate for modern, warm cream for retro, deep charcoal with red rim lighting for night).
+- `lab_viewer/app.js`: Added theme state management with `localStorage` persistence, URL query parameter initialization, automatic query propagation (`resolveTargetUrl`) when switching machines, bidirectional iframe communication (`postMessage` + `CentrifugeTwin.setTheme`), and exposed `window.LabViewer`.
+- `centrifuge_twin/software/viewer/app.js`: Added `window.addEventListener("message", ...)` to receive `SET_THEME` and `SET_STAGE` events from parent frames in real time without requiring iframe reloading.
+
+### Created
+
+- `scratch/test_lab_viewer_themes.js`: Automated visual test script capturing all 4 master view states via Chrome CDP with 0 console errors.
+
+### Visual Verification Artifacts
+
+- `lab_view_01_modern.png`: Modern View default in `lab_viewer`.
+- `lab_view_02_retro.png`: Retro ChemMate View with archival diagram plate and SVG callout lines.
+- `lab_view_03_night.png`: Night Precision View with glowing crimson accents and charcoal obsidian cards.
+- `lab_view_04_modern_return.png`: 100% zero-regression return to Modern View.
+
+---
+
+## 2026-10-18 · OGA-UI & SRE-TWIN · view-chooser-modern-retro-night
+
+| Field   | Value                                                                                                                                                                                                                                                            |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | OGA-UI (Master UI Architecture) / Digital Twin Architecture Team                                                                                                                                                                                                 |
+| Machine | `centrifuge_twin`, `workspace`                                                                                                                                                                                                                                   |
+| Intent  | Implement a unified View Chooser segmented control (`MODERN`, `+ RETRO`, `☾ NIGHT`), introducing a reverse "Night View" (dark greys `#1a1d24`, deep blacks `#0a0c10`, and precision glowing Swiss reds `#ff3344`, dark obsidian glass cards, anodized red metallic paperclip, glowing red SVG leader-line callout pins, and nocturnal studio lighting `LIGHT_MOODS.night`), while formalizing "Retro View" for the tactile archival paper style and "Modern View" for the default high-tech instrument lab theme with 100% zero-regression verification. |
+
+### Changed
+
+- `centrifuge_twin/software/viewer/index.html`: Upgraded `.theme-switcher` into `.view-chooser` segmented button group (`#btn-view-modern`, `#btn-view-retro`, `#btn-view-night`), added `Night Red` option in `#lab-light-mood`, and updated cache-busting tag `?v=20261017-viewchooser`.
+- `centrifuge_twin/software/viewer/style.css`: Added styles for `.view-chooser` across all themes, and implemented the full `body[data-theme="night"]` design token system (deep blacks, charcoal obsidian panels, glowing red badges and registration marks, anodized red paperclip, dark telemetry cards, and glowing red leader lines).
+- `centrifuge_twin/software/viewer/app.js`: Added `LIGHT_MOODS.night`, updated `drawTubePreview()` to render on a dark slate canvas in night mode, updated `updateChemMateCallouts()` to render glowing red `#ff3344` leader lines, added obsidian drafting plate and dark room shaders in `applyChemMate3DStage()`, updated `setTheme()` to seamlessly switch between `modern`, `retro`, and `night`, and updated `window.CentrifugeTwin.setTheme()`.
+
+### Created
+
+- `scratch/audit_view_chooser.js`: Automated visual test script capturing all 7 view states via Chrome CDP with 0 console errors.
+
+### Report Card
+
+- `logs/report_cards/2026-10-18_OGA_view-chooser-modern-retro-night.md`
+
+---
+
+## 2026-10-17 · OGA-UI & SRE-TWIN · chemmate-retro-educational-view-style
+
+| Field   | Value                                                                                                                                                                                                                                                            |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | OGA-UI (Master UI Architecture) / Digital Twin Architecture Team                                                                                                                                                                                                 |
+| Machine | `centrifuge_twin`, `workspace`                                                                                                                                                                                                                                   |
+| Intent  | Develop and verify the ChemMate Retro-Educational View Style System as a non-destructive dual-mode visualizer: tactile archival cream paper aesthetic (`#F2ECE1`, `#FBF9F4`), Swiss Red (`#D62828`) '+' branding and active badges, Google Fonts typography (`Inter`, `IBM Plex Sans`, `IBM Plex Mono`), 3D Archival Diagram Plate with corner '+' registration crosshairs, dynamic 2D-projected SVG red leader-line callout pins tracking 3D moving/exploding assemblies in real-time, sample fractions 3D sphere legend, metallic paperclipped sedimentation physics equation card, Warm Lab Room lighting and travertine/cream backdrop switcher, and zero-regression preservation of the standard Dark Lab mode (`dark_lab_standard.png`). |
+
+### Changed
+
+- `centrifuge_twin/software/viewer/index.html`: Added Google Fonts (`IBM Plex Mono`, `IBM Plex Sans`, `Inter`), ChemMate topbar brand cluster and curriculum navigation, visual style switcher button group (`Dark Lab` vs `+ ChemMate Style`), 3D stage sub-switcher (`Diagram Plate` vs `Warm Lab Room` + `Callouts` toggle), Archival Diagram Plate overlay container with corner `+` crosshairs, plate header (`+ 03 | MICRO 5424-R`), dynamic SVG leader-line overlay (`#cm-callouts-svg`), 5 editorial callout buttons, sample fractions legend box (`#cm-legend-box`), paperclipped sedimentation equation card (`.cm-equation-card`), and numbered ChemMate worksheet badges (`01`, `02`, `03`) on side panels.
+- `centrifuge_twin/software/viewer/style.css`: Comprehensive ChemMate design system rules under `body[data-theme="chemmate"]`, archival index-card styling, metallic paperclip CSS pseudo-elements, dynamic SVG leader line styles, sample sphere gradients, and theme switcher button group.
+- `centrifuge_twin/software/viewer/app.js`: Added `chemmate` lighting profile in `LIGHT_MOODS`, implemented `setTheme()`, `setStageBackdrop()`, and `applyChemMate3DStage()` for non-destructive mesh restyling and bench grounding preservation, implemented `updateChemMateCallouts()` real-time 3D-to-2D projection engine, updated `drawTubePreview()` to render in warm archival paper style, added live telemetry updates to `#cm-eq-rpm` and `#cm-eq-rcf`, and exposed `CentrifugeTwin.setTheme`, `CentrifugeTwin.setStageBackdrop`, and `CentrifugeTwin.toggleCallouts`.
+
+### Created
+
+- `scratch/audit_chemmate.js`: Automated visual test script capturing all 5 audit viewpoints via Chrome CDP with zero console errors.
+
+### Report Card
+
+- `logs/report_cards/2026-10-17_OGA_chemmate-style-visualizer.md`
+
+---
+
 ## 2026-09-30 · OGA-CAD & SRE-TWIN · rebuild-spectrophotometer-motherboard-and-connectors
 
 | Field   | Value                                                                                                                                                                                                                                                            |

@@ -12,10 +12,60 @@ const hostEl = document.getElementById("transition-host");
 const pillEl = document.getElementById("status-pill");
 const detailEl = document.getElementById("status-detail");
 const bannerEl = document.getElementById("switch-banner");
+const btnModern = document.getElementById("btn-view-modern");
+const btnRetro = document.getElementById("btn-view-retro");
+const btnNight = document.getElementById("btn-view-night");
 
 let currentId = null;
 let switching = false;
 let transition = null;
+let currentTheme = "modern";
+
+function resolveTargetUrl(viewerUrl, theme) {
+  try {
+    const u = new URL(viewerUrl, location.href);
+    if (theme && theme !== "modern") {
+      u.searchParams.set("theme", theme);
+    } else {
+      u.searchParams.delete("theme");
+    }
+    return u.href;
+  } catch {
+    return viewerUrl;
+  }
+}
+
+function setTheme(theme) {
+  const raw = String(theme || "").toLowerCase();
+  if (raw === "night") currentTheme = "night";
+  else if (raw === "retro" || raw === "chemmate") currentTheme = "retro";
+  else currentTheme = "modern";
+
+  btnModern?.classList.toggle("active", currentTheme === "modern");
+  btnRetro?.classList.toggle("active", currentTheme === "retro");
+  btnNight?.classList.toggle("active", currentTheme === "night");
+
+  if (currentTheme === "modern") {
+    delete document.body.dataset.theme;
+  } else {
+    document.body.dataset.theme = currentTheme;
+  }
+
+  try {
+    localStorage.setItem("twins_lab_theme", currentTheme);
+  } catch (_) {}
+
+  // Update transition scene if active
+  if (transition?.setTheme) {
+    transition.setTheme(currentTheme);
+  }
+
+  // Notify currently loaded twin iframe via postMessage and direct API
+  try {
+    frameEl.contentWindow?.postMessage({ type: "SET_THEME", theme: currentTheme }, "*");
+    frameEl.contentWindow?.CentrifugeTwin?.setTheme?.(currentTheme);
+  } catch (_) {}
+}
 
 function setStatus(mode, detail) {
   if (pillEl) {
@@ -47,8 +97,9 @@ function fillSelect() {
 function showFrame(url) {
   frameEl.classList.remove("is-hidden");
   if (transition) transition.setVisible(false);
-  if (frameEl.src !== new URL(url, location.href).href) {
-    frameEl.src = url;
+  const target = resolveTargetUrl(url, currentTheme);
+  if (frameEl.src !== target) {
+    frameEl.src = target;
   }
 }
 
@@ -82,8 +133,10 @@ async function selectMachine(nextId, opts = {}) {
   try {
     if (!transition) {
       transition = createTransitionScene(hostEl);
+      transition.setTheme(currentTheme);
       window.addEventListener("resize", () => transition?.resize());
     } else {
+      transition.setTheme(currentTheme);
       transition.resize();
     }
 
@@ -104,6 +157,8 @@ async function selectMachine(nextId, opts = {}) {
       });
     }
 
+    const targetUrl = resolveTargetUrl(next.viewerUrl, currentTheme);
+
     // Load interactive twin (full control panels for ready machines)
     frameEl.onload = () => {
       setStatus(
@@ -113,7 +168,11 @@ async function selectMachine(nextId, opts = {}) {
           : `${next.name} · planned package`
       );
       showBanner("", false);
-      showFrame(next.viewerUrl);
+      showFrame(targetUrl);
+      try {
+        frameEl.contentWindow?.postMessage({ type: "SET_THEME", theme: currentTheme }, "*");
+        frameEl.contentWindow?.CentrifugeTwin?.setTheme?.(currentTheme);
+      } catch (_) {}
       switching = false;
       selectEl.disabled = false;
     };
@@ -127,7 +186,7 @@ async function selectMachine(nextId, opts = {}) {
     currentId = next.id;
     selectEl.value = next.id;
     // Force reload even if same URL (after planned → ready later)
-    frameEl.src = next.viewerUrl;
+    frameEl.src = targetUrl;
     // If cached and already loaded, onload may not fire — safety timer
     setTimeout(() => {
       if (switching && selectEl.value === next.id) {
@@ -138,7 +197,11 @@ async function selectMachine(nextId, opts = {}) {
             : `${next.name} · planned package`
         );
         showBanner("", false);
-        showFrame(next.viewerUrl);
+        showFrame(targetUrl);
+        try {
+          frameEl.contentWindow?.postMessage({ type: "SET_THEME", theme: currentTheme }, "*");
+          frameEl.contentWindow?.CentrifugeTwin?.setTheme?.(currentTheme);
+        } catch (_) {}
         switching = false;
         selectEl.disabled = false;
       }
@@ -155,7 +218,20 @@ async function selectMachine(nextId, opts = {}) {
 // Boot
 fillSelect();
 const params = new URLSearchParams(location.search);
+const initialTheme = params.get("theme") || localStorage.getItem("twins_lab_theme") || "modern";
+setTheme(initialTheme);
+
+btnModern?.addEventListener("click", () => setTheme("modern"));
+btnRetro?.addEventListener("click", () => setTheme("retro"));
+btnNight?.addEventListener("click", () => setTheme("night"));
+
 const startId = params.get("machine") || "centrifuge";
 selectEl.addEventListener("change", () => selectMachine(selectEl.value));
 
 selectMachine(startId, { initial: true });
+
+window.LabViewer = {
+  setTheme,
+  getTheme: () => currentTheme,
+  selectMachine,
+};

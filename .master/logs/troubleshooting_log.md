@@ -4,6 +4,75 @@ Newest first. Template: `templates/troubleshooting_entry.md`.
 
 ---
 
+## 2026-10-18 · OGA-UI & SRE-TWIN · view-chooser-modern-retro-night [DIAG-031] [DIAG-030]
+
+| Field    | Value                                                              |
+| -------- | ------------------------------------------------------------------ |
+| Status   | resolved                                                           |
+| Machine  | centrifuge_twin, workspace                                         |
+| Severity | medium                                                             |
+
+**Problem:** 
+1. Scaling from a binary theme toggle to a triad View Chooser (`Modern`, `Retro`, `Night`) risked desynchronizing 3D stage backdrops (`plate` vs `bench`), dynamic SVG leader-line stroke colors, and 2D canvas preview renderers (`drawTubePreview`).
+2. Running headless Google Chrome for automated CDP visual verification inside the standard macOS sandbox failed with exit code 133 due to Mach IPC bootstrap restrictions (`bootstrap_check_in com.google.Chrome.MachPortRendezvousServer: Permission denied`).
+
+**Symptoms:** 
+- Inconsistent UI button active states when rapidly switching across multiple themes; callout lines failing to adapt from Swiss red `#d62828` to nocturnal glowing red `#ff3344`.
+- Automated CDP audit failed to connect to Chrome on port 9222 when Chrome was launched within the sandbox.
+
+**Cause:** 
+- Binary boolean toggling (`classList.toggle("active")`) is insufficient for 3+ states and requires normalized multi-state string dispatch.
+- macOS Chrome requires OS-level Mach IPC ports for crashpad and renderer rendezvous, which are blocked by standard sandbox isolation.
+
+**Fix:** 
+1. **Triad State Machine in `setTheme(theme)`:**
+   - Normalized theme input (`"modern"`, `"retro"`, `"night"`), updating `document.body.dataset.theme` cleanly.
+   - Synchronized segmented chooser buttons (`#btn-view-modern`, `#btn-view-retro`, `#btn-view-night`), 3D stage sub-switcher, lighting moods (`neutral`, `chemmate`, `night`), 3D stage shaders (obsidian slate vs cream walls), SVG leader line colors, and canvas tube layer previews.
+2. **Unsandboxed Chrome Process Execution for CDP Audit:**
+   - Launched the Chrome headless instance using `BypassSandbox: true` to satisfy Mach port rendezvous, successfully capturing all 7 standardized viewpoints (`view_01_modern.png` through `view_07_return_to_modern.png`) with 0 console errors.
+
+**Prevention:** Mandate DIAG-031: Theme choosers with 3+ options must implement normalized multi-state controllers with explicit CSS variable scope, and automated browser audits on macOS must run Chrome outside sandbox restrictions.
+
+---
+
+## 2026-10-17 · OGA-UI & SRE-TWIN · chemmate-retro-educational-view-style [DIAG-030] [DIAG-014]
+
+| Field    | Value                                                              |
+| -------- | ------------------------------------------------------------------ |
+| Status   | resolved                                                           |
+| Machine  | centrifuge_twin, workspace                                         |
+| Severity | medium                                                             |
+
+**Problem:** 
+1. Integrating a retro-educational aesthetic ("Archival Diagram Plate" paper backdrop, Swiss red typography, ink-black rules) risked violating the physical grounding and continuity mandate (DIAG-014 / Rule 9) if the lab bench and electrical duplex outlet were completely removed in diagram mode.
+2. Static 2D HTML/CSS callout annotations fail to track moving parts as the user orbits, zooms, opens the hinged lid (`Pivot_LidAssembly`), or activates the vertical kinematic exploded view ($\ge +100\text{ mm}$).
+3. Naive theme toggling could permanently overwrite Three.js PBR materials, corrupting the Gold Standard Dark Lab mode upon switching back.
+
+**Symptoms:** 
+- In pure card backdrops without grounded islands, instruments appear to float in vacuum space with disconnected power cords.
+- Fixed 2D callout pins detach from their mechanical targets during user interaction, pointing to empty space.
+- Switching between visual modes causes material degradation or lost lighting settings.
+
+**Cause:** 
+- Diagram plate modes often hide entire environment scenes indiscriminately without preserving instrument contact planes.
+- Hardcoded screen coordinates cannot adapt to camera projection matrices or dynamic joint transforms.
+- In-place mutation of material colors and properties without caching initial state prevents clean bidirectional theme toggling.
+
+**Fix:** 
+1. **Physical Grounding & Bench Continuity Preservation (DIAG-014):**
+   - In "Archival Diagram Plate" mode, perimeter lab walls and distant cabinetry are cleanly culled to achieve the crisp textbook card aesthetic, but the central instrument bench (`Lab_BenchTop_Instrument`), support legs, and benchtop duplex utility box (`Power_Receptacle_Duplex`) remain strictly rendered and grounded at datum $Y = 0$.
+   - The benchtop is restyled with an archival dark slate drafting surface (`#1d2127`), keeping the centrifuge seated firmly with its molded NEMA 5-15P plug engaged.
+2. **Dynamic 3D-to-2D Real-Time Projection Engine:**
+   - Implemented `updateChemMateCallouts(cam, host)` in `app.js`. For every registered assembly (`lid`, `rotor`, `rack`, `chamber`, `console`), the engine samples the live world matrix (`mesh.getWorldPosition(worldPos)`), transforms through `worldPos.project(cam)`, and clamps to viewport bounds.
+   - Computes dynamic SVG leader lines (`#cm-callouts-svg`) connecting the 3D part anchor dot to the offset editorial label box, maintaining sub-millimeter tracking even during lid rotation and full vertical explosion.
+3. **Lossless Multi-Theme Engine & Lighting State Cache:**
+   - Created `LIGHT_MOODS.chemmate` with warm studio directional lighting and high-clarity key highlights.
+   - Cached original Three.js material properties, allowing instantaneous, non-destructive toggling between standard `dark` and `chemmate` via `setTheme('dark' | 'chemmate')` and URL parameters (`?theme=chemmate`).
+
+**Prevention:** Mandate DIAG-030: Any stylistic educational or diagrammatic plate mode must preserve physical datum contact planes and utility power continuity, and all anatomical callouts must derive from live 3D mesh world coordinate projection.
+
+---
+
 ## 2026-09-30 · OGA-CAD & SRE-TWIN · spectrophotometer-motherboard-connectors-and-continuity [DIAG-029] [DIAG-005] [DIAG-014] [DIAG-015]
 
 | Field    | Value                                                              |

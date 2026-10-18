@@ -210,12 +210,63 @@ export function createTransitionScene(host) {
     if (vis) resize();
   }
 
+  function setTheme(theme) {
+    const raw = String(theme || "").toLowerCase();
+    if (raw === "night") {
+      scene.background.setHex(0x0a0c10);
+      scene.fog.color.setHex(0x0a0c10);
+      scene.fog.near = 20;
+      scene.fog.far = 60;
+      key.color.setHex(0xff3344);
+      key.intensity = 0.85;
+      top.color.setHex(0x3a4b63);
+      top.intensity = 0.4;
+      envRoot.traverse((o) => {
+        if (o.isMesh && o.material?.color) {
+          if (o.name.startsWith("Lab_Wall")) o.material.color.setHex(0x111622);
+          else if (o.name === "Ground") o.material.color.setHex(0x0a0e14);
+        }
+      });
+    } else if (raw === "retro" || raw === "chemmate") {
+      scene.background.setHex(0xf2ece1);
+      scene.fog.color.setHex(0xf2ece1);
+      scene.fog.near = 28;
+      scene.fog.far = 70;
+      key.color.setHex(0xfffaed);
+      key.intensity = 0.95;
+      top.color.setHex(0xfff0db);
+      top.intensity = 0.6;
+      envRoot.traverse((o) => {
+        if (o.isMesh && o.material?.color) {
+          if (o.name.startsWith("Lab_Wall")) o.material.color.setHex(0xf5f0e6);
+          else if (o.name === "Ground") o.material.color.setHex(0xe6decb);
+        }
+      });
+    } else {
+      scene.background.setHex(0xd0d8e0);
+      scene.fog.color.setHex(0xd0d8e0);
+      scene.fog.near = 32;
+      scene.fog.far = 70;
+      key.color.setHex(0xfff8f0);
+      key.intensity = 0.95;
+      top.color.setHex(0xf0f6ff);
+      top.intensity = 0.65;
+      envRoot.traverse((o) => {
+        if (o.isMesh && o.material?.color) {
+          if (o.name.startsWith("Lab_Wall")) o.material.color.setHex(0xf8fafc);
+          else if (o.name === "Ground") o.material.color.setHex(0xe2e8f0);
+        }
+      });
+    }
+  }
+
   return {
     setDockMachine,
     playSwitch,
     resize,
     dispose,
     setVisible,
+    setTheme,
     dock,
     labInfo,
   };

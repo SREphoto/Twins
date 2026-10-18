@@ -2009,10 +2009,13 @@ function drawTubePreview(tube) {
   const ctx = canvas.getContext("2d");
   const w = canvas.width;
   const h = canvas.height;
-  ctx.fillStyle = "#0a1018";
+  const curTh = document.body.dataset.theme;
+  const isCm = curTh === "chemmate" || curTh === "retro";
+  const isNight = curTh === "night";
+  ctx.fillStyle = isCm ? "#f4efe4" : isNight ? "#11151d" : "#0a1018";
   ctx.fillRect(0, 0, w, h);
   if (!tube) {
-    ctx.fillStyle = "#8b9bb0";
+    ctx.fillStyle = isCm ? "#5e5a52" : isNight ? "#828f9f" : "#8b9bb0";
     ctx.font = "14px sans-serif";
     ctx.fillText("Select a tube", 60, 150);
     return;
@@ -2021,9 +2024,13 @@ function drawTubePreview(tube) {
   const bodyW = 90;
   const bodyY = 30;
   const bodyH = 220;
-  ctx.fillStyle = "rgba(180,200,220,0.12)";
-  ctx.strokeStyle = "#8899aa";
-  ctx.lineWidth = 2;
+  ctx.fillStyle = isCm
+    ? "rgba(255,255,255,0.68)"
+    : isNight
+      ? "rgba(35,42,54,0.4)"
+      : "rgba(180,200,220,0.12)";
+  ctx.strokeStyle = isCm ? "#1e1d1b" : isNight ? "#ff3344" : "#8899aa";
+  ctx.lineWidth = isNight ? 1.5 : 2;
   ctx.beginPath();
   ctx.roundRect(bodyX, bodyY + 18, bodyW, bodyH - 18, 10);
   ctx.fill();
@@ -2043,22 +2050,52 @@ function drawTubePreview(tube) {
     ctx.fillStyle = layer.color;
     ctx.fillRect(bodyX + 6, y, bodyW - 12, lh + 0.5);
   }
-  ctx.fillStyle = "#e6edf5";
+  ctx.fillStyle = isCm ? "#161514" : isNight ? "#f0f3f8" : "#e6edf5";
   ctx.font = "bold 13px sans-serif";
   ctx.fillText(tube.tube_id, 16, 20);
-  ctx.fillStyle = "#8b9bb0";
+  ctx.fillStyle = isCm ? "#5e5a52" : isNight ? "#828f9f" : "#8b9bb0";
   ctx.font = "12px sans-serif";
   ctx.fillText(m.label, 16, h - 36);
+  ctx.fillStyle = isCm && tube.separated ? "#d62828" : isNight && tube.separated ? "#ff3344" : isCm ? "#5e5a52" : "#8b9bb0";
   ctx.fillText(tube.separated ? "SEPARATED" : "MIXED", 16, h - 18);
   let ly = 50;
   for (const layer of [...layers].reverse()) {
     ctx.fillStyle = layer.color;
     ctx.fillRect(175, ly, 12, 12);
-    ctx.fillStyle = "#c0cad6";
+    if (isCm || isNight) {
+      ctx.strokeStyle = isNight ? "#2b3548" : "#1e1d1b";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(175, ly, 12, 12);
+    }
+    ctx.fillStyle = isCm ? "#161514" : isNight ? "#f0f3f8" : "#c0cad6";
     ctx.font = "10px sans-serif";
     ctx.fillText(layer.name, 192, ly + 10);
     ly += 18;
   }
+}
+
+function updateChemMateLegend() {
+  const titleEl = document.getElementById("cm-legend-title");
+  const itemsEl = document.getElementById("cm-legend-items");
+  if (!titleEl || !itemsEl) return;
+  const matId = document.getElementById("material-select")?.value || "whole_blood";
+  const m = MATERIALS[matId] || MATERIALS.whole_blood;
+  titleEl.textContent = `${m.label} Fractions`;
+  itemsEl.innerHTML = "";
+  const list = m.after?.length ? [...m.after].reverse() : m.before || [];
+  list.forEach((layer) => {
+    const row = document.createElement("div");
+    row.className = "cm-legend-row";
+    const sw = document.createElement("span");
+    sw.className = "cm-legend-sphere";
+    sw.style.backgroundColor = layer.color;
+    const txt = document.createElement("span");
+    const pct = Math.round((layer.fraction || 0) * 100);
+    txt.textContent = `${layer.name} (${pct}%)`;
+    row.appendChild(sw);
+    row.appendChild(txt);
+    itemsEl.appendChild(row);
+  });
 }
 
 function renderGrids() {
@@ -2171,6 +2208,42 @@ function updateChrome(s) {
       else
         detail.textContent = `${Math.round(s.rpm_actual).toLocaleString()} rpm · ${fmtTime(s.time_remaining_s)} left · set ${fmtTime(s.time_set_s)}`;
     } else detail.textContent = "Set speed / time / temp · grab lid to open when stopped";
+  }
+
+  // Update ChemMate live equation card
+  const eqRpm = document.getElementById("cm-eq-rpm");
+  const eqRcf = document.getElementById("cm-eq-rcf");
+  const eqState = document.getElementById("cm-eq-state-pill");
+  const eqBal = document.getElementById("cm-eq-balance-pill");
+  if (eqRpm && eqRcf) {
+    const showRpm = s.led_run ? Math.round(s.rpm_actual) : s.rpm_set;
+    const showRcf = s.led_run ? Math.round(s.rcf_actual) : Math.round(s.rcf_set);
+    eqRpm.textContent = `${showRpm.toLocaleString()} RPM`;
+    eqRcf.textContent = `${showRcf.toLocaleString()} ×g`;
+  }
+  if (eqState) {
+    eqState.textContent = !c.powered
+      ? "UNPOWERED"
+      : s.led_fault
+        ? s.error || "FAULT"
+        : s.led_run
+          ? `${s.state} · ${fmtTime(s.time_remaining_s)}`
+          : s.lid_open
+            ? "LID OPEN"
+            : "READY TO SPIN";
+    eqState.classList.toggle("is-balanced", s.led_run && !s.led_fault);
+  }
+  if (eqBal) {
+    const count = s.rotor_count;
+    const isEven = count % 2 === 0 && !s.led_fault;
+    eqBal.textContent = s.led_fault
+      ? "IMBALANCED"
+      : count === 0
+        ? "0/24 LOADED"
+        : isEven
+          ? `BALANCED (${count})`
+          : `CHECK PAIR (${count})`;
+    eqBal.classList.toggle("is-balanced", isEven);
   }
 }
 
@@ -2413,6 +2486,7 @@ function updateMatDesc() {
   matDesc.textContent = m
     ? `${m.description} · needs ≥${m.min_rpm} rpm, ≥${m.min_rcf}×g, ≥${m.min_time_s}s`
     : "";
+  updateChemMateLegend();
 }
 matSelect.addEventListener("change", () => {
   updateMatDesc();
@@ -2577,6 +2651,28 @@ function init3D() {
       top2Color: 0xffe0c8,
       bg: 0xd8d0c8,
       fog: 0xc8c0b8,
+    },
+    chemmate: {
+      mult: { ambient: 1.28, key: 1.35, fill: 0.95, hemi: 1.15, top: 1.25, top2: 0.95 },
+      keyColor: 0xfffaf2,
+      fillColor: 0xf7efe2,
+      hemiSky: 0xfffdf6,
+      hemiGround: 0xb5aa98,
+      topColor: 0xfffaf0,
+      top2Color: 0xf7ebd9,
+      bg: 0xefe9dd,
+      fog: 0xefe9dd,
+    },
+    night: {
+      mult: { ambient: 0.72, key: 1.15, fill: 0.68, hemi: 0.65, top: 0.85, top2: 0.7 },
+      keyColor: 0xffffff,
+      fillColor: 0x3d141c,
+      hemiSky: 0x222a38,
+      hemiGround: 0x090b0e,
+      topColor: 0xf2f6ff,
+      top2Color: 0x48121c,
+      bg: 0x0a0c10,
+      fog: 0x0a0c10,
     },
   };
 
@@ -3298,8 +3394,347 @@ function init3D() {
 
     controls.update();
     renderer.render(scene, camera);
+
+    // Dynamic 2D-projected ChemMate leader-line diagram callouts
+    updateChemMateCallouts(camera, host);
+
     requestAnimationFrame(frame);
   }
+
+  // -------------------------------------------------------------------------
+  // ChemMate Visual View Controller & 3D Stage Switcher (Modern, Retro, Night)
+  // -------------------------------------------------------------------------
+  let currentTheme = "modern";
+  let currentStageMode = "plate";
+  let calloutsVisible = true;
+
+  const CALLOUT_ANCHORS = {
+    lid: new THREE.Vector3(0, 1.95, 0.25),
+    rotor: new THREE.Vector3(0, 1.55, -0.2),
+    rack: new THREE.Vector3(-2.6, 0.48, 0),
+    chamber: new THREE.Vector3(0.68, 1.55, -0.2),
+    console: new THREE.Vector3(0, 1.05, -1.8),
+  };
+
+  function updateChemMateCallouts(cam, viewportHost) {
+    if ((currentTheme !== "retro" && currentTheme !== "night") || !calloutsVisible) return;
+    const svg = document.getElementById("cm-callouts-svg");
+    const overlay = document.getElementById("cm-plate-overlay");
+    if (!svg || !overlay || !centrifugeModel || !cam) return;
+
+    const stageRect = overlay.getBoundingClientRect();
+    if (stageRect.width < 10 || stageRect.height < 10) return;
+
+    const isNight = currentTheme === "night";
+    const strokeColor = isNight ? "#ff3344" : "#d62828";
+    const outerRingOpacity = isNight ? "0.75" : "0.6";
+
+    let svgHtml = "";
+    const calloutEls = overlay.querySelectorAll(".cm-callout");
+
+    calloutEls.forEach((btn) => {
+      const id = btn.dataset.callout;
+      const basePos = CALLOUT_ANCHORS[id];
+      if (!basePos) return;
+
+      const worldPos = new THREE.Vector3();
+      if (id === "lid" && centrifugeModel.lid) {
+        centrifugeModel.lid.getWorldPosition(worldPos);
+        worldPos.y += 0.35;
+      } else if (id === "rotor" && centrifugeModel.rotor) {
+        centrifugeModel.rotor.getWorldPosition(worldPos);
+      } else if (id === "rack" && centrifugeModel.rack) {
+        centrifugeModel.rack.getWorldPosition(worldPos);
+        worldPos.y += 0.35;
+      } else if (id === "chamber" && centrifugeModel.assemblies?.chamber) {
+        centrifugeModel.assemblies.chamber.getWorldPosition(worldPos);
+        worldPos.x += 0.65;
+      } else if (id === "console" && centrifugeModel.consoleG) {
+        centrifugeModel.consoleG.getWorldPosition(worldPos);
+      } else {
+        worldPos.copy(basePos);
+      }
+
+      const proj = worldPos.clone().project(cam);
+      if (proj.z > 1.0) return; // behind camera view plane
+
+      const px = (proj.x * 0.5 + 0.5) * stageRect.width;
+      const py = (-proj.y * 0.5 + 0.5) * stageRect.height;
+
+      const btnRect = btn.getBoundingClientRect();
+      const isLeft = btn.classList.contains("cm-callout-left");
+      const cardX = isLeft ? btnRect.right - stageRect.left : btnRect.left - stageRect.left;
+      const cardY = btnRect.top + btnRect.height / 2 - stageRect.top;
+
+      const shelfDx = isLeft ? 16 : -16;
+      const shelfX = cardX + shelfDx;
+
+      svgHtml += `
+        <g class="cm-callout-line" data-callout-line="${id}">
+          <circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="6.5" fill="none" stroke="${strokeColor}" stroke-width="1.2" opacity="${outerRingOpacity}" />
+          <circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="3.5" fill="${strokeColor}" />
+          <polyline points="${cardX.toFixed(1)},${cardY.toFixed(1)} ${shelfX.toFixed(1)},${cardY.toFixed(1)} ${px.toFixed(1)},${py.toFixed(1)}" fill="none" stroke="${strokeColor}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </g>
+      `;
+    });
+
+    svg.innerHTML = svgHtml;
+  }
+
+  function applyChemMate3DStage(mode) {
+    if (!centrifugeModel) return;
+
+    centrifugeModel.root.traverse((o) => {
+      if (o.isMesh && o.name) {
+        if (o.userData._origVisible == null) o.userData._origVisible = o.visible;
+        if (o.material) {
+          const mats = Array.isArray(o.material) ? o.material : [o.material];
+          if (!o.userData._origColors) {
+            o.userData._origColors = mats.map((m) => (m.color ? m.color.getHex() : null));
+          }
+        }
+      }
+    });
+
+    if (currentTheme === "modern") {
+      centrifugeModel.root.traverse((o) => {
+        if (o.isMesh && o.userData._origVisible != null) {
+          o.visible = o.userData._origVisible;
+          if (o.material && o.userData._origColors) {
+            const mats = Array.isArray(o.material) ? o.material : [o.material];
+            mats.forEach((m, idx) => {
+              const hex = o.userData._origColors[idx];
+              if (hex != null && m.color) m.color.setHex(hex);
+            });
+          }
+        }
+      });
+      return;
+    }
+
+    if (currentTheme === "night") {
+      if (mode === "plate") {
+        centrifugeModel.root.traverse((o) => {
+          if (!o.isMesh) return;
+          const n = o.name || "";
+          const isSurroundingRoom =
+            n === "Ground" ||
+            n.startsWith("Lab_Wall") ||
+            n.startsWith("Lab_Baseboard") ||
+            n === "Lab_Ceiling" ||
+            n.startsWith("Lab_LightPanel") ||
+            n.startsWith("Lab_Bench_N") ||
+            n.startsWith("Lab_Bench_S") ||
+            n.startsWith("Lab_Bench_E") ||
+            n.startsWith("Lab_Bench_W") ||
+            (n.startsWith("Lab_BenchTop_") && !n.includes("Instrument")) ||
+            n === "Lab_WallCabinets" ||
+            n === "Lab_Whiteboard" ||
+            n === "Lab_Fridge" ||
+            n === "Lab_HazardStripe" ||
+            n.startsWith("Lab_Tile");
+
+          if (isSurroundingRoom) {
+            o.visible = false;
+          } else {
+            o.visible = true;
+            if (n === "Lab_BenchTop_Instrument" && o.material?.color) {
+              o.material.color.setHex(0x111317);
+            }
+          }
+        });
+      } else if (mode === "bench") {
+        centrifugeModel.root.traverse((o) => {
+          if (!o.isMesh) return;
+          o.visible = true;
+          const n = o.name || "";
+          if (n.startsWith("Lab_Wall") && o.material?.color) {
+            o.material.color.setHex(0x181c25);
+          } else if (n === "Ground" && o.material?.color) {
+            o.material.color.setHex(0x0f1217);
+          } else if (n.startsWith("Lab_Tile") && o.material?.color) {
+            o.material.color.setHex(0x141820);
+          } else if (n === "Lab_BenchTop_Instrument" && o.material?.color) {
+            o.material.color.setHex(0x12151c);
+          }
+        });
+      }
+      return;
+    }
+
+    // Otherwise retro
+    if (mode === "plate") {
+      centrifugeModel.root.traverse((o) => {
+        if (!o.isMesh) return;
+        const n = o.name || "";
+        const isSurroundingRoom =
+          n === "Ground" ||
+          n.startsWith("Lab_Wall") ||
+          n.startsWith("Lab_Baseboard") ||
+          n === "Lab_Ceiling" ||
+          n.startsWith("Lab_LightPanel") ||
+          n.startsWith("Lab_Bench_N") ||
+          n.startsWith("Lab_Bench_S") ||
+          n.startsWith("Lab_Bench_E") ||
+          n.startsWith("Lab_Bench_W") ||
+          (n.startsWith("Lab_BenchTop_") && !n.includes("Instrument")) ||
+          n === "Lab_WallCabinets" ||
+          n === "Lab_Whiteboard" ||
+          n === "Lab_Fridge" ||
+          n === "Lab_HazardStripe" ||
+          n.startsWith("Lab_Tile");
+
+        if (isSurroundingRoom) {
+          o.visible = false;
+        } else {
+          o.visible = true;
+          if (n === "Lab_BenchTop_Instrument" && o.material?.color) {
+            o.material.color.setHex(0x282725);
+          }
+        }
+      });
+    } else if (mode === "bench") {
+      centrifugeModel.root.traverse((o) => {
+        if (!o.isMesh) return;
+        o.visible = true;
+        const n = o.name || "";
+        if (n.startsWith("Lab_Wall") && o.material?.color) {
+          o.material.color.setHex(0xf5f0e6);
+        } else if (n === "Ground" && o.material?.color) {
+          o.material.color.setHex(0xe6decb);
+        } else if (n.startsWith("Lab_Tile") && o.material?.color) {
+          o.material.color.setHex(0xd0c4af);
+        } else if (n === "Lab_BenchTop_Instrument" && o.material?.color) {
+          o.material.color.setHex(0x282725);
+        }
+      });
+    }
+  }
+
+  function setTheme(theme) {
+    const raw = String(theme || "").toLowerCase();
+    if (raw === "night") {
+      currentTheme = "night";
+    } else if (raw === "retro" || raw === "chemmate") {
+      currentTheme = "retro";
+    } else {
+      currentTheme = "modern";
+    }
+
+    const btnModern = document.getElementById("btn-view-modern");
+    const btnRetro = document.getElementById("btn-view-retro");
+    const btnNight = document.getElementById("btn-view-night");
+    const stageSw = document.getElementById("cm-stage-switcher");
+    const status = document.getElementById("parts-focus-status");
+
+    btnModern?.classList.toggle("active", currentTheme === "modern");
+    btnRetro?.classList.toggle("active", currentTheme === "retro");
+    btnNight?.classList.toggle("active", currentTheme === "night");
+
+    if (currentTheme === "modern") {
+      delete document.body.dataset.theme;
+      if (stageSw) stageSw.hidden = true;
+      labLights.mood = "neutral";
+      if (moodEl) moodEl.value = "neutral";
+      applyLabLighting();
+      applyChemMate3DStage("dark");
+      const sel = c.selected_tube_id ? c.lab.tubes[c.selected_tube_id] : null;
+      drawTubePreview(sel);
+      if (status) status.textContent = "Modern Lab View (Default Mode)";
+    } else if (currentTheme === "night") {
+      document.body.dataset.theme = "night";
+      if (stageSw) stageSw.hidden = false;
+      labLights.mood = "night";
+      if (moodEl) moodEl.value = "night";
+      applyLabLighting();
+      applyChemMate3DStage(currentStageMode);
+      updateChemMateLegend();
+      const sel = c.selected_tube_id ? c.lab.tubes[c.selected_tube_id] : null;
+      drawTubePreview(sel);
+      if (status) status.textContent = "Night View · Nocturnal Precision Lab (Red & Charcoal)";
+    } else {
+      document.body.dataset.theme = "chemmate";
+      if (stageSw) stageSw.hidden = false;
+      labLights.mood = "chemmate";
+      if (moodEl) moodEl.value = "chemmate";
+      applyLabLighting();
+      applyChemMate3DStage(currentStageMode);
+      updateChemMateLegend();
+      const sel = c.selected_tube_id ? c.lab.tubes[c.selected_tube_id] : null;
+      drawTubePreview(sel);
+      if (status) status.textContent = "Retro ChemMate View · Archival Diagram Plate";
+    }
+  }
+
+  function setStageBackdrop(mode) {
+    currentStageMode = mode === "bench" ? "bench" : "plate";
+    document.getElementById("btn-cm-plate")?.classList.toggle("active", currentStageMode === "plate");
+    document.getElementById("btn-cm-bench")?.classList.toggle("active", currentStageMode === "bench");
+    applyChemMate3DStage(currentStageMode);
+  }
+
+  function setCallouts(on) {
+    calloutsVisible = !!on;
+    document.getElementById("btn-cm-callouts")?.classList.toggle("active", calloutsVisible);
+    const overlay = document.getElementById("cm-plate-overlay");
+    overlay?.classList.toggle("callouts-hidden", !calloutsVisible);
+  }
+
+  // Bind view chooser buttons
+  document.getElementById("btn-view-modern")?.addEventListener("click", () => setTheme("modern"));
+  document.getElementById("btn-view-retro")?.addEventListener("click", () => setTheme("retro"));
+  document.getElementById("btn-view-night")?.addEventListener("click", () => setTheme("night"));
+
+  // Legacy button IDs fallback
+  document.getElementById("btn-theme-dark")?.addEventListener("click", () => setTheme("modern"));
+  document.getElementById("btn-theme-chemmate")?.addEventListener("click", () => setTheme("retro"));
+
+  document.getElementById("btn-cm-plate")?.addEventListener("click", () => setStageBackdrop("plate"));
+  document.getElementById("btn-cm-bench")?.addEventListener("click", () => setStageBackdrop("bench"));
+  document.getElementById("btn-cm-callouts")?.addEventListener("click", () => setCallouts(!calloutsVisible));
+
+  // Bind callout button click interactions
+  document.querySelectorAll(".cm-callout").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.callout;
+      if (!centrifugeModel) return;
+      if (id === "lid") {
+        if (c.rpm_actual < 0.5) {
+          if (c.lid_open) closeLid();
+          else pressOpen();
+        }
+      } else if (id === "rotor") {
+        focusPart({ id: "rotor", label: "Rotor (FA-45-24-11)", object: centrifugeModel.rotor });
+      } else if (id === "rack") {
+        focusPart({ id: "rack", label: "Sample Prep Rack", object: centrifugeModel.rack });
+      } else if (id === "chamber") {
+        focusPart({ id: "chamber", label: "Refrigerated Bowl", object: centrifugeModel.assemblies?.chamber });
+      } else if (id === "console") {
+        focusPart({ id: "console", label: "Control Fascia & LCD", object: centrifugeModel.consoleG });
+      }
+    });
+  });
+
+  // Check URL query parameters on load (?theme=modern|retro|night&stage=plate|bench)
+  const qParams = new URLSearchParams(window.location.search);
+  const qTheme = qParams.get("theme");
+  if (qTheme) {
+    const stage = qParams.get("stage") === "bench" ? "bench" : "plate";
+    setStageBackdrop(stage);
+    setTheme(qTheme);
+  }
+
+  // Listen for parent frame messages (e.g. from lab_viewer topbar)
+  window.addEventListener("message", (ev) => {
+    if (ev.data && typeof ev.data === "object") {
+      if (ev.data.type === "SET_THEME") {
+        setTheme(ev.data.theme);
+      } else if (ev.data.type === "SET_STAGE") {
+        setStageBackdrop(ev.data.stage);
+      }
+    }
+  });
+
   requestAnimationFrame(frame);
 }
 
@@ -3319,6 +3754,7 @@ function exposeCentrifugeTwinApi(model) {
    *   CentrifugeTwin.press('start')
    *   CentrifugeTwin.getState()
    *   CentrifugeTwin.setMuted(true)
+   *   CentrifugeTwin.setTheme('chemmate', 'plate')
    */
   window.CentrifugeTwin = {
     /** Key ids available on the 3D panel */
@@ -3368,6 +3804,21 @@ function exposeCentrifugeTwinApi(model) {
     isMuted: () => isSfxMuted(),
     setVolume: (v) => setSfxVolume(v),
     playClick: (kind) => playKeyClick(kind || "normal"),
+
+    /** ChemMate visual style controls (modern, retro, night) */
+    setTheme: (t) => {
+      const raw = String(t || "").toLowerCase();
+      if (raw === "night") document.getElementById("btn-view-night")?.click();
+      else if (raw === "retro" || raw === "chemmate") document.getElementById("btn-view-retro")?.click();
+      else document.getElementById("btn-view-modern")?.click();
+    },
+    setStageBackdrop: (s) => {
+      const btn = document.getElementById(s === "bench" ? "btn-cm-bench" : "btn-cm-plate");
+      btn?.click();
+    },
+    toggleCallouts: () => {
+      document.getElementById("btn-cm-callouts")?.click();
+    },
   };
 }
 

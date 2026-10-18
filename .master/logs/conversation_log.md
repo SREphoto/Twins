@@ -4,6 +4,122 @@ Newest first. Template: `templates/conversation_log_entry.md`.
 
 ---
 
+## 2026-10-18 · OGA-UI & SRE-TWIN · lab-viewer-view-chooser-integration
+
+| Field   | Value                                                              |
+| ------- | ------------------------------------------------------------------ |
+| Agent   | OGA-UI & SRE-TWIN                                                  |
+| Machine | `lab_viewer`, `centrifuge_twin`, `workspace`                       |
+
+### User request (paraphrase)
+
+The user instructed: *"lets add it"*, approving the incorporation of the new View Chooser system across the platform.
+
+### Decisions
+
+1. **Master Desk Integration (`lab_viewer`)**:
+   - Integrated the `.view-chooser` segmented control (`MODERN`, `+ RETRO`, `☾ NIGHT`) directly into the master topbar of `lab_viewer`.
+   - Applied comprehensive CSS styling for `body[data-theme="retro"]` and `body[data-theme="night"]` to the `lab_viewer` shell (topbar, machine picker dropdown, status pill, switch notification banner, and footer hint).
+   - Added dynamic restyling to the 3D desk transition scene (`transition_scene.js`) so that inter-machine switches honor the active theme's lighting and background ambiance.
+2. **Bidirectional Parent-Iframe Theme Synchronization**:
+   - Implemented real-time postMessage communication (`SET_THEME`) and direct API dispatch (`CentrifugeTwin.setTheme`) between `lab_viewer` and loaded twins, allowing instant live restyling without reloading the iframe.
+   - Added URL query parameter propagation (`?theme=modern|retro|night`) and `localStorage` persistence so that machine switching and page reloads always preserve the user's selected aesthetic.
+3. **Automated CDP Visual Verification**:
+   - Executed headless Chrome CDP verification (`scratch/test_lab_viewer_themes.js`) across all 4 operational states (`lab_view_01_modern.png`, `lab_view_02_retro.png`, `lab_view_03_night.png`, `lab_view_04_modern_return.png`).
+   - Confirmed 0 browser console errors and 0 exceptions.
+   - Performed closed-loop visual audits of all screenshots via `view_file`.
+
+### Outcomes
+
+- `bash scripts/verify_twin.sh centrifuge_twin`: PASSED (0 syntax errors).
+- `python3 -m unittest discover -s centrifuge_twin/software/controller`: PASSED (14/14 tests OK).
+- Automated CDP audit of `lab_viewer`: PASSED with 0 console errors.
+- Visual artifacts saved and verified:
+  - `lab_view_01_modern.png` (Modern View default)
+  - `lab_view_02_retro.png` (Retro ChemMate View with Archival Diagram Plate)
+  - `lab_view_03_night.png` (Night Precision View with Red and Charcoal)
+  - `lab_view_04_modern_return.png` (Zero-regression return to Modern)
+- All master change logs and governance records updated.
+
+### Open questions for human
+
+None. The View Chooser is fully integrated and operational across `centrifuge_twin` and `lab_viewer`.
+
+---
+
+## 2026-10-18 · OGA-UI & SRE-TWIN · view-chooser-modern-retro-night
+
+| Field   | Value                                                              |
+| ------- | ------------------------------------------------------------------ |
+| Agent   | OGA-UI & SRE-TWIN                                                  |
+| Machine | `centrifuge_twin`, `workspace`                                     |
+
+### User request (paraphrase)
+
+The user expressed strong appreciation for the ChemMate visual style ("It looks great can we add a view chooser I really like the style. Looks great.") and requested:
+1. Add a dedicated "view chooser".
+2. Add "Modern" view (the sleek default lab look).
+3. Designate the warm archival paper style as "Retro" view.
+4. Add a "Night" view: a reverse style of dark greys, deep blacks, and precision Swiss reds.
+
+### Decisions
+
+1. **Unified View Chooser Control**: Built a high-DPI segmented control (`.view-chooser`) in the header toolbar featuring three distinct view options:
+   - `MODERN`: Sleek, clean, default high-tech instrument theme (`--bg: #0c1016`, cyan accents, neutral studio lighting).
+   - `+ RETRO`: ChemMate archival cream paper (`#F2ECE1`, `#FBF9F4`), Swiss Red (`#D62828`), ink-black rules, corner `+` registration marks, and educational diagram cards.
+   - `☾ NIGHT`: Reverse style featuring deep blacks (`#0a0c10`), dark charcoal obsidian panels (`#11151c`, `#161b24`), glowing Swiss red accents (`#ff3344`, `#d62828`), red metallic paperclip, dark telemetry cards, and glowing red leader lines.
+2. **Dynamic 3D Stage & Callouts across Retro and Night**: Enabled the Diagram Plate and Lab Room backdrops for both Retro and Night views. In Night View, the benchtop island is styled as an obsidian black drafting slate (`0x111317`), while the dynamic SVG leader lines glow in vibrant red (`#ff3344`) with outer focus halos.
+3. **Nocturnal Lighting Profile (`LIGHT_MOODS.night`)**: Engineered dedicated nocturnal lighting with moody dark shadow fill, dark ruby rim lighting (`0x3d141c`), and crisp specular highlights.
+4. **Zero Regression Guarantee**: Retained complete backward compatibility with `modern` view and existing JavaScript APIs (`window.CentrifugeTwin.setTheme`), verified via multi-step automated CDP testing.
+
+### Outcomes
+
+- `bash scripts/verify_twin.sh centrifuge_twin`: PASSED (0 syntax errors).
+- `python3 -m unittest discover -s centrifuge_twin/software/controller`: PASSED (14/14 tests OK).
+- Automated visual audit script (`scratch/audit_view_chooser.js`) executed via Chrome CDP: captured all 7 view states (`view_01_modern.png` through `view_07_return_to_modern.png`).
+- Total browser console exceptions: 0.
+- All screenshots audited and verified via `view_file`.
+
+### Open questions for human
+
+None. Ready for user exploration across Modern, Retro, and Night views.
+
+---
+
+## 2026-10-17 · OGA-UI & SRE-TWIN · chemmate-retro-educational-view-style
+
+| Field   | Value                                                              |
+| ------- | ------------------------------------------------------------------ |
+| Agent   | OGA-UI & SRE-TWIN                                                  |
+| Machine | `centrifuge_twin`, `workspace`                                     |
+
+### User request (paraphrase)
+
+The user requested a visual test for a new style site for ChemMate, where digital twin lab tools will be used in an educational research and learning lab. The visualizer needed to match reference photos of the site featuring a warm, retro-educational aesthetic (archival cream paper `#F2ECE1`/`#FBF9F4`, Swiss red `+` branding, ink-black rules, numbered worksheet panels, metallic paperclip cards, sample layer callouts, and clean physics cards). The user explicitly specified: *"I don’t want to replace but create a different additional view style a bit like enhanced light and dark mode"* and mandated: *"There should be a master change log"*.
+
+### Decisions
+
+1. **Non-Destructive Dual-Theme Architecture**: Engineered the ChemMate style as an additional selectable mode (`body[data-theme="chemmate"]`) via an intuitive topbar switcher (`Dark Lab` ↔ `+ ChemMate Style`), preserving 100% of the Gold Standard dark lab CSS tokens and Three.js PBR materials when returning to default.
+2. **Dual 3D Stage Environments**:
+   - **Archival Diagram Plate**: Culls distant room walls to render a technical textbook plate with corner `+` registration crosshairs, header label (`+ 03 | MICRO 5424-R`), sample fractions legend box (`#cm-legend-box`), and paperclipped sedimentation physics card (`.cm-equation-card`).
+   - **Warm Lab Room**: Renders the complete 3D laboratory enclosure with cream/travertine walls, warm daylight studio lighting (`LIGHT_MOODS.chemmate`), and warm ambient fill.
+3. **Physical Continuity & Bench Grounding Preservation (DIAG-014 / Rule 9)**: Preserved the central instrument table island (`Lab_BenchTop_Instrument`), legs, and benchtop duplex utility box (`Power_Receptacle_Duplex`) across all modes, restyling the bench surface to a high-contrast dark slate drafting plate (`#1d2127`) so the centrifuge and molded NEMA 5-15P plug remain grounded at datum $Y = 0$.
+4. **Dynamic 3D-to-2D Real-Time Projection Engine**: Implemented `updateChemMateCallouts()` in `app.js`. Rather than static overlays, the engine dynamically projects 3D mesh world matrices through the camera matrix every frame, drawing SVG leader lines (`#cm-callouts-svg`) connecting 3D part anchor dots to editorial text cards across user orbiting, panning, lid opening, and kinematic explosion.
+5. **Master Governance & Verification**: Updated `.master/logs/master_change_log.md`, added `DIAG-030` to `.master/logs/troubleshooting_log.md`, executed automated CDP visual audits across 5 viewpoints with 0 console errors, and ran controller regression unit tests (14/14 pass).
+
+### Outcomes
+
+- `bash scripts/verify_twin.sh centrifuge_twin`: PASSED (0 syntax errors).
+- `python3 -m unittest discover -s centrifuge_twin/software/controller`: PASSED (14/14 tests OK).
+- Automated visual audit script (`scratch/audit_chemmate.js`) captured all 5 viewpoints via Chrome CDP. All reviewed via `view_file` with 0 console exceptions.
+- Master change log, troubleshooting log (`DIAG-030`), and conversation log fully synchronized.
+
+### Open questions for human
+
+None. Ready for user visual review.
+
+---
+
 ## 2026-09-25 · OGA-CAD & CBA · rebuild-vortex-mixer-twin
 
 | Field   | Value                                                              |

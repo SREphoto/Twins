@@ -179,6 +179,300 @@ html, body, #app {
   color: #38bdf8;
 }
 
+/* View Chooser segmented button group */
+.view-chooser {
+  display: inline-flex;
+  align-items: center;
+  background: #101620;
+  border: 1px solid #1e2d42;
+  border-radius: 7px;
+  padding: 2px 3px;
+  gap: 3px;
+}
+
+.view-chooser-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: #64758b;
+  letter-spacing: 0.06em;
+  padding: 0 4px 0 3px;
+  user-select: none;
+}
+
+.view-chooser-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.view-choice-btn {
+  appearance: none;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #94a3b8;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 4px 9px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.view-choice-btn:hover {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.view-choice-btn.active {
+  background: #1e2b3c;
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.35);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.view-choice-text.retro {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.cm-mini-plus {
+  color: #d62828;
+  font-weight: 800;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.view-choice-btn.active .cm-mini-plus {
+  color: #ffffff;
+}
+
+.night-glyph {
+  font-size: 11px;
+  line-height: 1;
+  color: #ff4d5a;
+}
+
+.view-choice-btn.active .night-glyph {
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   RETRO THEME (ChemMate warm archival paper & Swiss red educational style)
+   ========================================================================== */
+body[data-theme="retro"],
+body[data-theme="chemmate"] {
+  background-color: #f2ece1;
+  color: #161514;
+}
+
+body[data-theme="retro"] .topbar,
+body[data-theme="chemmate"] .topbar {
+  background: #e6dfd1;
+  border-bottom: 1.5px solid #bfb5a4;
+}
+
+body[data-theme="retro"] .brand-mark,
+body[data-theme="chemmate"] .brand-mark {
+  background: #d62828;
+  color: #ffffff;
+}
+
+body[data-theme="retro"] .brand-model,
+body[data-theme="chemmate"] .brand-model {
+  color: #161514;
+}
+
+body[data-theme="retro"] .brand-tag,
+body[data-theme="chemmate"] .brand-tag {
+  color: #5c564c;
+}
+
+body[data-theme="retro"] .machine-picker label,
+body[data-theme="chemmate"] .machine-picker label {
+  color: #5c564c;
+}
+
+body[data-theme="retro"] .machine-picker select,
+body[data-theme="chemmate"] .machine-picker select {
+  background: #fbf9f4;
+  color: #161514;
+  border: 1.5px solid #bfb5a4;
+}
+
+body[data-theme="retro"] .view-chooser,
+body[data-theme="chemmate"] .view-chooser {
+  background: #ded6c5;
+  border-color: #bfb5a4;
+}
+
+body[data-theme="retro"] .view-chooser-label,
+body[data-theme="chemmate"] .view-chooser-label {
+  color: #7a7366;
+}
+
+body[data-theme="retro"] .view-choice-btn,
+body[data-theme="chemmate"] .view-choice-btn {
+  color: #5e5a52;
+}
+
+body[data-theme="retro"] .view-choice-btn:hover,
+body[data-theme="chemmate"] .view-choice-btn:hover {
+  color: #161514;
+  background: #d4cbba;
+}
+
+body[data-theme="retro"] .view-choice-btn.active,
+body[data-theme="chemmate"] .view-choice-btn.active {
+  background: #d62828;
+  color: #ffffff;
+  border-color: #b51f1f;
+  box-shadow: 0 1px 3px rgba(214, 40, 40, 0.3);
+}
+
+body[data-theme="retro"] .pill,
+body[data-theme="chemmate"] .pill {
+  background: #fbf9f4;
+  border: 1.5px solid #161514;
+  color: #161514;
+}
+
+body[data-theme="retro"] .pill.ready,
+body[data-theme="chemmate"] .pill.ready {
+  background: #e6f4ec;
+  border-color: #1f7a4c;
+  color: #165e39;
+}
+
+body[data-theme="retro"] .pill.switching,
+body[data-theme="chemmate"] .pill.switching {
+  background: #fef3c7;
+  border-color: #d97706;
+  color: #92400e;
+}
+
+body[data-theme="retro"] .footer-hint,
+body[data-theme="chemmate"] .footer-hint {
+  background: #dfd7c6;
+  border-top: 1.5px solid #bfb5a4;
+  color: #5c564c;
+}
+
+body[data-theme="retro"] .footer-hint code,
+body[data-theme="chemmate"] .footer-hint code {
+  color: #b51f1f;
+}
+
+body[data-theme="retro"] .switch-banner,
+body[data-theme="chemmate"] .switch-banner {
+  background: rgba(242, 236, 225, 0.95);
+  border: 1.5px solid #161514;
+  color: #d62828;
+}
+
+/* ==========================================================================
+   NIGHT THEME (Dark greys, deep blacks, precision Swiss reds)
+   ========================================================================== */
+body[data-theme="night"] {
+  background-color: #0a0c10;
+  color: #f0f3f8;
+}
+
+body[data-theme="night"] .topbar {
+  background: #11151c;
+  border-bottom: 1px solid #1e2634;
+}
+
+body[data-theme="night"] .brand-mark {
+  background: #ff3344;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(255, 51, 68, 0.5);
+}
+
+body[data-theme="night"] .brand-model {
+  color: #f0f3f8;
+}
+
+body[data-theme="night"] .brand-tag {
+  color: #728194;
+}
+
+body[data-theme="night"] .machine-picker label {
+  color: #828f9f;
+}
+
+body[data-theme="night"] .machine-picker select {
+  background: #161b24;
+  color: #f0f3f8;
+  border: 1px solid #2a3446;
+}
+
+body[data-theme="night"] .view-chooser {
+  background: #11151e;
+  border-color: #262f3f;
+}
+
+body[data-theme="night"] .view-chooser-label {
+  color: #728194;
+}
+
+body[data-theme="night"] .view-choice-btn {
+  color: #828f9f;
+}
+
+body[data-theme="night"] .view-choice-btn:hover {
+  color: #f0f3f8;
+  background: #181e2a;
+}
+
+body[data-theme="night"] .view-choice-btn.active {
+  background: #ff3344;
+  color: #ffffff;
+  border-color: #ff4d5a;
+  box-shadow: 0 0 10px rgba(255, 51, 68, 0.45);
+}
+
+body[data-theme="night"] .pill {
+  background: #161b24;
+  color: #9bb0c9;
+}
+
+body[data-theme="night"] .pill.ready {
+  background: rgba(255, 51, 68, 0.15);
+  color: #ff4d5a;
+  border: 1px solid rgba(255, 51, 68, 0.4);
+  box-shadow: 0 0 8px rgba(255, 51, 68, 0.2);
+}
+
+body[data-theme="night"] .pill.switching {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+}
+
+body[data-theme="night"] .footer-hint {
+  background: #0c0f14;
+  border-top: 1px solid #1e2634;
+  color: #616d7d;
+}
+
+body[data-theme="night"] .footer-hint code {
+  color: #ff4d5a;
+}
+
+body[data-theme="night"] .switch-banner {
+  background: rgba(17, 21, 28, 0.95);
+  border: 1px solid #ff3344;
+  color: #ff4d5a;
+  box-shadow: 0 0 16px rgba(255, 51, 68, 0.35);
+}
+
 @media (max-width: 640px) {
   .topbar {
     height: auto;
