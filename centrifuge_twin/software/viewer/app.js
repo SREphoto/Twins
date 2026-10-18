@@ -4005,6 +4005,29 @@ function init3D() {
   document.getElementById("btn-cm-bench")?.addEventListener("click", () => setStageBackdrop("bench"));
   document.getElementById("btn-cm-callouts")?.addEventListener("click", () => setCallouts(!calloutsVisible));
 
+  // ChemMate brand dropdown menu toggle
+  const cmMenuBtn = document.getElementById("cm-brand-menu-btn");
+  const cmMenuWrap = document.querySelector(".cm-brand-dropdown-container");
+  if (cmMenuBtn && cmMenuWrap) {
+    cmMenuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = cmMenuWrap.classList.toggle("is-open");
+      cmMenuBtn.setAttribute("aria-expanded", String(isOpen));
+    });
+    document.addEventListener("click", (e) => {
+      if (!cmMenuWrap.contains(e.target)) {
+        cmMenuWrap.classList.remove("is-open");
+        cmMenuBtn.setAttribute("aria-expanded", "false");
+      }
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        cmMenuWrap.classList.remove("is-open");
+        cmMenuBtn.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
+
   // Bind callout button click interactions
   document.querySelectorAll(".cm-callout").forEach((btn) => {
     btn.addEventListener("click", () => {

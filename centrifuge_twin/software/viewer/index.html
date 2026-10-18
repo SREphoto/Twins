@@ -7,15 +7,43 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20261018-retrofix3" />
+  <link rel="stylesheet" href="style.css?v=20261018-dropdown-demo2x2" />
 </head>
 <body>
   <div id="app">
     <header class="topbar">
       <div class="brand-cluster">
-        <div class="cm-brand" aria-label="ChemMate">
-          <span class="cm-cross-box" aria-hidden="true">+</span>
-          <span class="cm-brand-text">ChemMate</span>
+        <div class="cm-brand-dropdown-container">
+          <button type="button" class="cm-brand cm-brand-trigger" id="cm-brand-menu-btn" aria-expanded="false" aria-haspopup="true" title="ChemMate Suite Menu">
+            <span class="cm-cross-box" aria-hidden="true">+</span>
+            <span class="cm-brand-text">ChemMate</span>
+            <span class="cm-dropdown-chevron" aria-hidden="true">▾</span>
+          </button>
+          <div class="cm-dropdown-menu" id="cm-brand-dropdown" role="menu" aria-label="ChemMate Navigation">
+            <div class="cm-dropdown-header">CHEMMATE EDUCATIONAL SUITE</div>
+            <a href="#" class="cm-dropdown-item" role="menuitem">
+              <span class="cm-dropdown-icon">📖</span>
+              <span class="cm-dropdown-text">Curriculum</span>
+            </a>
+            <a href="#" class="cm-dropdown-item is-active" role="menuitem">
+              <span class="cm-dropdown-icon">🔬</span>
+              <span class="cm-dropdown-text">Interactive Labs</span>
+              <span class="cm-dropdown-tag">ACTIVE</span>
+            </a>
+            <a href="#" class="cm-dropdown-item" role="menuitem">
+              <span class="cm-dropdown-icon">⚡</span>
+              <span class="cm-dropdown-text">AI Solver</span>
+            </a>
+            <a href="#" class="cm-dropdown-item" role="menuitem">
+              <span class="cm-dropdown-icon">🎥</span>
+              <span class="cm-dropdown-text">Video Lessons</span>
+            </a>
+            <div class="cm-dropdown-sep"></div>
+            <a href="../../index.html" class="cm-dropdown-item cm-dropdown-portal" role="menuitem">
+              <span class="cm-dropdown-icon">🏛</span>
+              <span class="cm-dropdown-text">Instrument Suite Portal</span>
+            </a>
+          </div>
           <span class="cm-brand-divider" aria-hidden="true">|</span>
         </div>
         <div class="brand">
@@ -25,12 +53,6 @@
             <span class="brand-model">5424-R</span>
           </span>
         </div>
-        <nav class="cm-topnav" aria-label="ChemMate sections">
-          <span class="cm-nav-item">CURRICULUM</span>
-          <span class="cm-nav-item is-active">INTERACTIVE LABS</span>
-          <span class="cm-nav-item">AI SOLVER</span>
-          <span class="cm-nav-item">VIDEO LESSONS</span>
-        </nav>
       </div>
 
       <div class="topbar-right">
@@ -47,11 +69,6 @@
               <span class="view-choice-text night"><span class="night-glyph">☾</span> NIGHT</span>
             </button>
           </div>
-        </div>
-
-        <div class="topbar-status">
-          <span id="status-pill" class="pill">LID OPEN</span>
-          <span id="status-detail" class="muted">Ready to load samples</span>
         </div>
       </div>
     </header>
@@ -110,15 +127,6 @@
             </label>
           </div>
 
-          <!-- Guided Tours & Demos -->
-          <div class="toolbar-group">
-            <button type="button" class="view-btn btn-story" id="btn-tube-story" title="Follow one tube fill → spin → layers">
-              Tube story
-            </button>
-            <button type="button" class="view-btn btn-showcase" id="btn-full-showcase" title="Full demo: run cycles + part highlights + keypad tour">
-              Full showcase
-            </button>
-          </div>
         </div>
         <div id="viewport3d" class="viewport"></div>
 
@@ -337,12 +345,15 @@
 
               <div class="action-suite-group">
                 <div class="action-suite-title">AUTOMATED WORKFLOW DEMOS</div>
-                <div class="action-suite-grid grid-3">
+                <div class="action-suite-grid grid-2">
                   <button type="button" class="btn btn-demo" id="btn-demo-spin" title="Quick single spin cycle">
                     <span class="btn-glyph">▶</span> Quick run
                   </button>
                   <button type="button" class="btn btn-demo" id="btn-demo-loop" title="Continuous sample spin runs">
                     <span class="btn-glyph">🔁</span> Continuous
+                  </button>
+                  <button type="button" class="btn btn-demo btn-story" id="btn-tube-story" title="Follow one tube fill → spin → layers">
+                    <span class="btn-glyph">🧪</span> Tube story
                   </button>
                   <button type="button" class="btn btn-demo btn-showcase" id="btn-full-showcase-panel" title="Runs + part highlights + keypad lights">
                     <span class="btn-glyph">★</span> Showcase
@@ -353,7 +364,7 @@
             <p id="demo-loop-status" class="demo-loop-status muted" hidden></p>
 
             <p class="instrument-note">
-              <strong>Full showcase</strong> executes run cycles, camera part tours, and illuminated keypad telemetry.
+              <strong>Automated workflow demos</strong> execute run cycles, tube filling, camera part tours, and illuminated keypad telemetry.
             </p>
           </div>
         </div>

@@ -104,8 +104,10 @@ export const BENCH = {
   sz: 6.2,
   bodyH: 8.30,
   topT: 0.70,
+  // Outlet position in INSTRUMENT-LOCAL coordinates (pump root sits at Y = surfaceY world).
+  // Box body (0.18 deep) is flush against the backsplash front face at Z = sz/2.
   get outlet() {
-    return new THREE.Vector3(1.80, this.surfaceY + 0.65, 3.10);
+    return new THREE.Vector3(1.80, 0.65, this.sz / 2 + 0.02 - 0.09);
   },
 };
 
@@ -113,33 +115,33 @@ export const BENCH = {
 // Standard Camera Viewpoint Presets
 // ---------------------------------------------------------------------------
 export const CAM_ISO = {
-  position: new THREE.Vector3(3.60, BENCH.surfaceY + 2.80, -4.20),
-  target: new THREE.Vector3(0.00, BENCH.surfaceY + 0.85, 0.00),
+  position: new THREE.Vector3(4.20, BENCH.surfaceY + 2.40, -4.50),
+  target: new THREE.Vector3(0.00, BENCH.surfaceY + 0.75, 0.00),
 };
 
 export const CAM_FRONT = {
-  position: new THREE.Vector3(0.00, BENCH.surfaceY + 1.20, -4.60),
-  target: new THREE.Vector3(0.00, BENCH.surfaceY + 0.85, 0.00),
+  position: new THREE.Vector3(0.00, BENCH.surfaceY + 0.80, -5.80),
+  target: new THREE.Vector3(0.00, BENCH.surfaceY + 0.80, 0.00),
 };
 
 export const CAM_SIDE = {
-  position: new THREE.Vector3(-4.80, BENCH.surfaceY + 1.20, 0.00),
-  target: new THREE.Vector3(0.00, BENCH.surfaceY + 0.85, 0.00),
+  position: new THREE.Vector3(-5.60, BENCH.surfaceY + 0.80, 0.00),
+  target: new THREE.Vector3(0.00, BENCH.surfaceY + 0.80, 0.00),
 };
 
 export const CAM_TOP = {
-  position: new THREE.Vector3(0.00, BENCH.surfaceY + 5.60, -0.01),
+  position: new THREE.Vector3(0.00, BENCH.surfaceY + 5.50, -0.01),
   target: new THREE.Vector3(0.00, BENCH.surfaceY + 0.75, 0.00),
 };
 
 export const CAM_CONSOLE = {
-  position: new THREE.Vector3(0.00, BENCH.surfaceY + 0.62, -3.60),
+  position: new THREE.Vector3(0.00, BENCH.surfaceY + 0.52, -2.80),
   target: new THREE.Vector3(0.00, BENCH.surfaceY + 0.52, -0.80),
 };
 
 export const CAM_EXPLODED = {
-  position: new THREE.Vector3(4.20, BENCH.surfaceY + 3.80, -4.60),
-  target: new THREE.Vector3(0.00, BENCH.surfaceY + 1.20, 0.00),
+  position: new THREE.Vector3(4.20, BENCH.surfaceY + 3.40, -4.60),
+  target: new THREE.Vector3(0.00, BENCH.surfaceY + 1.00, 0.00),
 };
 
 export const CAM_MOTOR_INTERIOR = {
@@ -379,18 +381,41 @@ export function createVacuumPumpModel() {
     foot.add(stud);
   });
 
-  // Structural Lower Chassis Tray (Body_LowerHousing)
-  // Dimensions: Width 3.10, Depth 1.58, Height 0.80. Bottom seated at Y = 0.08 above feet
-  const lowerHousing = box(3.10, 0.80, 1.58, matLightChassis);
+  // Structural Lower Chassis Tray (Body_LowerHousing) — hollow molded shell, 4 mm walls
+  // Outer envelope: Width 3.10, Depth 1.58, Height 0.80. Bottom seated at Y = 0.08 above feet
+  const lowerHousing = new THREE.Group();
   lowerHousing.name = "Body_LowerHousing";
-  lowerHousing.position.set(0, 0.08 + 0.80 / 2, 0);
   baseGroup.add(lowerHousing);
-  registerPart(lowerHousing, "Chassis", "Precision-molded chemical-resistant structural polymer lower casing with internal motor cradle");
+  registerPart(lowerHousing, "Chassis", "Precision-molded chemical-resistant hollow polymer lower casing (4 mm wall) housing motor cradle, PCB and harness");
+
+  const lhFloor = box(3.10, 0.05, 1.58, matLightChassis);
+  lhFloor.position.set(0, 0.105, 0);
+  lowerHousing.add(lhFloor);
+  for (const sx of [-1.53, 1.53]) {
+    const sideWall = box(0.04, 0.80, 1.58, matLightChassis);
+    sideWall.position.set(sx, 0.48, 0);
+    lowerHousing.add(sideWall);
+  }
+  const rearWall = box(3.02, 0.80, 0.04, matLightChassis);
+  rearWall.position.set(0, 0.48, 0.77);
+  lowerHousing.add(rearWall);
+
+  // Removable front service wall + operator console slide forward in exploded view
+  const frontExplodeGroup = new THREE.Group();
+  frontExplodeGroup.name = "Group_FrontServiceExplode";
+  root.add(frontExplodeGroup);
+  refs.explodeGroups.push({ group: frontExplodeGroup, dir: new THREE.Vector3(0, 0, -1.20) });
+
+  const frontWall = box(3.02, 0.80, 0.04, matLightChassis);
+  frontWall.name = "Panel_FrontService";
+  frontWall.position.set(0, 0.48, -0.77);
+  frontExplodeGroup.add(frontWall);
+  registerPart(frontWall, "Chassis", "Removable front service wall carrying the operator console fascia");
 
   // Dark Structural Base Trim Strip
-  const baseTrim = box(3.12, 0.08, 1.60, matAccentDark);
+  const baseTrim = box(3.12, 0.06, 1.60, matAccentDark);
   baseTrim.name = "Trim_Chassis_Base";
-  baseTrim.position.set(0, 0.12, 0);
+  baseTrim.position.set(0, 0.11, 0);
   baseGroup.add(baseTrim);
   registerPart(baseTrim, "Chassis", "Perimeter impact-resistant structural base protective band");
 
@@ -413,38 +438,78 @@ export function createVacuumPumpModel() {
   driveGroup.position.set(0, 0.52, 0); // Motor centerline at Y = 0.52
   root.add(driveGroup);
 
-  // Cast Aluminum Motor Mounting Cradle & Endbells (Mount_Motor_Cradle)
-  const motorCradle = box(1.90, 0.14, 1.25, matAlumCast);
+  // Cast Aluminum Motor Saddle Cradle (Mount_Motor_Cradle) — sits on 4 rubber isolators on housing floor (Y=0.14)
+  const motorCradle = box(1.90, 0.08, 1.20, matAlumCast);
   motorCradle.name = "Mount_Motor_Cradle";
-  motorCradle.position.set(0, -0.38, 0);
+  motorCradle.position.set(0, -0.31, 0); // spans Y 0.17..0.25 world-local
   driveGroup.add(motorCradle);
-  registerPart(motorCradle, "Drive", "Precision cast aluminum motor mounting cradle with 4 M5 vibration isolation bushings");
+  registerPart(motorCradle, "Drive", "Precision cast aluminum motor saddle cradle with 4 M5 vibration isolation bushings");
+
+  for (const [ix, iz] of [[-0.82, -0.48], [0.82, -0.48], [-0.82, 0.48], [0.82, 0.48]]) {
+    const iso = cyl(0.07, 0.07, 0.03, matRubber, 16);
+    iso.name = `Isolator_Motor_${ix < 0 ? 'R' : 'L'}${iz < 0 ? 'F' : 'B'}`;
+    iso.position.set(ix, -0.365, iz); // Y 0.14..0.17 world-local
+    driveGroup.add(iso);
+    registerPart(iso, "Drive", "Nitrile rubber vibration isolation bushing between motor cradle and housing floor");
+    const isoBolt = createHexSocketScrew(0.022, 0.10);
+    isoBolt.position.set(ix, -0.27, iz);
+    driveGroup.add(isoBolt);
+  }
+
+  // Saddle cheeks cupping the stator
+  for (const cz of [-0.40, 0.40]) {
+    const cheek = box(1.10, 0.14, 0.06, matAlumCast);
+    cheek.position.set(0, -0.22, cz);
+    driveGroup.add(cheek);
+  }
 
   // Cast Aluminum Motor Endbells & Deep-Groove Ball Bearings
   for (const ebX of [-0.62, 0.62]) {
-    const endbell = cyl(0.42, 0.42, 0.10, matAlumCast, 24);
-    endbell.name = `Endbell_Motor_${ebX < 0 ? 'Left' : 'Right'}`;
+    const endbell = cyl(0.36, 0.36, 0.10, matAlumCast, 32);
+    endbell.name = `Endbell_Motor_${ebX < 0 ? 'Right' : 'Left'}`;
     endbell.rotation.z = Math.PI / 2;
     endbell.position.set(ebX, 0, 0);
     driveGroup.add(endbell);
     registerPart(endbell, "Drive", "Precision machined aluminum motor endbell housing bearing pocket");
 
-    const bearing = cyl(0.18, 0.18, 0.08, matSteelShaft, 20);
-    bearing.name = `Bearing_Motor_${ebX < 0 ? 'Left' : 'Right'}`;
+    const bearing = cyl(0.12, 0.12, 0.12, matSteelShaft, 20);
+    bearing.name = `Bearing_Motor_${ebX < 0 ? 'Right' : 'Left'}`;
     bearing.rotation.z = Math.PI / 2;
     bearing.position.set(ebX, 0, 0);
     driveGroup.add(bearing);
-    registerPart(bearing, "Drive", "ABEC-5 deep-groove stainless steel ball bearing");
+    registerPart(bearing, "Drive", "6201-2RS deep-groove stainless steel ball bearing pressed into endbell");
   }
 
-  // 12-Pole Laminated Silicon Steel Stator Core (Motor_BLDC_Stator)
-  const statorCore = cyl(0.40, 0.40, 0.90, matStatorIron, 24);
-  statorCore.name = "Motor_BLDC_Stator";
-  statorCore.rotation.z = Math.PI / 2;
-  driveGroup.add(statorCore);
-  registerPart(statorCore, "Drive", "12-pole laminated silicon steel stator core (0.35mm lamination stack)");
+  // 4 Through-bolts clamping endbells across the stator stack
+  for (let tb = 0; tb < 4; tb++) {
+    const a = Math.PI / 4 + tb * Math.PI / 2;
+    const tie = cyl(0.016, 0.016, 1.36, matSteelShaft, 10);
+    tie.name = `Fastener_MotorTieRod_${tb + 1}`;
+    tie.rotation.z = Math.PI / 2;
+    tie.position.set(0, Math.sin(a) * 0.30, Math.cos(a) * 0.30);
+    driveGroup.add(tie);
+    for (const nx of [-0.69, 0.69]) {
+      const nut = cyl(0.03, 0.03, 0.03, matSteelShaft, 6);
+      nut.rotation.z = Math.PI / 2;
+      nut.position.set(nx, tie.position.y, tie.position.z);
+      driveGroup.add(nut);
+    }
+  }
 
-  // 12 Individual Wound Copper Coil Packs (Motor_Coils_Copper)
+  // 12-Pole Laminated Silicon Steel Stator Core (Motor_BLDC_Stator) — genuine lamination stack
+  const statorCore = new THREE.Group();
+  statorCore.name = "Motor_BLDC_Stator";
+  driveGroup.add(statorCore);
+  registerPart(statorCore, "Drive", "12-pole laminated silicon steel stator core (stack of insulated M19 laminations)");
+  const lamCount = 16;
+  for (let li = 0; li < lamCount; li++) {
+    const lam = cyl(0.34, 0.34, 0.05, matStatorIron, 36);
+    lam.rotation.z = Math.PI / 2;
+    lam.position.x = -0.45 + 0.03 + li * 0.0563;
+    statorCore.add(lam);
+  }
+
+  // 12 Wound Copper Coil Packs (Motor_Coils_Copper) — end-turns protrude beyond the lamination stack
   const coilGroup = new THREE.Group();
   coilGroup.name = "Motor_Coils_Copper";
   driveGroup.add(coilGroup);
@@ -452,8 +517,9 @@ export function createVacuumPumpModel() {
 
   for (let ci = 0; ci < 12; ci++) {
     const ang = (ci / 12) * Math.PI * 2;
-    const coil = box(0.85, 0.12, 0.12, matCopperCoils);
-    coil.position.set(0, Math.sin(ang) * 0.32, Math.cos(ang) * 0.32);
+    const coil = box(1.02, 0.10, 0.11, matCopperCoils);
+    coil.position.set(0, Math.sin(ang) * 0.25, Math.cos(ang) * 0.25);
+    coil.rotation.x = -ang;
     coilGroup.add(coil);
   }
 
@@ -469,7 +535,7 @@ export function createVacuumPumpModel() {
   shaftGroup.add(shaftRod);
 
   // Permanent Magnet Rotor Hub on Shaft
-  const rotorHub = cyl(0.24, 0.24, 0.85, matSteelShaft, 24);
+  const rotorHub = cyl(0.17, 0.17, 0.85, matSteelShaft, 24);
   rotorHub.rotation.z = Math.PI / 2;
   shaftGroup.add(rotorHub);
 
@@ -487,8 +553,8 @@ export function createVacuumPumpModel() {
 
   for (let fi = 0; fi < 7; fi++) {
     const fAng = (fi / 7) * Math.PI * 2;
-    const blade = box(0.04, 0.26, 0.025, matAccentDark);
-    blade.position.set(0, Math.sin(fAng) * 0.22, Math.cos(fAng) * 0.22);
+    const blade = box(0.04, 0.16, 0.025, matAccentDark);
+    blade.position.set(0, Math.sin(fAng) * 0.17, Math.cos(fAng) * 0.17);
     blade.rotation.x = fAng + 0.35;
     fanGroup.add(blade);
   }
@@ -750,7 +816,7 @@ export function createVacuumPumpModel() {
   const consoleGroup = new THREE.Group();
   consoleGroup.name = "Assembly_FrontConsole";
   consoleGroup.position.set(0, 0.52, -0.80);
-  root.add(consoleGroup);
+  frontExplodeGroup.add(consoleGroup);
 
   // Flush Recessed Console Faceplate Plate (Plate_ConsoleFace)
   const consoleFace = box(2.80, 0.72, 0.025, matAccentDark);

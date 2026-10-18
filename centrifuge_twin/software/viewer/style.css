@@ -1102,7 +1102,6 @@ body {
    ============================================================================ */
 
 /* Default (Dark Lab): hide ChemMate-only editorial chrome */
-.cm-brand,
 .cm-topnav,
 .cm-motto,
 .brand-num,
@@ -3551,11 +3550,330 @@ body[data-theme="chemmate"] .cm-callout-badge {
   color: #ffffff !important;
 }
 
-/* Retro/Night layout fixes */
-.action-suite-grid.grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.action-suite-grid .btn { min-width: 0; padding-left: 0.3rem; padding-right: 0.3rem; white-space: normal; text-align: center; justify-content: center; }
+/* ============================================================================
+   CHEMMATE RED PLUS BRAND DROPDOWN & AUTOMATED DEMO GRID
+   ============================================================================ */
+
+/* Red Plus Brand Dropdown Container */
+.cm-brand-dropdown-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.cm-brand-trigger {
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 0.2rem 0.4rem;
+  margin: -0.2rem -0.4rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: inherit;
+  color: inherit;
+  transition: background-color 0.15s ease;
+}
+
+.cm-brand-trigger:hover,
+.cm-brand-dropdown-container.is-open .cm-brand-trigger {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.cm-cross-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #d62828;
+  color: #ffffff;
+  font-family: var(--font-display, "Inter", sans-serif);
+  font-weight: 800;
+  font-size: 1.35rem;
+  border-radius: 4px;
+  line-height: 1;
+  box-shadow: 0 2px 5px rgba(214, 40, 40, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cm-brand-trigger:hover .cm-cross-box {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(214, 40, 40, 0.55);
+}
+
+.cm-brand-text {
+  font-family: var(--font-display, "Inter", sans-serif);
+  font-weight: 800;
+  font-size: 1.35rem;
+  letter-spacing: -0.03em;
+  color: #f0f4f8;
+}
+
+.cm-dropdown-chevron {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  color: var(--muted);
+  transition: transform 0.2s ease, opacity 0.15s ease;
+  user-select: none;
+}
+
+.cm-brand-trigger:hover .cm-dropdown-chevron,
+.cm-brand-dropdown-container.is-open .cm-dropdown-chevron {
+  opacity: 1;
+}
+
+.cm-brand-dropdown-container.is-open .cm-dropdown-chevron {
+  transform: rotate(180deg);
+}
+
+.cm-brand-divider {
+  color: #334155;
+  font-size: 1.25rem;
+  font-weight: 300;
+  margin: 0 0.15rem;
+}
+
+/* Dropdown Menu Box */
+.cm-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 240px;
+  background: #141b24;
+  border: 1px solid #28374a;
+  border-radius: 8px;
+  padding: 0.45rem;
+  display: none;
+  flex-direction: column;
+  gap: 0.2rem;
+  z-index: 1000;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(10px);
+}
+
+.cm-brand-dropdown-container.is-open .cm-dropdown-menu {
+  display: flex;
+  animation: cmDropdownFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cmDropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cm-dropdown-header {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #7b8eab;
+  padding: 0.45rem 0.65rem 0.25rem;
+  text-transform: uppercase;
+}
+
+.cm-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.48rem 0.65rem;
+  border-radius: 5px;
+  color: #cdd7e5;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.cm-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.cm-dropdown-item.is-active {
+  background: rgba(214, 40, 40, 0.15);
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+.cm-dropdown-icon {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.cm-dropdown-text {
+  flex: 1;
+}
+
+.cm-dropdown-tag {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 0.15rem 0.35rem;
+  border-radius: 3px;
+  background: rgba(214, 40, 40, 0.25);
+  color: #ff6b6b;
+  letter-spacing: 0.05em;
+}
+
+.cm-dropdown-sep {
+  height: 1px;
+  background: #243242;
+  margin: 0.3rem 0;
+}
+
+/* Retro theme brand & dropdown */
+body[data-theme="retro"] .cm-brand-text {
+  color: #161514;
+}
+
+body[data-theme="retro"] .cm-brand-trigger:hover,
+body[data-theme="retro"] .cm-brand-dropdown-container.is-open .cm-brand-trigger {
+  background: rgba(22, 21, 20, 0.06);
+}
+
+body[data-theme="retro"] .cm-brand-divider {
+  color: #b8afa0;
+}
+
+body[data-theme="retro"] .cm-dropdown-menu {
+  background: #fbf9f4;
+  border: 1.5px solid #1e1d1b;
+  box-shadow: 0 14px 36px rgba(22, 21, 20, 0.2);
+}
+
+body[data-theme="retro"] .cm-dropdown-header {
+  color: #7d7568;
+}
+
+body[data-theme="retro"] .cm-dropdown-item {
+  color: #161514;
+}
+
+body[data-theme="retro"] .cm-dropdown-item:hover {
+  background: rgba(22, 21, 20, 0.06);
+  color: #000000;
+}
+
+body[data-theme="retro"] .cm-dropdown-item.is-active {
+  background: rgba(214, 40, 40, 0.1);
+  color: #d62828;
+}
+
+body[data-theme="retro"] .cm-dropdown-tag {
+  background: #d62828;
+  color: #ffffff;
+}
+
+body[data-theme="retro"] .cm-dropdown-sep {
+  background: #ded7ca;
+}
+
+/* Night theme brand & dropdown */
+body[data-theme="night"] .cm-brand-text {
+  color: #ffffff;
+}
+
+body[data-theme="night"] .cm-cross-box {
+  background: #ff3344;
+  box-shadow: 0 0 10px rgba(255, 51, 68, 0.45);
+}
+
+body[data-theme="night"] .cm-brand-trigger:hover,
+body[data-theme="night"] .cm-brand-dropdown-container.is-open .cm-brand-trigger {
+  background: rgba(255, 51, 68, 0.1);
+}
+
+body[data-theme="night"] .cm-brand-divider {
+  color: #2b3548;
+}
+
+body[data-theme="night"] .cm-dropdown-menu {
+  background: #0f131a;
+  border: 1px solid #232c3d;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.85);
+}
+
+body[data-theme="night"] .cm-dropdown-header {
+  color: #606d84;
+}
+
+body[data-theme="night"] .cm-dropdown-item {
+  color: #e2e8f0;
+}
+
+body[data-theme="night"] .cm-dropdown-item:hover {
+  background: rgba(255, 51, 68, 0.12);
+  color: #ffffff;
+}
+
+body[data-theme="night"] .cm-dropdown-item.is-active {
+  background: rgba(255, 51, 68, 0.2);
+  color: #ff4d5a;
+}
+
+body[data-theme="night"] .cm-dropdown-tag {
+  background: #ff3344;
+  color: #ffffff;
+}
+
+body[data-theme="night"] .cm-dropdown-sep {
+  background: #1c2331;
+}
+
+/* Automated Workflow Demos: 2x2 Grid */
+.action-suite-grid.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.action-suite-grid.grid-2 .btn {
+  padding: 0.48rem 0.55rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+  border-radius: 4px;
+}
+
+.action-suite-grid.grid-2 .btn .btn-glyph {
+  font-size: 0.8rem;
+  display: inline-block;
+  line-height: 1;
+}
+
+/* Retro theme demo buttons */
+body[data-theme="retro"] .action-suite-grid.grid-2 .btn {
+  background: #ffffff;
+  border: 1px solid #ded7ca;
+  color: #1a1918;
+}
+
+body[data-theme="retro"] .action-suite-grid.grid-2 .btn:hover {
+  background: #f4efe6;
+  border-color: #1a1918;
+}
+
+body[data-theme="retro"] .action-suite-grid.grid-2 .btn.active {
+  background: #d62828;
+  border-color: #b51f1f;
+  color: #ffffff;
+}
+
+/* Plate header & part status wrapping */
 .cm-plate-header-left { flex: 1 1 auto; }
 .cm-plate-header-right { display: none; }
 .lab-status, #parts-focus-status { white-space: normal; overflow-wrap: anywhere; overflow: visible; text-overflow: clip; }
-.action-suite-grid.grid-3 .btn { font-size: 0.68rem; gap: 0.2rem; overflow: hidden; }
-.action-suite-grid.grid-3 .btn .btn-glyph { display: none; }

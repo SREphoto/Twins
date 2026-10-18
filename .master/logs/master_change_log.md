@@ -4,6 +4,31 @@ Newest first. Template: `templates/change_log_entry.md`.
 
 ---
 
+## 2026-10-18 · OGA-UI · centrifuge-topbar-dropdown-and-workflow-consolidation
+
+| Field   | Value                                                                                                                                                                                                                                                            |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | OGA-UI (Master UI Architecture) / Digital Twin Architecture Team                                                                                                                                                                                                 |
+| Machine | `centrifuge_twin`, `workspace`                                                                                                                                                                                                                                   |
+| Intent  | Streamline centrifuge UI per user direction: remove viewport demo buttons, relocate Tube story to Control Panel in 2x2 grid, remove topbar LID OPEN pill and instructions, and convert topbar faux links into an interactive dropdown menu under the ChemMate red plus logo. |
+
+### Changed
+
+- `centrifuge_twin/software/viewer/index.html`:
+  - Removed topbar faux links (`CURRICULUM`, `INTERACTIVE LABS`, `AI SOLVER`, `VIDEO LESSONS`) and replaced with interactive dropdown menu triggered by the red plus ChemMate logo (`.cm-cross-box`).
+  - Removed `.topbar-status` (`#status-pill` "LID OPEN" pill and `#status-detail` instruction string).
+  - Removed duplicate workflow buttons (`Tube story`, `Full showcase`) from the `.view-toolbar` in the 3D viewport.
+  - Relocated `Tube story` into the Control Panel under `AUTOMATED WORKFLOW DEMOS` in a clean, balanced 2x2 grid (`grid-2`) with `Quick run`, `Continuous`, and `Showcase`.
+- `centrifuge_twin/software/viewer/style.css`:
+  - Added comprehensive dropdown menu styling (`.cm-brand-dropdown-container`, `.cm-dropdown-menu`, `.cm-dropdown-item`) across Modern, Retro, and Night modes with smooth opening transitions, active route badges, and portal links.
+  - Styled the 2x2 automated demo grid (`.action-suite-grid.grid-2`) with balanced button padding and glyphs.
+  - Un-hid `.cm-brand` in Modern mode to provide consistent brand and menu access across all three themes.
+- `centrifuge_twin/software/viewer/app.js`:
+  - Added dropdown toggle and click-outside dismissal handlers (`cm-brand-menu-btn`).
+  - Connected `#btn-tube-story` within the Control Panel to the existing tube story sequence.
+
+---
+
 ## 2026-10-18 · OGA-UI & SRE-TWIN · chemmate-centrifuge-redline-refinement-and-universal-theme-rollout
 
 | Field   | Value                                                                                                                                                                                                                                                            |
