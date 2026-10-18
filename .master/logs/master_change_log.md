@@ -4,6 +4,53 @@ Newest first. Template: `templates/change_log_entry.md`.
 
 ---
 
+## 2026-10-18 · OGA-UI & SRE-TWIN · chemmate-centrifuge-redline-refinement-and-universal-theme-rollout
+
+| Field   | Value                                                                                                                                                                                                                                                            |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | OGA-UI (Master UI Architecture) / Digital Twin Architecture Team                                                                                                                                                                                                 |
+| Machine | `centrifuge_twin`, `lab_viewer`, all 13 lab digital twins, `workspace`                                                                                                                                                                                           |
+| Intent  | Resolve all direct user redline annotations on the ChemMate Centrifuge showcase (`centrifuge_twin`) and complete the universal rollout of the ChemMate View Chooser (`MODERN`, `+ RETRO`, `☾ NIGHT`) across all 13 laboratory instrument twins with 100% test pass rate and zero visual regressions. |
+
+### Changed
+
+- `centrifuge_twin/software/viewer/index.html`:
+  - Enlarged `[+] ChemMate` branding with 32px cross-mark and 1.55rem bold title.
+  - Aligned `03` Swiss badge with `MICRO 5424-R` model title; purged crossed-out subtitle `REFRIGERATED MICROCENTRIFUGE TWIN`.
+  - Reorganized `.view-toolbar` into 4 structured `.toolbar-group` capsules: View Modes, Camera & Orbit, Lighting & Atmosphere, and Workflows & Demos.
+  - Purged crossed-out buttons: `btn-music`, `btn-music-chat`, and `btn-sfx-mute`.
+  - Restructured `.keypad-section` with an authentic industrial 3×2 membrane keypad grid (`POWER`, `RPM / RCF`, `SHORT`, `OPEN`, `START / STOP`, `FAST COOL`) and structured action suites for Lid & Safety Interlocks and Automated Workflow Demos.
+- `centrifuge_twin/software/viewer/style.css`:
+  - Styled enlarged ChemMate brand mark and aligned Swiss model badge.
+  - Enforced `flex-wrap: nowrap` on `.topbar` and `.topbar-right` to permanently eliminate awkward header wrapping.
+  - Styled `.toolbar-group` HUD modules across Modern, ChemMate Retro, and Night modes.
+  - Added authentic membrane keypad styles with tactile border insets, uppercase typography, glyph accents, and distinct pressed states.
+  - Added deduplicated Part Explorer count badges (`.part-count-badge`) with theme-adaptive styling.
+- `centrifuge_twin/software/viewer/app.js`:
+  - `drawLcd(s)`: Overhauled into a museum-grade digital telemetry display featuring polarized gradient glass, micro-grid pattern, chamfered bezel, header telemetry, ghost 88,888 digits, glowing cyan RPM/RCF, glowing amber countdown timer with progress gauge, emerald chamber temperature (+4.0 °C), 3 annunciator pills (`LID`, `BALANCE`, `DRIVE STATE`), and dynamic terminal guidance ticker.
+  - `buildPartsList()`: Deduplicated identical parts by `item.label` within each group, reducing list to 70 unique entries; rendered count badges (`18×`) for multi-mesh assemblies.
+  - `focusPart()` & `focusPartEntry()`: Implemented multi-mesh union bounding box via `THREE.Box3()` and passed array of objects to `setExplorerFocus()` so all instances stay solid while the rest of the instrument wireframes.
+  - `updateChrome()`: Synchronized dynamic `#btn-lid-label` to toggle between `Close lid` and `Open lid` dynamically based on state.
+- All 13 Digital Twins (`balance_twin`, `centrifuge_twin`, `ftir_twin`, `glove_box_twin`, `high_pressure_reactor_twin`, `hotplate_twin`, `muffle_furnace_twin`, `ph_meter_twin`, `rotovap_twin`, `spectrophotometer_twin`, `ultrasonic_cleaner_twin`, `vacuum_pump_twin`, `vortex_mixer_twin`):
+  - Integrated the standardized View Chooser (`MODERN`, `+ RETRO`, `☾ NIGHT`) in topbar headers.
+  - Connected `lab_viewer/shared/chemmate_theme_manager.js` and `chemmate_themes.css` for synchronized DOM, 3D lighting, and URL query propagation.
+
+### Created
+
+- `lab_viewer/shared/chemmate_theme_manager.js`: Modular theme controller supporting 3D studio lighting adjustment, DOM token management, URL query sync, and postMessage event bridging.
+- `lab_viewer/shared/chemmate_themes.css`: Shared stylesheet defining retro archival paper and night precision theme tokens for all instrument showcases.
+- `scratch/audit_redline_fixes.js`: Automated Chrome CDP audit script validating the redline fixes, telemetry LCD, Part Explorer deduplication, and multi-theme rendering with 0 console errors.
+
+### Visual Verification Artifacts
+
+- `view_01_retro_redlines_fixed.png`: Retro view verifying enlarged ChemMate logo, aligned badge, organized HUD groups, museum-grade LCD, and membrane keypad.
+- `view_02_part_explorer_dedup_focused.png`: Part Explorer verifying deduplicated `Side Vent Louver 18×` and simultaneous multi-mesh 3D focus.
+- `view_03_active_run_lcd_telemetry.png`: Active run state verifying spinning rotor, live LCD countdown, emerald temperature, and dynamic button updates.
+- `view_04_modern_redlines_fixed.png`: Modern view verifying dark lab mode with 0 regressions.
+- `view_05_night_redlines_fixed.png`: Night view verifying obsidian cards and precision red accents.
+
+---
+
 ## 2026-10-18 · OGA-UI & SRE-TWIN · lab-viewer-view-chooser-integration
 
 | Field   | Value                                                                                                                                                                                                                                                            |
@@ -1022,3 +1069,11 @@ Newest first. Template: `templates/change_log_entry.md`.
 ### Report card
 
 `logs/report_cards/2026-07-25_OGA_create-master.md`
+
+## 2026-10-18 — Retro/Night theme fix and design-system cleanup
+
+- centrifuge style.css: fixed 96 broken selectors (comma bug made retro rules target body only); retro now fully applies
+- Standardized fonts (Inter + IBM Plex Mono), single Swiss red accent, uniform keypad
+- Topbar/toolbar cleanup, theme-aware tube wells (app.js)
+- Retro/Night view chooser added across all showcases; shared chemmate_themes.css + theme manager
+- Root portal hub: view chooser, theme persisted via ?theme=

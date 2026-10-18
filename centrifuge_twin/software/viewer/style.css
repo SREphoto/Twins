@@ -12,7 +12,7 @@
   --key: #243041;
   --key-hover: #2f3f55;
   --radius: 12px;
-  --font: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 
@@ -35,16 +35,33 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.65rem 1.1rem;
+  gap: 1rem;
+  padding: 0.55rem 1.25rem;
   border-bottom: 1px solid var(--border);
   background: #0a0e14;
   flex-shrink: 0;
+  min-height: 56px;
+  flex-wrap: nowrap;
 }
-.brand { display: flex; align-items: baseline; gap: 0.5rem; }
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.brand-name-group {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
 .brand-mark { color: var(--cyan); font-weight: 700; letter-spacing: 0.12em; font-size: 0.85rem; }
 .brand-model { font-weight: 600; font-size: 1.1rem; }
-.brand-tag { color: var(--muted); font-size: 0.8rem; margin-left: 0.5rem; }
-.topbar-status { display: flex; align-items: center; gap: 0.75rem; }
+.topbar-status {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
 .pill {
   font-size: 0.72rem;
   font-weight: 700;
@@ -58,7 +75,11 @@ body {
 .pill.run { color: var(--green); border-color: #1f5c40; background: #10281c; }
 .pill.fault { color: var(--red); border-color: #6b2030; background: #2a1016; }
 .pill.open { color: var(--amber); border-color: #6b5010; background: #2a2210; }
-.muted { color: var(--muted); font-size: 0.85rem; }
+.muted {
+  color: var(--muted);
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
 
 /* Flex row: stage grows; panels keep fixed width so 3D never stretches/skews */
 .workspace {
@@ -116,73 +137,100 @@ body {
   z-index: 5;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.5rem;
+  align-items: center;
 }
-.view-btn {
-  appearance: none;
+.toolbar-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.35rem;
+  border-radius: 9px;
   border: 1px solid var(--border);
-  background: rgba(20, 28, 40, 0.9);
+  background: rgba(14, 20, 30, 0.88);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+.toolbar-group .view-btn {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text);
-  border-radius: 8px;
-  padding: 0.45rem 0.7rem;
-  font-size: 0.75rem;
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
-  backdrop-filter: blur(6px);
+  transition: all 0.15s ease;
+  white-space: nowrap;
 }
-.view-btn:hover { border-color: var(--cyan); color: var(--cyan); }
-.view-btn.active {
+.toolbar-group .view-btn:hover {
+  background: rgba(0, 212, 232, 0.15);
   border-color: var(--cyan);
   color: var(--cyan);
-  box-shadow: 0 0 0 1px rgba(0, 212, 232, 0.35);
 }
-.view-btn.btn-story {
+.toolbar-group .view-btn.active {
+  background: rgba(0, 212, 232, 0.22);
+  border-color: var(--cyan);
+  color: var(--cyan);
+  box-shadow: 0 0 0 1px rgba(0, 212, 232, 0.3);
+}
+.toolbar-group .view-btn.btn-story {
   border-color: #3a5a8a;
   color: #b8d4ff;
 }
-.view-btn.btn-story.active {
+.toolbar-group .view-btn.btn-story.active {
   border-color: #6ab0ff;
   color: #fff;
   background: #1a3050;
 }
-.orbit-speed-ctrl {
+.toolbar-group .view-btn.btn-showcase {
+  border-color: #3a6a8a;
+  color: #9ed4ff;
+}
+.toolbar-group .view-btn.btn-showcase.active {
+  border-color: #6ec8ff;
+  color: #fff;
+  background: #143048;
+}
+.toolbar-group .orbit-speed-ctrl {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem 0.55rem;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: rgba(20, 28, 40, 0.9);
+  gap: 0.3rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
   color: var(--muted);
   font-size: 0.7rem;
   font-weight: 600;
-  backdrop-filter: blur(6px);
 }
-.orbit-speed-ctrl input[type="range"] {
-  width: 72px;
+.toolbar-group .orbit-speed-ctrl input[type="range"] {
+  width: 64px;
   accent-color: var(--cyan);
   cursor: pointer;
 }
-.orbit-speed-ctrl #orbit-speed-val,
-.orbit-speed-ctrl #camera-zoom-val,
-.orbit-speed-ctrl #lab-light-val {
-  min-width: 2.4rem;
+.toolbar-group .orbit-speed-ctrl #orbit-speed-val,
+.toolbar-group .orbit-speed-ctrl #camera-zoom-val,
+.toolbar-group .orbit-speed-ctrl #lab-light-val {
+  min-width: 2.2rem;
   color: var(--cyan);
   font-variant-numeric: tabular-nums;
+  font-size: 0.68rem;
 }
-.orbit-speed-ctrl select {
+.toolbar-group .orbit-speed-ctrl select {
   appearance: none;
   border: 1px solid var(--border);
   background: #0c121c;
   color: var(--text);
-  border-radius: 6px;
-  padding: 0.15rem 0.4rem;
-  font-size: 0.7rem;
+  border-radius: 5px;
+  padding: 0.15rem 0.35rem;
+  font-size: 0.68rem;
   font-weight: 600;
   cursor: pointer;
-  max-width: 88px;
+  max-width: 82px;
 }
-.orbit-speed-ctrl select:focus {
+.toolbar-group .orbit-speed-ctrl select:focus {
   outline: 1px solid var(--cyan);
 }
 
@@ -538,51 +586,128 @@ body {
   image-rendering: auto;
 }
 
-.keypad {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+.keypad-section {
   margin-bottom: 0.65rem;
 }
-.keypad-train .rocker-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 0.4rem;
+.keypad-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.35rem;
+  padding: 0 0.15rem;
 }
-.keypad-train .action-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 0.4rem;
+.section-kicker {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: uppercase;
 }
-.keypad-train .key-start {
-  grid-column: span 2;
-  font-size: 0.9rem;
-  padding: 0.85rem 0.4rem;
+.section-hint {
+  font-size: 0.58rem;
+  font-family: var(--mono);
+  color: #5a6a7e;
+  letter-spacing: 0.04em;
+}
+
+.rocker-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+}
+.key-cluster.rocker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  background: #101722;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.4rem;
+}
+.cluster-label {
+  text-align: center;
+  font-size: 0.62rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  line-height: 1.1;
+}
+.rocker-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.25rem;
+}
+.rocker-pair .key-rock {
+  padding: 0.5rem 0.2rem;
+  min-height: 2.1rem;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+
+/* Authentic Industrial Membrane Keypad */
+.keypad-membrane-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.45rem;
+  margin-bottom: 0.75rem;
 }
 .key {
   appearance: none;
   border: 1px solid #3a4a5e;
   background: var(--key);
   color: var(--text);
-  border-radius: 10px;
-  padding: 0.75rem 0.4rem;
-  font-size: 0.82rem;
+  border-radius: 8px;
+  padding: 0.6rem 0.3rem;
+  font-size: 0.78rem;
   font-weight: 650;
   letter-spacing: 0.02em;
   cursor: pointer;
-  text-transform: lowercase;
   transition: background 0.12s, border-color 0.12s, transform 0.05s;
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
 }
+.keypad-membrane-grid .key {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0.6rem 0.25rem;
+  min-height: 52px;
+  border-radius: 7px;
+  text-transform: uppercase;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border: 1px solid #364457;
+  background: #182332;
+  color: var(--text);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.key-glyph {
+  font-size: 0.85rem;
+  line-height: 1;
+  opacity: 0.85;
+}
+.key-label {
+  font-size: 0.62rem;
+  line-height: 1.1;
+}
 .key:hover { background: var(--key-hover); border-color: var(--cyan); color: #fff; }
 .key:active, .key.is-down {
-  transform: translateY(1px);
+  transform: translateY(1.5px);
   background: #1a2838;
   border-color: var(--cyan);
-  box-shadow: inset 0 0 0 1px rgba(0, 212, 232, 0.35);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
 }
+
 /* AI / tutor guide backlight — breathing neon on side-panel keys */
 @keyframes key-glow-pulse {
   0%, 100% {
@@ -607,18 +732,51 @@ body {
   color: #fff;
   animation: key-glow-pulse 1.25s ease-in-out infinite;
 }
-/* Momentary press feedback — matches 3D key colors */
-.key.is-press-power,
-.key.key-power.is-down {
-  border-color: #ff2a3a;
-  box-shadow: 0 0 0 1px #ff2a3a, 0 0 18px rgba(255, 42, 58, 0.65), inset 0 0 14px rgba(255, 42, 58, 0.35);
-  color: #fff;
-  background: #5a1820;
+
+/* Cohesive Membrane Keys in Modern Mode */
+.keypad-membrane-grid .key {
+  background: #182230;
+  border: 1px solid #2a384c;
+  color: #d8e2ee;
+  font-family: var(--font);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.55rem 0.3rem;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: all 0.15s ease;
+}
+.keypad-membrane-grid .key:hover {
+  background: #202d40;
+  border-color: #3b4e68;
+  color: #ffffff;
+}
+.keypad-membrane-grid .key-primary {
+  background: #0f3324;
+  border-color: #1f6b4a;
+  color: #4ade80;
+}
+.keypad-membrane-grid .key-primary:hover {
+  background: #154632;
+  border-color: #22c55e;
+  color: #ffffff;
 }
 .key.is-press-go,
 .key.key-primary.is-down {
   border-color: #22ee77;
-  box-shadow: 0 0 0 1px #22ee77, 0 0 18px rgba(34, 238, 119, 0.6), inset 0 0 14px rgba(34, 238, 119, 0.3);
+  box-shadow: 0 0 0 1px #22ee77, 0 0 12px rgba(34, 238, 119, 0.4);
+  color: #fff;
+}
+.key.is-press-power,
+.key.key-power.is-down {
+  border-color: #ff3b5c;
+  box-shadow: 0 0 0 1px #ff3b5c, 0 0 12px rgba(255, 59, 92, 0.4);
   color: #fff;
 }
 .key.is-press-cool,
@@ -627,65 +785,65 @@ body {
   box-shadow: 0 0 0 1px #2a9fff, 0 0 18px rgba(42, 159, 255, 0.6), inset 0 0 14px rgba(42, 159, 255, 0.3);
   color: #fff;
 }
-/* Rockers / open / short — letters bright, body quiet */
-.key.is-press-label {
-  border-color: #8a9aab;
-  box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.12);
-  color: #fff;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.95), 0 0 18px rgba(180, 220, 255, 0.7);
-}
-.key-primary {
-  background: linear-gradient(180deg, #1a4a40 0%, #143830 100%);
-  border-color: #2a6b55;
-  color: #b8f5d8;
-}
-.key-primary:hover { border-color: var(--green); color: #fff; }
-.key-power {
-  background: linear-gradient(180deg, #5a2028 0%, #3a1218 100%);
-  border-color: #8a3040;
-  color: #ffc0c8;
-}
-.key-power:hover { border-color: var(--red); color: #fff; }
-.key-cool {
-  background: linear-gradient(180deg, #1a3a55 0%, #122838 100%);
-  border-color: #2a5a7a;
-  color: #b8e0ff;
-}
-.key-cool:hover { border-color: var(--cyan); color: #fff; }
-.key-hold { border-style: dashed; }
-.key-rock {
-  font-size: 1.15rem;
-  padding: 0.7rem 0.3rem;
-  min-height: 2.6rem;
-}
 
-.key-cluster {
+/* Structured Operational Action Suites */
+.action-suite {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-bottom: 0.75rem;
+}
+.action-suite-group {
+  background: rgba(16, 24, 36, 0.7);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.45rem 0.55rem;
+}
+.action-suite-title {
+  font-size: 0.58rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+}
+.action-suite-grid.grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.3rem;
-  background: #101722;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 0.4rem;
-}
-.key-cluster.rocker {
-  grid-template-columns: 1fr 1fr;
-}
-.cluster-label {
-  grid-column: 1 / -1;
-  text-align: center;
-  font-size: 0.62rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-  line-height: 1.2;
-}
-
-.instrument-actions {
-  display: flex;
-  flex-wrap: wrap;
   gap: 0.4rem;
-  margin-bottom: 0.65rem;
+}
+.action-suite-grid.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.3rem;
+}
+.action-suite .btn {
+  padding: 0.45rem 0.2rem;
+  font-size: 0.71rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.btn-glyph {
+  margin-right: 0.18rem;
+  opacity: 0.85;
+}
+.btn-action-lid {
+  border-color: #32445a;
+  color: #d6e2f0;
+}
+.btn-action-imbalance {
+  border-color: #5c202d;
+  color: #fca5a5;
+}
+.btn-action-imbalance:hover {
+  border-color: #ef4444;
+  color: #fff;
+  background: #3b1016;
 }
 .btn {
   appearance: none;
@@ -862,6 +1020,10 @@ body {
 .parts-list .part-btn {
   appearance: none;
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
   text-align: left;
   border: 1px solid var(--border);
   background: var(--panel-2);
@@ -871,6 +1033,7 @@ body {
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.15s ease;
 }
 .parts-list .part-btn:hover {
   border-color: var(--cyan);
@@ -881,6 +1044,28 @@ body {
   background: #14303a;
   color: #fff;
   box-shadow: 0 0 0 1px rgba(0, 212, 232, 0.3);
+}
+.part-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.12rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(0, 212, 232, 0.18);
+  color: var(--cyan);
+  border: 1px solid rgba(0, 212, 232, 0.4);
+  line-height: 1;
+  flex-shrink: 0;
+}
+.part-label-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 @media (max-width: 1200px) {
@@ -937,7 +1122,8 @@ body {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
 }
 
 .panel-head-title-wrap {
@@ -1077,11 +1263,11 @@ body {
 }
 
 /* ----------------------------------------------------------------------------
-   CHEMMATE RETRO-EDUCATIONAL THEME (body[data-theme="chemmate"])
+   CHEMMATE RETRO-EDUCATIONAL THEME (body[data-theme="retro"], body[data-theme="chemmate"])
    Matches the reference tactile paper, Swiss red '+', editorial typography,
    and interactive 3D plate cards.
    ---------------------------------------------------------------------------- */
-body[data-theme="chemmate"] {
+body[data-theme="retro"], body[data-theme="chemmate"] {
   --bg: #f2ece1;
   --panel: #fbf9f4;
   --panel-2: #f3ede2;
@@ -1110,92 +1296,97 @@ body[data-theme="chemmate"] {
 }
 
 /* Topbar in ChemMate Mode */
-body[data-theme="chemmate"] .topbar {
+body[data-theme="retro"] .topbar {
   background: #f5f0e6;
   border-bottom: 1.5px solid #1e1d1b;
   padding: 0.55rem 1.15rem;
 }
 
-body[data-theme="chemmate"] .cm-brand {
+body[data-theme="retro"] .cm-brand {
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
 }
 
-body[data-theme="chemmate"] .cm-cross-box {
+body[data-theme="retro"] .cm-cross-box {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 32px;
+  height: 32px;
   background: #d62828;
   color: #ffffff;
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 1.15rem;
-  border-radius: 3px;
+  font-size: 1.45rem;
+  border-radius: 4px;
   line-height: 1;
-  box-shadow: 0 1px 2px rgba(214, 40, 40, 0.25);
+  box-shadow: 0 2px 4px rgba(214, 40, 40, 0.3);
 }
 
-body[data-theme="chemmate"] .cm-brand-text {
+body[data-theme="retro"] .cm-brand-text {
   font-family: var(--font-display);
   font-weight: 900;
-  font-size: 1.28rem;
+  font-size: 1.55rem;
   letter-spacing: -0.035em;
   color: #161514;
 }
 
-body[data-theme="chemmate"] .cm-brand-divider {
+body[data-theme="retro"] .cm-brand-divider {
   color: #b8afa0;
   font-weight: 300;
-  font-size: 1.15rem;
-  margin: 0 0.1rem;
+  font-size: 1.25rem;
+  margin: 0 0.15rem;
 }
 
-body[data-theme="chemmate"] .brand {
+body[data-theme="retro"] .brand {
+  display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.55rem;
+  padding: 0.2rem 0.55rem;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid #d8d0c2;
+  border-radius: 4px;
 }
 
-body[data-theme="chemmate"] .brand-num {
+body[data-theme="retro"] .brand-num {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   background: #d62828;
   color: #ffffff;
   font-family: var(--mono);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.2rem 0.45rem;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+body[data-theme="retro"] .brand-name-group {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+body[data-theme="retro"] .brand-mark {
+  color: #161514;
+  font-family: var(--mono);
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+}
+
+body[data-theme="retro"] .brand-model {
+  color: #161514;
+  font-family: var(--mono);
   font-weight: 700;
-  padding: 0.15rem 0.38rem;
-  border-radius: 2px;
+  font-size: 0.9rem;
   letter-spacing: 0.04em;
 }
 
-body[data-theme="chemmate"] .brand-mark {
-  color: #161514;
-  font-family: var(--mono);
-  font-weight: 700;
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
-}
-
-body[data-theme="chemmate"] .brand-model {
-  color: #161514;
-  font-family: var(--mono);
-  font-weight: 700;
-  font-size: 0.85rem;
-}
-
-body[data-theme="chemmate"] .brand-tag {
-  font-family: var(--mono);
-  text-transform: uppercase;
-  font-size: 0.65rem;
-  letter-spacing: 0.06em;
-  color: #5e5a52;
-}
-
-body[data-theme="chemmate"] .cm-topnav {
+body[data-theme="retro"] .cm-topnav {
   display: inline-flex;
   align-items: center;
   gap: 1.1rem;
@@ -1204,7 +1395,7 @@ body[data-theme="chemmate"] .cm-topnav {
   border-left: 1px solid #cfc7b8;
 }
 
-body[data-theme="chemmate"] .cm-nav-item {
+body[data-theme="retro"] .cm-nav-item {
   font-family: var(--mono);
   font-size: 0.66rem;
   font-weight: 600;
@@ -1214,12 +1405,12 @@ body[data-theme="chemmate"] .cm-nav-item {
   position: relative;
 }
 
-body[data-theme="chemmate"] .cm-nav-item.is-active {
+body[data-theme="retro"] .cm-nav-item.is-active {
   color: #161514;
   font-weight: 700;
 }
 
-body[data-theme="chemmate"] .cm-nav-item.is-active::after {
+body[data-theme="retro"] .cm-nav-item.is-active::after {
   content: "";
   position: absolute;
   left: 0;
@@ -1229,7 +1420,7 @@ body[data-theme="chemmate"] .cm-nav-item.is-active::after {
   background: #d62828;
 }
 
-body[data-theme="chemmate"] .cm-motto {
+body[data-theme="retro"] .cm-motto {
   display: block;
   font-family: var(--mono);
   font-size: 0.56rem;
@@ -1242,29 +1433,29 @@ body[data-theme="chemmate"] .cm-motto {
   border-right: 1px solid #cfc7b8;
 }
 
-body[data-theme="chemmate"] .view-chooser,
+body[data-theme="retro"] .view-chooser,
 body[data-theme="retro"] .view-chooser {
   background: #e6dfd1;
   border-color: #bfb5a4;
 }
 
-body[data-theme="chemmate"] .view-chooser-label,
+body[data-theme="retro"] .view-chooser-label,
 body[data-theme="retro"] .view-chooser-label {
   color: #7a7366;
 }
 
-body[data-theme="chemmate"] .view-choice-btn,
+body[data-theme="retro"] .view-choice-btn,
 body[data-theme="retro"] .view-choice-btn {
   color: #5e5a52;
 }
 
-body[data-theme="chemmate"] .view-choice-btn:hover,
+body[data-theme="retro"] .view-choice-btn:hover,
 body[data-theme="retro"] .view-choice-btn:hover {
   color: #161514;
   background: #ded6c5;
 }
 
-body[data-theme="chemmate"] .view-choice-btn.active,
+body[data-theme="retro"] .view-choice-btn.active,
 body[data-theme="retro"] .view-choice-btn.active {
   background: #d62828;
   color: #ffffff;
@@ -1273,7 +1464,7 @@ body[data-theme="retro"] .view-choice-btn.active {
 }
 
 /* Status Pill in ChemMate Mode */
-body[data-theme="chemmate"] .pill {
+body[data-theme="retro"] .pill {
   font-family: var(--mono);
   border-radius: 4px;
   background: #fbf9f4;
@@ -1281,30 +1472,30 @@ body[data-theme="chemmate"] .pill {
   color: #161514;
   padding: 0.25rem 0.55rem;
 }
-body[data-theme="chemmate"] .pill.open {
+body[data-theme="retro"] .pill.open {
   border-color: #d62828;
   background: #fbecec;
   color: #b81d1d;
 }
-body[data-theme="chemmate"] .pill.run {
+body[data-theme="retro"] .pill.run {
   border-color: #1f7a4c;
   background: #e6f4ec;
   color: #165e39;
 }
-body[data-theme="chemmate"] .pill.fault {
+body[data-theme="retro"] .pill.fault {
   border-color: #d62828;
   background: #d62828;
   color: #ffffff;
 }
 
 /* Workspace Card Layout in ChemMate Mode */
-body[data-theme="chemmate"] .workspace {
+body[data-theme="retro"] .workspace {
   padding: 10px 12px 12px;
   gap: 10px;
   background: transparent;
 }
 
-body[data-theme="chemmate"] .stage {
+body[data-theme="retro"] .stage {
   background: #efe9dd;
   border: 1px solid #c9c0b0;
   border-radius: 8px;
@@ -1316,7 +1507,7 @@ body[data-theme="chemmate"] .stage {
 }
 
 /* View Toolbar in ChemMate Mode */
-body[data-theme="chemmate"] .view-toolbar {
+body[data-theme="retro"] .view-toolbar {
   top: 48px;
   left: 16px;
   right: 16px;
@@ -1324,7 +1515,7 @@ body[data-theme="chemmate"] .view-toolbar {
   gap: 0.35rem;
 }
 
-body[data-theme="chemmate"] .view-btn {
+body[data-theme="retro"] .view-btn {
   background: rgba(251, 249, 244, 0.92);
   border: 1px solid #c4bba9;
   color: #1e1d1b;
@@ -1338,20 +1529,20 @@ body[data-theme="chemmate"] .view-btn {
   box-shadow: 0 1px 2px rgba(22, 21, 20, 0.05);
 }
 
-body[data-theme="chemmate"] .view-btn:hover {
+body[data-theme="retro"] .view-btn:hover {
   border-color: #161514;
   background: #ffffff;
   color: #d62828;
 }
 
-body[data-theme="chemmate"] .view-btn.active {
+body[data-theme="retro"] .view-btn.active {
   background: #d62828;
   border-color: #b51f1f;
   color: #ffffff;
   box-shadow: 0 1px 4px rgba(214, 40, 40, 0.3);
 }
 
-body[data-theme="chemmate"] .orbit-speed-ctrl {
+body[data-theme="retro"] .orbit-speed-ctrl {
   background: rgba(251, 249, 244, 0.92);
   border: 1px solid #c4bba9;
   color: #4f4b44;
@@ -1361,18 +1552,18 @@ body[data-theme="chemmate"] .orbit-speed-ctrl {
   padding: 0.24rem 0.5rem;
 }
 
-body[data-theme="chemmate"] .orbit-speed-ctrl input[type="range"] {
+body[data-theme="retro"] .orbit-speed-ctrl input[type="range"] {
   accent-color: #d62828;
 }
 
-body[data-theme="chemmate"] .orbit-speed-ctrl #orbit-speed-val,
-body[data-theme="chemmate"] .orbit-speed-ctrl #camera-zoom-val,
-body[data-theme="chemmate"] .orbit-speed-ctrl #lab-light-val {
+body[data-theme="retro"] .orbit-speed-ctrl #orbit-speed-val,
+body[data-theme="retro"] .orbit-speed-ctrl #camera-zoom-val,
+body[data-theme="retro"] .orbit-speed-ctrl #lab-light-val {
   color: #d62828;
   font-weight: 700;
 }
 
-body[data-theme="chemmate"] .orbit-speed-ctrl select {
+body[data-theme="retro"] .orbit-speed-ctrl select {
   background: #f3ede2;
   border-color: #bfb5a4;
   color: #161514;
@@ -1383,7 +1574,7 @@ body[data-theme="chemmate"] .orbit-speed-ctrl select {
 /* ----------------------------------------------------------------------------
    Archival Diagram Plate Overlay (.cm-plate-overlay)
    ---------------------------------------------------------------------------- */
-body[data-theme="chemmate"] .cm-plate-overlay {
+body[data-theme="retro"] .cm-plate-overlay {
   display: block;
   position: absolute;
   inset: 0;
@@ -1766,7 +1957,7 @@ body[data-theme="chemmate"] .cm-plate-overlay {
   text-align: right;
 }
 
-body[data-theme="chemmate"] .viewport-caption {
+body[data-theme="retro"] .viewport-caption {
   left: 38px;
   bottom: 13px;
   font-family: var(--mono);
@@ -1775,14 +1966,14 @@ body[data-theme="chemmate"] .viewport-caption {
   z-index: 11;
 }
 
-body[data-theme="chemmate"] .stage-hint {
+body[data-theme="retro"] .stage-hint {
   display: none;
 }
 
 /* ----------------------------------------------------------------------------
    Collapsible Side Panels in ChemMate Mode (Worksheet / Flashcard Cards)
    ---------------------------------------------------------------------------- */
-body[data-theme="chemmate"] .panel-collapsible {
+body[data-theme="retro"] .panel-collapsible {
   background: #fbf9f4;
   border: 1px solid #c9c0b0;
   border-radius: 8px;
@@ -1791,13 +1982,13 @@ body[data-theme="chemmate"] .panel-collapsible {
     0 1px 2px rgba(22, 21, 20, 0.04);
 }
 
-body[data-theme="chemmate"] .panel-head {
+body[data-theme="retro"] .panel-head {
   background: #f5f0e6;
   border-bottom: 1.5px solid #1e1d1b;
   padding: 0.6rem 0.75rem;
 }
 
-body[data-theme="chemmate"] .cm-panel-num {
+body[data-theme="retro"] .cm-panel-num {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1813,7 +2004,7 @@ body[data-theme="chemmate"] .cm-panel-num {
   flex-shrink: 0;
 }
 
-body[data-theme="chemmate"] .panel-title {
+body[data-theme="retro"] .panel-title {
   font-family: var(--font-display);
   font-size: 0.92rem;
   font-weight: 800;
@@ -1822,45 +2013,45 @@ body[data-theme="chemmate"] .panel-title {
   text-transform: uppercase;
 }
 
-body[data-theme="chemmate"] .panel-collapse-btn {
+body[data-theme="retro"] .panel-collapse-btn {
   background: #ebe4d6;
   border-color: #bfb5a4;
   color: #161514;
   border-radius: 4px;
 }
 
-body[data-theme="chemmate"] .panel-collapse-btn:hover {
+body[data-theme="retro"] .panel-collapse-btn:hover {
   border-color: #d62828;
   color: #d62828;
 }
 
 /* Instrument Control Frame in ChemMate Mode */
-body[data-theme="chemmate"] .instrument-frame {
+body[data-theme="retro"] .instrument-frame {
   background: #f3ede2;
   border: 1px solid #c9c0b0;
   border-radius: 8px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
-body[data-theme="chemmate"] .lcd {
+body[data-theme="retro"] .lcd {
   border: 2px solid #1e1d1b;
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(22, 21, 20, 0.14);
 }
 
-body[data-theme="chemmate"] .key-cluster {
+body[data-theme="retro"] .key-cluster {
   background: #eae2d3;
   border: 1px solid #c5bcac;
   border-radius: 6px;
 }
 
-body[data-theme="chemmate"] .cluster-label {
+body[data-theme="retro"] .cluster-label {
   font-family: var(--mono);
   color: #4f4b44;
   font-weight: 600;
 }
 
-body[data-theme="chemmate"] .key {
+body[data-theme="retro"] .key {
   background: #fbf9f4;
   border: 1px solid #b8afa0;
   border-bottom: 2px solid #8f8678;
@@ -1871,46 +2062,46 @@ body[data-theme="chemmate"] .key {
   box-shadow: 0 1px 2px rgba(22, 21, 20, 0.06);
 }
 
-body[data-theme="chemmate"] .key:hover {
+body[data-theme="retro"] .key:hover {
   background: #ffffff;
   border-color: #161514;
   color: #d62828;
 }
 
-body[data-theme="chemmate"] .key-power {
+body[data-theme="retro"] .key-power {
   background: #d62828;
   border-color: #9e1919;
   border-bottom-color: #781111;
   color: #ffffff;
 }
-body[data-theme="chemmate"] .key-power:hover {
+body[data-theme="retro"] .key-power:hover {
   background: #e03131;
   color: #ffffff;
 }
 
-body[data-theme="chemmate"] .key-primary {
+body[data-theme="retro"] .key-primary {
   background: #161514;
   border-color: #161514;
   border-bottom-color: #000000;
   color: #fbf9f4;
 }
-body[data-theme="chemmate"] .key-primary:hover {
+body[data-theme="retro"] .key-primary:hover {
   background: #2c2a28;
   color: #ffffff;
 }
 
-body[data-theme="chemmate"] .key-cool {
+body[data-theme="retro"] .key-cool {
   background: #1d3557;
   border-color: #14253d;
   color: #f1faee;
 }
-body[data-theme="chemmate"] .key-cool:hover {
+body[data-theme="retro"] .key-cool:hover {
   background: #274673;
   color: #ffffff;
 }
 
 /* Standard Buttons in ChemMate Mode */
-body[data-theme="chemmate"] .btn {
+body[data-theme="retro"] .btn {
   background: #f3ede2;
   border: 1px solid #bfb5a4;
   color: #161514;
@@ -1920,36 +2111,36 @@ body[data-theme="chemmate"] .btn {
   border-radius: 4px;
 }
 
-body[data-theme="chemmate"] .btn:hover {
+body[data-theme="retro"] .btn:hover {
   background: #161514;
   border-color: #161514;
   color: #fbf9f4;
 }
 
-body[data-theme="chemmate"] .btn-demo {
+body[data-theme="retro"] .btn-demo {
   background: #fbf9f4;
   border-color: #161514;
   color: #161514;
 }
 
-body[data-theme="chemmate"] .btn-demo.active {
+body[data-theme="retro"] .btn-demo.active {
   background: #d62828;
   border-color: #b51f1f;
   color: #ffffff;
 }
 
-body[data-theme="chemmate"] .btn-danger {
+body[data-theme="retro"] .btn-danger {
   border-color: #d62828;
   color: #b51f1f;
   background: #fbecec;
 }
-body[data-theme="chemmate"] .btn-danger:hover {
+body[data-theme="retro"] .btn-danger:hover {
   background: #d62828;
   color: #ffffff;
 }
 
 /* Part Explorer & Lab Bench in ChemMate Mode */
-body[data-theme="chemmate"] .parts-list .part-btn {
+body[data-theme="retro"] .parts-list .part-btn {
   background: #f4efe4;
   border: 1px solid #d4cbbd;
   color: #1e1d1b;
@@ -1958,20 +2149,102 @@ body[data-theme="chemmate"] .parts-list .part-btn {
   border-radius: 4px;
 }
 
-body[data-theme="chemmate"] .parts-list .part-btn:hover {
+body[data-theme="retro"] .parts-list .part-btn:hover {
   border-color: #d62828;
   color: #d62828;
   background: #ffffff;
 }
 
-body[data-theme="chemmate"] .parts-list .part-btn.active {
+body[data-theme="retro"] .parts-list .part-btn.active {
   background: #d62828;
   border-color: #b51f1f;
   color: #ffffff;
   box-shadow: none;
 }
 
-body[data-theme="chemmate"] .field select {
+body[data-theme="retro"] .parts-list .part-btn .part-count-badge,
+body[data-theme="retro"] .parts-list .part-btn .part-count-badge {
+  background: rgba(214, 40, 40, 0.12);
+  color: #d62828;
+  border-color: rgba(214, 40, 40, 0.35);
+}
+body[data-theme="retro"] .parts-list .part-btn.active .part-count-badge,
+body[data-theme="retro"] .parts-list .part-btn.active .part-count-badge {
+  background: rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+/* ChemMate Toolbar Groups */
+body[data-theme="retro"] .toolbar-group,
+body[data-theme="retro"] .toolbar-group {
+  background: rgba(246, 241, 232, 0.94);
+  border: 1px solid #cfc5b4;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+body[data-theme="retro"] .toolbar-group .view-btn,
+body[data-theme="retro"] .toolbar-group .view-btn {
+  border: 1px solid #d5cbba;
+  background: #fffdf9;
+  color: #1e1d1b;
+}
+body[data-theme="retro"] .toolbar-group .view-btn:hover,
+body[data-theme="retro"] .toolbar-group .view-btn:hover {
+  border-color: #d62828;
+  color: #d62828;
+  background: #fff;
+}
+body[data-theme="retro"] .toolbar-group .view-btn.active,
+body[data-theme="retro"] .toolbar-group .view-btn.active {
+  border-color: #d62828;
+  background: #d62828;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(214, 40, 40, 0.3);
+}
+body[data-theme="retro"] .toolbar-group .orbit-speed-ctrl,
+body[data-theme="retro"] .toolbar-group .orbit-speed-ctrl {
+  color: #4a4640;
+}
+body[data-theme="retro"] .toolbar-group .orbit-speed-ctrl span[id$="-val"],
+body[data-theme="retro"] .toolbar-group .orbit-speed-ctrl span[id$="-val"] {
+  color: #d62828;
+}
+body[data-theme="retro"] .toolbar-group .orbit-speed-ctrl select,
+body[data-theme="retro"] .toolbar-group .orbit-speed-ctrl select {
+  background: #fffdf9;
+  border: 1px solid #cfc5b4;
+  color: #1e1d1b;
+}
+
+/* ChemMate Action Suites */
+body[data-theme="retro"] .action-suite-group,
+body[data-theme="retro"] .action-suite-group {
+  background: #eae2d3;
+  border: 1px solid #c8beae;
+}
+body[data-theme="retro"] .action-suite-title,
+body[data-theme="retro"] .action-suite-title {
+  color: #5a544b;
+}
+body[data-theme="retro"] .btn-action-lid,
+body[data-theme="retro"] .btn-action-lid {
+  background: #fffdfa;
+  border-color: #bfb5a4;
+  color: #1e1d1b;
+}
+body[data-theme="retro"] .btn-action-imbalance,
+body[data-theme="retro"] .btn-action-imbalance {
+  background: #fdf0f0;
+  border-color: #d62828;
+  color: #b51f1f;
+}
+body[data-theme="retro"] .btn-action-imbalance:hover,
+body[data-theme="retro"] .btn-action-imbalance:hover {
+  background: #d62828;
+  color: #ffffff;
+}
+
+body[data-theme="retro"] .field select {
   background: #f4efe4;
   border: 1px solid #bfb5a4;
   color: #161514;
@@ -1980,7 +2253,7 @@ body[data-theme="chemmate"] .field select {
   border-radius: 4px;
 }
 
-body[data-theme="chemmate"] .tube-cell {
+body[data-theme="retro"] .tube-cell {
   background: #f4efe4;
   border: 1px solid #cfc7b8;
   color: #4f4b44;
@@ -1988,51 +2261,51 @@ body[data-theme="chemmate"] .tube-cell {
   border-radius: 4px;
 }
 
-body[data-theme="chemmate"] .tube-cell:hover {
+body[data-theme="retro"] .tube-cell:hover {
   border-color: #161514;
   background: #ffffff;
 }
 
-body[data-theme="chemmate"] .tube-cell.selected {
+body[data-theme="retro"] .tube-cell.selected {
   border-color: #d62828;
   background: #ffffff;
   box-shadow: 0 0 0 1px #d62828;
 }
 
-body[data-theme="chemmate"] #tube-preview {
+body[data-theme="retro"] #tube-preview {
   background: #f4efe4;
   border: 1px solid #c5bcac;
   border-radius: 6px;
 }
 
-body[data-theme="chemmate"] .sep-log {
+body[data-theme="retro"] .sep-log {
   background: #f4efe4;
   border: 1px solid #c5bcac;
   color: #2c2a27;
   border-radius: 6px;
 }
 
-body[data-theme="chemmate"] .tube-story-card,
-body[data-theme="chemmate"] .music-chat {
+body[data-theme="retro"] .tube-story-card,
+body[data-theme="retro"] .music-chat {
   background: #fbf9f4;
   border: 1.5px solid #161514;
   color: #161514;
   box-shadow: 0 12px 32px rgba(22, 21, 20, 0.18);
 }
 
-body[data-theme="chemmate"] .tube-story-card h3,
-body[data-theme="chemmate"] .music-chat-title {
+body[data-theme="retro"] .tube-story-card h3,
+body[data-theme="retro"] .music-chat-title {
   color: #161514;
 }
 
-body[data-theme="chemmate"] .tube-story-card p,
-body[data-theme="chemmate"] .tube-story-layer strong {
+body[data-theme="retro"] .tube-story-card p,
+body[data-theme="retro"] .tube-story-layer strong {
   color: #2c2a27;
 }
 
 @media (max-width: 1100px) {
-  body[data-theme="chemmate"] .cm-topnav,
-  body[data-theme="chemmate"] .cm-motto,
+  body[data-theme="retro"] .cm-topnav,
+  body[data-theme="retro"] .cm-motto,
   body[data-theme="retro"] .cm-topnav,
   body[data-theme="retro"] .cm-motto,
   body[data-theme="night"] .cm-topnav,
@@ -2082,39 +2355,140 @@ body[data-theme="night"] .cm-cross-box {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   border-radius: 4px;
   background: #ff3344;
   color: #ffffff;
   font-weight: 800;
-  font-size: 1rem;
-  box-shadow: 0 0 8px rgba(255, 51, 68, 0.4);
+  font-size: 1.35rem;
+  box-shadow: 0 0 10px rgba(255, 51, 68, 0.45);
 }
 
 body[data-theme="night"] .cm-brand-text {
   font-family: var(--font);
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-size: 1.45rem;
+  font-weight: 800;
   color: #ffffff;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 body[data-theme="night"] .cm-brand-divider {
   color: #2b3548;
-  margin: 0 0.1rem;
+  font-size: 1.25rem;
+  margin: 0 0.15rem;
+}
+
+body[data-theme="night"] .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.2rem 0.55rem;
+  background: #141923;
+  border: 1px solid #283244;
+  border-radius: 4px;
+}
+
+body[data-theme="night"] .brand-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ff3344;
+  color: #ffffff;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.2rem 0.45rem;
+  border-radius: 3px;
+  line-height: 1;
+}
+
+body[data-theme="night"] .brand-name-group {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
 }
 
 body[data-theme="night"] .brand-mark {
-  color: #ff4d5a;
+  color: #ff3344;
+  font-family: var(--mono);
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
 }
 
 body[data-theme="night"] .brand-model {
   color: #ffffff;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 0.9rem;
 }
 
-body[data-theme="night"] .brand-tag {
+/* Night Toolbar Groups */
+body[data-theme="night"] .toolbar-group {
+  background: rgba(14, 18, 26, 0.94);
+  border: 1px solid #252e3e;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+body[data-theme="night"] .toolbar-group .view-btn {
+  border: 1px solid #252e3e;
+  background: #121722;
+  color: #e4ecfa;
+}
+body[data-theme="night"] .toolbar-group .view-btn:hover {
+  border-color: #ff3344;
+  color: #ff3344;
+}
+body[data-theme="night"] .toolbar-group .view-btn.active {
+  border-color: #ff3344;
+  background: rgba(255, 51, 68, 0.2);
+  color: #ff3344;
+  box-shadow: 0 0 8px rgba(255, 51, 68, 0.3);
+}
+body[data-theme="night"] .toolbar-group .orbit-speed-ctrl {
   color: #828f9f;
+}
+body[data-theme="night"] .toolbar-group .orbit-speed-ctrl span[id$="-val"] {
+  color: #ff4d5a;
+}
+body[data-theme="night"] .toolbar-group .orbit-speed-ctrl select {
+  background: #121722;
+  border: 1px solid #252e3e;
+  color: #e4ecfa;
+}
+
+/* Night Action Suites */
+body[data-theme="night"] .action-suite-group {
+  background: #121620;
+  border: 1px solid #232c3c;
+}
+body[data-theme="night"] .action-suite-title {
+  color: #828f9f;
+}
+body[data-theme="night"] .btn-action-lid {
+  background: #171c28;
+  border-color: #273347;
+  color: #d0d8e4;
+}
+body[data-theme="night"] .btn-action-imbalance {
+  background: #251216;
+  border-color: #5c1822;
+  color: #ff8590;
+}
+body[data-theme="night"] .btn-action-imbalance:hover {
+  background: #ff3344;
+  color: #ffffff;
+}
+
+body[data-theme="night"] .parts-list .part-btn .part-count-badge {
+  background: rgba(255, 51, 68, 0.2);
+  color: #ff4d5a;
+  border-color: rgba(255, 51, 68, 0.45);
+}
+body[data-theme="night"] .parts-list .part-btn.active .part-count-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.6);
 }
 
 body[data-theme="night"] .cm-topnav {
@@ -2580,3 +2954,599 @@ body[data-theme="night"] .tube-story-layer strong {
   color: #c5d0de;
 }
 
+
+
+/* ==========================================================================
+   STRICT CHEMMATE RETRO THEME (Unified for body[data-theme="retro"])
+   Matches the user's authentic ChemMate reference system:
+   - Primary typography: Inter (sans) for all UI, buttons, titles, text
+   - Numbers/code only: IBM Plex Mono
+   - 4-step type scale (0.70rem, 0.78rem, 0.85rem, 1.25rem)
+   - Warm paper background (#f4efe6), ivory/white surfaces (#ffffff / #faf8f3)
+   - Hairline borders (#ded7ca)
+   - Deep charcoal text (#1a1918)
+   - Single signature accent: Swiss Red (#d62828)
+   ========================================================================== */
+body[data-theme="retro"],
+body[data-theme="chemmate"] {
+  --bg: #f4efe6;
+  --panel: #faf8f3;
+  --panel-2: #f0ebe1;
+  --border: #ded7ca;
+  --border-strong: #1a1918;
+  --text: #1a1918;
+  --muted: #736f68;
+  --cyan: #d62828;
+  --green: #1f7a4c;
+  --amber: #c87d12;
+  --red: #d62828;
+  --key: #ffffff;
+  --key-hover: #f0ebe1;
+  --font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", monospace;
+
+  background-color: #f4efe6;
+  background-image:
+    radial-gradient(rgba(26, 25, 24, 0.04) 1px, transparent 0),
+    linear-gradient(180deg, #f6f2e9 0%, #ede7dc 100%);
+  background-size: 24px 24px, 100% 100%;
+  color: #1a1918;
+  font-family: var(--font);
+}
+
+/* Topbar */
+body[data-theme="retro"] .topbar,
+body[data-theme="chemmate"] .topbar {
+  background: #f6f2e9;
+  border-bottom: 1.5px solid #ded7ca;
+  padding: 0.6rem 1.25rem;
+}
+
+body[data-theme="retro"] .cm-cross-box,
+body[data-theme="chemmate"] .cm-cross-box {
+  background: #d62828;
+  color: #ffffff;
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: 1.35rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(214, 40, 40, 0.25);
+}
+
+body[data-theme="retro"] .cm-brand-text,
+body[data-theme="chemmate"] .cm-brand-text {
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: 1.35rem;
+  letter-spacing: -0.025em;
+  color: #1a1918;
+}
+
+body[data-theme="retro"] .brand,
+body[data-theme="chemmate"] .brand {
+  background: #ffffff;
+  border: 1px solid #ded7ca;
+  border-radius: 6px;
+  padding: 0.25rem 0.6rem;
+}
+
+body[data-theme="retro"] .brand-num,
+body[data-theme="chemmate"] .brand-num {
+  background: #d62828;
+  color: #ffffff;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.45rem;
+  border-radius: 4px;
+}
+
+body[data-theme="retro"] .brand-mark,
+body[data-theme="chemmate"] .brand-mark {
+  color: #736f68;
+  font-family: var(--font);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+body[data-theme="retro"] .brand-model,
+body[data-theme="chemmate"] .brand-model {
+  color: #1a1918;
+  font-family: var(--font);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+body[data-theme="retro"] .cm-topnav,
+body[data-theme="chemmate"] .cm-topnav {
+  border-left: 1px solid #ded7ca;
+  gap: 1.25rem;
+  margin-left: 0.75rem;
+  padding-left: 1rem;
+}
+
+body[data-theme="retro"] .cm-nav-item,
+body[data-theme="chemmate"] .cm-nav-item {
+  font-family: var(--font);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #736f68;
+}
+
+body[data-theme="retro"] .cm-nav-item.is-active,
+body[data-theme="chemmate"] .cm-nav-item.is-active {
+  color: #1a1918;
+}
+
+body[data-theme="retro"] .cm-nav-item.is-active::after,
+body[data-theme="chemmate"] .cm-nav-item.is-active::after {
+  background: #d62828;
+  height: 2.5px;
+  border-radius: 2px;
+}
+
+body[data-theme="retro"] .pill,
+body[data-theme="chemmate"] .pill {
+  background: #ffffff;
+  border: 1px solid #ded7ca;
+  color: #1a1918;
+  font-family: var(--font);
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 6px;
+}
+
+body[data-theme="retro"] .pill.open,
+body[data-theme="chemmate"] .pill.open {
+  background: #fef7ed;
+  border-color: #f59e0b;
+  color: #b45309;
+}
+
+body[data-theme="retro"] .pill.run,
+body[data-theme="chemmate"] .pill.run {
+  background: #f0fdf4;
+  border-color: #22c55e;
+  color: #15803d;
+}
+
+body[data-theme="retro"] .pill.fault,
+body[data-theme="chemmate"] .pill.fault {
+  background: #fef2f2;
+  border-color: #ef4444;
+  color: #b91c1c;
+}
+
+body[data-theme="retro"] .muted,
+body[data-theme="chemmate"] .muted {
+  color: #736f68;
+  font-family: var(--font);
+  font-size: 0.78rem;
+}
+
+/* Side Panels */
+body[data-theme="retro"] .panel-collapsible,
+body[data-theme="chemmate"] .panel-collapsible {
+  background: #faf8f3;
+  border-left: 1px solid #ded7ca;
+}
+
+body[data-theme="retro"] .panel-head,
+body[data-theme="chemmate"] .panel-head {
+  background: #f4efe6;
+  border-bottom: 1px solid #ded7ca;
+  padding: 0.6rem 0.85rem;
+}
+
+body[data-theme="retro"] .panel-title,
+body[data-theme="chemmate"] .panel-title {
+  font-family: var(--font);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #1a1918;
+}
+
+body[data-theme="retro"] .cm-panel-num,
+body[data-theme="chemmate"] .cm-panel-num {
+  background: #d62828;
+  color: #ffffff;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+/* Part Explorer Buttons: 100% High Contrast & Readable */
+body[data-theme="retro"] .parts-list .part-btn,
+body[data-theme="chemmate"] .parts-list .part-btn {
+  background: #ffffff !important;
+  border: 1px solid #ded7ca !important;
+  color: #1a1918 !important;
+  font-family: var(--font) !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  padding: 0.45rem 0.65rem !important;
+  border-radius: 6px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+}
+
+body[data-theme="retro"] .parts-list .part-btn:hover,
+body[data-theme="chemmate"] .parts-list .part-btn:hover {
+  background: #f4efe6 !important;
+  border-color: #1a1918 !important;
+  color: #1a1918 !important;
+}
+
+body[data-theme="retro"] .parts-list .part-btn.active,
+body[data-theme="chemmate"] .parts-list .part-btn.active {
+  background: #d62828 !important;
+  border-color: #b51f1f !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(214, 40, 40, 0.25) !important;
+}
+
+body[data-theme="retro"] .parts-list .part-btn .part-count-badge,
+body[data-theme="chemmate"] .parts-list .part-btn .part-count-badge {
+  background: #ece6da !important;
+  color: #5c564c !important;
+  border: 1px solid #ded7ca !important;
+  font-family: var(--mono) !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  padding: 0.1rem 0.4rem !important;
+  border-radius: 4px !important;
+}
+
+body[data-theme="retro"] .parts-list .part-btn.active .part-count-badge,
+body[data-theme="chemmate"] .parts-list .part-btn.active .part-count-badge {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+}
+
+body[data-theme="retro"] .parts-list .group-title,
+body[data-theme="chemmate"] .parts-list .group-title {
+  color: #736f68 !important;
+  font-family: var(--font) !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+}
+
+body[data-theme="retro"] #btn-parts-clear,
+body[data-theme="chemmate"] #btn-parts-clear {
+  background: #ffffff !important;
+  border: 1px solid #ded7ca !important;
+  color: #1a1918 !important;
+  font-family: var(--font) !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  border-radius: 6px !important;
+}
+
+body[data-theme="retro"] #btn-parts-clear:hover,
+body[data-theme="chemmate"] #btn-parts-clear:hover {
+  background: #f4efe6 !important;
+  border-color: #1a1918 !important;
+}
+
+/* Membrane Keypad in Retro Mode: Clean, Harmonious, Tactile */
+body[data-theme="retro"] .keypad-section,
+body[data-theme="chemmate"] .keypad-section {
+  background: #f4efe6;
+  border: 1px solid #ded7ca;
+  border-radius: 8px;
+  padding: 0.65rem;
+  margin-bottom: 0.75rem;
+}
+
+body[data-theme="retro"] .keypad-section-header,
+body[data-theme="chemmate"] .keypad-section-header {
+  margin-bottom: 0.45rem;
+}
+
+body[data-theme="retro"] .section-kicker,
+body[data-theme="chemmate"] .section-kicker {
+  color: #1a1918;
+  font-family: var(--font);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+body[data-theme="retro"] .section-hint,
+body[data-theme="chemmate"] .section-hint {
+  color: #736f68;
+  font-family: var(--font);
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+body[data-theme="retro"] .keypad-membrane-grid,
+body[data-theme="chemmate"] .keypad-membrane-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.45rem;
+  margin-bottom: 0;
+}
+
+body[data-theme="retro"] .keypad-membrane-grid .key,
+body[data-theme="chemmate"] .keypad-membrane-grid .key {
+  background: #ffffff !important;
+  border: 1px solid #ded7ca !important;
+  color: #1a1918 !important;
+  font-family: var(--font) !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  padding: 0.55rem 0.25rem !important;
+  border-radius: 6px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.25rem !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.15s ease !important;
+}
+
+body[data-theme="retro"] .keypad-membrane-grid .key:hover,
+body[data-theme="chemmate"] .keypad-membrane-grid .key:hover {
+  background: #f7f3ec !important;
+  border-color: #1a1918 !important;
+  color: #1a1918 !important;
+}
+
+body[data-theme="retro"] .keypad-membrane-grid .key .key-glyph,
+body[data-theme="chemmate"] .keypad-membrane-grid .key .key-glyph {
+  font-size: 1rem;
+  line-height: 1;
+  color: #1a1918;
+}
+
+body[data-theme="retro"] .keypad-membrane-grid .key.key-primary,
+body[data-theme="chemmate"] .keypad-membrane-grid .key.key-primary {
+  background: #d62828 !important;
+  border-color: #b51f1f !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(214, 40, 40, 0.25) !important;
+}
+
+body[data-theme="retro"] .keypad-membrane-grid .key.key-primary:hover,
+body[data-theme="chemmate"] .keypad-membrane-grid .key.key-primary:hover {
+  background: #b51f1f !important;
+  color: #ffffff !important;
+}
+
+body[data-theme="retro"] .keypad-membrane-grid .key.key-primary .key-glyph,
+body[data-theme="chemmate"] .keypad-membrane-grid .key.key-primary .key-glyph {
+  color: #ffffff !important;
+}
+
+/* Parameter Adjust Rockers */
+body[data-theme="retro"] .rocker-row,
+body[data-theme="chemmate"] .rocker-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.45rem;
+}
+
+body[data-theme="retro"] .key-cluster.rocker,
+body[data-theme="chemmate"] .key-cluster.rocker {
+  background: #ffffff;
+  border: 1px solid #ded7ca;
+  border-radius: 6px;
+  padding: 0.35rem 0.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+body[data-theme="retro"] .cluster-label,
+body[data-theme="chemmate"] .cluster-label {
+  color: #736f68;
+  font-family: var(--font);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+body[data-theme="retro"] .rocker-pair,
+body[data-theme="chemmate"] .rocker-pair {
+  display: flex;
+  gap: 2px;
+}
+
+body[data-theme="retro"] .key-rock,
+body[data-theme="chemmate"] .key-rock {
+  background: #f4efe6 !important;
+  border: 1px solid #ded7ca !important;
+  color: #1a1918 !important;
+  font-size: 0.75rem !important;
+  padding: 0.25rem 0.55rem !important;
+  border-radius: 4px !important;
+  cursor: pointer;
+}
+
+body[data-theme="retro"] .key-rock:hover,
+body[data-theme="chemmate"] .key-rock:hover {
+  background: #d62828 !important;
+  border-color: #b51f1f !important;
+  color: #ffffff !important;
+}
+
+/* Action Suites in Retro Mode */
+body[data-theme="retro"] .action-suite-group,
+body[data-theme="chemmate"] .action-suite-group {
+  background: #f4efe6;
+  border: 1px solid #ded7ca;
+  border-radius: 8px;
+  padding: 0.55rem;
+  margin-top: 0.6rem;
+}
+
+body[data-theme="retro"] .action-suite-title,
+body[data-theme="chemmate"] .action-suite-title {
+  color: #736f68;
+  font-family: var(--font);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.4rem;
+}
+
+body[data-theme="retro"] .action-suite-grid .btn,
+body[data-theme="chemmate"] .action-suite-grid .btn {
+  background: #ffffff;
+  border: 1px solid #ded7ca;
+  color: #1a1918;
+  font-family: var(--font);
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.45rem 0.35rem;
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+body[data-theme="retro"] .action-suite-grid .btn:hover,
+body[data-theme="chemmate"] .action-suite-grid .btn:hover {
+  background: #f7f3ec;
+  border-color: #1a1918;
+}
+
+body[data-theme="retro"] .btn-action-imbalance,
+body[data-theme="chemmate"] .btn-action-imbalance {
+  background: #fdf5f5 !important;
+  border-color: #eed0d0 !important;
+  color: #d62828 !important;
+}
+
+body[data-theme="retro"] .btn-action-imbalance:hover,
+body[data-theme="chemmate"] .btn-action-imbalance:hover {
+  background: #d62828 !important;
+  border-color: #b51f1f !important;
+  color: #ffffff !important;
+}
+
+/* Lab Bench Controls in Retro Mode */
+body[data-theme="retro"] .lab-btns .btn,
+body[data-theme="chemmate"] .lab-btns .btn {
+  background: #ffffff !important;
+  border: 1px solid #ded7ca !important;
+  color: #1a1918 !important;
+  font-family: var(--font) !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  border-radius: 6px !important;
+}
+
+body[data-theme="retro"] .lab-btns .btn:hover,
+body[data-theme="chemmate"] .lab-btns .btn:hover {
+  background: #f4efe6 !important;
+  border-color: #1a1918 !important;
+}
+
+body[data-theme="retro"] select,
+body[data-theme="chemmate"] select {
+  background: #ffffff !important;
+  border: 1px solid #ded7ca !important;
+  color: #1a1918 !important;
+  font-family: var(--font) !important;
+  font-size: 0.78rem !important;
+  border-radius: 6px !important;
+}
+
+body[data-theme="retro"] .tube-grid,
+body[data-theme="chemmate"] .tube-grid {
+  background: #f4efe6 !important;
+  border: 1px solid #ded7ca !important;
+  border-radius: 8px !important;
+  padding: 0.5rem !important;
+}
+
+body[data-theme="retro"] .tube-cell,
+body[data-theme="chemmate"] .tube-cell {
+  background: #ffffff !important;
+  border: 1px solid #ded7ca !important;
+  color: #1a1918 !important;
+  border-radius: 6px !important;
+}
+
+body[data-theme="retro"] .tube-cell.selected,
+body[data-theme="chemmate"] .tube-cell.selected {
+  border-color: #d62828 !important;
+  box-shadow: 0 0 0 1.5px #d62828 !important;
+}
+
+body[data-theme="retro"] .tube-cell span,
+body[data-theme="chemmate"] .tube-cell span {
+  color: #736f68 !important;
+  font-family: var(--mono) !important;
+  font-size: 0.68rem !important;
+  font-weight: 600 !important;
+}
+
+body[data-theme="retro"] .sep-log,
+body[data-theme="chemmate"] .sep-log {
+  background: #ffffff !important;
+  border: 1px solid #ded7ca !important;
+  color: #1a1918 !important;
+  font-family: var(--mono) !important;
+  font-size: 0.72rem !important;
+  border-radius: 6px !important;
+}
+
+/* Callout Cards: Clean, High Contrast, Readable */
+body[data-theme="retro"] .cm-callout,
+body[data-theme="chemmate"] .cm-callout {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border: 1px solid #ded7ca !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08) !important;
+}
+
+body[data-theme="retro"] .cm-callout-left,
+body[data-theme="chemmate"] .cm-callout-left {
+  border-left: 3.5px solid #d62828 !important;
+}
+
+body[data-theme="retro"] .cm-callout-right,
+body[data-theme="chemmate"] .cm-callout-right {
+  border-right: 3.5px solid #d62828 !important;
+}
+
+body[data-theme="retro"] .cm-callout-title,
+body[data-theme="chemmate"] .cm-callout-title {
+  font-family: var(--font) !important;
+  font-size: 0.82rem !important;
+  font-weight: 800 !important;
+  color: #d62828 !important;
+}
+
+body[data-theme="retro"] .cm-callout-desc,
+body[data-theme="chemmate"] .cm-callout-desc {
+  font-family: var(--font) !important;
+  font-size: 0.74rem !important;
+  font-weight: 500 !important;
+  line-height: 1.35 !important;
+  color: #4a4640 !important;
+}
+
+body[data-theme="retro"] .cm-callout-badge,
+body[data-theme="chemmate"] .cm-callout-badge {
+  font-family: var(--mono) !important;
+  font-size: 0.65rem !important;
+  font-weight: 700 !important;
+  background: #d62828 !important;
+  color: #ffffff !important;
+}

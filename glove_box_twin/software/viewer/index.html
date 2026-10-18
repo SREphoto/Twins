@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SREdesigns UNI-9000 Pro · Inert Atmosphere Glove Box Twin</title>
-  <link rel="stylesheet" href="style.css?v=20260925-gold1" />
+  <link rel="stylesheet" href="style.css?v=20261018-view" />
+  <link rel="stylesheet" href="../../../lab_viewer/shared/chemmate_themes.css?v=20261018-view" />
   <script type="importmap">
     {
       "imports": {
@@ -22,11 +23,27 @@
         <span class="brand-mark">SREdesigns</span>
         <span class="brand-model">UNI-9000 PRO</span>
         <span class="badge-sredesigns">SREdesigns</span>
-        <span class="brand-tag">Inert Atmosphere Workstation with Cylindrical Transfer Antechamber</span>
+        <span class="brand-tag">Inert Atmosphere Glove Box with Cylindrical Transfer Antechamber</span>
       </div>
+
+      <div class="view-chooser" role="group" aria-label="Visual view style">
+        <span class="view-chooser-label">VIEW:</span>
+        <div class="view-chooser-group">
+          <button type="button" class="view-choice-btn active" id="btn-view-modern" title="Modern View (Default high-tech instrument theme)">
+            <span class="view-choice-text">MODERN</span>
+          </button>
+          <button type="button" class="view-choice-btn" id="btn-view-retro" title="Retro View (ChemMate warm archival paper & Swiss red educational style)">
+            <span class="view-choice-text retro"><span class="cm-mini-plus">+</span> RETRO</span>
+          </button>
+          <button type="button" class="view-choice-btn" id="btn-view-night" title="Night View (Dark greys, deep blacks, and precision Swiss reds)">
+            <span class="view-choice-text night"><span class="night-glyph">☾</span> NIGHT</span>
+          </button>
+        </div>
+      </div>
+
       <div class="topbar-status">
         <span id="status-pill" class="pill purged">INERT PURGED</span>
-        <span id="status-detail" class="muted">Atmosphere < 0.2 ppm O₂/H₂O · Ready for air-sensitive synthesis</span>
+        <span id="status-detail" class="muted">Atmosphere &lt; 0.2 ppm O₂/H₂O · Ready for air-sensitive synthesis</span>
       </div>
     </header>
 
@@ -36,8 +53,10 @@
         <div class="view-toolbar">
           <button type="button" class="view-btn active" id="btn-cam-iso" title="Isometric 3/4 view">ISO</button>
           <button type="button" class="view-btn" id="btn-cam-front" title="Front glove ports and viewing window">Front</button>
+          <button type="button" class="view-btn" id="btn-cam-console" title="Zoom into 10-inch Touchscreen Console">Console</button>
           <button type="button" class="view-btn" id="btn-cam-side" title="Side antechamber and valves">Side</button>
           <button type="button" class="view-btn" id="btn-cam-top" title="Top overhead view">Top</button>
+          <button type="button" class="view-btn" id="btn-cam-rear" title="Rear purification column & blower">Rear</button>
           <button type="button" class="view-btn" id="btn-explode" title="Separate assemblies">Exploded</button>
           <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe">Wireframe</button>
           <button type="button" class="view-btn" id="btn-auto-rotate" title="Orbit camera automatically">Auto-rotate</button>
@@ -51,7 +70,7 @@
         </div>
 
         <div id="viewport3d" class="viewport"></div>
-        <div class="stage-hint">Interactive 3D Twin: Use orbit controls to inspect glove ports, antechamber doors, and PLC console</div>
+        <div class="stage-hint">Interactive Touchscreen: Click directly on 10" HMI screen softkeys, power switch, doors, or NEMA plug</div>
       </section>
 
       <!-- Instrument Controls Panel -->
@@ -61,6 +80,12 @@
           <button type="button" class="panel-collapse-btn" data-collapse="instrument" title="Collapse panel">▾</button>
         </div>
         <div class="panel-body">
+          <!-- Power & Circuit Continuity -->
+          <div class="btn-grid">
+            <button type="button" class="btn active" id="btn-power">POWER: ON</button>
+            <button type="button" class="btn active" id="btn-plug">CORD: PLUGGED IN</button>
+          </div>
+
           <div class="btn-grid">
             <button type="button" class="btn btn-primary" id="btn-purge">PURGE: OFF</button>
             <button type="button" class="btn btn-primary" id="btn-ante-cycle">3-CYCLE XFER: IDLE</button>
@@ -76,7 +101,12 @@
             <button type="button" class="btn" id="btn-gas-type">GAS: ARGON</button>
           </div>
 
-          <div style="margin-top:0.5rem;">
+          <div class="btn-grid">
+            <button type="button" class="btn active" id="btn-circulation">CIRCULATION: ON</button>
+            <button type="button" class="btn" id="btn-plc-door">PLC DOOR: CLOSED</button>
+          </div>
+
+          <div style="margin-top:0.4rem;">
             <button type="button" class="btn btn-primary" id="btn-demo" style="width:100%;">Run Classroom Demo</button>
           </div>
 
@@ -85,7 +115,7 @@
             <div class="card-title">
               <span>Atmosphere Specification</span>
             </div>
-            <p class="hint">Continuous catalytic closed-loop purification maintaining O₂ &lt; 1.0 ppm and H₂O &lt; 1.0 ppm under argon or nitrogen blanketing.</p>
+            <p class="hint">Continuous catalytic closed-loop purification maintaining O₂ &lt; 0.2 ppm and H₂O &lt; 0.2 ppm under argon or nitrogen blanketing.</p>
           </div>
 
           <!-- Transfer Procedure Card -->
@@ -98,11 +128,26 @@
         </div>
       </aside>
 
+      <!-- Part Explorer Panel -->
+      <aside class="parts panel-collapsible collapsed" id="panel-parts">
+        <div class="panel-header">
+          <h2>Part Explorer</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="parts" title="Expand panel">▾</button>
+        </div>
+        <div class="panel-body">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+            <span id="parts-focus-status" style="font-size:0.75rem;color:var(--muted);">No part focused</span>
+            <button type="button" class="btn" id="btn-parts-clear" style="padding:0.25rem 0.5rem;font-size:0.7rem;">Clear Focus</button>
+          </div>
+          <div id="parts-list" class="parts-list"></div>
+        </div>
+      </aside>
+
       <!-- Real-time Telemetry Panel -->
-      <aside class="telemetry panel-collapsible" id="panel-telemetry">
+      <aside class="telemetry panel-collapsible collapsed" id="panel-telemetry">
         <div class="panel-header">
           <h2>Live Telemetry</h2>
-          <button type="button" class="panel-collapse-btn" data-collapse="telemetry" title="Collapse panel">▾</button>
+          <button type="button" class="panel-collapse-btn" data-collapse="telemetry" title="Expand panel">▾</button>
         </div>
         <div class="panel-body">
           <div class="telem-row">
@@ -127,17 +172,25 @@
           </div>
           <div class="telem-row">
             <span class="telem-label">Circulation Blower</span>
-            <span class="telem-value">150 L/min</span>
+            <span class="telem-value" id="telem-blower">150 L/min</span>
           </div>
           <div class="telem-row">
-            <span class="telem-label">Catalyst Capacity</span>
-            <span class="telem-value">98.4%</span>
+            <span class="telem-label">Cabinet Cooling Fan</span>
+            <span class="telem-value" id="telem-fan">Active (3200 RPM)</span>
+          </div>
+          <div class="telem-row">
+            <span class="telem-label">PLC Controller</span>
+            <span class="telem-value" id="telem-plc">S7-1200 RUN</span>
+          </div>
+          <div class="telem-row">
+            <span class="telem-label">Power Line</span>
+            <span class="telem-value highlight" id="telem-power">120V AC 60Hz</span>
           </div>
         </div>
       </aside>
     </div>
   </div>
 
-  <script type="module" src="app.js?v=20260925-gold1"></script>
+  <script type="module" src="app.js?v=20261018-gold2"></script>
 </body>
 </html>

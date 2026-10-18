@@ -11,6 +11,7 @@ import {
   wavelengthToRGB,
 } from './spectrophotometer3d.js?v=20261001-v12';
 import { sfx } from './sfx.js';
+import { initChemMateTheme } from '../../../lab_viewer/shared/chemmate_theme_manager.js';
 
 // --- State Engine ---
 const state = {
@@ -464,6 +465,18 @@ scene.add(dirLight);
 const fillLight = new THREE.DirectionalLight(0x90b0e0, 0.55);
 fillLight.position.set(-6, 8, 6);
 scene.add(fillLight);
+
+// ChemMate Theme Controller (Modern, Retro, Night)
+const themeManager = initChemMateTheme({
+  twinName: 'SpectrophotometerTwin',
+  scene,
+  ambLight: ambientLight,
+  dirLight,
+  rimLight: fillLight,
+  onThemeChange: () => {
+    renderLCD();
+  },
+});
 
 // Build 3D Spectrophotometer Model
 const { root: machineRoot, interactiveObjects, animTargets, setOpticsView } = createSpectrophotometerModel({ includeLab: true });

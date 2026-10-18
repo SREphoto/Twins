@@ -10,6 +10,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { VortexMixer3D } from './vortex_mixer3d.js?v=20260926-vortex-gold-v6';
 import { VortexSFX } from './sfx.js';
+import { initChemMateTheme } from '../../../lab_viewer/shared/chemmate_theme_manager.js';
 
 // --- State Definition ---
 const state = {
@@ -134,6 +135,19 @@ scene.add(benchMesh);
 const grid = new THREE.GridHelper(600, 30, 0x2a3545, 0x18202c);
 grid.position.y = 0.0;
 scene.add(grid);
+
+// ChemMate Theme Controller (Modern, Retro, Night)
+const themeManager = initChemMateTheme({
+  twinName: 'VortexMixerTwin',
+  scene,
+  ambLight: ambientLight,
+  dirLight: keyLight,
+  rimLight,
+  gridHelper: grid,
+  onThemeChange: () => {
+    renderLCD();
+  },
+});
 
 // Instantiate Procedural 3D Vortex Mixer Model
 const mixer3d = new VortexMixer3D();

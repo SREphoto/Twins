@@ -21,8 +21,10 @@ import {
   CAM_FRONT,
   CAM_SIDE,
   CAM_TOP,
-} from './ph_meter3d.js?v=20260925-gold1';
-import { sfx } from './sfx.js?v=20260925-gold1';
+  CAM_EXPLODED,
+} from './ph_meter3d.js?v=20261018-gold2';
+import { sfx } from './sfx.js?v=20261018-gold2';
+import { initChemMateTheme } from '../../../lab_viewer/shared/chemmate_theme_manager.js';
 
 // ---------------------------------------------------------------------------
 // Standard Solutions & Chemical Samples Database
@@ -86,6 +88,7 @@ const SOLUTIONS = {
 // ---------------------------------------------------------------------------
 const state = {
   power: true,
+  isPluggedIn: true,
   mode: 'pH', // 'pH' or 'mV'
   measuring: true,
   hold: false,
@@ -164,8 +167,8 @@ function updateLCD() {
   const w = lcdCanvas.width;
   const h = lcdCanvas.height;
 
-  // Background
-  if (!state.power) {
+  // Background (Physical Circuit Continuity Check: DIAG-014)
+  if (!state.isPluggedIn || !state.power) {
     lcdCtx.fillStyle = '#06080c';
     lcdCtx.fillRect(0, 0, w, h);
     lcdTexture.needsUpdate = true;
@@ -319,7 +322,13 @@ function updateLCD() {
 // Physical Nernstian Calculations & Dynamics
 // ---------------------------------------------------------------------------
 function calculateElectrochemicalPotentials() {
-  if (!state.power) return;
+  if (!state.isPluggedIn || !state.power) {
+    state.rawMv = 0.0;
+    state.measuredMv = 0.0;
+    state.measuredPH = 7.00;
+    state.isStable = false;
+    return;
+  }
 
   const tempK = state.tempC + 273.15;
   // Theoretical Nernstian slope: 2.302585 * R * T / F
@@ -423,11 +432,26 @@ function init3D() {
 
   // Build and position PH-7000 Pro Model on Bench Surface
   phMeterModel = createPHMeterModel();
-  phMeterModel.position.set(0, BENCH.surfaceY, 0);
-  scene.add(phMeterModel);
+  phMeterModel.root.position.set(0, BENCH.surfaceY, 0);
+  scene.add(phMeterModel.root);
 
   // Initialize Dynamic Canvas LCD
   initLCD();
+
+  // ChemMate Theme Controller (Modern, Retro, Night)
+  const themeManager = initChemMateTheme({
+    twinName: 'PHMeterTwin',
+    scene,
+    ambLight: ambientLight,
+    dirLight,
+    rimLight: fillLight,
+    onThemeChange: () => {
+      updateLCD();
+    },
+  });
+
+  // Populate Part Explorer
+  initPartExplorer();
 
   clock = new THREE.Clock();
   raycaster = new THREE.Raycaster();
@@ -451,7 +475,7 @@ function onSceneClick(event) {
   mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
   raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(phMeterModel.children, true);
+  const intersects = raycaster.intersectObjects(phMeterModel.root.children, true);
 
   if (intersects.length > 0) {
     const hit = intersects[0].object;
@@ -472,6 +496,8 @@ function handlePartInteraction(partName) {
     toggleHold();
   } else if (partName.includes('Btn_Power')) {
     togglePower();
+  } else if (partName.includes('Power_Plug') || partName.includes('Receptacle')) {
+    togglePlug();
   } else if (partName.includes('StorageCap') || partName.includes('StorageVial')) {
     toggleCap();
   } else if (partName.includes('Beaker')) {
@@ -479,6 +505,54 @@ function handlePartInteraction(partName) {
   } else if (partName.includes('Arm') || partName.includes('HeadBlock') || partName.includes('Electrode')) {
     toggleArm();
   }
+}
+
+function togglePlug() {
+  state.isPluggedIn = !state.isPluggedIn;
+  if (phMeterModel && phMeterModel.setPluggedIn) {
+    phMeterModel.setPluggedIn(state.isPluggedIn);
+  }
+  sfx.playTouchBeep(state.isPluggedIn ? 880 : 330, 0.05);
+  const btn = document.getElementById('btn-plug');
+  if (btn) btn.textContent = state.isPluggedIn ? 'CORD: PLUGGED IN' : 'CORD: UNPLUGGED';
+  if (!state.isPluggedIn) {
+    updateStatusPill('UNPLUGGED', 'No AC mains electrical continuity', 'fault');
+  } else {
+    updateStatusPill(state.power ? 'ONLINE' : 'STANDBY', state.power ? 'Meter active' : 'Unit powered off');
+  }
+}
+
+function initPartExplorer() {
+  const listEl = document.getElementById('parts-list');
+  if (!listEl || !phMeterModel || !phMeterModel.partsList) return;
+  listEl.innerHTML = '';
+
+  phMeterModel.partsList.forEach((p) => {
+    const item = document.createElement('div');
+    item.className = 'part-item';
+    item.innerHTML = `<span>${p.name}</span><span class="part-cat-badge">${p.cat}</span>`;
+    item.title = p.desc;
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.part-item').forEach(el => el.classList.remove('active'));
+      item.classList.add('active');
+      const res = phMeterModel.focusPart(p.name);
+      const statusEl = document.getElementById('parts-focus-status');
+      if (statusEl) statusEl.textContent = `Focused: ${p.name} (${p.desc})`;
+      if (res && res.center) {
+        controls.target.copy(res.center);
+        camera.position.set(res.center.x + 1.2, res.center.y + 0.8, res.center.z - 1.4);
+      }
+    });
+    listEl.appendChild(item);
+  });
+
+  document.getElementById('btn-parts-clear')?.addEventListener('click', () => {
+    document.querySelectorAll('.part-item').forEach(el => el.classList.remove('active'));
+    phMeterModel.clearFocus();
+    const statusEl = document.getElementById('parts-focus-status');
+    if (statusEl) statusEl.textContent = 'No part focused';
+    setCamView(CAM_ISO);
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -667,6 +741,11 @@ function initUI() {
     state.explodeAmount = state.exploded ? 1.0 : 0.0;
     setExplodeAmount(state.explodeAmount);
     e.target.classList.toggle('active', state.exploded);
+    if (state.exploded) {
+      setCamView(CAM_EXPLODED);
+    } else {
+      setCamView(CAM_ISO);
+    }
   });
 
   document.getElementById('btn-sfx-mute')?.addEventListener('click', (e) => {
@@ -680,6 +759,7 @@ function initUI() {
   document.getElementById('btn-mode')?.addEventListener('click', toggleMode);
   document.getElementById('btn-hold')?.addEventListener('click', toggleHold);
   document.getElementById('btn-power')?.addEventListener('click', togglePower);
+  document.getElementById('btn-plug')?.addEventListener('click', togglePlug);
   document.getElementById('btn-arm')?.addEventListener('click', toggleArm);
   document.getElementById('btn-cap')?.addEventListener('click', toggleCap);
   document.getElementById('btn-demo')?.addEventListener('click', runClassroomDemo);

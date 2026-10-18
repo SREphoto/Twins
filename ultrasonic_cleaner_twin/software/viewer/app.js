@@ -14,6 +14,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { buildLabRoom, INSTRUMENT_BENCH } from '../../../centrifuge_twin/software/viewer/centrifuge3d.js?v=20260726-proc';
 import { createUltrasonicCleanerModel } from './ultrasonic3d.js?v=20260726-proc';
 import { sfx } from './sfx.js';
+import { initChemMateTheme } from '../../../lab_viewer/shared/chemmate_theme_manager.js';
 
 // DOM Elements
 const viewportEl = document.getElementById('viewport3d');
@@ -101,6 +102,18 @@ function init3D() {
   fillLight = new THREE.DirectionalLight(0xf0f6ff, 0.65);
   fillLight.position.set(0, 18, 0);
   scene.add(fillLight);
+
+  // ChemMate Theme Controller (Modern, Retro, Night)
+  const themeManager = initChemMateTheme({
+    twinName: 'UltrasonicCleanerTwin',
+    scene,
+    ambLight: ambientLight,
+    dirLight,
+    rimLight: fillLight,
+    onThemeChange: () => {
+      drawLCD();
+    },
+  });
 
   // Environment map for realistic metallic reflections (SS304, aluminum, copper)
   const pmremGenerator = new THREE.PMREMGenerator(renderer);

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ULTRASONIC 3000-PRO · Acoustic Cavitation Bath Twin</title>
   <link rel="stylesheet" href="style.css?v=20260725-gold" />
+  <link rel="stylesheet" href="../../../lab_viewer/shared/chemmate_themes.css?v=20261018-view" />
 </head>
 <body>
   <div id="app">
@@ -14,6 +15,22 @@
         <span class="brand-model">3000-PRO</span>
         <span class="brand-tag">Acoustic cavitation cleaning bath twin</span>
       </div>
+
+      <div class="view-chooser" role="group" aria-label="Visual view style">
+        <span class="view-chooser-label">VIEW:</span>
+        <div class="view-chooser-group">
+          <button type="button" class="view-choice-btn active" id="btn-view-modern" title="Modern View (Default high-tech instrument theme)">
+            <span class="view-choice-text">MODERN</span>
+          </button>
+          <button type="button" class="view-choice-btn" id="btn-view-retro" title="Retro View (ChemMate warm archival paper & Swiss red educational style)">
+            <span class="view-choice-text retro"><span class="cm-mini-plus">+</span> RETRO</span>
+          </button>
+          <button type="button" class="view-choice-btn" id="btn-view-night" title="Night View (Dark greys, deep blacks, and precision Swiss reds)">
+            <span class="view-choice-text night"><span class="night-glyph">☾</span> NIGHT</span>
+          </button>
+        </div>
+      </div>
+
       <div class="topbar-status">
         <span id="status-pill" class="pill">POWER OFF</span>
         <span id="status-detail" class="muted">Press POWER to start</span>

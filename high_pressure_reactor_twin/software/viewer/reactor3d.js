@@ -188,6 +188,16 @@ const matCtrlCabinet   = M(0x1e232d, { r: 0.55, m: 0.25 });
 const matCtrlBezel     = M(0x101318, { r: 0.45, m: 0.15 });
 const matNeedleRed     = M(0xef4444, { r: 0.25, m: 0.10, e: 0xef4444, ei: 0.4 });
 const matGaugeGlass    = M(0xffffff, { r: 0.02, m: 0.10, o: 0.22, side: THREE.DoubleSide, dw: false });
+const matPCB           = M(0x166534, { r: 0.35, m: 0.20 }); // Deep green FR-4 solder mask
+const matCopper        = M(0xb45309, { r: 0.30, m: 0.85 }); // Enameled copper winding
+const matICBlack       = M(0x0f172a, { r: 0.65, m: 0.15 }); // Molded epoxy IC package
+const matAluHeatsink   = M(0x334155, { r: 0.40, m: 0.80 }); // Anodized aluminum heatsink
+const matCapBlue       = M(0x2563eb, { r: 0.45, m: 0.15 }); // Electrolytic capacitor sleeve
+const matRibbonGray    = M(0x94a3b8, { r: 0.60, m: 0.05, side: THREE.DoubleSide }); // Multi-conductor flat ribbon
+const matWireRed       = M(0xdc2626, { r: 0.50, m: 0.05 });
+const matWireWhite     = M(0xf1f5f9, { r: 0.50, m: 0.05 });
+const matWireGround    = M(0x16a34a, { r: 0.50, m: 0.05 });
+const matTerminalGreen = M(0x15803d, { r: 0.55, m: 0.10 });
 
 // Dynamic thermal glow shader material
 const matThermalGlow = M(0x100300, {
@@ -592,6 +602,7 @@ export function buildReactor3D(options = {}) {
     speedKnob: null,
     heaterRocker: null,
     powerRocker: null,
+    ctrlCover: null,
     inletKnob: null,
     ventKnob: null,
     liquidKnob: null,
@@ -1205,10 +1216,291 @@ export function buildReactor3D(options = {}) {
   const ctrlH = 2.10; // 210 mm
   const ctrlD = 2.65; // 265 mm
 
-  // Heavy steel instrument enclosure
-  const ctrlBox = box(ctrlW, ctrlH, ctrlD, matCtrlCabinet);
-  ctrlGroup.add(ctrlBox);
-  registerPart(ctrlBox, 'Controller', 'Parr 4848 modular industrial digital controller chassis');
+  // 1. Lower Sheet-Metal Chassis Tray (Bottom pan, rear I/O plate, side rails)
+  const chassisTray = new THREE.Group();
+  chassisTray.name = 'Body_ControllerChassisTray';
+
+  const trayThick = 0.04;
+  // Bottom pan
+  const trayBottom = box(ctrlW, trayThick, ctrlD, matCtrlCabinet);
+  trayBottom.name = 'Body_ControllerBasePan';
+  trayBottom.position.set(0, -ctrlH / 2 + trayThick / 2, 0);
+  chassisTray.add(trayBottom);
+
+  // Rear I/O connector panel
+  const trayBack = box(ctrlW, ctrlH - trayThick, trayThick, matCtrlCabinet);
+  trayBack.name = 'Body_ControllerBackPanel';
+  trayBack.position.set(0, trayThick / 2, ctrlD / 2 - trayThick / 2);
+  chassisTray.add(trayBack);
+
+  // Left & right chassis support rails
+  const railLeft = box(trayThick, 0.28, ctrlD - trayThick * 2, matSSBrushed);
+  railLeft.position.set(-ctrlW / 2 + trayThick / 2, -ctrlH / 2 + 0.14 + trayThick, 0);
+  chassisTray.add(railLeft);
+
+  const railRight = box(trayThick, 0.28, ctrlD - trayThick * 2, matSSBrushed);
+  railRight.position.set(ctrlW / 2 - trayThick / 2, -ctrlH / 2 + 0.14 + trayThick, 0);
+  chassisTray.add(railRight);
+
+  ctrlGroup.add(chassisTray);
+  registerPart(chassisTray, 'Controller', 'Parr 4848 lower sheet-metal chassis tray and rear I/O bulkhead');
+
+  // 2. Removable Top & Side U-Enclosure Cover (Lifts up +1.40 in exploded view)
+  const ctrlCover = new THREE.Group();
+  ctrlCover.name = 'Cover_ControllerEnclosure';
+
+  // Top cover panel
+  const coverTop = box(ctrlW + 0.02, trayThick, ctrlD - 0.04, matCtrlCabinet);
+  coverTop.name = 'Cover_TopPanel';
+  coverTop.position.set(0, ctrlH / 2 - trayThick / 2, -0.01);
+  ctrlCover.add(coverTop);
+
+  // Left side wall with cooling louvers
+  const coverLeft = box(trayThick, ctrlH - trayThick, ctrlD - 0.04, matCtrlCabinet);
+  coverLeft.name = 'Cover_LeftWall';
+  coverLeft.position.set(-ctrlW / 2 + trayThick / 2, 0, -0.01);
+  ctrlCover.add(coverLeft);
+
+  // Right side wall with cooling louvers
+  const coverRight = box(trayThick, ctrlH - trayThick, ctrlD - 0.04, matCtrlCabinet);
+  coverRight.name = 'Cover_RightWall';
+  coverRight.position.set(ctrlW / 2 - trayThick / 2, 0, -0.01);
+  ctrlCover.add(coverRight);
+
+  // Stamped ventilation louvers (left & right)
+  for (let l = 0; l < 8; l++) {
+    const lz = -0.60 + l * 0.16;
+    const louverL = box(0.01, 0.025, 0.10, matCastIron);
+    louverL.position.set(-ctrlW / 2 - 0.005, 0.25, lz);
+    ctrlCover.add(louverL);
+    const louverR = box(0.01, 0.025, 0.10, matCastIron);
+    louverR.position.set(ctrlW / 2 + 0.005, 0.25, lz);
+    ctrlCover.add(louverR);
+  }
+
+  // Cover Fasteners (M4 stainless screws on side lips)
+  for (const sx of [-ctrlW / 2 - 0.01, ctrlW / 2 + 0.01]) {
+    for (const sz of [-0.70, 0.70]) {
+      const scr = cyl(0.035, 0.035, 0.03, matSSPolished, 12);
+      scr.rotation.z = Math.PI / 2;
+      scr.position.set(sx, -ctrlH / 2 + 0.18, sz);
+      ctrlCover.add(scr);
+    }
+  }
+
+  ctrlGroup.add(ctrlCover);
+  refs.ctrlCover = ctrlCover;
+  registerPart(ctrlCover, 'Controller', 'Removable U-shaped sheet metal cover with side ventilation louvers');
+
+  // 3. Internal Inspection Light (illuminates PCBs and wiring)
+  const ctrlLight = new THREE.PointLight(0xffffff, 1.4, 4.0);
+  ctrlLight.position.set(0, ctrlH * 0.45, 0);
+  ctrlGroup.add(ctrlLight);
+
+  // 4. Primary Temperature Module (PTM) Mainboard
+  const ptmGroup = new THREE.Group();
+  ptmGroup.name = 'Assembly_PTM_Mainboard';
+  ptmGroup.position.set(-0.35, -ctrlH / 2 + 0.18, 0.05);
+
+  // 4x Brass Hex Standoffs
+  const standoffSpacingX = 1.05;
+  const standoffSpacingZ = 1.35;
+  for (const soX of [-standoffSpacingX / 2, standoffSpacingX / 2]) {
+    for (const soZ of [-standoffSpacingZ / 2, standoffSpacingZ / 2]) {
+      const so = cyl(0.035, 0.035, 0.12, matBrass, 6);
+      so.position.set(soX, -0.06, soZ);
+      ptmGroup.add(so);
+    }
+  }
+
+  // FR4 Double-Sided Green PCB
+  const ptmPcb = box(1.15, 0.03, 1.45, matPCB);
+  ptmPcb.name = 'PCB_PTM_Mainboard';
+  ptmGroup.add(ptmPcb);
+
+  // Microprocessor IC (PID Controller MCU) with lead pins
+  const mcu = box(0.26, 0.035, 0.26, matICBlack);
+  mcu.name = 'IC_MCU_PID';
+  mcu.position.set(-0.15, 0.03, -0.15);
+  ptmGroup.add(mcu);
+
+  // Dual Omron Safety & Cooling Relays
+  const relay1 = box(0.20, 0.18, 0.16, matCastIron);
+  relay1.name = 'Relay_Alarm_Omron';
+  relay1.position.set(0.32, 0.10, -0.40);
+  ptmGroup.add(relay1);
+
+  const relay2 = box(0.20, 0.18, 0.16, matCastIron);
+  relay2.name = 'Relay_Cooling_Omron';
+  relay2.position.set(0.32, 0.10, -0.18);
+  ptmGroup.add(relay2);
+
+  // 4x Electrolytic Power Filtering Capacitors
+  for (let c = 0; c < 4; c++) {
+    const cap = cyl(0.055, 0.055, 0.22, matCapBlue, 16);
+    cap.name = `Cap_Filter_${c + 1}`;
+    cap.position.set(-0.35 + c * 0.14, 0.12, 0.35);
+    ptmGroup.add(cap);
+    const capTop = cyl(0.05, 0.05, 0.01, matSSPolished, 16);
+    capTop.position.set(-0.35 + c * 0.14, 0.235, 0.35);
+    ptmGroup.add(capTop);
+  }
+
+  // Quartz Crystal Oscillator in HC-49 metal can
+  const xtal = box(0.07, 0.04, 0.14, matSSPolished);
+  xtal.name = 'Oscillator_Quartz_Crystal';
+  xtal.position.set(-0.38, 0.03, -0.15);
+  ptmGroup.add(xtal);
+
+  // 8-Position Configuration DIP Switch
+  const dipSw = box(0.10, 0.045, 0.22, matWireRed);
+  dipSw.name = 'Switch_Config_DIP';
+  dipSw.position.set(-0.15, 0.03, 0.12);
+  ptmGroup.add(dipSw);
+
+  // 6-Position Screw Terminal Block
+  const termBlock = box(0.12, 0.15, 0.48, matTerminalGreen);
+  termBlock.name = 'Terminal_PTM_ScrewBlocks';
+  termBlock.position.set(0.48, 0.09, 0.30);
+  ptmGroup.add(termBlock);
+
+  // Flat Gray Multi-Conductor Ribbon Cable connecting PTM to Front Display Bezel
+  const ribbonCurve = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(-0.35, -ctrlH / 2 + 0.22, -0.25),
+    new THREE.Vector3(-0.15, -ctrlH / 2 + 0.45, -0.70),
+    new THREE.Vector3(0.35, 0.15, -ctrlD / 2 + 0.10),
+    new THREE.Vector3(0.55, 0.25, -ctrlD / 2 + 0.01),
+  ]);
+  const ribbonGeo = new THREE.TubeGeometry(ribbonCurve, 20, 0.025, 8, false);
+  const ribbonMesh = new THREE.Mesh(ribbonGeo, matRibbonGray);
+  ribbonMesh.name = 'Cable_Ribbon_Display';
+  ctrlGroup.add(ribbonMesh);
+
+  ctrlGroup.add(ptmGroup);
+  registerPart(ptmGroup, 'Controller', 'PTM primary temperature microprocessor mainboard with relays and capacitors');
+
+  // 5. MCM Motor Speed Controller Driver Card (Vertical slot on right side)
+  const mcmGroup = new THREE.Group();
+  mcmGroup.name = 'Assembly_MCM_MotorDriver';
+  mcmGroup.position.set(0.72, 0.05, 0.12);
+
+  // Vertical FR4 card
+  const mcmPcb = box(0.03, 1.25, 1.35, matPCB);
+  mcmPcb.name = 'PCB_MCM_MotorDriver';
+  mcmGroup.add(mcmPcb);
+
+  // Heavy Black-Anodized Finned Aluminum Heatsink
+  const heatsinkBase = box(0.06, 0.90, 0.85, matAluHeatsink);
+  heatsinkBase.name = 'Heatsink_MCM_Base';
+  heatsinkBase.position.set(-0.045, 0.05, 0);
+  mcmGroup.add(heatsinkBase);
+
+  // 5x Extruded Cooling Fins
+  for (let f = 0; f < 5; f++) {
+    const finZ = -0.32 + f * 0.16;
+    const fin = box(0.12, 0.90, 0.02, matAluHeatsink);
+    fin.position.set(-0.13, 0.05, finZ);
+    mcmGroup.add(fin);
+  }
+
+  // Clamped High-Current Power MOSFETs / Triacs with Spring Clips
+  for (let m = 0; m < 3; m++) {
+    const mosfet = box(0.03, 0.14, 0.09, matICBlack);
+    mosfet.position.set(-0.015, -0.22 + m * 0.22, -0.15);
+    mcmGroup.add(mosfet);
+  }
+
+  // Toroidal PWM Inductor Coil
+  const mcmToroid = cyl(0.14, 0.14, 0.10, matCopper, 16);
+  mcmToroid.name = 'Inductor_PWM_Toroid';
+  mcmToroid.rotation.z = Math.PI / 2;
+  mcmToroid.position.set(0.08, 0.25, 0.25);
+  mcmGroup.add(mcmToroid);
+
+  ctrlGroup.add(mcmGroup);
+  registerPart(mcmGroup, 'Controller', 'MCM motor speed controller driver board with finned aluminum heatsink');
+
+  // 6. Crydom D2425 Solid-State Relay (SSR) Bay (Heater AC Control)
+  const ssrGroup = new THREE.Group();
+  ssrGroup.name = 'Assembly_Relay_SSR_Crydom';
+  ssrGroup.position.set(-0.45, -ctrlH / 2 + 0.16, -0.75);
+
+  // Aluminum Thermal Dissipation Baseplate
+  const ssrBase = box(0.52, 0.04, 0.68, matSSBrushed);
+  ssrBase.position.set(0, -0.04, 0);
+  ssrGroup.add(ssrBase);
+
+  // Black Epoxy Molded SSR Body
+  const ssrBody = box(0.45, 0.20, 0.60, matCastIron);
+  ssrBody.name = 'Relay_SSR_Crydom';
+  ssrGroup.add(ssrBody);
+
+  // Crydom White Silkscreen Faceplate
+  const ssrLabel = box(0.32, 0.01, 0.44, M(0xf1f5f9, { r: 0.30 }));
+  ssrLabel.position.set(0, 0.105, 0);
+  ssrGroup.add(ssrLabel);
+
+  // 4x Heavy Brass Screw Terminals (Term 1 & 2 AC line, Term 3 & 4 DC trigger)
+  const ssrTermCoords = [
+    [-0.14, 0.14, -0.20],
+    [ 0.14, 0.14, -0.20],
+    [-0.14, 0.14,  0.20],
+    [ 0.14, 0.14,  0.20],
+  ];
+  ssrTermCoords.forEach(([tx, ty, tz], idx) => {
+    const term = cyl(0.035, 0.035, 0.06, matBrass, 12);
+    term.name = `Fastener_SSR_Terminal_${idx + 1}`;
+    term.position.set(tx, ty, tz);
+    ssrGroup.add(term);
+  });
+
+  // Heavy Red and White 14 AWG Silicone Heater Power Leads to Rear Connector
+  const wireHeater1 = cyl(0.02, 0.02, 1.45, matWireRed, 8);
+  wireHeater1.rotation.x = Math.PI / 2;
+  wireHeater1.position.set(-0.14, 0.16, 0.45);
+  ssrGroup.add(wireHeater1);
+
+  const wireHeater2 = cyl(0.02, 0.02, 1.45, matWireWhite, 8);
+  wireHeater2.rotation.x = Math.PI / 2;
+  wireHeater2.position.set(0.14, 0.16, 0.45);
+  ssrGroup.add(wireHeater2);
+
+  ctrlGroup.add(ssrGroup);
+  registerPart(ssrGroup, 'Controller', 'Crydom D2425 25A solid-state relay on aluminum thermal baseplate');
+
+  // 7. Heavy Copper Toroidal Power Transformer
+  const transGroup = new THREE.Group();
+  transGroup.name = 'Assembly_Transformer_Toroidal';
+  transGroup.position.set(0.48, -ctrlH / 2 + 0.22, -0.72);
+
+  // Donut copper winding core
+  const transCore = cyl(0.40, 0.40, 0.32, matCopper, 24);
+  transCore.name = 'Transformer_Toroidal_Parr';
+  transGroup.add(transCore);
+
+  // Central zinc-plated mounting dish plate
+  const transDish = cyl(0.24, 0.24, 0.03, matSSPolished, 20);
+  transDish.position.set(0, 0.165, 0);
+  transGroup.add(transDish);
+
+  // Heavy M6 center through-bolt
+  const transBolt = cyl(0.035, 0.035, 0.38, matSSPolished, 12);
+  transBolt.position.set(0, 0.05, 0);
+  transGroup.add(transBolt);
+
+  ctrlGroup.add(transGroup);
+  registerPart(transGroup, 'Controller', 'Parr multi-tap copper toroidal mains power transformer');
+
+  // 8. Earth Ground Lug & Safety Bonding
+  const gndStud = cyl(0.03, 0.03, 0.08, matBrass, 12);
+  gndStud.name = 'Fastener_GroundLug_Chassis';
+  gndStud.position.set(-0.55, -ctrlH / 2 + 0.06, ctrlD / 2 - 0.25);
+  ctrlGroup.add(gndStud);
+
+  const gndWire = cyl(0.02, 0.02, 0.30, matWireGround, 8);
+  gndWire.position.set(-0.58, -ctrlH / 2 + 0.12, ctrlD / 2 - 0.18);
+  ctrlGroup.add(gndWire);
+  registerPart(gndStud, 'Electrical', 'Chassis protective earth star-washer grounding stud and 14 AWG bond');
 
   // Front bezel faceplate backing box
   const ctrlBezel = box(ctrlW - 0.14, ctrlH - 0.14, 0.05, matCtrlBezel);
@@ -1301,12 +1593,35 @@ export function buildReactor3D(options = {}) {
     ctrlGroup.add(cFoot);
   });
 
-  // Rear panel: IEC C14 inlet, heater twist-lock, thermocouple socket, RS-232 DB9
+  // Rear panel: IEC C14 inlet, heater twist-lock, thermocouple socket, circular motor port, RS-232 DB9
   const iecInlet = createIECInlet();
   iecInlet.name = 'Body_IECInlet';
   iecInlet.rotation.y = Math.PI;
-  iecInlet.position.set(-0.60, -0.30, ctrlD / 2 + 0.01);
+  iecInlet.position.set(-0.65, -0.30, ctrlD / 2 + 0.01);
   ctrlGroup.add(iecInlet);
+
+  // Amphenol 3-pin twist-lock heater output receptacle
+  const heaterRecept = cyl(0.18, 0.18, 0.08, matSSPolished, 20);
+  heaterRecept.name = 'Port_Heater_Amphenol';
+  heaterRecept.rotation.x = Math.PI / 2;
+  heaterRecept.position.set(-0.15, -0.30, ctrlD / 2 + 0.02);
+  ctrlGroup.add(heaterRecept);
+  registerPart(heaterRecept, 'Controller', 'Ceramic 3-pin twist-lock 780W heater power receptacle');
+
+  // Type-J Thermocouple polarized miniature jack (yellow/white)
+  const tcJack = box(0.16, 0.12, 0.06, matCastIron);
+  tcJack.name = 'Port_Thermocouple_TypeJ';
+  tcJack.position.set(0.20, -0.30, ctrlD / 2 + 0.02);
+  ctrlGroup.add(tcJack);
+  registerPart(tcJack, 'Controller', 'Polarized subminiature Type-J thermocouple input socket');
+
+  // 5-pin circular Amphenol motor power and tachometer connector
+  const motorPort = cyl(0.14, 0.14, 0.08, matAluHeater, 16);
+  motorPort.name = 'Port_Motor_Circular';
+  motorPort.rotation.x = Math.PI / 2;
+  motorPort.position.set(0.55, 0.35, ctrlD / 2 + 0.02);
+  ctrlGroup.add(motorPort);
+  registerPart(motorPort, 'Controller', 'Circular Amphenol 5-pin motor DC drive and optical tachometer port');
 
   const db9 = createDB9Port();
   db9.name = 'Body_RS232Port';
@@ -1508,8 +1823,11 @@ export function buildReactor3D(options = {}) {
     // 4. Service fittings elevate slightly for inspection
     assemblies.fittings.position.y = 0.75 * factor;
 
-    // 5. Controller slides rightwards
+    // 5. Controller slides rightwards and lifts top cover lid vertically
     assemblies.controller.position.x = 1.80 * factor;
+    if (refs.ctrlCover) {
+      refs.ctrlCover.position.y = 1.40 * factor;
+    }
   }
 
   function setStirrerRotation(rad) {

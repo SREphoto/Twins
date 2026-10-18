@@ -180,6 +180,31 @@ class TestVacuumPumpController(unittest.TestCase):
         self.assertEqual(self.ctrl.state, VacuumPumpState.FAULT_OVERHEAT)
         self.assertEqual(self.ctrl.motor_speed_rpm, 0.0)
 
+    def test_physical_circuit_continuity(self):
+        # Start and run pump
+        self.ctrl.set_power(True)
+        for _ in range(30):
+            self.ctrl.tick(0.1)
+        self.assertEqual(self.ctrl.state, VacuumPumpState.RUNNING)
+        self.assertGreater(self.ctrl.motor_speed_rpm, 1000.0)
+
+        # Unplug power cord: immediate transition to UNPOWERED
+        self.ctrl.set_plugged_in(False)
+        self.assertFalse(self.ctrl.is_plugged_in)
+        self.assertEqual(self.ctrl.state, VacuumPumpState.UNPOWERED)
+        self.assertEqual(self.ctrl.motor_speed_rpm, 0.0)
+
+        # Ticking while unplugged stays UNPOWERED
+        self.ctrl.tick(0.5)
+        self.assertEqual(self.ctrl.state, VacuumPumpState.UNPOWERED)
+        self.assertEqual(self.ctrl.motor_speed_rpm, 0.0)
+
+        # Re-plug power cord: with switch still on, resumes IDLE/STARTING
+        self.ctrl.set_plugged_in(True)
+        self.assertTrue(self.ctrl.is_plugged_in)
+        self.assertEqual(self.ctrl.state, VacuumPumpState.IDLE)
+        self.ctrl.tick(0.1)
+        self.assertEqual(self.ctrl.state, VacuumPumpState.STARTING)
 
 if __name__ == '__main__':
     unittest.main()

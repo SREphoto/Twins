@@ -28,6 +28,7 @@ import {
   setSfxMuted,
   isSfxMuted,
 } from './sfx.js?v=20260906-gold5';
+import { initChemMateTheme } from '../../../lab_viewer/shared/chemmate_theme_manager.js';
 
 // ---------------------------------------------------------------------------
 // Physical Constants & Limits
@@ -513,6 +514,18 @@ function init3D() {
   const topL = new THREE.DirectionalLight(0xf0f6ff, 0.65);
   topL.position.set(0, 27, 0);
   scene.add(topL);
+
+  // ChemMate Theme Controller (Modern, Retro, Night)
+  const themeManager = initChemMateTheme({
+    twinName: 'BalanceTwin',
+    scene,
+    ambLight: ambientL,
+    dirLight: keyL,
+    rimLight: fillL,
+    onThemeChange: () => {
+      renderLCD();
+    },
+  });
 
   // Model creation
   model = createBalanceModel();

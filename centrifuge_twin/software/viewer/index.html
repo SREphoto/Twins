@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20261017-viewchooser" />
+  <link rel="stylesheet" href="style.css?v=20261018-retrofix" />
 </head>
 <body>
   <div id="app">
@@ -20,9 +20,10 @@
         </div>
         <div class="brand">
           <span class="brand-num">03</span>
-          <span class="brand-mark">MICRO</span>
-          <span class="brand-model">5424-R</span>
-          <span class="brand-tag">Refrigerated microcentrifuge twin</span>
+          <span class="brand-name-group">
+            <span class="brand-mark">MICRO</span>
+            <span class="brand-model">5424-R</span>
+          </span>
         </div>
         <nav class="cm-topnav" aria-label="ChemMate sections">
           <span class="cm-nav-item">CURRICULUM</span>
@@ -33,10 +34,6 @@
       </div>
 
       <div class="topbar-right">
-        <div class="cm-motto" aria-hidden="true">
-          BETTER THINKERS<br />BUILD A BRIGHTER FUTURE
-        </div>
-
         <div class="view-chooser" role="group" aria-label="Visual view style">
           <span class="view-chooser-label">VIEW:</span>
           <div class="view-chooser-group">
@@ -52,18 +49,6 @@
           </div>
         </div>
 
-        <div class="cm-stage-switcher" id="cm-stage-switcher" role="group" aria-label="3D backdrop stage options" hidden>
-          <button type="button" class="cm-sub-btn active" id="btn-cm-plate" title="Diagram plate backdrop with leader-line callouts">
-            Diagram Plate
-          </button>
-          <button type="button" class="cm-sub-btn" id="btn-cm-bench" title="Laboratory room & bench environment">
-            Lab Room
-          </button>
-          <button type="button" class="cm-sub-btn active" id="btn-cm-callouts" title="Toggle red leader-line diagram callouts">
-            Callouts
-          </button>
-        </div>
-
         <div class="topbar-status">
           <span id="status-pill" class="pill">LID OPEN</span>
           <span id="status-detail" class="muted">Ready to load samples</span>
@@ -75,46 +60,65 @@
       <!-- 3D -->
       <section class="stage">
         <div class="view-toolbar">
-          <button type="button" class="view-btn" id="btn-explode" title="Separate major assemblies">Exploded view</button>
-          <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe">Wireframe</button>
-          <button type="button" class="view-btn" id="btn-auto-rotate" title="Orbit camera automatically">Auto-rotate</button>
-          <label class="orbit-speed-ctrl" title="Auto-orbit speed">
-            <span>Orbit</span>
-            <input type="range" id="orbit-speed" min="0.2" max="4" step="0.1" value="1.1" />
-            <span id="orbit-speed-val">1.1×</span>
-          </label>
-          <label class="orbit-speed-ctrl" title="Camera zoom (distance to instrument)">
-            <span>Zoom</span>
-            <input type="range" id="camera-zoom" min="0" max="100" step="1" value="45" />
-            <span id="camera-zoom-val">45%</span>
-          </label>
-          <label class="orbit-speed-ctrl light-ctrl" title="Overall lab brightness">
-            <span>Light</span>
-            <input type="range" id="lab-light" min="0.15" max="2.2" step="0.05" value="1" />
-            <span id="lab-light-val">1.0×</span>
-          </label>
-          <label class="orbit-speed-ctrl light-ctrl" title="Lighting mood">
-            <span>Mood</span>
-            <select id="lab-light-mood" aria-label="Lighting mood">
-              <option value="neutral" selected>Neutral</option>
-              <option value="bright">Bright</option>
-              <option value="dim">Dim</option>
-              <option value="cool">Cool</option>
-              <option value="warm">Warm</option>
-              <option value="chemmate">ChemMate Paper</option>
-              <option value="night">Night Red</option>
-            </select>
-          </label>
-          <button type="button" class="view-btn btn-story" id="btn-tube-story" title="Follow one tube fill → spin → layers">
-            Tube story
-          </button>
-          <button type="button" class="view-btn btn-showcase" id="btn-full-showcase" title="Full demo: run cycles + part highlights + keypad tour">
-            Full showcase
-          </button>
-          <button type="button" class="view-btn" id="btn-music" title="Play / mute music">Music</button>
-          <button type="button" class="view-btn" id="btn-music-chat" title="Text chat to change style and instruments">Music chat</button>
-          <button type="button" class="view-btn" id="btn-view-reset" title="Reset camera">Reset view</button>
-          <button type="button" class="view-btn" id="btn-sfx-mute" title="Mute soft button sounds">Mute SFX</button>
+          <!-- Backdrop Stage (Retro/Night) -->
+          <div class="toolbar-group" id="cm-stage-switcher" hidden>
+            <button type="button" class="view-btn active" id="btn-cm-plate" title="Diagram plate backdrop">Plate</button>
+            <button type="button" class="view-btn" id="btn-cm-bench" title="Lab room backdrop">Lab Room</button>
+            <button type="button" class="view-btn active" id="btn-cm-callouts" title="Toggle callouts">Callouts</button>
+          </div>
+
+          <!-- View Modes -->
+          <div class="toolbar-group">
+            <button type="button" class="view-btn" id="btn-explode" title="Separate major assemblies">Exploded</button>
+            <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe">Wireframe</button>
+            <button type="button" class="view-btn" id="btn-view-reset" title="Reset camera to default">Reset</button>
+          </div>
+
+          <!-- Camera & Orbit Controls -->
+          <div class="toolbar-group">
+            <button type="button" class="view-btn" id="btn-auto-rotate" title="Orbit camera automatically">Auto-rotate</button>
+            <label class="orbit-speed-ctrl" title="Auto-orbit speed">
+              <span>Orbit</span>
+              <input type="range" id="orbit-speed" min="0.2" max="4" step="0.1" value="1.1" />
+              <span id="orbit-speed-val">1.1×</span>
+            </label>
+            <label class="orbit-speed-ctrl" title="Camera zoom (distance to instrument)">
+              <span>Zoom</span>
+              <input type="range" id="camera-zoom" min="0" max="100" step="1" value="45" />
+              <span id="camera-zoom-val">45%</span>
+            </label>
+          </div>
+
+          <!-- Lighting & Atmosphere -->
+          <div class="toolbar-group">
+            <label class="orbit-speed-ctrl light-ctrl" title="Overall lab brightness">
+              <span>Light</span>
+              <input type="range" id="lab-light" min="0.15" max="2.2" step="0.05" value="1" />
+              <span id="lab-light-val">1.0×</span>
+            </label>
+            <label class="orbit-speed-ctrl light-ctrl" title="Lighting mood">
+              <span>Mood</span>
+              <select id="lab-light-mood" aria-label="Lighting mood">
+                <option value="neutral" selected>Neutral</option>
+                <option value="bright">Bright</option>
+                <option value="dim">Dim</option>
+                <option value="cool">Cool</option>
+                <option value="warm">Warm</option>
+                <option value="chemmate">ChemMate Paper</option>
+                <option value="night">Night Red</option>
+              </select>
+            </label>
+          </div>
+
+          <!-- Guided Tours & Demos -->
+          <div class="toolbar-group">
+            <button type="button" class="view-btn btn-story" id="btn-tube-story" title="Follow one tube fill → spin → layers">
+              Tube story
+            </button>
+            <button type="button" class="view-btn btn-showcase" id="btn-full-showcase" title="Full demo: run cycles + part highlights + keypad tour">
+              Full showcase
+            </button>
+          </div>
         </div>
         <div id="viewport3d" class="viewport"></div>
 
@@ -252,51 +256,104 @@
           <div class="instrument-frame">
             <canvas id="lcd" width="1024" height="512" class="lcd" aria-label="Instrument display"></canvas>
 
-            <div class="keypad keypad-train" role="group" aria-label="Centrifuge keys">
-              <div class="rocker-row">
-                <div class="key-cluster rocker">
-                  <span class="cluster-label">speed · hold to ramp</span>
-                  <button type="button" class="key key-rock" data-key="speed-up" title="Hold to ramp speed up">▲</button>
-                  <button type="button" class="key key-rock" data-key="speed-down" title="Hold to ramp speed down">▼</button>
-                </div>
-                <div class="key-cluster rocker">
-                  <span class="cluster-label">time · hold to ramp</span>
-                  <button type="button" class="key key-rock" data-key="time-up" title="Hold to increase time">▲</button>
-                  <button type="button" class="key key-rock" data-key="time-down" title="Hold to decrease time">▼</button>
-                </div>
-                <div class="key-cluster rocker">
-                  <span class="cluster-label">temp · hold to ramp</span>
-                  <button type="button" class="key key-rock" data-key="temp-up" title="Hold to increase temp">▲</button>
-                  <button type="button" class="key key-rock" data-key="temp-down" title="Hold to decrease temp">▼</button>
-                </div>
+            <!-- Parameter Adjust Rockers -->
+            <div class="keypad-section">
+              <div class="keypad-section-header">
+                <span class="section-kicker">PARAMETER ADJUST</span>
+                <span class="section-hint">HOLD TO RAMP</span>
               </div>
-
-              <div class="action-row">
-                <button type="button" class="key key-power" data-key="power" title="Mains power">POWER</button>
-                <button type="button" class="key" data-key="rpmrcf" title="Toggle rpm / rcf display">rpm / rcf</button>
-                <button type="button" class="key key-hold" data-key="short" id="btn-short" title="Hold for momentary spin">short</button>
-                <button type="button" class="key" data-key="open" title="Open lid">open</button>
-                <button type="button" class="key key-primary key-start" data-key="start" title="Start / stop run">start / stop</button>
-                <button type="button" class="key key-cool" data-key="fast-temp" title="Precool-style moderate run">fast cool</button>
+              <div class="rocker-row">
+                <div class="key-cluster rocker" title="Speed / RCF parameter adjustment">
+                  <span class="cluster-label">SPEED</span>
+                  <div class="rocker-pair">
+                    <button type="button" class="key key-rock" data-key="speed-up" title="Hold to ramp speed up">▲</button>
+                    <button type="button" class="key key-rock" data-key="speed-down" title="Hold to ramp speed down">▼</button>
+                  </div>
+                </div>
+                <div class="key-cluster rocker" title="Run time adjustment">
+                  <span class="cluster-label">TIME</span>
+                  <div class="rocker-pair">
+                    <button type="button" class="key key-rock" data-key="time-up" title="Hold to increase time">▲</button>
+                    <button type="button" class="key key-rock" data-key="time-down" title="Hold to decrease time">▼</button>
+                  </div>
+                </div>
+                <div class="key-cluster rocker" title="Chamber temperature regulation">
+                  <span class="cluster-label">TEMP</span>
+                  <div class="rocker-pair">
+                    <button type="button" class="key key-rock" data-key="temp-up" title="Hold to increase temp">▲</button>
+                    <button type="button" class="key key-rock" data-key="temp-down" title="Hold to decrease temp">▼</button>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div class="instrument-actions">
-              <button type="button" class="btn" data-key="close-lid">Close lid</button>
-              <button type="button" class="btn btn-demo" id="btn-demo-spin">Quick demo run</button>
-              <button type="button" class="btn btn-demo" id="btn-demo-loop" title="Continuous sample runs only">
-                Continuous demo
-              </button>
-              <button type="button" class="btn btn-demo btn-showcase" id="btn-full-showcase-panel" title="Runs + part highlights + keypad lights">
-                Full showcase
-              </button>
-              <button type="button" class="btn btn-danger" data-key="imbalance">Imbalance fault</button>
+            <!-- Authentic Industrial Membrane Keypad -->
+            <div class="keypad-section">
+              <div class="keypad-section-header">
+                <span class="section-kicker">MEMBRANE KEYPAD</span>
+                <span class="section-hint">TACTILE SWITCHES</span>
+              </div>
+              <div class="keypad-membrane-grid" role="group" aria-label="Centrifuge membrane keypad">
+                <button type="button" class="key key-power" data-key="power" title="Mains Power Toggle">
+                  <span class="key-glyph">⏻</span>
+                  <span class="key-label">POWER</span>
+                </button>
+                <button type="button" class="key key-mode" data-key="rpmrcf" title="Toggle RPM / RCF Display">
+                  <span class="key-glyph">⇄</span>
+                  <span class="key-label">RPM / RCF</span>
+                </button>
+                <button type="button" class="key key-hold key-short" data-key="short" id="btn-short" title="Hold for Momentary Spin">
+                  <span class="key-glyph">⚡</span>
+                  <span class="key-label">SHORT</span>
+                </button>
+                <button type="button" class="key key-open" data-key="open" title="Open Motorized Safety Lid">
+                  <span class="key-glyph">⏏</span>
+                  <span class="key-label">OPEN</span>
+                </button>
+                <button type="button" class="key key-primary key-start" data-key="start" title="Start / Stop Separation Run">
+                  <span class="key-glyph">▶ ◼</span>
+                  <span class="key-label">START / STOP</span>
+                </button>
+                <button type="button" class="key key-cool" data-key="fast-temp" title="Fast Precool Chamber Run">
+                  <span class="key-glyph">❄</span>
+                  <span class="key-label">FAST COOL</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Organized Operational Actions Suite -->
+            <div class="action-suite">
+              <div class="action-suite-group">
+                <div class="action-suite-title">LID &amp; SAFETY INTERLOCK</div>
+                <div class="action-suite-grid grid-2">
+                  <button type="button" class="btn btn-action-lid" data-key="close-lid" id="btn-lid-toggle">
+                    <span class="btn-glyph">🔒</span> <span id="btn-lid-label">Close lid</span>
+                  </button>
+                  <button type="button" class="btn btn-danger btn-action-imbalance" data-key="imbalance" title="Trigger rotor imbalance cutoff sensor">
+                    <span class="btn-glyph">⚠</span> Imbalance fault
+                  </button>
+                </div>
+              </div>
+
+              <div class="action-suite-group">
+                <div class="action-suite-title">AUTOMATED WORKFLOW DEMOS</div>
+                <div class="action-suite-grid grid-3">
+                  <button type="button" class="btn btn-demo" id="btn-demo-spin" title="Quick single spin cycle">
+                    <span class="btn-glyph">▶</span> Quick run
+                  </button>
+                  <button type="button" class="btn btn-demo" id="btn-demo-loop" title="Continuous sample spin runs">
+                    <span class="btn-glyph">🔁</span> Continuous
+                  </button>
+                  <button type="button" class="btn btn-demo btn-showcase" id="btn-full-showcase-panel" title="Runs + part highlights + keypad lights">
+                    <span class="btn-glyph">★</span> Showcase
+                  </button>
+                </div>
+              </div>
             </div>
             <p id="demo-loop-status" class="demo-loop-status muted" hidden></p>
 
             <p class="instrument-note">
-              <strong>Full showcase</strong> cycles a run, then zooms a part, then the next run —
-              while the keypad lights up like a guided demo.
+              <strong>Full showcase</strong> executes run cycles, camera part tours, and illuminated keypad telemetry.
             </p>
           </div>
         </div>

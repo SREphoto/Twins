@@ -291,3 +291,61 @@ body {
 }
 .metric-title { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; font-weight: 700; }
 .metric-val { font-family: var(--mono); font-size: 1.05rem; color: var(--cyan); font-weight: 700; }
+
+/* Part Explorer Side Panel (Gold Standard Component) */
+.parts {
+  width: 320px;
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+  z-index: 10;
+}
+.parts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 480px;
+  overflow-y: auto;
+  padding-right: 0.2rem;
+}
+.part-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.65rem;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.part-item:hover {
+  background: var(--key-hover);
+  border-color: var(--cyan);
+}
+.part-item.active {
+  background: rgba(0, 212, 232, 0.15);
+  border-color: var(--cyan);
+  color: #a5f3fc;
+}
+.part-cat-badge {
+  font-size: 0.65rem;
+  padding: 0.12rem 0.4rem;
+  border-radius: 3px;
+  background: var(--key);
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+/* Panel Collapsible states */
+.panel-collapsible.collapsed .panel-body {
+  display: none;
+}
+.panel-collapsible.collapsed {
+  width: auto;
+}
+

@@ -7,6 +7,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { FTIR3D } from './ftir3d.js?v=20261017-v7';
+import { initChemMateTheme } from '../../../lab_viewer/shared/chemmate_theme_manager.js';
 
 // Chemical Analyte Profiles
 const SAMPLES = {
@@ -133,6 +134,18 @@ class FTIRApp {
     this.initSchematicsModal();
     this.setupTouchAndPointer();
     this.setupViewPresets();
+
+    // ChemMate Theme Controller (Modern, Retro, Night)
+    this.themeManager = initChemMateTheme({
+      twinName: 'FTIRTwin',
+      scene: this.twin.scene,
+      ambLight: this.twin.ambientLight,
+      dirLight: this.twin.keyLight,
+      onThemeChange: () => {
+        this.twin.renderLCD();
+      },
+    });
+
     this.logGLP('SYSTEM: SRE FTIR-7000x Digital Twin Initialized. 100-240V AC continuity established.');
   }
 

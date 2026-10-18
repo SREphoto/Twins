@@ -3,17 +3,44 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Laboport N820 · Vacuum Pump Twin</title>
-  <link rel="stylesheet" href="style.css?v=20260729-2" />
+  <title>KNF Laboport N820 · Diaphragm Vacuum Pump Twin</title>
+  <link rel="stylesheet" href="style.css?v=20261018-1" />
+  <link rel="stylesheet" href="../../../lab_viewer/shared/chemmate_themes.css?v=20261018-view" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
 </head>
 <body>
   <div id="app">
+    <!-- Topbar -->
     <header class="topbar">
       <div class="brand">
         <span class="brand-mark">KNF</span>
         <span class="brand-model">Laboport N820</span>
-        <span class="brand-tag">Diaphragm vacuum pump twin</span>
+        <span class="brand-badge-text">SREdesigns</span>
+        <span class="brand-tag">Diaphragm Vacuum Pump Precision Digital Twin</span>
       </div>
+
+      <div class="view-chooser" role="group" aria-label="Visual view style">
+        <span class="view-chooser-label">VIEW:</span>
+        <div class="view-chooser-group">
+          <button type="button" class="view-choice-btn active" id="btn-view-modern" title="Modern View (Default high-tech instrument theme)">
+            <span class="view-choice-text">MODERN</span>
+          </button>
+          <button type="button" class="view-choice-btn" id="btn-view-retro" title="Retro View (ChemMate warm archival paper & Swiss red educational style)">
+            <span class="view-choice-text retro"><span class="cm-mini-plus">+</span> RETRO</span>
+          </button>
+          <button type="button" class="view-choice-btn" id="btn-view-night" title="Night View (Dark greys, deep blacks, and precision Swiss reds)">
+            <span class="view-choice-text night"><span class="night-glyph">☾</span> NIGHT</span>
+          </button>
+        </div>
+      </div>
+
       <div class="topbar-status">
         <span id="status-pill" class="pill">OFF</span>
         <span id="status-detail" class="muted">Ready for operation</span>
@@ -24,96 +51,147 @@
       <!-- 3D Stage -->
       <section class="stage">
         <div class="view-toolbar">
-          <button type="button" class="view-btn" id="btn-explode" title="Separate major assemblies">Exploded view</button>
-          <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe">Wireframe</button>
+          <button type="button" class="view-btn active" id="btn-cam-iso" title="Isometric 3/4 perspective">ISO</button>
+          <button type="button" class="view-btn" id="btn-cam-front" title="Front elevation facing console">Front</button>
+          <button type="button" class="view-btn" id="btn-cam-side" title="Side profile showing motor & heads">Side</button>
+          <button type="button" class="view-btn" id="btn-cam-top" title="Top plan view">Top</button>
+          <button type="button" class="view-btn" id="btn-cam-console" title="Zoom in to front gauge & controls">Console</button>
+          <button type="button" class="view-btn" id="btn-cam-exploded" title="Exploded assembly viewpoint">Exploded View</button>
+          <button type="button" class="view-btn" id="btn-explode" title="Separate assemblies">Explode Mesh</button>
+          <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe mode">Wireframe</button>
+          <button type="button" class="view-btn" id="btn-auto-rotate" title="Orbit camera automatically">Auto-rotate</button>
           
           <label class="orbit-speed-ctrl" title="Auto-orbit speed">
             <span>Orbit</span>
-            <input type="range" id="orbit-speed" min="0" max="4" step="0.1" value="0" />
-            <span id="orbit-speed-val">0.0×</span>
+            <input type="range" id="orbit-speed" min="0.2" max="4" step="0.1" value="1.0" />
+            <span id="orbit-speed-val">1.0×</span>
           </label>
-          <label class="orbit-speed-ctrl" title="Camera zoom (distance to instrument)">
-            <span>Zoom</span>
-            <input type="range" id="camera-zoom" min="0" max="100" step="1" value="45" />
-            <span id="camera-zoom-val">45%</span>
-          </label>
-          <label class="orbit-speed-ctrl light-ctrl" title="Overall lab brightness">
+          <label class="orbit-speed-ctrl" title="Lab lighting intensity">
             <span>Light</span>
-            <input type="range" id="lab-light" min="0.15" max="2.2" step="0.05" value="1" />
+            <input type="range" id="lab-light" min="0.2" max="3.0" step="0.1" value="1.0" />
             <span id="lab-light-val">1.0×</span>
           </label>
-          <label class="orbit-speed-ctrl light-ctrl" title="Lighting mood">
-            <span>Mood</span>
-            <select id="lab-light-mood" aria-label="Lighting mood">
-              <option value="neutral" selected>Neutral</option>
-              <option value="bright">Bright</option>
-              <option value="dim">Dim</option>
-              <option value="cool">Cool</option>
-              <option value="warm">Warm</option>
-            </select>
+          <label class="orbit-speed-ctrl" title="Audio acoustic synthesizer mute">
+            <button type="button" class="view-btn" id="btn-mute-sfx" title="Mute procedural sound synthesizer">Mute SFX</button>
           </label>
 
-          <button type="button" class="view-btn btn-showcase" id="btn-demo" title="Run educational demo">
-            Educational Demo
-          </button>
-          <button type="button" class="view-btn" id="btn-fault" title="Trigger thermal overload">Simulate Overheat</button>
+          <button type="button" class="view-btn btn-showcase" id="btn-demo" title="Run educational automated demo">Demo Loop</button>
+          <button type="button" class="view-btn btn-warn" id="btn-fault" title="Simulate motor thermal overload">Overheat Fault</button>
         </div>
-        
+
         <div id="canvas-container" class="viewport"></div>
-        <p id="viewport-status" class="viewport-caption">Loading full procedural CAD model…</p>
-        <div class="stage-hint">Drag to orbit · Zoom / Light sliders · scroll to zoom · interact with physical buttons or panel</div>
+        <div class="stage-hint">Interactive 3D Twin: Click power switch, gas ballast, or power plug to interact</div>
       </section>
 
-      <!-- Instrument control panel -->
-      <aside class="instrument panel-collapsible" id="panel-instrument" data-panel="instrument">
+      <!-- Left Instrument Control Panel -->
+      <aside class="instrument panel-collapsible" id="panel-instrument">
         <div class="panel-header">
-          <h2>Pump Controls</h2>
+          <h2>KNF N820 Controls</h2>
         </div>
         <div class="panel-content">
-          <div class="lcd" id="lcd-main">
-            <div class="lcd-row">
-              <span class="lcd-label">VACUUM (mbar)</span>
-              <span class="lcd-value" id="disp-vacuum">1013</span>
-            </div>
-            <div class="lcd-row">
-              <span class="lcd-label">MOTOR RPM</span>
-              <span class="lcd-value" id="disp-rpm">0</span>
-            </div>
-            <div class="lcd-row">
-              <span class="lcd-label">TEMP (°C)</span>
-              <span class="lcd-value" id="disp-temp">22.0</span>
-            </div>
-            <div class="lcd-row">
-              <span class="lcd-label">BALLAST</span>
-              <span class="lcd-value" id="disp-ballast">CLOSED</span>
+          <!-- Physical Circuit Continuity & Power -->
+          <div class="ctrl-section">
+            <span class="ctrl-section-title">PHYSICAL ELECTRICAL CONTINUITY</span>
+            <div class="btn-grid">
+              <button type="button" class="btn btn-primary" id="btn-power">POWER: OFF</button>
+              <button type="button" class="btn btn-secondary" id="btn-plug">CORD: PLUGGED IN</button>
             </div>
           </div>
-          
-          <div class="lab-btns">
-            <button type="button" class="btn btn-key" id="key-power">POWER TOGGLE</button>
-            <button type="button" class="btn btn-key" id="key-ballast">TOGGLE BALLAST</button>
+
+          <!-- Controls & Potentiometers -->
+          <div class="ctrl-section">
+            <span class="ctrl-section-title">GAS BALLAST & SPEED CONTROL</span>
+            <div class="btn-grid">
+              <button type="button" class="btn" id="btn-ballast">GAS BALLAST: CLOSED</button>
+            </div>
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>MOTOR SPEED DIAL</span>
+                <span id="val-speed-pot">1500 RPM</span>
+              </div>
+              <input type="range" id="slider-speed" min="1500" max="3000" step="50" value="1500" />
+            </div>
           </div>
-          
-          <div class="chart-container" style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
-            <p style="font-size: 0.8rem; color: var(--muted); margin-bottom: 8px;">Vacuum History (mbar)</p>
-            <canvas id="pressure-graph" width="300" height="150" style="width: 100%; height: auto; background: var(--panel-surface); border: 1px solid var(--border); border-radius: 4px;"></canvas>
+
+          <!-- Real-Time Metrics & Telemetry Readouts -->
+          <div class="ctrl-section">
+            <span class="ctrl-section-title">TELEMETRY & PROCESS VARIABLES</span>
+            <div class="metric-cards">
+              <div class="metric-card">
+                <span class="metric-card-label">SYSTEM VACUUM</span>
+                <span class="metric-card-val" id="disp-vacuum">1013 <span class="unit">mbar</span></span>
+                <span class="metric-card-sub" id="disp-vacuum-mmhg">760 mmHg</span>
+              </div>
+              <div class="metric-card">
+                <span class="metric-card-label">INTAKE FLOW RATE</span>
+                <span class="metric-card-val" id="disp-flow">0.00 <span class="unit">L/min</span></span>
+                <span class="metric-card-sub">Max: 15.0 L/min</span>
+              </div>
+              <div class="metric-card">
+                <span class="metric-card-label">MOTOR SPEED</span>
+                <span class="metric-card-val" id="disp-rpm">0 <span class="unit">RPM</span></span>
+                <span class="metric-card-sub" id="disp-rpm-target">Target: 1500 RPM</span>
+              </div>
+              <div class="metric-card">
+                <span class="metric-card-label">MOTOR TEMPERATURE</span>
+                <span class="metric-card-val" id="disp-temp">22.0 <span class="unit">°C</span></span>
+                <span class="metric-card-sub">Cutout: 130.0 °C</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Real-Time Evacuation Trend Canvas -->
+          <div class="ctrl-section">
+            <span class="ctrl-section-title">EVACUATION PRESSURE PROFILE</span>
+            <div class="graph-box">
+              <canvas id="graph-canvas" width="280" height="110"></canvas>
+            </div>
+          </div>
+
+          <!-- Educational Context Card -->
+          <div class="ctrl-section">
+            <span class="ctrl-section-title">DIAPHRAGM PUMP PHYSICS</span>
+            <div class="edu-card">
+              <p><strong>Dual-Head Counter-Phase:</strong> Two opposing PTFE diaphragms reciprocate 180° out-of-phase to minimize vibration and maintain continuous aspiration.</p>
+              <p><strong>Gas Ballast Purge:</strong> Opening the ballast valve admits ambient air into the compression chamber, raising vapor temperature above dew point to prevent condensation.</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Right Part Explorer Panel -->
+      <aside class="parts panel-collapsible" id="panel-parts">
+        <div class="panel-header">
+          <h2>Part Explorer</h2>
+        </div>
+        <div class="panel-content">
+          <div class="part-search-box">
+            <input type="text" id="input-part-search" placeholder="Search components (e.g. diaphragm, stator, poppet)..." />
+          </div>
+
+          <div class="part-filters">
+            <button type="button" class="part-filter-btn active" data-cat="all">All</button>
+            <button type="button" class="part-filter-btn" data-cat="heads">Heads</button>
+            <button type="button" class="part-filter-btn" data-cat="drive">Drive</button>
+            <button type="button" class="part-filter-btn" data-cat="chassis">Chassis</button>
+            <button type="button" class="part-filter-btn" data-cat="pneumatics">Pneumatics</button>
+            <button type="button" class="part-filter-btn" data-cat="controls">Controls</button>
+            <button type="button" class="part-filter-btn" data-cat="electrical">Electrical</button>
+          </div>
+
+          <div class="parts-list" id="parts-list">
+            <!-- Populated dynamically by app.js -->
+          </div>
+
+          <div class="parts-footer">
+            <span id="parts-focus-status" class="parts-status-text">No part focused</span>
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-parts-clear">Clear Focus / Reset View</button>
           </div>
         </div>
       </aside>
     </div>
   </div>
 
-  <!-- Import maps polyfill -->
-  <script async src="https://unpkg.com/es-module-shims@1.8.0/dist/es-module-shims.js"></script>
-  <!-- Import map for Three.js -->
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-      }
-    }
-  </script>
-  <script type="module" src="app.js?v=20260729-2"></script>
+  <script type="module" src="app.js?v=20261018-1"></script>
 </body>
 </html>

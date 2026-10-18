@@ -20,6 +20,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { buildReactor3D, REACTOR_CAMERAS, INSTRUMENT_BENCH } from './reactor3d.js';
 import { sfx } from './sfx.js';
+import { initChemMateTheme } from '../../../lab_viewer/shared/chemmate_theme_manager.js';
 
 // ---------------------------------------------------------------------------
 // Simulation State Engine
@@ -120,6 +121,14 @@ controls.dampingFactor = 0.05;
 controls.target.set(...REACTOR_CAMERAS.CAM_ISO.target);
 controls.maxPolarAngle = Math.PI / 2 + 0.08; // Prevent seeing underneath bench
 
+window.__camera = camera;
+window.__controls = controls;
+window.__setCustomCam = (px, py, pz, tx, ty, tz) => {
+  camera.position.set(px, py, pz);
+  controls.target.set(tx, ty, tz);
+  controls.update();
+};
+
 // ---------------------------------------------------------------------------
 // Lighting Setup (Studio 3-Point + Rim + Ceiling + Mood)
 // ---------------------------------------------------------------------------
@@ -198,6 +207,18 @@ function updateLightingMood(mood, intensity) {
       break;
   }
 }
+
+// ChemMate Theme Controller (Modern, Retro, Night)
+const themeManager = initChemMateTheme({
+  twinName: 'ReactorTwin',
+  scene,
+  ambLight,
+  dirLight: dirLightKey,
+  rimLight: dirLightRim,
+  onThemeChange: () => {
+    updateLCD();
+  },
+});
 
 // ---------------------------------------------------------------------------
 // Build Procedural 3D Twin Architecture

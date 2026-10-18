@@ -1111,12 +1111,16 @@ function setAutoRotateGlobal(on) {
 }
 
 function focusPartEntry(entry, { autoRotate = true } = {}) {
-  if (!entry?.object || !centrifugeModel || !viewCamera || !orbitControls) return;
+  const objs = Array.isArray(entry.objects) ? entry.objects : (entry.object ? [entry.object] : []);
+  if (!objs.length || !centrifugeModel || !viewCamera || !orbitControls) return;
   wireframeOn = false;
   document.getElementById("btn-wireframe")?.classList.remove("active");
   explorerPartId = entry.id;
-  setExplorerFocus(centrifugeModel, entry.object);
-  const box = new THREE.Box3().setFromObject(entry.object);
+  setExplorerFocus(centrifugeModel, objs);
+  const box = new THREE.Box3();
+  for (const obj of objs) {
+    box.expandByObject(obj);
+  }
   const center = new THREE.Vector3();
   const size = new THREE.Vector3();
   box.getCenter(center);
@@ -1128,11 +1132,15 @@ function focusPartEntry(entry, { autoRotate = true } = {}) {
   orbitControls.minDistance = Math.max(0.3, maxDim * 0.3);
   orbitControls.update();
   if (autoRotate) setAutoRotateGlobal(true);
+  const targetIds = entry.ids || [entry.id];
   document.querySelectorAll(".part-btn").forEach((el) => {
-    el.classList.toggle("active", el.dataset.partId === entry.id);
+    const elIds = (el.dataset.partIds || el.dataset.partId || "").split(",");
+    const match = targetIds.some((id) => elIds.includes(id));
+    el.classList.toggle("active", match);
   });
   const st = document.getElementById("parts-focus-status");
-  if (st) st.textContent = `Focused: ${entry.label}`;
+  const countStr = entry.count > 1 ? ` (${entry.count}×)` : "";
+  if (st) st.textContent = `Focused: ${entry.label}${countStr}`;
   // Mild explode so internals read during showcase
   explodeTarget = entry.group?.includes("Drive") || entry.id === "drive" || /motor|pcb|fan|comp/i.test(entry.id) ? 0.85 : 0.35;
 }
@@ -1830,176 +1838,426 @@ function drawLcd(s) {
   const w = canvas.width;
   const h = canvas.height;
 
+  // --- UNPOWERED STATE ---
   if (!c.powered) {
-    ctx.fillStyle = "#020508";
+    ctx.fillStyle = "#020407";
     ctx.fillRect(0, 0, w, h);
-    ctx.fillStyle = "#334";
-    ctx.font = "bold 36px sans-serif";
-    ctx.fillText("POWER OFF", 40, h / 2);
+
+    // Faint unlit LCD segment ghosting & bezel
+    ctx.strokeStyle = "#08101a";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(16, 16, w - 32, h - 32);
+
+    // Subtle diagonal glass reflection highlight
+    const gSpec = ctx.createLinearGradient(0, 0, w * 0.7, h * 0.7);
+    gSpec.addColorStop(0, "rgba(255, 255, 255, 0.025)");
+    gSpec.addColorStop(0.5, "transparent");
+    ctx.fillStyle = gSpec;
+    ctx.fillRect(16, 16, w - 32, h - 32);
+
+    ctx.fillStyle = "#1e293b";
+    ctx.font = "bold 28px 'IBM Plex Mono', monospace";
+    ctx.fillText("POWER OFF · MAINS STANDBY", 40, h / 2);
     return;
   }
 
   const fault = s.led_fault;
-  const cyan = "#00d4e8";
-  const green = "#3dd68c";
-  const amber = "#f0b429";
-  const red = "#f04460";
-  const muted = "#8b9bb0";
+  const cyan = "#00f0ff";
+  const cyanDim = "rgba(0, 240, 255, 0.08)";
+  const green = "#10e885";
+  const amber = "#ffb81c";
+  const amberDim = "rgba(255, 184, 28, 0.08)";
+  const red = "#ff3b5c";
+  const muted = "#7e92ab";
 
-  ctx.fillStyle = "#050c16";
+  // Polarized LCD deep background
+  const bgGrad = ctx.createRadialGradient(w / 2, h / 2, 80, w / 2, h / 2, w * 0.7);
+  bgGrad.addColorStop(0, "#050e18");
+  bgGrad.addColorStop(1, "#02060b");
+  ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, w, h);
 
-  // grid
-  ctx.strokeStyle = "#0a1928";
+  // Precision micro-grid background pattern
+  ctx.strokeStyle = "rgba(0, 212, 232, 0.025)";
   ctx.lineWidth = 1;
-  for (let x = 0; x < w; x += 32) {
+  for (let x = 0; x < w; x += 24) {
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, h);
     ctx.stroke();
   }
+  for (let y = 0; y < h; y += 24) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(w, y);
+    ctx.stroke();
+  }
 
-  ctx.strokeStyle = cyan;
-  ctx.lineWidth = 3;
-  ctx.strokeRect(16, 16, w - 32, h - 32);
+  // Outer chamfered display bezel
+  ctx.strokeStyle = fault ? red : "rgba(0, 212, 232, 0.4)";
+  ctx.lineWidth = 2.5;
+  ctx.strokeRect(14, 14, w - 28, h - 28);
 
-  ctx.fillStyle = "rgba(0,212,232,0.12)";
-  ctx.fillRect(16, 16, w - 32, 48);
-  ctx.fillStyle = cyan;
-  ctx.font = "bold 26px sans-serif";
-  ctx.fillText("MICRO 5424-R  ·  FA-45-24-11  ·  REFRIGERATED", 36, 50);
+  // Top Telemetry Header Bar (14 to 56)
+  ctx.fillStyle = "#071220";
+  ctx.fillRect(16, 16, w - 32, 42);
+  ctx.strokeStyle = "rgba(0, 212, 232, 0.25)";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(16, 16, w - 32, 42);
 
-  // speed
-  ctx.fillStyle = "#0a1423";
-  ctx.fillRect(36, 84, 460, 180);
-  ctx.strokeStyle = fault ? red : cyan;
-  ctx.strokeRect(36, 84, 460, 180);
+  // ChemMate mini plus badge
+  ctx.fillStyle = "#d62828";
+  ctx.fillRect(28, 25, 24, 24);
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 18px sans-serif";
+  ctx.fillText("+", 34, 43);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 16px 'IBM Plex Mono', monospace";
+  ctx.fillText("CHEMMATE TELEMETRY · MICRO 5424-R", 60, 42);
+
   ctx.fillStyle = muted;
-  ctx.font = "18px sans-serif";
-  ctx.fillText(s.display_mode === "RCF" ? "RCF  (toggle rpm/rcf)" : "SPEED  (toggle rpm/rcf)", 52, 112);
+  ctx.font = "14px 'IBM Plex Mono', monospace";
+  ctx.fillText("ROTOR: FA-45-24-11 (24×2.0mL) · R=8.4cm", 430, 42);
+
+  // Pulsing heartbeat / mains status
+  const pulse = 0.5 + 0.5 * Math.sin(Date.now() * 0.005);
+  ctx.fillStyle = fault ? red : `rgba(16, 232, 133, ${0.4 + 0.6 * pulse})`;
+  ctx.beginPath();
+  ctx.arc(880, 37, 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = fault ? red : green;
+  ctx.font = "bold 13px 'IBM Plex Mono', monospace";
+  ctx.fillText(fault ? "FAULT ALERT" : "MAINS 230V · OK", 894, 42);
+
+  // -------------------------------------------------------------------------
+  // Left Telemetry Card: Speed / RCF Readout
+  // -------------------------------------------------------------------------
+  const cardX1 = 28;
+  const cardY1 = 70;
+  const cardW1 = 472;
+  const cardH1 = 200;
+
+  ctx.fillStyle = "#07111d";
+  ctx.fillRect(cardX1, cardY1, cardW1, cardH1);
+  ctx.strokeStyle = fault ? red : "rgba(0, 212, 232, 0.35)";
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(cardX1, cardY1, cardW1, cardH1);
+
+  // Header pill
+  ctx.fillStyle = muted;
+  ctx.font = "600 14px 'IBM Plex Mono', monospace";
+  ctx.fillText(s.display_mode === "RCF" ? "CENTRIFUGAL FORCE (RCF)" : "ROTATIONAL SPEED (RPM)", cardX1 + 16, cardY1 + 28);
+
   ctx.fillStyle = cyan;
-  ctx.font = "bold 56px monospace";
+  ctx.font = "bold 12px 'IBM Plex Mono', monospace";
+  ctx.fillText("[TOGGLE RPM/RCF]", cardX1 + cardW1 - 146, cardY1 + 28);
+
+  // Ghost background 88,888 digits
+  ctx.fillStyle = cyanDim;
+  ctx.font = "bold 64px 'IBM Plex Mono', monospace";
+  ctx.fillText("88,888", cardX1 + 16, cardY1 + 104);
+
+  // Active speed / RCF digits with glow
+  ctx.save();
+  ctx.shadowColor = cyan;
+  ctx.shadowBlur = 12;
+  ctx.fillStyle = cyan;
+  ctx.font = "bold 64px 'IBM Plex Mono', monospace";
   if (s.display_mode === "RCF") {
-    ctx.fillText(`${Math.round(s.rcf_actual).toLocaleString()} ×g`, 52, 180);
-    ctx.fillStyle = green;
-    ctx.font = "22px sans-serif";
-    ctx.fillText(`set ${Math.round(s.rcf_set).toLocaleString()} ×g  ·  ${Math.round(s.rpm_actual).toLocaleString()} rpm`, 52, 230);
+    ctx.fillText(`${Math.round(s.rcf_actual).toLocaleString()}`, cardX1 + 16, cardY1 + 104);
   } else {
-    ctx.fillText(`${Math.round(s.rpm_actual).toLocaleString()} rpm`, 52, 180);
-    ctx.fillStyle = green;
-    ctx.font = "22px sans-serif";
-    ctx.fillText(`set ${s.rpm_set.toLocaleString()}  ·  ${Math.round(s.rcf_actual).toLocaleString()} ×g`, 52, 230);
+    ctx.fillText(`${Math.round(s.rpm_actual).toLocaleString()}`, cardX1 + 16, cardY1 + 104);
   }
+  ctx.restore();
 
-  // time — big digits count DOWN while running; show set value when idle
-  ctx.fillStyle = "#0a1423";
-  ctx.fillRect(520, 84, 468, 180);
-  const timeFocus = s.focus === "TIME";
-  ctx.strokeStyle = timeFocus ? "#ffd060" : amber;
-  ctx.lineWidth = timeFocus ? 4 : 3;
-  ctx.strokeRect(520, 84, 468, 180);
-  ctx.fillStyle = muted;
-  ctx.font = "18px sans-serif";
-  let timeTitle = "TIME  set";
-  let timeBig = s.time_set_s;
-  let timeSub = "▲▼ adjust · starts counting on START";
-  if (s.short_held) {
-    timeTitle = "TIME  short (hold)";
-    timeBig = s.time_elapsed_s;
-    timeSub = "release short to stop";
-  } else if (s.time_running) {
-    timeTitle = "TIME  remaining";
-    timeBig = s.time_remaining_s;
-    timeSub = `set ${fmtTime(s.time_set_s)}  ·  elapsed ${fmtTime(s.time_elapsed_s)}`;
-  } else if (s.time_set_s <= 0) {
-    timeTitle = "TIME  continuous";
-    timeBig = 0;
-    timeSub = "0:00 = run until STOP";
-  } else if (s.state === "END" || s.time_elapsed_s > 0) {
-    timeSub = `last run ${fmtTime(s.time_elapsed_s)} / ${fmtTime(s.time_set_s)}`;
-  }
-  ctx.fillText(timeTitle, 540, 112);
-  ctx.fillStyle = amber;
-  ctx.font = "bold 56px monospace";
-  ctx.fillText(fmtTime(timeBig), 540, 180);
-  ctx.fillStyle = "#ccc";
-  ctx.font = "20px sans-serif";
-  ctx.fillText(timeSub, 540, 230);
+  // Unit tag
+  ctx.fillStyle = cyan;
+  ctx.font = "bold 24px 'IBM Plex Mono', monospace";
+  ctx.fillText(s.display_mode === "RCF" ? "×g" : "RPM", cardX1 + cardW1 - (s.display_mode === "RCF" ? 56 : 74), cardY1 + 100);
 
-  // status / temp
-  ctx.fillStyle = "#0a1423";
-  ctx.fillRect(36, 284, 952, 180);
-  ctx.strokeStyle = fault ? red : green;
-  ctx.strokeRect(36, 284, 952, 180);
-  ctx.fillStyle = muted;
-  ctx.font = "18px sans-serif";
-  ctx.fillText("TEMP / STATUS", 52, 318);
+  // Set / Actual comparison row
   ctx.fillStyle = green;
-  ctx.font = "bold 48px monospace";
-  const ts = s.temp_set_c >= 0 ? `+${s.temp_set_c.toFixed(1)}` : s.temp_set_c.toFixed(1);
-  ctx.fillText(`${ts} °C`, 52, 380);
-  ctx.fillStyle = "#ddd";
-  ctx.font = "22px sans-serif";
-  ctx.fillText(`act ${s.temp_actual_c >= 0 ? "+" : ""}${s.temp_actual_c.toFixed(1)} °C`, 320, 375);
-  const st = s.error || s.state;
-  ctx.fillStyle = fault ? red : cyan;
-  ctx.font = "bold 24px sans-serif";
-  ctx.fillText(
-    `${st}   ·   lid ${s.lid_open ? "OPEN" : s.lid_locked ? "LOCKED" : "CLOSED"}   ·   tubes ${s.rotor_count}/24`,
-    52,
-    430
-  );
-
-  const frac =
-    s.time_set_s > 0 && (s.time_running || s.state === "END" || s.time_elapsed_s > 0)
-      ? Math.min(1, s.time_elapsed_s / s.time_set_s)
-      : 0;
-  ctx.fillStyle = "#142030";
-  ctx.fillRect(520, 400, 440, 22);
-  ctx.fillStyle = s.time_running ? amber : cyan;
-  ctx.fillRect(520, 400, 440 * frac, 22);
-  if (s.time_running) {
+  ctx.font = "600 16px 'IBM Plex Mono', monospace";
+  if (s.display_mode === "RCF") {
+    ctx.fillText(`SET: ${Math.round(s.rcf_set).toLocaleString()} ×g`, cardX1 + 16, cardY1 + 144);
     ctx.fillStyle = muted;
-    ctx.font = "14px sans-serif";
-    ctx.fillText("run progress", 520, 395);
+    ctx.fillText(`ACT RPM: ${Math.round(s.rpm_actual).toLocaleString()}`, cardX1 + 240, cardY1 + 144);
+  } else {
+    ctx.fillText(`SET: ${s.rpm_set.toLocaleString()} RPM`, cardX1 + 16, cardY1 + 144);
+    ctx.fillStyle = muted;
+    ctx.fillText(`ACT RCF: ${Math.round(s.rcf_actual).toLocaleString()} ×g`, cardX1 + 240, cardY1 + 144);
   }
+
+  // Speed bar gauge at bottom of card
+  const gaugeY = cardY1 + 166;
+  const gaugeW = cardW1 - 32;
+  ctx.fillStyle = "#0d1a29";
+  ctx.fillRect(cardX1 + 16, gaugeY, gaugeW, 14);
+  const speedRatio = Math.max(0, Math.min(1, s.rpm_actual / 15000));
+  if (speedRatio > 0) {
+    const sGrad = ctx.createLinearGradient(cardX1 + 16, 0, cardX1 + 16 + gaugeW * speedRatio, 0);
+    sGrad.addColorStop(0, cyan);
+    sGrad.addColorStop(1, green);
+    ctx.fillStyle = sGrad;
+    ctx.fillRect(cardX1 + 16, gaugeY, gaugeW * speedRatio, 14);
+  }
+
+  // -------------------------------------------------------------------------
+  // Right Telemetry Card: Time / Countdown Readout
+  // -------------------------------------------------------------------------
+  const cardX2 = 524;
+  const cardY2 = 70;
+  const cardW2 = 472;
+  const cardH2 = 200;
+
+  ctx.fillStyle = "#07111d";
+  ctx.fillRect(cardX2, cardY2, cardW2, cardH2);
+  const timeFocus = s.focus === "TIME";
+  ctx.strokeStyle = timeFocus ? "#ffe066" : "rgba(240, 180, 41, 0.4)";
+  ctx.lineWidth = timeFocus ? 2.5 : 1.5;
+  ctx.strokeRect(cardX2, cardY2, cardW2, cardH2);
+
+  // Determine time title and values
+  let timeTitle = "RUN TIMER (SET)";
+  let timeBig = s.time_set_s;
+  let timeSub = "▲▼ HOLD TO RAMP · START TO RUN";
+  let modeTag = "[COUNTDOWN]";
+
+  if (s.short_held) {
+    timeTitle = "MOMENTARY SHORT RUN";
+    timeBig = s.time_elapsed_s;
+    timeSub = "SHORT KEY ENGAGED · RELEASE TO STOP";
+    modeTag = "[SHORT MOMENTARY]";
+  } else if (s.time_running) {
+    timeTitle = "TIME REMAINING";
+    timeBig = s.time_remaining_s;
+    timeSub = `SET ${fmtTime(s.time_set_s)} · ELAPSED ${fmtTime(s.time_elapsed_s)}`;
+    modeTag = "[RUNNING]";
+  } else if (s.time_set_s <= 0) {
+    timeTitle = "CONTINUOUS SPIN";
+    timeBig = s.time_elapsed_s;
+    timeSub = "RUNS UNTIL STOP KEY PRESSED";
+    modeTag = "[CONTINUOUS ∞]";
+  } else if (s.state === "END" || s.time_elapsed_s > 0) {
+    timeTitle = "CYCLE COMPLETE";
+    timeSub = `LAST RUN ${fmtTime(s.time_elapsed_s)} / ${fmtTime(s.time_set_s)}`;
+    modeTag = "[CYCLE COMPLETE]";
+  }
+
+  // Header pill
+  ctx.fillStyle = muted;
+  ctx.font = "600 14px 'IBM Plex Mono', monospace";
+  ctx.fillText(timeTitle, cardX2 + 16, cardY2 + 28);
+
+  ctx.fillStyle = amber;
+  ctx.font = "bold 12px 'IBM Plex Mono', monospace";
+  ctx.fillText(modeTag, cardX2 + cardW2 - 160, cardY2 + 28);
+
+  // Ghost background 88:88 digits
+  ctx.fillStyle = amberDim;
+  ctx.font = "bold 64px 'IBM Plex Mono', monospace";
+  ctx.fillText("88:88", cardX2 + 16, cardY2 + 104);
+
+  // Active time digits with glow
+  ctx.save();
+  ctx.shadowColor = amber;
+  ctx.shadowBlur = 12;
+  ctx.fillStyle = amber;
+  ctx.font = "bold 64px 'IBM Plex Mono', monospace";
+  ctx.fillText(fmtTime(timeBig), cardX2 + 16, cardY2 + 104);
+  ctx.restore();
+
+  // Unit tag
+  ctx.fillStyle = amber;
+  ctx.font = "bold 22px 'IBM Plex Mono', monospace";
+  ctx.fillText("MIN:SEC", cardX2 + cardW2 - 110, cardY2 + 100);
+
+  // Sub-row status
+  ctx.fillStyle = "#d0d8e4";
+  ctx.font = "600 14px 'IBM Plex Mono', monospace";
+  ctx.fillText(timeSub, cardX2 + 16, cardY2 + 144);
+
+  // Time progress bar at bottom of card
+  ctx.fillStyle = "#0d1a29";
+  ctx.fillRect(cardX2 + 16, gaugeY, gaugeW, 14);
+  const frac = s.time_set_s > 0 && (s.time_running || s.state === "END" || s.time_elapsed_s > 0)
+    ? Math.min(1, s.time_elapsed_s / s.time_set_s)
+    : 0;
+  if (frac > 0) {
+    ctx.fillStyle = amber;
+    ctx.fillRect(cardX2 + 16, gaugeY, gaugeW * frac, 14);
+  }
+
+  // -------------------------------------------------------------------------
+  // Bottom Annunciator & Temperature Tile
+  // -------------------------------------------------------------------------
+  const cardX3 = 28;
+  const cardY3 = 284;
+  const cardW3 = 968;
+  const cardH3 = 202;
+
+  ctx.fillStyle = "#07111d";
+  ctx.fillRect(cardX3, cardY3, cardW3, cardH3);
+  ctx.strokeStyle = fault ? red : "rgba(16, 232, 133, 0.4)";
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(cardX3, cardY3, cardW3, cardH3);
+
+  // Left Section: Chamber Refrigeration
+  ctx.fillStyle = muted;
+  ctx.font = "600 14px 'IBM Plex Mono', monospace";
+  ctx.fillText("REFRIGERATION CONTROLLER · PID", cardX3 + 18, cardY3 + 30);
+
+  // Glowing Green Temp
+  ctx.save();
+  ctx.shadowColor = green;
+  ctx.shadowBlur = 10;
+  ctx.fillStyle = green;
+  ctx.font = "bold 52px 'IBM Plex Mono', monospace";
+  const ts = s.temp_set_c >= 0 ? `+${s.temp_set_c.toFixed(1)}` : s.temp_set_c.toFixed(1);
+  ctx.fillText(`${ts} °C`, cardX3 + 18, cardY3 + 92);
+  ctx.restore();
+
+  ctx.fillStyle = "#d4e0ee";
+  ctx.font = "600 17px 'IBM Plex Mono', monospace";
+  const actTs = s.temp_actual_c >= 0 ? `+${s.temp_actual_c.toFixed(1)}` : s.temp_actual_c.toFixed(1);
+  ctx.fillText(`ACTUAL BOWL: ${actTs} °C`, cardX3 + 18, cardY3 + 130);
+
+  ctx.fillStyle = "#38bdf8";
+  ctx.font = "bold 13px 'IBM Plex Mono', monospace";
+  ctx.fillText("PID THERMAL STABILIZATION ACTIVE", cardX3 + 18, cardY3 + 164);
+
+  // Divider line
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(cardX3 + 370, cardY3 + 16);
+  ctx.lineTo(cardX3 + 370, cardY3 + cardH3 - 16);
+  ctx.stroke();
+
+  // Right Section: Safety Interlocks & Annunciator Badges
+  ctx.fillStyle = muted;
+  ctx.font = "600 14px 'IBM Plex Mono', monospace";
+  ctx.fillText("OPERATIONAL STATUS & SAFETY INTERLOCKS", cardX3 + 395, cardY3 + 30);
+
+  // 3 Industrial Annunciator Badges
+  const bW = 180;
+  const bH = 46;
+  const bY = cardY3 + 52;
+
+  // Badge 1: Lid Status
+  const b1X = cardX3 + 395;
+  ctx.fillStyle = s.lid_open ? "rgba(240, 180, 41, 0.16)" : s.lid_locked ? "rgba(16, 232, 133, 0.16)" : "rgba(0, 240, 255, 0.14)";
+  ctx.fillRect(b1X, bY, bW, bH);
+  ctx.strokeStyle = s.lid_open ? amber : s.lid_locked ? green : cyan;
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(b1X, bY, bW, bH);
+  ctx.fillStyle = s.lid_open ? amber : s.lid_locked ? green : cyan;
+  ctx.font = "bold 14px 'IBM Plex Mono', monospace";
+  ctx.fillText(s.lid_open ? "⏏ LID OPEN" : s.lid_locked ? "🔒 LID LOCKED" : "◼ LID CLOSED", b1X + 16, bY + 28);
+
+  // Badge 2: Rotor Balance
+  const b2X = b1X + bW + 14;
+  ctx.fillStyle = fault ? "rgba(255, 59, 92, 0.2)" : "rgba(16, 232, 133, 0.16)";
+  ctx.fillRect(b2X, bY, bW, bH);
+  ctx.strokeStyle = fault ? red : green;
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(b2X, bY, bW, bH);
+  ctx.fillStyle = fault ? red : green;
+  ctx.font = "bold 14px 'IBM Plex Mono', monospace";
+  ctx.fillText(fault ? "⚠ IMBALANCE" : `✔ BALANCED (${s.rotor_count}/24)`, b2X + 14, bY + 28);
+
+  // Badge 3: Drive State
+  const b3X = b2X + bW + 14;
+  ctx.fillStyle = fault ? "rgba(255, 59, 92, 0.2)" : s.led_run ? "rgba(16, 232, 133, 0.16)" : "rgba(0, 240, 255, 0.12)";
+  ctx.fillRect(b3X, bY, bW, bH);
+  ctx.strokeStyle = fault ? red : s.led_run ? green : cyan;
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(b3X, bY, bW, bH);
+  ctx.fillStyle = fault ? red : s.led_run ? green : cyan;
+  ctx.font = "bold 14px 'IBM Plex Mono', monospace";
+  ctx.fillText(`⚙ ${s.state}`, b3X + 18, bY + 28);
+
+  // Live Contextual Telemetry Guidance Ticker
+  const tickerY = cardY3 + 148;
+  ctx.fillStyle = "#0a1524";
+  ctx.fillRect(cardX3 + 395, tickerY, 550, 36);
+  ctx.strokeStyle = "rgba(0, 240, 255, 0.2)";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(cardX3 + 395, tickerY, 550, 36);
+
+  ctx.fillStyle = fault ? red : cyan;
+  ctx.font = "bold 13px 'IBM Plex Mono', monospace";
+  let tickerMsg = "READY · Load balanced sample pairs. Close lid to arm safety interlock.";
+  if (fault) {
+    tickerMsg = "ALERT: Rotor mass imbalance detected! Dynamic braking engaged. Open lid to inspect.";
+  } else if (s.lid_open) {
+    tickerMsg = "SAFETY: Lid open. Load samples into opposite rotor bores (slots n & n+12).";
+  } else if (s.led_run) {
+    tickerMsg = `RUNNING: Centrifugal separation active at ${Math.round(s.rpm_actual).toLocaleString()} RPM (${Math.round(s.rcf_actual).toLocaleString()} ×g).`;
+  }
+  ctx.fillText(`▶ ${tickerMsg}`, cardX3 + 408, tickerY + 23);
+
+  // Top-Right Specular Glass Glare Sheen
+  const glare = ctx.createLinearGradient(w - 200, 16, w - 16, 200);
+  glare.addColorStop(0, "rgba(255, 255, 255, 0.05)");
+  glare.addColorStop(0.5, "rgba(255, 255, 255, 0.01)");
+  glare.addColorStop(1, "transparent");
+  ctx.fillStyle = glare;
+  ctx.fillRect(w - 220, 16, 204, 180);
 }
 
 // ---------------------------------------------------------------------------
 // Tube grids
 // ---------------------------------------------------------------------------
 function drawTubeIcon(ctx, x, y, w, h, tube) {
-  ctx.fillStyle = "rgba(180,200,220,0.2)";
-  ctx.strokeStyle = "#6a7a8a";
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.roundRect(x, y + 8, w, h - 8, 3);
-  ctx.fill();
-  ctx.stroke();
+  const isRetro = document.body.dataset.theme === "retro" || document.body.dataset.theme === "chemmate";
+  const isNight = document.body.dataset.theme === "night";
+
   if (!tube) {
-    ctx.fillStyle = "#3a4555";
-    ctx.font = "10px sans-serif";
-    ctx.fillText("·", x + w / 2 - 2, y + h / 2);
+    // Clean empty well slot
+    ctx.strokeStyle = isRetro ? "#dcd4c6" : (isNight ? "#242c3c" : "#334155");
+    ctx.lineWidth = 1;
+    ctx.setLineDash([2, 2]);
+    ctx.beginPath();
+    ctx.roundRect(x + 2, y + 6, w - 4, h - 8, 4);
+    ctx.stroke();
+    ctx.setLineDash([]);
     return;
   }
-  ctx.fillStyle = tube.cap_color;
+
+  // Loaded tube vessel
+  ctx.fillStyle = isRetro ? "#ffffff" : (isNight ? "#121620" : "rgba(30,41,59,0.7)");
+  ctx.strokeStyle = isRetro ? "#cfc7b8" : (isNight ? "#2e394c" : "#475569");
+  ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.roundRect(x + 2, y, w - 4, 10, 2);
+  ctx.roundRect(x + 2, y + 8, w - 4, h - 10, 3);
   ctx.fill();
+  ctx.stroke();
+
+  // Cap
+  ctx.fillStyle = tube.cap_color || (isRetro ? "#d62828" : "#00d4e8");
+  ctx.beginPath();
+  ctx.roundRect(x + 3, y + 1, w - 6, 8, 2);
+  ctx.fill();
+
+  // Liquid layers
   const m = matOf(tube);
   const layers = layersOf(tube);
-  const fillH = (h - 18) * m.fill;
+  const fillH = (h - 22) * (m.fill || 0.65);
   let yCursor = y + h - 4;
   for (const layer of layers) {
     const lh = fillH * layer.fraction;
     yCursor -= lh;
     ctx.fillStyle = layer.color;
-    ctx.fillRect(x + 3, yCursor, w - 6, lh + 0.5);
+    ctx.fillRect(x + 4, yCursor, w - 8, lh + 0.5);
   }
+
   if (tube.separated) {
-    ctx.strokeStyle = "#3dd68c";
+    ctx.strokeStyle = isRetro ? "#d62828" : (isNight ? "#ff3344" : "#3dd68c");
     ctx.lineWidth = 1.5;
-    ctx.strokeRect(x + 1, y + 1, w - 2, h - 2);
+    ctx.strokeRect(x + 1, y, w - 2, h - 1);
   }
 }
 
@@ -2210,6 +2468,11 @@ function updateChrome(s) {
     } else detail.textContent = "Set speed / time / temp · grab lid to open when stopped";
   }
 
+  const lidLabel = document.getElementById("btn-lid-label");
+  if (lidLabel) {
+    lidLabel.textContent = s.lid_open ? "Close lid" : "Open lid";
+  }
+
   // Update ChemMate live equation card
   const eqRpm = document.getElementById("cm-eq-rpm");
   const eqRcf = document.getElementById("cm-eq-rcf");
@@ -2301,7 +2564,11 @@ function handleKey(key) {
       } else setLabStatus("Close lid for fast cool.");
       break;
     case "close-lid":
-      closeLid();
+      if (c.lid_open) {
+        closeLid();
+      } else {
+        openLid();
+      }
       break;
     case "imbalance":
       if (["ACCEL", "RUN"].includes(c.state)) {
@@ -3049,15 +3316,19 @@ function init3D() {
   }
 
   function focusPart(entry) {
-    if (!entry?.object) return;
+    const objs = Array.isArray(entry.objects) ? entry.objects : (entry.object ? [entry.object] : []);
+    if (!objs.length) return;
     // Part explorer uses its own isolate mode (not global wireframe toggle)
     wireframeOn = false;
     btnWire?.classList.remove("active");
     explorerPartId = entry.id;
-    setExplorerFocus(model, entry.object);
+    setExplorerFocus(model, objs);
 
-    // Bounding box → camera target + stand-off distance
-    const box = new THREE.Box3().setFromObject(entry.object);
+    // Bounding box → union across all objects
+    const box = new THREE.Box3();
+    for (const obj of objs) {
+      box.expandByObject(obj);
+    }
     const center = new THREE.Vector3();
     const size = new THREE.Vector3();
     box.getCenter(center);
@@ -3073,26 +3344,30 @@ function init3D() {
     // Always orbit the focused part
     setAutoRotate(true);
 
+    const targetIds = entry.ids || [entry.id];
     document.querySelectorAll(".part-btn").forEach((el) => {
-      el.classList.toggle("active", el.dataset.partId === entry.id);
+      const elIds = (el.dataset.partIds || el.dataset.partId || "").split(",");
+      const match = targetIds.some((id) => elIds.includes(id));
+      el.classList.toggle("active", match);
     });
     const st = document.getElementById("parts-focus-status");
-    if (st) st.textContent = `Focused: ${entry.label}`;
-    if (status) status.textContent = `Part explorer · ${entry.label} · auto-rotate on`;
+    const countStr = entry.count > 1 ? ` (${entry.count}×)` : "";
+    if (st) st.textContent = `Focused: ${entry.label}${countStr}`;
+    if (status) status.textContent = `Part explorer · ${entry.label}${countStr} · auto-rotate on`;
   }
 
   function buildPartsList() {
     const host = document.getElementById("parts-list");
     if (!host || !model.partCatalog) return;
     host.innerHTML = "";
-    const countEl = document.getElementById("parts-count");
-    if (countEl) countEl.textContent = `${model.partCatalog.length} named parts`;
+    
+    // Group catalog items by group
     const byGroup = new Map();
     for (const p of model.partCatalog) {
       if (!byGroup.has(p.group)) byGroup.set(p.group, []);
       byGroup.get(p.group).push(p);
     }
-    // Preferred group order
+
     const groupOrder = [
       "Assemblies",
       "Body",
@@ -3108,23 +3383,60 @@ function init3D() {
       const ib = groupOrder.indexOf(b);
       return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
     });
+
+    let totalUniqueParts = 0;
     for (const group of groups) {
-      const items = byGroup.get(group);
+      const rawItems = byGroup.get(group);
+      
+      // Deduplicate items with identical label
+      const deduplicated = [];
+      const labelMap = new Map();
+      for (const item of rawItems) {
+        if (labelMap.has(item.label)) {
+          const existing = labelMap.get(item.label);
+          existing.count += 1;
+          existing.objects.push(item.object);
+          existing.ids.push(item.id);
+        } else {
+          const entry = {
+            id: item.id,
+            label: item.label,
+            group: item.group,
+            count: 1,
+            objects: [item.object],
+            ids: [item.id],
+          };
+          labelMap.set(item.label, entry);
+          deduplicated.push(entry);
+        }
+      }
+      totalUniqueParts += deduplicated.length;
+
       const gl = document.createElement("div");
       gl.className = "parts-group-label";
-      gl.textContent = `${group} (${items.length})`;
+      gl.textContent = `${group} (${deduplicated.length})`;
       host.appendChild(gl);
-      for (const item of items) {
+
+      for (const item of deduplicated) {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "part-btn";
         btn.dataset.partId = item.id;
-        btn.textContent = item.label;
-        btn.title = item.id;
+        btn.dataset.partIds = item.ids.join(",");
+        if (item.count > 1) {
+          btn.innerHTML = `<span class="part-label-text">${item.label}</span><span class="part-count-badge">${item.count}×</span>`;
+          btn.title = `${item.label} (${item.count} instances)`;
+        } else {
+          btn.innerHTML = `<span class="part-label-text">${item.label}</span>`;
+          btn.title = item.label;
+        }
         btn.addEventListener("click", () => focusPart(item));
         host.appendChild(btn);
       }
     }
+
+    const countEl = document.getElementById("parts-count");
+    if (countEl) countEl.textContent = `${totalUniqueParts} unique parts (${model.partCatalog.length} total meshes)`;
   }
   buildPartsList();
   document.getElementById("btn-parts-clear")?.addEventListener("click", () => {
@@ -3653,7 +3965,7 @@ function init3D() {
       drawTubePreview(sel);
       if (status) status.textContent = "Night View · Nocturnal Precision Lab (Red & Charcoal)";
     } else {
-      document.body.dataset.theme = "chemmate";
+      document.body.dataset.theme = "retro";
       if (stageSw) stageSw.hidden = false;
       labLights.mood = "chemmate";
       if (moodEl) moodEl.value = "chemmate";

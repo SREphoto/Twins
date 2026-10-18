@@ -1,0 +1,516 @@
+/* ============================================================================
+   CHEMMATE THEMES (SHARED SYSTEM) — Modern, Retro, Night
+   Used across all Gold Standard lab digital twin showcases.
+   ============================================================================ */
+
+/* ----------------------------------------------------------------------------
+   View Chooser Segmented Control
+   ---------------------------------------------------------------------------- */
+.view-chooser {
+  display: inline-flex;
+  align-items: center;
+  background: #101620;
+  border: 1px solid var(--border, #2a3545);
+  border-radius: 7px;
+  padding: 2px 3px;
+  gap: 3px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.view-chooser-label {
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 0.64rem;
+  font-weight: 700;
+  color: #64758b;
+  letter-spacing: 0.06em;
+  padding: 0 4px 0 3px;
+  user-select: none;
+}
+
+.view-chooser-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.view-choice-btn {
+  appearance: none;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted, #8b9bb0);
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 0.67rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 0.26rem 0.55rem;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  transition: all 0.15s ease;
+}
+
+.view-choice-btn:hover {
+  color: var(--text, #e6edf5);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.view-choice-btn.active {
+  background: #1e2b3c;
+  color: var(--cyan, #00d4e8);
+  border-color: rgba(0, 212, 232, 0.35);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.view-choice-text.retro {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.cm-mini-plus {
+  color: #d62828;
+  font-weight: 800;
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.view-choice-btn.active .cm-mini-plus {
+  color: #ffffff;
+}
+
+.night-glyph {
+  font-size: 0.68rem;
+  line-height: 1;
+  color: #ff4d5a;
+}
+
+.view-choice-btn.active .night-glyph {
+  color: #ffffff;
+}
+
+/* ============================================================================
+   RETRO THEME (body[data-theme="retro"] & body[data-theme="chemmate"])
+   Warm archival paper (#F2ECE1), Swiss Red (#D62828), technical ink rules
+   ============================================================================ */
+body[data-theme="retro"],
+body[data-theme="chemmate"] {
+  --bg: #f2ece1;
+  --panel: #fbf9f4;
+  --panel-2: #f2ece1;
+  --border: #bfb5a4;
+  --text: #161514;
+  --muted: #5c564c;
+  --cyan: #d62828;
+  --green: #1f7a4c;
+  --amber: #b45309;
+  --red: #d62828;
+  --key: #ded6c5;
+  --key-hover: #d4cbba;
+  background-color: #f2ece1 !important;
+  color: #161514 !important;
+}
+
+/* Header & Topbar in Retro */
+body[data-theme="retro"] .topbar,
+body[data-theme="chemmate"] .topbar {
+  background: #e6dfd1 !important;
+  border-bottom: 1.5px solid #bfb5a4 !important;
+}
+
+body[data-theme="retro"] .brand-mark,
+body[data-theme="chemmate"] .brand-mark {
+  color: #d62828 !important;
+}
+
+body[data-theme="retro"] .brand-model,
+body[data-theme="chemmate"] .brand-model {
+  color: #161514 !important;
+}
+
+body[data-theme="retro"] .brand-tag,
+body[data-theme="chemmate"] .brand-tag {
+  color: #5c564c !important;
+}
+
+body[data-theme="retro"] .badge-sredesigns,
+body[data-theme="chemmate"] .badge-sredesigns {
+  background: #fbecec !important;
+  border-color: #d62828 !important;
+  color: #d62828 !important;
+}
+
+/* Status Pill in Retro */
+body[data-theme="retro"] .pill,
+body[data-theme="chemmate"] .pill {
+  background: #fbf9f4 !important;
+  border: 1.5px solid #161514 !important;
+  color: #161514 !important;
+}
+body[data-theme="retro"] .pill.purged,
+body[data-theme="chemmate"] .pill.purged,
+body[data-theme="retro"] .pill.run,
+body[data-theme="chemmate"] .pill.run,
+body[data-theme="retro"] .pill.ready,
+body[data-theme="chemmate"] .pill.ready {
+  border-color: #1f7a4c !important;
+  background: #e6f4ec !important;
+  color: #165e39 !important;
+}
+body[data-theme="retro"] .pill.alarm,
+body[data-theme="chemmate"] .pill.alarm,
+body[data-theme="retro"] .pill.open,
+body[data-theme="chemmate"] .pill.open,
+body[data-theme="retro"] .pill.fault,
+body[data-theme="chemmate"] .pill.fault {
+  border-color: #d62828 !important;
+  background: #fbecec !important;
+  color: #b81d1d !important;
+}
+body[data-theme="retro"] .pill.evac,
+body[data-theme="chemmate"] .pill.evac,
+body[data-theme="retro"] .pill.switching,
+body[data-theme="chemmate"] .pill.switching {
+  border-color: #b45309 !important;
+  background: #fef3c7 !important;
+  color: #92400e !important;
+}
+
+/* View Chooser in Retro */
+body[data-theme="retro"] .view-chooser,
+body[data-theme="chemmate"] .view-chooser {
+  background: #ded6c5 !important;
+  border-color: #bfb5a4 !important;
+}
+body[data-theme="retro"] .view-chooser-label,
+body[data-theme="chemmate"] .view-chooser-label {
+  color: #7a7366 !important;
+}
+body[data-theme="retro"] .view-choice-btn,
+body[data-theme="chemmate"] .view-choice-btn {
+  color: #5e5a52 !important;
+}
+body[data-theme="retro"] .view-choice-btn:hover,
+body[data-theme="chemmate"] .view-choice-btn:hover {
+  color: #161514 !important;
+  background: #d4cbba !important;
+}
+body[data-theme="retro"] .view-choice-btn.active,
+body[data-theme="chemmate"] .view-choice-btn.active {
+  background: #d62828 !important;
+  color: #ffffff !important;
+  border-color: #b51f1f !important;
+  box-shadow: 0 1px 3px rgba(214, 40, 40, 0.3) !important;
+}
+
+/* 3D Stage & View Toolbar in Retro */
+body[data-theme="retro"] .stage,
+body[data-theme="chemmate"] .stage {
+  border-color: #bfb5a4 !important;
+}
+body[data-theme="retro"] .view-btn,
+body[data-theme="chemmate"] .view-btn {
+  background: #fbf9f4 !important;
+  color: #161514 !important;
+  border: 1.5px solid #bfb5a4 !important;
+}
+body[data-theme="retro"] .view-btn:hover,
+body[data-theme="chemmate"] .view-btn:hover {
+  background: #ded6c5 !important;
+  border-color: #161514 !important;
+}
+body[data-theme="retro"] .view-btn.active,
+body[data-theme="chemmate"] .view-btn.active {
+  background: #d62828 !important;
+  color: #ffffff !important;
+  border-color: #b51f1f !important;
+  box-shadow: 0 2px 4px rgba(214, 40, 40, 0.3) !important;
+}
+body[data-theme="retro"] .stage-hint,
+body[data-theme="chemmate"] .stage-hint {
+  color: #5c564c !important;
+}
+
+/* Side Panels & Accordions in Retro */
+body[data-theme="retro"] .panel-collapsible,
+body[data-theme="chemmate"] .panel-collapsible,
+body[data-theme="retro"] .instrument,
+body[data-theme="chemmate"] .instrument,
+body[data-theme="retro"] .parts,
+body[data-theme="chemmate"] .parts,
+body[data-theme="retro"] .lab,
+body[data-theme="chemmate"] .lab {
+  background: #fbf9f4 !important;
+  border-color: #bfb5a4 !important;
+}
+
+body[data-theme="retro"] .panel-head,
+body[data-theme="chemmate"] .panel-head {
+  background: #e6dfd1 !important;
+  border-bottom: 1.5px solid #bfb5a4 !important;
+  color: #161514 !important;
+}
+body[data-theme="retro"] .panel-title,
+body[data-theme="chemmate"] .panel-title {
+  color: #161514 !important;
+  font-weight: 700 !important;
+}
+
+body[data-theme="retro"] .metric-card,
+body[data-theme="chemmate"] .metric-card,
+body[data-theme="retro"] .part-item,
+body[data-theme="chemmate"] .part-item,
+body[data-theme="retro"] .control-card,
+body[data-theme="chemmate"] .control-card {
+  background: #f2ece1 !important;
+  border: 1px solid #bfb5a4 !important;
+  color: #161514 !important;
+}
+
+body[data-theme="retro"] .metric-val,
+body[data-theme="chemmate"] .metric-val {
+  color: #161514 !important;
+}
+
+body[data-theme="retro"] .part-item.active,
+body[data-theme="chemmate"] .part-item.active {
+  background: #fbecec !important;
+  border-color: #d62828 !important;
+  color: #b81d1d !important;
+}
+
+body[data-theme="retro"] .part-cat-badge,
+body[data-theme="chemmate"] .part-cat-badge {
+  background: #ded6c5 !important;
+  color: #5c564c !important;
+}
+
+body[data-theme="retro"] .btn,
+body[data-theme="chemmate"] .btn,
+body[data-theme="retro"] .btn-action,
+body[data-theme="chemmate"] .btn-action {
+  background: #ded6c5 !important;
+  color: #161514 !important;
+  border: 1px solid #bfb5a4 !important;
+}
+body[data-theme="retro"] .btn:hover,
+body[data-theme="chemmate"] .btn:hover,
+body[data-theme="retro"] .btn-action:hover,
+body[data-theme="chemmate"] .btn-action:hover {
+  background: #d4cbba !important;
+  border-color: #161514 !important;
+}
+body[data-theme="retro"] .btn.active,
+body[data-theme="chemmate"] .btn.active,
+body[data-theme="retro"] .btn-action.active,
+body[data-theme="chemmate"] .btn-action.active {
+  background: #d62828 !important;
+  color: #ffffff !important;
+  border-color: #b51f1f !important;
+}
+
+body[data-theme="retro"] select,
+body[data-theme="chemmate"] select,
+body[data-theme="retro"] input[type="text"],
+body[data-theme="chemmate"] input[type="text"] {
+  background: #fbf9f4 !important;
+  color: #161514 !important;
+  border: 1.5px solid #bfb5a4 !important;
+}
+
+/* ============================================================================
+   NIGHT THEME (body[data-theme="night"])
+   Deep midnight blacks (#0a0c10), obsidian charcoal, precision glowing red (#ff3344)
+   ============================================================================ */
+body[data-theme="night"] {
+  --bg: #0a0c10;
+  --panel: #11151c;
+  --panel-2: #161b24;
+  --border: #222938;
+  --text: #f0f3f8;
+  --muted: #828f9f;
+  --cyan: #ff4d5a;
+  --green: #3dd68c;
+  --amber: #f0b429;
+  --red: #ff3344;
+  --key: #1a202c;
+  --key-hover: #262e3d;
+  background-color: #0a0c10 !important;
+  color: #f0f3f8 !important;
+}
+
+/* Header & Topbar in Night */
+body[data-theme="night"] .topbar {
+  background: #11151c !important;
+  border-bottom: 1px solid #1e2634 !important;
+}
+
+body[data-theme="night"] .brand-mark {
+  color: #ff3344 !important;
+  text-shadow: 0 0 10px rgba(255, 51, 68, 0.4) !important;
+}
+
+body[data-theme="night"] .brand-model {
+  color: #f0f3f8 !important;
+}
+
+body[data-theme="night"] .brand-tag {
+  color: #728194 !important;
+}
+
+body[data-theme="night"] .badge-sredesigns {
+  background: rgba(255, 51, 68, 0.15) !important;
+  border-color: #ff3344 !important;
+  color: #ff4d5a !important;
+  box-shadow: 0 0 8px rgba(255, 51, 68, 0.3) !important;
+}
+
+/* Status Pill in Night */
+body[data-theme="night"] .pill {
+  background: #161b24 !important;
+  border: 1px solid #2a3446 !important;
+  color: #9bb0c9 !important;
+}
+body[data-theme="night"] .pill.purged,
+body[data-theme="night"] .pill.run,
+body[data-theme="night"] .pill.ready {
+  border-color: #3dd68c !important;
+  background: rgba(61, 214, 140, 0.15) !important;
+  color: #3dd68c !important;
+  box-shadow: 0 0 8px rgba(61, 214, 140, 0.25) !important;
+}
+body[data-theme="night"] .pill.alarm,
+body[data-theme="night"] .pill.open,
+body[data-theme="night"] .pill.fault {
+  border-color: #ff3344 !important;
+  background: rgba(255, 51, 68, 0.2) !important;
+  color: #ff4d5a !important;
+  box-shadow: 0 0 10px rgba(255, 51, 68, 0.35) !important;
+}
+body[data-theme="night"] .pill.evac,
+body[data-theme="night"] .pill.switching {
+  border-color: #fbbf24 !important;
+  background: rgba(251, 191, 36, 0.15) !important;
+  color: #fbbf24 !important;
+}
+
+/* View Chooser in Night */
+body[data-theme="night"] .view-chooser {
+  background: #11151e !important;
+  border-color: #262f3f !important;
+}
+body[data-theme="night"] .view-chooser-label {
+  color: #728194 !important;
+}
+body[data-theme="night"] .view-choice-btn {
+  color: #828f9f !important;
+}
+body[data-theme="night"] .view-choice-btn:hover {
+  color: #f0f3f8 !important;
+  background: #181e2a !important;
+}
+body[data-theme="night"] .view-choice-btn.active {
+  background: #ff3344 !important;
+  color: #ffffff !important;
+  border-color: #ff4d5a !important;
+  box-shadow: 0 0 10px rgba(255, 51, 68, 0.45) !important;
+}
+
+/* 3D Stage & View Toolbar in Night */
+body[data-theme="night"] .stage {
+  border-color: #1e2634 !important;
+}
+body[data-theme="night"] .view-btn {
+  background: rgba(17, 21, 28, 0.95) !important;
+  color: #828f9f !important;
+  border: 1px solid #262f3f !important;
+}
+body[data-theme="night"] .view-btn:hover {
+  color: #ffffff !important;
+  border-color: #ff4d5a !important;
+}
+body[data-theme="night"] .view-btn.active {
+  background: #ff3344 !important;
+  color: #ffffff !important;
+  border-color: #ff4d5a !important;
+  box-shadow: 0 0 10px rgba(255, 51, 68, 0.45) !important;
+}
+body[data-theme="night"] .stage-hint {
+  color: #616d7d !important;
+}
+
+/* Side Panels & Accordions in Night */
+body[data-theme="night"] .panel-collapsible,
+body[data-theme="night"] .instrument,
+body[data-theme="night"] .parts,
+body[data-theme="night"] .lab {
+  background: #11151c !important;
+  border-color: #1e2634 !important;
+}
+
+body[data-theme="night"] .panel-head {
+  background: #161b24 !important;
+  border-bottom: 1px solid #1e2634 !important;
+  color: #f0f3f8 !important;
+}
+body[data-theme="night"] .panel-title {
+  color: #f0f3f8 !important;
+  font-weight: 700 !important;
+}
+
+body[data-theme="night"] .metric-card,
+body[data-theme="night"] .part-item,
+body[data-theme="night"] .control-card {
+  background: #161b24 !important;
+  border: 1px solid #222938 !important;
+  color: #f0f3f8 !important;
+}
+
+body[data-theme="night"] .metric-val {
+  color: #ff4d5a !important;
+  text-shadow: 0 0 6px rgba(255, 77, 90, 0.3) !important;
+}
+
+body[data-theme="night"] .part-item.active {
+  background: rgba(255, 51, 68, 0.15) !important;
+  border-color: #ff3344 !important;
+  color: #ff4d5a !important;
+  box-shadow: 0 0 8px rgba(255, 51, 68, 0.25) !important;
+}
+
+body[data-theme="night"] .part-cat-badge {
+  background: #1a202c !important;
+  color: #828f9f !important;
+}
+
+body[data-theme="night"] .btn,
+body[data-theme="night"] .btn-action {
+  background: #1a202c !important;
+  color: #f0f3f8 !important;
+  border: 1px solid #2a3446 !important;
+}
+body[data-theme="night"] .btn:hover,
+body[data-theme="night"] .btn-action:hover {
+  background: #242c3d !important;
+  border-color: #ff3344 !important;
+}
+body[data-theme="night"] .btn.active,
+body[data-theme="night"] .btn-action.active {
+  background: #ff3344 !important;
+  color: #ffffff !important;
+  border-color: #ff4d5a !important;
+  box-shadow: 0 0 10px rgba(255, 51, 68, 0.4) !important;
+}
+
+body[data-theme="night"] select,
+body[data-theme="night"] input[type="text"] {
+  background: #161b24 !important;
+  color: #f0f3f8 !important;
+  border: 1px solid #2a3446 !important;
+}
+
+body[data-theme="night"] input[type="range"] {
+  accent-color: #ff3344 !important;
+}

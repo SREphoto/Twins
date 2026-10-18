@@ -28,6 +28,7 @@ import {
   setSfxMuted,
   isSfxMuted,
 } from './sfx.js?v=20260922-gold1';
+import { initChemMateTheme } from '../../../lab_viewer/shared/chemmate_theme_manager.js';
 
 // ---------------------------------------------------------------------------
 // Physical Constants & Simulation Parameters
@@ -452,6 +453,18 @@ function init3D() {
   const topLight = new THREE.DirectionalLight(0xf8fafc, 0.6);
   topLight.position.set(0, BENCH.sy + 12, 0);
   scene.add(topLight);
+
+  // ChemMate Theme Controller (Modern, Retro, Night)
+  const themeManager = initChemMateTheme({
+    twinName: 'HotplateTwin',
+    scene,
+    ambLight: ambientLight,
+    dirLight,
+    rimLight: fillLight,
+    onThemeChange: () => {
+      renderLCD();
+    },
+  });
 
   // Laboratory Room
   buildLabRoom(scene);

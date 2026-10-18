@@ -2071,17 +2071,18 @@ export function setWireframe(model, enabled) {
 export function setExplorerFocus(model, focusObject) {
   if (!model?.root) return;
   model._explorerFocus = focusObject || null;
+  const focusList = Array.isArray(focusObject) ? focusObject : (focusObject ? [focusObject] : null);
   model.root.traverse((o) => {
     if (!o.isMesh) return;
     if (o.name === "Ground" || o.name.startsWith("Lab_")) return;
     // Invisible hit proxies stay invisible
     if (o.material && o.material.opacity != null && o.material.opacity < 0.05) return;
     const mats = Array.isArray(o.material) ? o.material : [o.material];
-    const focused = focusObject ? isUnder(o, focusObject) : true;
+    const focused = focusList ? focusList.some((fo) => isUnder(o, fo)) : true;
     for (const m of mats) {
       if (!m || !("wireframe" in m)) continue;
       // Focus solid; everything else wireframe. Clear → all solid.
-      m.wireframe = focusObject ? !focused : false;
+      m.wireframe = focusList ? !focused : false;
     }
   });
 }

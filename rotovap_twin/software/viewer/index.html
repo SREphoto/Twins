@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>BÜCHI Rotavapor R-300 · Rotary Evaporator Twin</title>
-  <link rel="stylesheet" href="style.css?v=20260906-gold" />
+  <link rel="stylesheet" href="style.css?v=20261018-gold" />
+  <link rel="stylesheet" href="../../../lab_viewer/shared/chemmate_themes.css?v=20261018-view" />
 </head>
 <body>
   <div id="app">
@@ -13,8 +14,24 @@
         <span class="brand-mark">BÜCHI</span>
         <span class="brand-model">Rotavapor R-300</span>
         <span class="badge-sredesigns">SREdesigns</span>
-        <span class="brand-tag">Rotary Evaporation System Twin</span>
+        <span class="brand-tag">Precision Digital Twin & Clausius-Clapeyron Physics</span>
       </div>
+
+      <div class="view-chooser" role="group" aria-label="Visual view style">
+        <span class="view-chooser-label">VIEW:</span>
+        <div class="view-chooser-group">
+          <button type="button" class="view-choice-btn active" id="btn-view-modern" title="Modern View (Default high-tech instrument theme)">
+            <span class="view-choice-text">MODERN</span>
+          </button>
+          <button type="button" class="view-choice-btn" id="btn-view-retro" title="Retro View (ChemMate warm archival paper & Swiss red educational style)">
+            <span class="view-choice-text retro"><span class="cm-mini-plus">+</span> RETRO</span>
+          </button>
+          <button type="button" class="view-choice-btn" id="btn-view-night" title="Night View (Dark greys, deep blacks, and precision Swiss reds)">
+            <span class="view-choice-text night"><span class="night-glyph">☾</span> NIGHT</span>
+          </button>
+        </div>
+      </div>
+
       <div class="topbar-status">
         <span id="status-pill" class="pill">STANDBY</span>
         <span id="status-detail" class="muted">Ready for distillation sequence</span>
@@ -25,8 +42,14 @@
       <!-- 3D Stage -->
       <section class="stage">
         <div class="view-toolbar">
-          <button type="button" class="view-btn" id="btn-explode" title="Separate assemblies">Exploded view</button>
-          <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe">Wireframe</button>
+          <button type="button" class="view-btn active" id="btn-cam-iso" title="Isometric 3/4 perspective">ISO</button>
+          <button type="button" class="view-btn" id="btn-cam-front" title="Front elevation facing console">Front</button>
+          <button type="button" class="view-btn" id="btn-cam-side" title="Side profile showing lift column">Side</button>
+          <button type="button" class="view-btn" id="btn-cam-top" title="Top plan view">Top</button>
+          <button type="button" class="view-btn" id="btn-cam-console" title="I-300 Pro Touchscreen Console">Console</button>
+          <button type="button" class="view-btn" id="btn-cam-exploded" title="Exploded assembly viewpoint">Exploded View</button>
+          <button type="button" class="view-btn" id="btn-explode" title="Separate assemblies">Explode Mesh</button>
+          <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe mode">Wireframe</button>
           <button type="button" class="view-btn" id="btn-auto-rotate" title="Orbit camera automatically">Auto-rotate</button>
           
           <label class="orbit-speed-ctrl" title="Auto-orbit speed">
@@ -34,22 +57,17 @@
             <input type="range" id="orbit-speed" min="0.2" max="4" step="0.1" value="1.0" />
             <span id="orbit-speed-val">1.0×</span>
           </label>
-          <label class="orbit-speed-ctrl" title="Camera zoom">
-            <span>Zoom</span>
-            <input type="range" id="camera-zoom" min="0" max="100" step="1" value="45" />
-            <span id="camera-zoom-val">45%</span>
-          </label>
           <label class="orbit-speed-ctrl" title="Lab lighting intensity">
             <span>Light</span>
             <input type="range" id="lab-light" min="0.2" max="2.5" step="0.1" value="1.0" />
             <span id="lab-light-val">1.0×</span>
           </label>
-          <button type="button" class="view-btn" id="btn-sfx-mute" title="Mute audio sounds">Mute SFX</button>
+          <button type="button" class="view-btn" id="btn-sfx-mute" title="Mute audio synthesizer">Mute SFX</button>
         </div>
 
         <div id="viewport3d" class="viewport"></div>
         <div id="hud-tooltip" class="hud-tooltip" style="display: none;"></div>
-        <div class="stage-hint">Orbit: drag · Zoom: scroll/slider · Lift & Rotation: live mechanical animation · Clausius-Clapeyron vapor physics</div>
+        <div class="stage-hint">Interactive 3D Twin: Click touchscreen, rotary dial, flasks, or power plug to interact</div>
       </section>
 
       <!-- Instrument Controls Panel -->
@@ -59,6 +77,11 @@
           <button type="button" class="panel-collapse-btn" data-collapse="instrument" title="Collapse panel" aria-expanded="true">▾</button>
         </div>
         <div class="panel-body">
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <button type="button" class="btn" id="btn-power" style="flex: 1;">POWER: ON</button>
+            <button type="button" class="btn" id="btn-plug" style="flex: 1;">CORD: PLUGGED IN</button>
+          </div>
+
           <div style="display: flex; gap: 0.5rem;">
             <button type="button" class="btn btn-primary" id="btn-lift" style="flex: 1;">Raise Motorized Lift</button>
             <button type="button" class="btn" id="btn-heat" style="flex: 1;">Turn Heating ON</button>
@@ -100,6 +123,33 @@
               Maintains optimal condensation without vapor bypass or solvent loss.
             </p>
           </div>
+        </div>
+      </aside>
+
+      <!-- Part Explorer Side Panel (Gold Standard) -->
+      <aside class="parts panel-collapsible" id="panel-parts" data-panel="parts">
+        <div class="panel-header">
+          <h2>Part Explorer</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="parts" title="Collapse panel" aria-expanded="true">▾</button>
+        </div>
+        <div class="panel-body">
+          <input type="text" id="input-part-search" placeholder="Search parts (e.g. stator, seal, bath)..." style="width: 100%; padding: 0.45rem 0.65rem; background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 0.78rem;" />
+          
+          <div style="display: flex; gap: 0.25rem; flex-wrap: wrap;">
+            <button type="button" class="btn part-filter-btn active" data-cat="all" style="padding: 0.2rem 0.45rem; font-size: 0.68rem;">All</button>
+            <button type="button" class="btn part-filter-btn" data-cat="Drive" style="padding: 0.2rem 0.45rem; font-size: 0.68rem;">Drive</button>
+            <button type="button" class="btn part-filter-btn" data-cat="Lift" style="padding: 0.2rem 0.45rem; font-size: 0.68rem;">Lift</button>
+            <button type="button" class="btn part-filter-btn" data-cat="Heating" style="padding: 0.2rem 0.45rem; font-size: 0.68rem;">Heating</button>
+            <button type="button" class="btn part-filter-btn" data-cat="Glassware" style="padding: 0.2rem 0.45rem; font-size: 0.68rem;">Glassware</button>
+            <button type="button" class="btn part-filter-btn" data-cat="Electrical" style="padding: 0.2rem 0.45rem; font-size: 0.68rem;">Electrical</button>
+          </div>
+
+          <div class="parts-list" id="parts-list"></div>
+
+          <div style="padding: 0.4rem 0; border-top: 1px solid var(--border); font-size: 0.72rem; color: var(--muted);" id="parts-focus-status">
+            No part focused
+          </div>
+          <button type="button" class="btn" id="btn-parts-clear" style="width: 100%;">Clear Focus / Reset View</button>
         </div>
       </aside>
 
@@ -148,6 +198,6 @@
     }
   }
   </script>
-  <script type="module" src="app.js?v=20260906-buchi3"></script>
+  <script type="module" src="app.js?v=20261018-gold"></script>
 </body>
 </html>

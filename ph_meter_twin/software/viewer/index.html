@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SREdesigns PH-7000 Pro · Benchtop Dual pH / mV Meter Twin</title>
   <link rel="stylesheet" href="style.css?v=20260925-gold1" />
+  <link rel="stylesheet" href="../../../lab_viewer/shared/chemmate_themes.css?v=20261018-view" />
   <script type="importmap">
     {
       "imports": {
@@ -24,6 +25,22 @@
         <span class="badge-sredesigns">SREdesigns</span>
         <span class="brand-tag">Benchtop Dual pH/mV Meter with ATC & Articulated Stand</span>
       </div>
+
+      <div class="view-chooser" role="group" aria-label="Visual view style">
+        <span class="view-chooser-label">VIEW:</span>
+        <div class="view-chooser-group">
+          <button type="button" class="view-choice-btn active" id="btn-view-modern" title="Modern View (Default high-tech instrument theme)">
+            <span class="view-choice-text">MODERN</span>
+          </button>
+          <button type="button" class="view-choice-btn" id="btn-view-retro" title="Retro View (ChemMate warm archival paper & Swiss red educational style)">
+            <span class="view-choice-text retro"><span class="cm-mini-plus">+</span> RETRO</span>
+          </button>
+          <button type="button" class="view-choice-btn" id="btn-view-night" title="Night View (Dark greys, deep blacks, and precision Swiss reds)">
+            <span class="view-choice-text night"><span class="night-glyph">☾</span> NIGHT</span>
+          </button>
+        </div>
+      </div>
+
       <div class="topbar-status">
         <span id="status-pill" class="pill run">ONLINE</span>
         <span id="status-detail" class="muted">Meter ready; sensor stable</span>
@@ -74,8 +91,10 @@
 
           <div class="btn-grid">
             <button type="button" class="btn" id="btn-power">POWER: ON</button>
-            <button type="button" class="btn" id="btn-demo">Run Classroom Demo</button>
+            <button type="button" class="btn" id="btn-plug">CORD: PLUGGED IN</button>
           </div>
+
+          <button type="button" class="btn" id="btn-demo">Run Classroom Demo</button>
 
           <!-- Hardware & Kinematics Control -->
           <div class="control-card">
@@ -146,9 +165,23 @@
           </div>
         </div>
       </aside>
+
+      <!-- Part Explorer Side Panel (Gold Standard Component) -->
+      <aside class="parts panel-collapsible collapsed" id="parts-panel" data-panel="parts">
+        <div class="panel-header">
+          <h2>Part Explorer</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="parts" title="Collapse panel" aria-expanded="false">▾</button>
+        </div>
+        <div class="panel-body">
+          <p class="hint">Click any named part to isolate, zoom, and highlight genuine internal physical geometry.</p>
+          <button type="button" class="btn" id="btn-parts-clear">Clear Focus</button>
+          <p id="parts-focus-status" class="muted">No part focused</p>
+          <div id="parts-list" class="parts-list" role="list"></div>
+        </div>
+      </aside>
     </div>
   </div>
 
-  <script type="module" src="app.js?v=20260925-gold1"></script>
+  <script type="module" src="app.js?v=20261018-gold2"></script>
 </body>
 </html>

@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SREdesigns THERMO-1200 · 9L High-Temp Muffle Furnace Twin</title>
-  <link rel="stylesheet" href="style.css?v=20260925-gold1" />
+  <link rel="stylesheet" href="style.css?v=20261018-gold2" />
+  <link rel="stylesheet" href="../../../lab_viewer/shared/chemmate_themes.css?v=20261018-view" />
   <script type="importmap">
     {
       "imports": {
@@ -21,9 +22,25 @@
       <div class="brand">
         <span class="brand-mark">SREdesigns</span>
         <span class="brand-model">THERMO-1200</span>
-        <span class="badge-sredesigns">SREdesigns</span>
-        <span class="brand-tag">9L 1200°C Ceramic Fiber Muffle Furnace with 4-Bar Lift Door</span>
+        <span class="badge-sredesigns">SREdesigns Certified</span>
+        <span class="brand-tag">9L 1200°C Ceramic Fiber Muffle Furnace · 4-Bar Parallel Lift Door</span>
       </div>
+
+      <div class="view-chooser" role="group" aria-label="Visual view style">
+        <span class="view-chooser-label">VIEW:</span>
+        <div class="view-chooser-group">
+          <button type="button" class="view-choice-btn active" id="btn-view-modern" title="Modern View (Default high-tech instrument theme)">
+            <span class="view-choice-text">MODERN</span>
+          </button>
+          <button type="button" class="view-choice-btn" id="btn-view-retro" title="Retro View (ChemMate warm archival paper & Swiss red educational style)">
+            <span class="view-choice-text retro"><span class="cm-mini-plus">+</span> RETRO</span>
+          </button>
+          <button type="button" class="view-choice-btn" id="btn-view-night" title="Night View (Dark greys, deep blacks, and precision Swiss reds)">
+            <span class="view-choice-text night"><span class="night-glyph">☾</span> NIGHT</span>
+          </button>
+        </div>
+      </div>
+
       <div class="topbar-status">
         <span id="status-pill" class="pill run">IDLE</span>
         <span id="status-detail" class="muted">Furnace ready in standby mode</span>
@@ -36,9 +53,11 @@
         <div class="view-toolbar">
           <button type="button" class="view-btn active" id="btn-cam-iso" title="Isometric 3/4 view">ISO</button>
           <button type="button" class="view-btn" id="btn-cam-front" title="Front console & chamber view">Front</button>
+          <button type="button" class="view-btn" id="btn-cam-console" title="Zoom to Eurotherm LCD touchscreen">Console</button>
           <button type="button" class="view-btn" id="btn-cam-side" title="Side 4-bar door linkage view">Side</button>
           <button type="button" class="view-btn" id="btn-cam-top" title="Top overhead chimney view">Top</button>
-          <button type="button" class="view-btn" id="btn-explode" title="Separate assemblies">Exploded view</button>
+          <button type="button" class="view-btn" id="btn-cam-rear" title="Rear thermocouple & electrical bay view">Rear</button>
+          <button type="button" class="view-btn" id="btn-explode" title="Separate assemblies to reveal interior">Exploded view</button>
           <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe">Wireframe</button>
           <button type="button" class="view-btn" id="btn-auto-rotate" title="Orbit camera automatically">Auto-rotate</button>
 
@@ -47,11 +66,18 @@
             <input type="range" id="orbit-speed" min="0.2" max="4" step="0.1" value="1.0" />
             <span id="orbit-speed-val">1.0×</span>
           </label>
+          <label class="orbit-speed-ctrl light-ctrl" title="Overall lab illumination">
+            <span>Light</span>
+            <input type="range" id="lab-light" min="0.2" max="2.0" step="0.05" value="1.0" />
+            <span id="lab-light-val">1.0×</span>
+          </label>
           <button type="button" class="view-btn" id="btn-sfx-mute" title="Mute audio sounds">Mute SFX</button>
         </div>
 
         <div id="viewport3d" class="viewport"></div>
-        <div class="stage-hint">Interactive 3D Twin: Click door grab bar, crucible, or controller in 3D to interact</div>
+        <div class="stage-hint">
+          Interactive Touchscreen: Click directly on Eurotherm screen [▲] [▼] [RUN] [PROG] buttons, physical keys, or door handle
+        </div>
       </section>
 
       <!-- Instrument Controls Panel -->
@@ -74,8 +100,10 @@
 
           <div class="btn-grid">
             <button type="button" class="btn" id="btn-power">MAINS: ON</button>
-            <button type="button" class="btn" id="btn-demo">Run Classroom Demo</button>
+            <button type="button" class="btn" id="btn-plug">CORD: PLUGGED IN</button>
           </div>
+
+          <button type="button" class="btn" id="btn-demo">Run Automated Calcination Demo</button>
 
           <!-- Preset Firing Profiles -->
           <div class="control-card">
@@ -142,8 +170,16 @@
                 <span class="spec-val">9.0 Liters</span>
               </div>
               <div class="spec-item">
-                <span class="spec-label">Heating Power</span>
-                <span class="spec-val">3.0 kW FeCrAl Coils</span>
+                <span class="spec-label">Heating Elements</span>
+                <span class="spec-val">3.0 kW FeCrAl Kanthal</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Thermocouple</span>
+                <span class="spec-val">Type-S Pt10%Rh/Pt</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Power Control</span>
+                <span class="spec-val">40A Crydom Zero-Cross SSR</span>
               </div>
               <div class="spec-item">
                 <span class="spec-label">Door Mechanism</span>
@@ -151,15 +187,29 @@
               </div>
               <div class="spec-item">
                 <span class="spec-label">Safety Cutout</span>
-                <span class="spec-val">Instant Coil Power Interlock</span>
+                <span class="spec-val">Throat Microswitch Cut</span>
               </div>
             </div>
           </div>
         </div>
       </aside>
+
+      <!-- Part Explorer Side Panel (Gold Standard Component) -->
+      <aside class="parts panel-collapsible" id="parts-panel" data-panel="parts">
+        <div class="panel-header">
+          <h2>Part Explorer</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="parts" title="Collapse panel" aria-expanded="true">▾</button>
+        </div>
+        <div class="panel-body">
+          <p class="hint">Click any named part to isolate, zoom, and highlight genuine internal physical geometry.</p>
+          <button type="button" class="btn" id="btn-parts-clear">Clear Focus</button>
+          <p id="parts-focus-status" class="muted">No part focused</p>
+          <div id="parts-list" class="parts-list" role="list"></div>
+        </div>
+      </aside>
     </div>
   </div>
 
-  <script type="module" src="app.js?v=20260925-gold1"></script>
+  <script type="module" src="app.js?v=20261018-gold2"></script>
 </body>
 </html>

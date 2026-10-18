@@ -7,6 +7,7 @@ from enum import Enum
 import math
 
 class VacuumPumpState(str, Enum):
+    UNPOWERED = "UNPOWERED"
     OFF = "OFF"
     IDLE = "IDLE"
     STARTING = "STARTING"
@@ -21,6 +22,7 @@ class VacuumPumpController:
         self.max_flow_lmin = max_flow_lmin
         
         # State variables
+        self.is_plugged_in = True
         self.state = VacuumPumpState.OFF
         self.power_on = False
         self.gas_ballast_open = False
@@ -35,14 +37,33 @@ class VacuumPumpController:
         # Constant limits
         self.overheat_temp_c = 130.0
         self.reset_temp_c = 80.0
-        
+
+    def set_plugged_in(self, plugged: bool):
+        """Physical mains plug continuity interlock."""
+        self.is_plugged_in = bool(plugged)
+        if not self.is_plugged_in:
+            self.state = VacuumPumpState.UNPOWERED
+            self.motor_speed_rpm = 0.0
+        else:
+            if self.power_on:
+                if self.motor_temp_c >= self.overheat_temp_c:
+                    self.state = VacuumPumpState.FAULT_OVERHEAT
+                else:
+                    self.state = VacuumPumpState.IDLE
+            else:
+                self.state = VacuumPumpState.OFF
+
     def set_power(self, enabled: bool):
         self.power_on = enabled
+        if not self.is_plugged_in:
+            self.state = VacuumPumpState.UNPOWERED
+            return
+
         if not enabled:
             if self.state != VacuumPumpState.OFF:
                 self.state = VacuumPumpState.STOPPING
         else:
-            if self.state == VacuumPumpState.OFF:
+            if self.state in (VacuumPumpState.OFF, VacuumPumpState.UNPOWERED):
                 if self.motor_temp_c >= self.overheat_temp_c:
                     self.state = VacuumPumpState.FAULT_OVERHEAT
                 else:
@@ -65,6 +86,15 @@ class VacuumPumpController:
         self.state = VacuumPumpState.FAULT_OVERHEAT
 
     def tick(self, dt_sec: float = 0.1):
+        if not self.is_plugged_in:
+            self.state = VacuumPumpState.UNPOWERED
+            self.motor_speed_rpm = max(0.0, self.motor_speed_rpm - 2000.0 * dt_sec)
+            self.motor_temp_c = max(self.ambient_temp_c, self.motor_temp_c - 0.5 * dt_sec)
+            leak_rate = 0.08
+            self.system_vacuum_mbar += (1013.0 - self.system_vacuum_mbar) * (1.0 - math.exp(-leak_rate * dt_sec))
+            self.system_vacuum_mbar = max(self.ultimate_vacuum_mbar, min(1013.0, self.system_vacuum_mbar))
+            return
+
         # 1. Temperature Simulation
         if self.state in (VacuumPumpState.STARTING, VacuumPumpState.RUNNING, VacuumPumpState.RUNNING_BALLAST):
             # Heating rate scales with RPM squared (I^2*R losses)
@@ -154,6 +184,7 @@ class VacuumPumpController:
         """Return system snapshot for displays and telemetry."""
         return {
             "state": self.state.value,
+            "is_plugged_in": self.is_plugged_in,
             "power_on": self.power_on,
             "gas_ballast_open": self.gas_ballast_open,
             "pressure_mbar": round(self.system_vacuum_mbar, 1),

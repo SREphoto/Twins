@@ -300,8 +300,301 @@
     }
     footer a { color: var(--cyan); text-decoration: none; }
 
+    /* View Chooser */
+    .view-chooser {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      padding: 3px 6px;
+    }
+    .view-chooser-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: #64758b;
+      letter-spacing: 0.06em;
+      padding: 0 4px 0 2px;
+      user-select: none;
+    }
+    .view-chooser-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .view-choice-btn {
+      appearance: none;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #94a3b8;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 4px 9px;
+      border-radius: 5px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
+    .view-choice-btn:hover {
+      color: #f8fafc;
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .view-choice-btn.active {
+      background: #1e2b3c;
+      color: #38bdf8;
+      border-color: rgba(56, 189, 248, 0.35);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    }
+    .view-choice-text.retro {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .cm-mini-plus {
+      color: #d62828;
+      font-weight: 800;
+      font-size: 12px;
+      line-height: 1;
+    }
+    .view-choice-btn.active .cm-mini-plus {
+      color: #ffffff;
+    }
+    .night-glyph {
+      font-size: 11px;
+      line-height: 1;
+      color: #ff4d5a;
+    }
+
+    /* ==========================================================================
+       RETRO THEME (ChemMate warm archival paper & Swiss Red educational style)
+       ========================================================================== */
+    body[data-theme="retro"] {
+      background: #f2ece1;
+      color: #161514;
+      background-image: 
+        radial-gradient(ellipse at 50% 0%, rgba(214, 40, 40, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 90%, rgba(180, 140, 90, 0.12) 0%, transparent 50%);
+    }
+    body[data-theme="retro"] header {
+      background: rgba(242, 236, 225, 0.94);
+      border-bottom: 1.5px solid #bfb5a4;
+    }
+    body[data-theme="retro"] .brand-badge {
+      background: #d62828;
+      border: 1px solid #b51f1f;
+      color: #ffffff;
+    }
+    body[data-theme="retro"] .brand-title {
+      color: #161514;
+    }
+    body[data-theme="retro"] .brand-title span {
+      color: #d62828;
+    }
+    body[data-theme="retro"] .view-chooser {
+      background: #ded6c5;
+      border-color: #bfb5a4;
+    }
+    body[data-theme="retro"] .view-chooser-label {
+      color: #7a7366;
+    }
+    body[data-theme="retro"] .view-choice-btn {
+      color: #5e5a52;
+    }
+    body[data-theme="retro"] .view-choice-btn:hover {
+      color: #161514;
+      background: #d4cbba;
+    }
+    body[data-theme="retro"] .view-choice-btn.active {
+      background: #d62828;
+      color: #ffffff;
+      border-color: #b51f1f;
+      box-shadow: 0 1px 3px rgba(214, 40, 40, 0.3);
+    }
+    body[data-theme="retro"] .hub-pill {
+      background: #e6f4ec;
+      border-color: #1f7a4c;
+      color: #165e39;
+    }
+    body[data-theme="retro"] .hub-pill::before {
+      background: #1f7a4c;
+      box-shadow: 0 0 6px #1f7a4c;
+    }
+    body[data-theme="retro"] .hero-card {
+      background: #fbf9f4;
+      border: 1.5px solid #bfb5a4;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    }
+    body[data-theme="retro"] .hero-card::after {
+      background: radial-gradient(circle, rgba(214, 40, 40, 0.1), transparent 70%);
+    }
+    body[data-theme="retro"] .hero-tag {
+      color: #d62828;
+    }
+    body[data-theme="retro"] .hero-heading {
+      color: #161514;
+    }
+    body[data-theme="retro"] .hero-desc {
+      color: #5c564c;
+    }
+    body[data-theme="retro"] .btn-hero {
+      background: #d62828;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(214, 40, 40, 0.3);
+    }
+    body[data-theme="retro"] .btn-hero:hover {
+      background: #b51f1f;
+    }
+    body[data-theme="retro"] .section-title {
+      color: #161514;
+    }
+    body[data-theme="retro"] .section-title span {
+      color: #7a7366;
+    }
+    body[data-theme="retro"] .twin-card {
+      background: #fbf9f4;
+      border: 1.5px solid #d4cbba;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    body[data-theme="retro"] .twin-card:hover {
+      background: #ffffff;
+      border-color: #d62828;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08), 0 0 0 1px #d62828;
+    }
+    body[data-theme="retro"] .twin-type {
+      color: #d62828;
+    }
+    body[data-theme="retro"] .status-badge.gold {
+      background: rgba(214, 40, 40, 0.12);
+      border-color: rgba(214, 40, 40, 0.4);
+      color: #b51f1f;
+    }
+    body[data-theme="retro"] .status-badge.ready {
+      background: rgba(31, 122, 76, 0.12);
+      border-color: rgba(31, 122, 76, 0.4);
+      color: #165e39;
+    }
+    body[data-theme="retro"] .twin-name {
+      color: #161514;
+    }
+    body[data-theme="retro"] .twin-tag {
+      color: #5c564c;
+    }
+    body[data-theme="retro"] .twin-specs {
+      color: #4a463d;
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    body[data-theme="retro"] .open-btn {
+      color: #d62828;
+    }
+    body[data-theme="retro"] .twin-card:hover .open-btn {
+      color: #b51f1f;
+    }
+    body[data-theme="retro"] footer {
+      background: #dfd7c6;
+      border-top: 1.5px solid #bfb5a4;
+      color: #5c564c;
+    }
+
+    /* ==========================================================================
+       NIGHT THEME (Dark greys, deep blacks, precision Swiss reds)
+       ========================================================================== */
+    body[data-theme="night"] {
+      background: #0a0c10;
+      color: #f0f3f8;
+      background-image: 
+        radial-gradient(ellipse at 50% 0%, rgba(255, 51, 68, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 90%, rgba(26, 32, 44, 0.5) 0%, transparent 50%);
+    }
+    body[data-theme="night"] header {
+      background: rgba(17, 21, 28, 0.9);
+      border-bottom: 1px solid #1e2634;
+    }
+    body[data-theme="night"] .brand-badge {
+      background: #ff3344;
+      border: 1px solid #ff4d5a;
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(255, 51, 68, 0.4);
+    }
+    body[data-theme="night"] .brand-title span {
+      color: #ff3344;
+    }
+    body[data-theme="night"] .view-chooser {
+      background: #11151c;
+      border-color: #1e2634;
+    }
+    body[data-theme="night"] .view-choice-btn.active {
+      background: #ff3344;
+      color: #ffffff;
+      border-color: #ff4d5a;
+      box-shadow: 0 0 10px rgba(255, 51, 68, 0.4);
+    }
+    body[data-theme="night"] .hub-pill {
+      background: rgba(255, 51, 68, 0.15);
+      border-color: rgba(255, 51, 68, 0.4);
+      color: #ff6675;
+    }
+    body[data-theme="night"] .hub-pill::before {
+      background: #ff3344;
+      box-shadow: 0 0 8px #ff3344;
+    }
+    body[data-theme="night"] .hero-card {
+      background: linear-gradient(135deg, rgba(22, 27, 36, 0.9), rgba(14, 18, 25, 0.85));
+      border: 1px solid rgba(255, 51, 68, 0.35);
+      box-shadow: 0 0 30px rgba(255, 51, 68, 0.1);
+    }
+    body[data-theme="night"] .hero-tag {
+      color: #ff4d5a;
+    }
+    body[data-theme="night"] .btn-hero {
+      background: #ff3344;
+      color: #ffffff;
+      box-shadow: 0 0 20px rgba(255, 51, 68, 0.35);
+    }
+    body[data-theme="night"] .btn-hero:hover {
+      background: #ff4d5a;
+    }
+    body[data-theme="night"] .twin-card {
+      background: rgba(22, 27, 36, 0.75);
+      border: 1px solid #1e2634;
+    }
+    body[data-theme="night"] .twin-card:hover {
+      background: rgba(28, 35, 48, 0.9);
+      border-color: rgba(255, 51, 68, 0.5);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 16px rgba(255, 51, 68, 0.15);
+    }
+    body[data-theme="night"] .twin-type {
+      color: #ff4d5a;
+    }
+    body[data-theme="night"] .status-badge.gold {
+      background: rgba(255, 51, 68, 0.18);
+      border-color: rgba(255, 51, 68, 0.45);
+      color: #ff6675;
+    }
+    body[data-theme="night"] .status-badge.ready {
+      background: rgba(255, 51, 68, 0.15);
+      border-color: rgba(255, 51, 68, 0.4);
+      color: #ff6675;
+    }
+    body[data-theme="night"] .open-btn {
+      color: #ff3344;
+    }
+    body[data-theme="night"] .twin-card:hover .open-btn {
+      color: #ff6675;
+    }
+    body[data-theme="night"] footer {
+      background: #0d1117;
+      border-top: 1px solid #1e2634;
+      color: #64748b;
+    }
+
     @media (max-width: 640px) {
-      header { padding: 0.75rem 1rem; }
+      header { padding: 0.75rem 1rem; flex-wrap: wrap; gap: 0.75rem; }
       .brand-title { font-size: 1rem; }
       .hero-card { padding: 1.2rem; }
       .hero-heading { font-size: 1.25rem; }
@@ -317,6 +610,23 @@
       <div class="brand-badge">SREdesigns</div>
       <div class="brand-title">LAB <span>Twins</span></div>
     </div>
+
+    <!-- View Chooser -->
+    <div class="view-chooser" role="group" aria-label="Visual view style">
+      <span class="view-chooser-label">VIEW:</span>
+      <div class="view-chooser-group">
+        <button type="button" class="view-choice-btn active" id="btn-view-modern" title="Modern View (Default high-tech instrument theme)">
+          <span class="view-choice-text">MODERN</span>
+        </button>
+        <button type="button" class="view-choice-btn" id="btn-view-retro" title="Retro View (ChemMate warm archival paper & Swiss red educational style)">
+          <span class="view-choice-text retro"><span class="cm-mini-plus">+</span> RETRO</span>
+        </button>
+        <button type="button" class="view-choice-btn" id="btn-view-night" title="Night View (Dark greys, deep blacks, and precision Swiss reds)">
+          <span class="view-choice-text night"><span class="night-glyph">☾</span> NIGHT</span>
+        </button>
+      </div>
+    </div>
+
     <div class="hub-pill">13 READY TWINS</div>
   </header>
 
@@ -586,5 +896,75 @@
     <p>SRE Laboratory Systems · Digital Twin Engineering Division · Zero-Fidelity Compromise</p>
   </footer>
 
+  <script>
+    (function() {
+      const btnModern = document.getElementById('btn-view-modern');
+      const btnRetro = document.getElementById('btn-view-retro');
+      const btnNight = document.getElementById('btn-view-night');
+      const brandBadge = document.querySelector('.brand-badge');
+      const brandTitle = document.querySelector('.brand-title');
+      const allLinks = document.querySelectorAll('a[href]');
+
+      function updateCardLinks(theme) {
+        allLinks.forEach(a => {
+          const rawHref = a.getAttribute('href');
+          if (!rawHref || rawHref.startsWith('#') || rawHref.startsWith('javascript:')) return;
+          try {
+            const url = new URL(rawHref, window.location.href);
+            if (theme && theme !== 'modern') {
+              url.searchParams.set('theme', theme);
+            } else {
+              url.searchParams.delete('theme');
+            }
+            // Retain path relative to current page
+            const path = url.pathname.replace(/^\//, '');
+            const search = url.search ? url.search : '';
+            const hash = url.hash ? url.hash : '';
+            a.setAttribute('href', path + search + hash);
+          } catch (_) {}
+        });
+      }
+
+      function setTheme(theme) {
+        const raw = String(theme || '').toLowerCase();
+        let currentTheme = 'modern';
+        if (raw === 'night') currentTheme = 'night';
+        else if (raw === 'retro' || raw === 'chemmate') currentTheme = 'retro';
+
+        btnModern?.classList.toggle('active', currentTheme === 'modern');
+        btnRetro?.classList.toggle('active', currentTheme === 'retro');
+        btnNight?.classList.toggle('active', currentTheme === 'night');
+
+        if (currentTheme === 'modern') {
+          delete document.body.dataset.theme;
+          if (brandBadge) brandBadge.textContent = 'SREdesigns';
+          if (brandTitle) brandTitle.innerHTML = 'LAB <span>Twins</span>';
+        } else if (currentTheme === 'retro') {
+          document.body.dataset.theme = 'retro';
+          if (brandBadge) brandBadge.textContent = '+ ChemMate';
+          if (brandTitle) brandTitle.innerHTML = 'RESEARCH &amp; <span>Learning Lab</span>';
+        } else if (currentTheme === 'night') {
+          document.body.dataset.theme = 'night';
+          if (brandBadge) brandBadge.textContent = '☾ SRE-NIGHT';
+          if (brandTitle) brandTitle.innerHTML = 'LAB <span>Obsidian</span>';
+        }
+
+        try {
+          localStorage.setItem('twins_lab_theme', currentTheme);
+        } catch (_) {}
+
+        updateCardLinks(currentTheme);
+      }
+
+      btnModern?.addEventListener('click', () => setTheme('modern'));
+      btnRetro?.addEventListener('click', () => setTheme('retro'));
+      btnNight?.addEventListener('click', () => setTheme('night'));
+
+      // Initialize from URL query parameter or localStorage
+      const params = new URLSearchParams(window.location.search);
+      const initial = params.get('theme') || localStorage.getItem('twins_lab_theme') || 'modern';
+      setTheme(initial);
+    })();
+  </script>
 </body>
 </html>

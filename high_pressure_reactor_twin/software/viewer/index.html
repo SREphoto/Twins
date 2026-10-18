@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SREdesigns Parr 4560 / 4848 · High-Pressure Stirred Mini-Reactor Twin</title>
   <link rel="stylesheet" href="style.css?v=20261005-gold-tier" />
+  <link rel="stylesheet" href="../../../lab_viewer/shared/chemmate_themes.css?v=20261018-view" />
   <script type="importmap">
     {
       "imports": {
@@ -24,6 +25,22 @@
         <span class="badge-sredesigns">SREdesigns</span>
         <span class="brand-tag">300 mL 200-Bar Stirred Mini-Reactor with Split-Ring Closure &amp; Modular PID Controller</span>
       </div>
+
+      <div class="view-chooser" role="group" aria-label="Visual view style">
+        <span class="view-chooser-label">VIEW:</span>
+        <div class="view-chooser-group">
+          <button type="button" class="view-choice-btn active" id="btn-view-modern" title="Modern View (Default high-tech instrument theme)">
+            <span class="view-choice-text">MODERN</span>
+          </button>
+          <button type="button" class="view-choice-btn" id="btn-view-retro" title="Retro View (ChemMate warm archival paper & Swiss red educational style)">
+            <span class="view-choice-text retro"><span class="cm-mini-plus">+</span> RETRO</span>
+          </button>
+          <button type="button" class="view-choice-btn" id="btn-view-night" title="Night View (Dark greys, deep blacks, and precision Swiss reds)">
+            <span class="view-choice-text night"><span class="night-glyph">☾</span> NIGHT</span>
+          </button>
+        </div>
+      </div>
+
       <div class="topbar-status">
         <span id="status-pill" class="pill ready">READY</span>
         <span id="status-detail" class="muted">AC Mains Connected · Vessel Sealed</span>
@@ -180,10 +197,10 @@
       </aside>
 
       <!-- Panel 2: Part Explorer -->
-      <aside class="parts panel-collapsible" id="parts-panel" data-panel="parts">
+      <aside class="parts panel-collapsible is-collapsed" id="parts-panel" data-panel="parts">
         <div class="panel-head">
           <h2 class="panel-title">Part Explorer</h2>
-          <button type="button" class="panel-collapse-btn" data-collapse="parts" title="Collapse panel" aria-expanded="true">▾</button>
+          <button type="button" class="panel-collapse-btn" data-collapse="parts" title="Collapse panel" aria-expanded="false">▾</button>
         </div>
         <div class="panel-body">
           <p class="hint">Click any named part to isolate (others wireframe), center camera, and orbit.</p>
@@ -198,10 +215,10 @@
       </aside>
 
       <!-- Panel 3: Lab Bench & GLP Log -->
-      <aside class="lab panel-collapsible" id="panel-lab" data-panel="lab">
+      <aside class="lab panel-collapsible is-collapsed" id="panel-lab" data-panel="lab">
         <div class="panel-head">
           <h2 class="panel-title">Lab Bench</h2>
-          <button type="button" class="panel-collapse-btn" data-collapse="lab" title="Collapse panel" aria-expanded="true">▾</button>
+          <button type="button" class="panel-collapse-btn" data-collapse="lab" title="Collapse panel" aria-expanded="false">▾</button>
         </div>
         <div class="panel-body">
           <!-- Electrical Continuity Gate -->

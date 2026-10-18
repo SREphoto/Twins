@@ -1,7 +1,7 @@
 /**
  * SREdesigns THERMO-1200 Muffle Furnace App Controller (app.js)
  * Full state engine, dynamic Eurotherm Canvas LCD renderer, Stefan-Boltzmann thermal physics,
- * 4-bar parallel lift door kinematics, sound synthesis, and calcination workflows.
+ * 4-bar parallel lift door kinematics, sound synthesis, Part Explorer, and interactive touchscreen.
  */
 
 import * as THREE from 'three';
@@ -14,14 +14,23 @@ import {
   setLcdTexture,
   setExplodeAmount,
   setWireframe,
+  setMainsSwitchRotation,
+  animateButtonDepress,
+  focusPart,
+  clearPartFocus,
   buildLabRoom,
   BENCH,
   CAM_ISO,
   CAM_FRONT,
+  CAM_CONSOLE,
   CAM_SIDE,
   CAM_TOP,
-} from './muffle_furnace3d.js?v=20260925-gold1';
+  CAM_REAR,
+  CAM_EXPLODED,
+  PART_CATALOG,
+} from './muffle_furnace3d.js?v=20261018-gold2';
 import { sfx } from './sfx.js?v=20260925-gold1';
+import { initChemMateTheme } from '../../../lab_viewer/shared/chemmate_theme_manager.js';
 
 // ---------------------------------------------------------------------------
 // Thermal & Operational Profiles Database
@@ -65,16 +74,17 @@ const PROFILES = {
 // State Machine Engine
 // ---------------------------------------------------------------------------
 const state = {
-  power: true,
+  isPluggedIn: true,    // Physical bench receptacle continuity
+  power: true,          // Rotary mains disconnect switch
   running: false,
-  status: 'IDLE', // 'IDLE', 'HEATING', 'SOAKING', 'COOLING', 'FAULT_DOOR_OPEN', 'FAULT_OVERTEMP'
+  status: 'IDLE',       // 'IDLE', 'HEATING', 'SOAKING', 'COOLING', 'FAULT_DOOR_OPEN', 'FAULT_OVERTEMP', 'OFFLINE'
 
   // Temperatures & Trajectory
   currentPV: 22.0,      // Actual Process Variable (°C)
-  setpointSV: 800.0,    // Target Setpoint (°C)
+  setpointSV: 850.0,    // Target Setpoint (°C)
   rampSV: 22.0,         // Current dynamic ramp trajectory (°C)
   rampRate: 15.0,       // °C / minute
-  soakTimeMin: 30.0,    // Minutes
+  soakTimeMin: 45.0,    // Minutes
   remainingSoakSec: 0,  // Seconds
   heatingPowerPct: 0.0, // 0 to 100%
 
@@ -89,7 +99,6 @@ const state = {
 
   // Demo sequence
   demoRunning: false,
-  demoTimer: 0,
 
   // Visual Controls
   exploded: false,
@@ -97,6 +106,10 @@ const state = {
   wireframe: false,
   autoRotate: false,
   orbitSpeed: 1.0,
+  labLightIntensity: 1.0,
+
+  // Part Explorer
+  activePartId: null,
 };
 
 // ---------------------------------------------------------------------------
@@ -106,6 +119,7 @@ let scene, camera, renderer, controls;
 let viewportEl;
 let furnaceModel;
 let ambientLight, dirLight, fillLight;
+let plugGroupRef = null;
 let raycaster, mouse;
 let clock;
 
@@ -119,7 +133,7 @@ function initLCD() {
   lcdCtx = lcdCanvas.getContext('2d');
 
   lcdTexture = new THREE.CanvasTexture(lcdCanvas);
-  lcdTexture.flipY = false; // Strictly prevents inverted text
+  lcdTexture.flipY = false; // Strictly enforces correct upright text
   lcdTexture.colorSpace = THREE.SRGBColorSpace;
   lcdTexture.minFilter = THREE.LinearFilter;
   lcdTexture.magFilter = THREE.LinearFilter;
@@ -132,8 +146,9 @@ function updateLCD() {
   const w = lcdCanvas.width;
   const h = lcdCanvas.height;
 
-  // Background
-  if (!state.power) {
+  // Strict Physical Circuit Continuity: If unplugged or switch OFF -> Blackout
+  const hasPower = state.isPluggedIn && state.power;
+  if (!hasPower) {
     lcdCtx.fillStyle = '#05070a';
     lcdCtx.fillRect(0, 0, w, h);
     lcdTexture.needsUpdate = true;
@@ -146,71 +161,104 @@ function updateLCD() {
 
   // Status Annunciator LED bar at top
   lcdCtx.fillStyle = '#1e293b';
-  lcdCtx.fillRect(16, 12, w - 32, 32);
+  lcdCtx.fillRect(12, 10, w - 24, 30);
 
   // Annunciator 1: OP1 (Heating Output Active)
   const op1Active = state.heatingPowerPct > 0.5 && state.running;
   lcdCtx.fillStyle = op1Active ? '#22c55e' : '#334155';
-  lcdCtx.font = 'bold 16px monospace';
-  lcdCtx.fillText('OP1', 28, 34);
+  lcdCtx.font = 'bold 15px monospace';
+  lcdCtx.fillText('OP1', 24, 31);
 
   // Annunciator 2: RUN (Program Active)
   lcdCtx.fillStyle = state.running ? '#38bdf8' : '#334155';
-  lcdCtx.fillText('RUN', 90, 34);
+  lcdCtx.fillText('RUN', 80, 31);
 
   // Annunciator 3: SOAK
   lcdCtx.fillStyle = state.status === 'SOAKING' ? '#fbbf24' : '#334155';
-  lcdCtx.fillText('SOAK', 155, 34);
+  lcdCtx.fillText('SOAK', 140, 31);
 
   // Annunciator 4: ALARM (Door Open or Overtemp)
   const isAlarm = state.status.startsWith('FAULT');
   lcdCtx.fillStyle = isAlarm ? '#ef4444' : '#334155';
-  lcdCtx.fillText('ALM', 235, 34);
+  lcdCtx.fillText('ALM', 210, 31);
 
   // Brand on top right
   lcdCtx.fillStyle = '#64748b';
-  lcdCtx.font = '600 14px sans-serif';
+  lcdCtx.font = '600 13px sans-serif';
   lcdCtx.textAlign = 'right';
-  lcdCtx.fillText('EUROTHERM 3216', w - 24, 33);
+  lcdCtx.fillText('EUROTHERM 3216', w - 20, 30);
   lcdCtx.textAlign = 'left';
 
   // Upper Display: Process Variable (PV) - 7-Segment High-Intensity Green
   lcdCtx.fillStyle = '#022c22';
-  lcdCtx.fillRect(16, 52, w - 32, 92);
+  lcdCtx.fillRect(12, 46, w - 24, 88);
 
   if (isAlarm) {
     lcdCtx.fillStyle = '#ef4444';
-    lcdCtx.font = '700 58px monospace';
+    lcdCtx.font = '700 54px monospace';
     const errMsg = state.status === 'FAULT_DOOR_OPEN' ? 'dOOr' : 'AL.01';
-    lcdCtx.fillText(errMsg, 36, 120);
+    lcdCtx.fillText(errMsg, 30, 110);
+
+    lcdCtx.font = '600 18px sans-serif';
+    lcdCtx.fillStyle = '#f87171';
+    lcdCtx.fillText('DOOR INTERLOCK OPEN', w - 240, 95);
   } else {
     lcdCtx.fillStyle = '#4ade80'; // Brilliant green LED
-    lcdCtx.font = '700 78px monospace';
+    lcdCtx.font = '700 74px monospace';
     const pvStr = Math.round(state.currentPV).toString().padStart(4, ' ');
-    lcdCtx.fillText(pvStr, 36, 126);
+    lcdCtx.fillText(pvStr, 30, 116);
 
     lcdCtx.font = '600 28px monospace';
-    lcdCtx.fillText('°C', w - 75, 95);
+    lcdCtx.fillText('°C', w - 70, 88);
   }
 
   // Lower Display: Setpoint (SP) - 7-Segment Amber
   lcdCtx.fillStyle = '#1c1917';
-  lcdCtx.fillRect(16, 152, w - 32, 80);
+  lcdCtx.fillRect(12, 140, w - 24, 68);
 
   lcdCtx.fillStyle = '#fbbf24'; // Amber LED
-  lcdCtx.font = '700 64px monospace';
+  lcdCtx.font = '700 58px monospace';
   const spStr = Math.round(state.setpointSV).toString().padStart(4, ' ');
-  lcdCtx.fillText(spStr, 36, 214);
+  lcdCtx.fillText(spStr, 30, 194);
 
-  lcdCtx.font = '500 22px monospace';
+  lcdCtx.font = '500 20px monospace';
   if (state.status === 'SOAKING') {
     const minRem = Math.ceil(state.remainingSoakSec / 60);
-    lcdCtx.fillText(`T:${minRem}m`, w - 125, 205);
+    lcdCtx.fillText(`T:${minRem}m`, w - 110, 185);
   } else if (state.running) {
-    lcdCtx.fillText(`P:${Math.round(state.heatingPowerPct)}%`, w - 125, 205);
+    lcdCtx.fillText(`P:${Math.round(state.heatingPowerPct)}%`, w - 110, 185);
   } else {
-    lcdCtx.fillText('SP', w - 75, 205);
+    lcdCtx.fillText('SP', w - 60, 185);
   }
+
+  // Bottom Touchscreen Interactive Softkey Bar (DIAG-015 / Interactive Touch)
+  lcdCtx.fillStyle = '#111827';
+  lcdCtx.fillRect(12, 214, w - 24, 34);
+
+  // Softkey 1: [▲ UP]
+  lcdCtx.fillStyle = '#1e293b';
+  lcdCtx.fillRect(20, 218, 85, 26);
+  lcdCtx.fillStyle = '#38bdf8';
+  lcdCtx.font = 'bold 14px monospace';
+  lcdCtx.fillText('▲ UP', 38, 236);
+
+  // Softkey 2: [▼ DOWN]
+  lcdCtx.fillStyle = '#1e293b';
+  lcdCtx.fillRect(115, 218, 85, 26);
+  lcdCtx.fillStyle = '#38bdf8';
+  lcdCtx.fillText('▼ DOWN', 128, 236);
+
+  // Softkey 3: [RUN/STOP]
+  lcdCtx.fillStyle = state.running ? '#7f1d1d' : '#14532d';
+  lcdCtx.fillRect(220, 218, 120, 26);
+  lcdCtx.fillStyle = state.running ? '#fca5a5' : '#86efac';
+  lcdCtx.fillText(state.running ? '■ STOP' : '▶ RUN', 246, 236);
+
+  // Softkey 4: [PROG]
+  lcdCtx.fillStyle = '#1e293b';
+  lcdCtx.fillRect(360, 218, 130, 26);
+  lcdCtx.fillStyle = '#cbd5e1';
+  lcdCtx.fillText('⛭ PROGRAM', 374, 236);
 
   lcdTexture.needsUpdate = true;
 }
@@ -219,7 +267,14 @@ function updateLCD() {
 // Thermal Physics & Stefan-Boltzmann Radiative Dynamics
 // ---------------------------------------------------------------------------
 function calculateThermalPhysics() {
-  if (!state.power) {
+  const hasPower = state.isPluggedIn && state.power;
+
+  if (!hasPower) {
+    if (state.running) {
+      state.running = false;
+      state.heatingPowerPct = 0.0;
+      sfx.stopHeatingHum();
+    }
     // Natural ambient cooling
     if (state.currentPV > 22.0) {
       state.currentPV = Math.max(22.0, state.currentPV - 0.25 * clock.getDelta());
@@ -230,20 +285,19 @@ function calculateThermalPhysics() {
 
   const dt = Math.min(0.1, clock.getDelta());
 
-  // 1. Door Open Safety Interlock
+  // 1. Door Open Safety Interlock via Microswitch in throat jamb
   if (state.doorOpenRatio > 0.05 && state.running) {
     state.running = false;
     state.status = 'FAULT_DOOR_OPEN';
     state.heatingPowerPct = 0.0;
     sfx.stopHeatingHum();
     sfx.playAlarmBuzzer();
-    updateStatusPill('DOOR OPEN', 'Door interlock tripped; power cut', 'fault');
+    updateStatusPill('DOOR OPEN', 'Door interlock tripped; power cut to elements', 'fault');
   }
 
   // 2. Firing Cycle Execution
   if (state.running && state.doorOpenRatio <= 0.05) {
     if (state.status === 'HEATING') {
-      // Dynamic ramp progression
       const rampPerSec = state.rampRate / 60.0;
       if (state.rampSV < state.setpointSV) {
         state.rampSV = Math.min(state.setpointSV, state.rampSV + rampPerSec * dt);
@@ -258,7 +312,7 @@ function calculateThermalPhysics() {
       if (state.currentPV >= state.setpointSV - 2.0) {
         state.status = 'SOAKING';
         state.remainingSoakSec = state.soakTimeMin * 60;
-        updateStatusPill('SOAKING', `Holding at ${state.setpointSV}°C`, 'run');
+        updateStatusPill('SOAKING', `Holding at ${Math.round(state.setpointSV)}°C`, 'run');
       }
     } else if (state.status === 'SOAKING') {
       state.rampSV = state.setpointSV;
@@ -279,7 +333,7 @@ function calculateThermalPhysics() {
   }
 
   // 3. Solve Net Thermal Power
-  const pElec = (state.heatingPowerPct / 100.0) * 3000.0; // 3 kW elements
+  const pElec = (state.heatingPowerPct / 100.0) * 3000.0; // 3 kW Kanthal elements
   const tChamberK = state.currentPV + 273.15;
   const tAmbK = 22.0 + 273.15;
 
@@ -359,7 +413,8 @@ function init3D() {
   // Build lab room and epoxy workbench
   const labRoot = new THREE.Group();
   scene.add(labRoot);
-  buildLabRoom(labRoot);
+  const labEnv = buildLabRoom(labRoot);
+  plugGroupRef = labEnv.plugGroup;
 
   // Build Muffle Furnace Model
   furnaceModel = createMuffleFurnaceModel();
@@ -368,6 +423,18 @@ function init3D() {
 
   // Initialize Dynamic Canvas LCD
   initLCD();
+
+  // ChemMate Theme Controller (Modern, Retro, Night)
+  const themeManager = initChemMateTheme({
+    twinName: 'MuffleFurnaceTwin',
+    scene,
+    ambLight: ambientLight,
+    dirLight,
+    rimLight: fillLight,
+    onThemeChange: () => {
+      updateLCD();
+    },
+  });
 
   clock = new THREE.Clock();
   raycaster = new THREE.Raycaster();
@@ -385,37 +452,98 @@ function onResize() {
   renderer.setSize(w, h);
 }
 
+// ---------------------------------------------------------------------------
+// Raycasting & Capacitive Touchscreen Pointer Handling
+// ---------------------------------------------------------------------------
 function onSceneClick(event) {
   const rect = renderer.domElement.getBoundingClientRect();
   mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
   mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
   raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(furnaceModel.children, true);
+  const intersects = raycaster.intersectObjects(scene.children, true);
 
   if (intersects.length > 0) {
-    const hit = intersects[0].object;
-    handlePartInteraction(hit.name);
+    const hit = intersects[0];
+    const hitName = hit.object.name || '';
+
+    // 1. Direct Touchscreen Interaction (UI_LCD)
+    if (hitName === 'UI_LCD' && hit.uv) {
+      handleLcdTouch(hit.uv.x, hit.uv.y);
+      return;
+    }
+
+    // 2. Physical Button & Kinematic Part Interaction
+    handlePartInteraction(hitName, hit.object);
   }
 }
 
-function handlePartInteraction(partName) {
+/**
+ * Handles capacitive touch coordinates on Eurotherm LCD screen
+ * UV x, y ∈ [0, 1] mapped across 512x256 canvas
+ */
+function handleLcdTouch(uvX, uvY) {
+  if (!state.isPluggedIn || !state.power) {
+    sfx.playTouchBeep(320, 0.04);
+    return;
+  }
+
+  // Pixel coordinates in 512x256 canvas
+  const px = uvX * 512;
+  const py = uvY * 256;
+
+  // Bottom softkey bar (Y ∈ [210, 256])
+  if (py >= 210) {
+    if (px >= 15 && px <= 105) {
+      // [▲ UP]
+      adjustTemp(25.0);
+    } else if (px >= 110 && px <= 205) {
+      // [▼ DOWN]
+      adjustTemp(-25.0);
+    } else if (px >= 215 && px <= 345) {
+      // [RUN / STOP]
+      toggleRun();
+    } else if (px >= 355 && px <= 500) {
+      // [PROG]
+      cycleNextProfile();
+    }
+  } else if (py >= 46 && py <= 134) {
+    // Upper PV region: Zoom into console or toggle profile
+    sfx.playTouchBeep(880, 0.04);
+    setCamView(CAM_CONSOLE);
+  } else if (py >= 140 && py <= 208) {
+    // Lower SP region: Step setpoint +50°C
+    adjustTemp(50.0);
+  } else {
+    sfx.playTouchBeep(1040, 0.03);
+  }
+}
+
+function handlePartInteraction(partName, meshObj) {
   if (!partName) return;
 
-  if (partName.includes('DoorHandle') || partName.includes('DoorOuterPanel')) {
+  if (partName.includes('DoorHandle') || partName.includes('DoorOuterPanel') || partName.includes('DoorRefractoryPlug')) {
     toggleDoor();
   } else if (partName.includes('Btn_RunStop')) {
+    animateButtonDepress(meshObj);
     toggleRun();
   } else if (partName.includes('Btn_MainsSwitch')) {
-    togglePower();
+    toggleMainsSwitch();
+  } else if (partName.includes('Btn_Up')) {
+    animateButtonDepress(meshObj);
+    adjustTemp(25.0);
+  } else if (partName.includes('Btn_Down')) {
+    animateButtonDepress(meshObj);
+    adjustTemp(-25.0);
+  } else if (partName.includes('Btn_Page') || partName.includes('Btn_Scroll')) {
+    animateButtonDepress(meshObj);
+    cycleNextProfile();
   } else if (partName.includes('Crucible')) {
     toggleCrucible();
   } else if (partName.includes('Damper')) {
     toggleDamper();
-  } else if (partName.includes('Btn_Up')) {
-    adjustTemp(25.0);
-  } else if (partName.includes('Btn_Down')) {
-    adjustTemp(-25.0);
+  } else if (partName.includes('Power_Plug_NEMA') || partName.includes('Power_Receptacle_Duplex')) {
+    togglePlugContinuity();
   }
 }
 
@@ -432,15 +560,40 @@ function updateStatusPill(label, detail, cls = 'run') {
   if (det) det.textContent = detail;
 }
 
-function togglePower() {
+function togglePlugContinuity() {
+  state.isPluggedIn = !state.isPluggedIn;
+  sfx.playContactorClack();
+  const btn = document.getElementById('btn-plug');
+  if (btn) btn.textContent = state.isPluggedIn ? 'CORD: PLUGGED IN' : 'CORD: UNPLUGGED';
+
+  if (plugGroupRef) {
+    plugGroupRef.position.z = state.isPluggedIn
+      ? (BENCH.cz + BENCH.sz / 2 - 0.05 - 0.20 + 0.05)
+      : (BENCH.cz + BENCH.sz / 2 - 0.05 - 0.20 - 0.40);
+  }
+
+  if (!state.isPluggedIn) {
+    state.running = false;
+    sfx.stopHeatingHum();
+    updateStatusPill('NO POWER', 'Mains cord disconnected from bench duplex outlet', 'fault');
+  } else {
+    updateStatusPill('STANDBY', 'Mains power restored to furnace line', 'run');
+  }
+}
+
+function toggleMainsSwitch() {
   state.power = !state.power;
+  setMainsSwitchRotation(state.power);
+  sfx.playContactorClack();
   sfx.playTouchBeep(state.power ? 880 : 380, 0.08);
+
   const btn = document.getElementById('btn-power');
   if (btn) btn.textContent = state.power ? 'MAINS: ON' : 'MAINS: OFF';
+
   if (!state.power) {
     state.running = false;
     sfx.stopHeatingHum();
-    updateStatusPill('OFFLINE', 'Mains power disconnected', 'muted');
+    updateStatusPill('OFFLINE', 'Rotary disconnect switch turned OFF', 'muted');
   } else {
     updateStatusPill('IDLE', 'Furnace ready in standby mode', 'run');
   }
@@ -458,11 +611,14 @@ function toggleDoor() {
 }
 
 function toggleRun() {
-  if (!state.power) return;
+  if (!state.isPluggedIn || !state.power) {
+    sfx.playAlarmBuzzer();
+    updateStatusPill('NO POWER', 'Connect power and switch on mains before starting run', 'fault');
+    return;
+  }
   sfx.playTouchBeep(1046, 0.05);
 
   if (state.running) {
-    // Stop running
     state.running = false;
     state.status = 'IDLE';
     state.heatingPowerPct = 0.0;
@@ -472,7 +628,6 @@ function toggleRun() {
     if (btn) btn.textContent = 'RUN: OFF';
     updateStatusPill('IDLE', 'Program paused; heaters off', 'run');
   } else {
-    // Start running
     if (state.doorOpenRatio > 0.05) {
       sfx.playAlarmBuzzer();
       updateStatusPill('FAULT', 'Close and seal door before starting run', 'fault');
@@ -487,7 +642,7 @@ function toggleRun() {
 
     const btn = document.getElementById('btn-run');
     if (btn) btn.textContent = 'RUN: ACTIVE';
-    updateStatusPill('HEATING', `Ramping to ${state.setpointSV}°C at ${state.rampRate}°C/min`, 'run');
+    updateStatusPill('HEATING', `Ramping to ${Math.round(state.setpointSV)}°C at ${state.rampRate}°C/min`, 'run');
   }
 }
 
@@ -513,6 +668,15 @@ function toggleDamper() {
   sfx.playTouchBeep(650, 0.04);
   const btn = document.getElementById('btn-damper');
   if (btn) btn.textContent = state.damperOpen ? 'DAMPER: OPEN' : 'DAMPER: CLOSED';
+}
+
+function cycleNextProfile() {
+  const keys = Object.keys(PROFILES);
+  const currIdx = keys.indexOf(state.currentProfile.id);
+  const nextKey = keys[(currIdx + 1) % keys.length];
+  selectProfile(nextKey);
+  const selEl = document.getElementById('select-profile');
+  if (selEl) selEl.value = nextKey;
 }
 
 function selectProfile(profKey) {
@@ -581,14 +745,58 @@ function runClassroomDemo() {
 }
 
 // ---------------------------------------------------------------------------
+// Part Explorer Implementation
+// ---------------------------------------------------------------------------
+function initPartExplorer() {
+  const listEl = document.getElementById('parts-list');
+  if (!listEl) return;
+
+  listEl.innerHTML = '';
+  PART_CATALOG.forEach((part) => {
+    const item = document.createElement('div');
+    item.className = 'part-item';
+    item.dataset.partId = part.id;
+    item.innerHTML = `
+      <span>${part.label}</span>
+      <span class="part-cat-badge">${part.cat}</span>
+    `;
+
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.part-item').forEach((el) => el.classList.remove('active'));
+      item.classList.add('active');
+      state.activePartId = part.id;
+      const res = focusPart(part.id, controls, camera);
+      const stEl = document.getElementById('parts-focus-status');
+      if (stEl) {
+        stEl.textContent = res ? `Focused: ${part.label}` : `Part: ${part.label}`;
+      }
+      sfx.playTouchBeep(840, 0.03);
+    });
+
+    listEl.appendChild(item);
+  });
+
+  document.getElementById('btn-parts-clear')?.addEventListener('click', () => {
+    clearPartFocus();
+    state.activePartId = null;
+    document.querySelectorAll('.part-item').forEach((el) => el.classList.remove('active'));
+    const stEl = document.getElementById('parts-focus-status');
+    if (stEl) stEl.textContent = 'No part focused';
+    setCamView(CAM_ISO);
+  });
+}
+
+// ---------------------------------------------------------------------------
 // UI & Control Event Wiring
 // ---------------------------------------------------------------------------
 function initUI() {
-  // Toolbar buttons
+  // Toolbar camera presets
   document.getElementById('btn-cam-iso')?.addEventListener('click', () => setCamView(CAM_ISO));
   document.getElementById('btn-cam-front')?.addEventListener('click', () => setCamView(CAM_FRONT));
+  document.getElementById('btn-cam-console')?.addEventListener('click', () => setCamView(CAM_CONSOLE));
   document.getElementById('btn-cam-side')?.addEventListener('click', () => setCamView(CAM_SIDE));
   document.getElementById('btn-cam-top')?.addEventListener('click', () => setCamView(CAM_TOP));
+  document.getElementById('btn-cam-rear')?.addEventListener('click', () => setCamView(CAM_REAR));
 
   document.getElementById('btn-auto-rotate')?.addEventListener('click', (e) => {
     state.autoRotate = !state.autoRotate;
@@ -599,6 +807,15 @@ function initUI() {
     state.orbitSpeed = parseFloat(e.target.value);
     const valEl = document.getElementById('orbit-speed-val');
     if (valEl) valEl.textContent = `${state.orbitSpeed.toFixed(1)}×`;
+  });
+
+  document.getElementById('lab-light')?.addEventListener('input', (e) => {
+    state.labLightIntensity = parseFloat(e.target.value);
+    ambientLight.intensity = 0.55 * state.labLightIntensity;
+    dirLight.intensity = 1.4 * state.labLightIntensity;
+    fillLight.intensity = 0.65 * state.labLightIntensity;
+    const valEl = document.getElementById('lab-light-val');
+    if (valEl) valEl.textContent = `${state.labLightIntensity.toFixed(1)}×`;
   });
 
   document.getElementById('btn-wireframe')?.addEventListener('click', (e) => {
@@ -612,6 +829,11 @@ function initUI() {
     state.explodeAmount = state.exploded ? 1.0 : 0.0;
     setExplodeAmount(state.explodeAmount);
     e.target.classList.toggle('active', state.exploded);
+    if (state.exploded) {
+      setCamView(CAM_EXPLODED);
+    } else {
+      setCamView(CAM_ISO);
+    }
   });
 
   document.getElementById('btn-sfx-mute')?.addEventListener('click', (e) => {
@@ -622,7 +844,8 @@ function initUI() {
   // Sidebar Controls
   document.getElementById('btn-run')?.addEventListener('click', toggleRun);
   document.getElementById('btn-door')?.addEventListener('click', toggleDoor);
-  document.getElementById('btn-power')?.addEventListener('click', togglePower);
+  document.getElementById('btn-power')?.addEventListener('click', toggleMainsSwitch);
+  document.getElementById('btn-plug')?.addEventListener('click', togglePlugContinuity);
   document.getElementById('btn-crucible')?.addEventListener('click', toggleCrucible);
   document.getElementById('btn-damper')?.addEventListener('click', toggleDamper);
   document.getElementById('btn-demo')?.addEventListener('click', runClassroomDemo);
@@ -659,6 +882,8 @@ function initUI() {
       }
     });
   });
+
+  initPartExplorer();
 }
 
 function setCamView(preset) {
@@ -701,3 +926,6 @@ function animate() {
 init3D();
 initUI();
 animate();
+
+window.__testState = state;
+window.setChamberTemperature = setChamberTemperature;
