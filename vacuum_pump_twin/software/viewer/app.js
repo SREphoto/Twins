@@ -132,6 +132,7 @@ function init() {
 
   // 3. Create Vacuum Pump Model seated at datum Y = 9.00 world (Y = 0 local)
   pumpModel = createVacuumPumpModel();
+  window.__pumpModel = pumpModel;
   pumpModel.root.position.set(0, BENCH.surfaceY, 0);
   scene.add(pumpModel.root);
 

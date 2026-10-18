@@ -1079,7 +1079,12 @@ export function createVacuumPumpModel() {
 
     root.traverse(node => {
       if (node.isMesh && node.material && node.name !== 'UI_GaugeDial') {
-        const isTarget = (node === target || node.parent === target);
+        let isTarget = (node === target);
+        let p = node.parent;
+        while (p && !isTarget) {
+          if (p === target) isTarget = true;
+          p = p.parent;
+        }
         node.material.wireframe = !isTarget;
         node.material.opacity = isTarget ? (node.userData.origOpacity ?? 1.0) : 0.25;
         node.material.transparent = !isTarget || !!node.userData.origTransparent;
