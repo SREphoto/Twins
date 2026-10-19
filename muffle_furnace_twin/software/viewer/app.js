@@ -28,7 +28,7 @@ import {
   CAM_REAR,
   CAM_EXPLODED,
   PART_CATALOG,
-} from './muffle_furnace3d.js?v=20261018-gold2';
+} from './muffle_furnace3d.js?v=20261019-gold8';
 import { sfx } from './sfx.js?v=20260925-gold1';
 import { initChemMateTheme } from '../../../lab_viewer/shared/chemmate_theme_manager.js';
 
@@ -133,7 +133,7 @@ function initLCD() {
   lcdCtx = lcdCanvas.getContext('2d');
 
   lcdTexture = new THREE.CanvasTexture(lcdCanvas);
-  lcdTexture.flipY = false; // Strictly enforces correct upright text
+  lcdTexture.flipY = true; // Upright matching makeOperatorFacingQuadGeo
   lcdTexture.colorSpace = THREE.SRGBColorSpace;
   lcdTexture.minFilter = THREE.LinearFilter;
   lcdTexture.magFilter = THREE.LinearFilter;
@@ -394,6 +394,8 @@ function init3D() {
   controls.maxPolarAngle = Math.PI / 2 - 0.02;
   controls.minDistance = 1.2;
   controls.maxDistance = 18.0;
+  window.__camera = camera;
+  window.__controls = controls;
 
   // Photorealistic Lab Lighting
   ambientLight = new THREE.AmbientLight(0xdbeafe, 0.55);
@@ -420,6 +422,8 @@ function init3D() {
   furnaceModel = createMuffleFurnaceModel();
   furnaceModel.position.set(0, BENCH.surfaceY, 0);
   scene.add(furnaceModel);
+  window.__scene = scene;
+  window.__furnace = furnaceModel;
 
   // Initialize Dynamic Canvas LCD
   initLCD();

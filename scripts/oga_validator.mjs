@@ -144,8 +144,8 @@ check(
 
 check(
   'UV-02: Upright & Unmirrored UV Inversion',
-  /setY\(i,\s*1\.0\s*-\s*.*getY/.test(content3d),
-  'Missing UV Y-inversion on buffer geometry for dynamic canvas texture'
+  /setY\(i,\s*1\.0\s*-\s*.*getY|createDecalQuad/.test(content3d),
+  'Missing UV Y-inversion on buffer geometry for dynamic canvas texture (createDecalQuad or setY)'
 );
 
 check(

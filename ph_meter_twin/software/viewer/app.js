@@ -6,6 +6,7 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import {
   createPHMeterModel,
   setArmPosition,
@@ -19,10 +20,11 @@ import {
   BENCH,
   CAM_ISO,
   CAM_FRONT,
+  CAM_CONSOLE,
   CAM_SIDE,
   CAM_TOP,
   CAM_EXPLODED,
-} from './ph_meter3d.js?v=20261018-gold2';
+} from './ph_meter3d.js?v=20261019-gold6';
 import { sfx } from './sfx.js?v=20261018-gold2';
 import { initChemMateTheme } from '../../../lab_viewer/shared/chemmate_theme_manager.js';
 
@@ -97,8 +99,8 @@ const state = {
 
   // Probe & Hardware Kinematics
   capMounted: false,
-  armImmersion: 0.85,    // 0 = raised, 1 = lowered in solution
-  targetArmImmersion: 0.85,
+  armImmersion: 1.0,    // 0 = raised, 1 = lowered in solution
+  targetArmImmersion: 1.0,
   armSwivel: 0.0,
 
   // Selected solution in beaker
@@ -159,7 +161,11 @@ function initLCD() {
   lcdTexture.minFilter = THREE.LinearFilter;
   lcdTexture.magFilter = THREE.LinearFilter;
 
+  if (phMeterModel && phMeterModel.setLcdTexture) {
+    phMeterModel.setLcdTexture(lcdTexture);
+  }
   setLcdTexture(lcdTexture);
+  updateLCD();
 }
 
 function updateLCD() {
@@ -303,17 +309,14 @@ function updateLCD() {
   lcdCtx.font = '500 22px sans-serif';
   lcdCtx.fillText(state.capMounted ? '⚠️ Storage Cap ON' : 'Electrode Uncapped', 690, 415);
 
-  // Bottom Navigation Bar
+  // Bottom Instrument Telemetry Bar
   lcdCtx.fillStyle = '#0f172a';
   lcdCtx.fillRect(10, h - 54, w - 20, 44);
 
-  lcdCtx.fillStyle = '#64748b';
-  lcdCtx.font = '500 20px sans-serif';
-  lcdCtx.fillText('MODE', 75, h - 25);
-  lcdCtx.fillText('CAL', 280, h - 25);
-  lcdCtx.fillText('READ', 490, h - 25);
-  lcdCtx.fillText('SETUP', 700, h - 25);
-  lcdCtx.fillText('HOLD', 900, h - 25);
+  lcdCtx.fillStyle = '#38bdf8';
+  lcdCtx.font = 'bold 20px monospace';
+  lcdCtx.textAlign = 'center';
+  lcdCtx.fillText('STATUS: ONLINE  |  GLP CALIBRATED  |  ELECTRODE HEALTH: 98.6%', w / 2, h - 25);
 
   lcdTexture.needsUpdate = true;
 }
@@ -402,6 +405,12 @@ function init3D() {
   renderer.toneMappingExposure = 1.15;
   viewportEl.appendChild(renderer.domElement);
 
+  // Photorealistic Studio Environment Map for Specular Reflection on Glass & Liquids
+  const pmremGenerator = new THREE.PMREMGenerator(renderer);
+  pmremGenerator.compileEquirectangularShader();
+  scene.environment = pmremGenerator.fromScene(new RoomEnvironment()).texture;
+  scene.environmentIntensity = 1.35;
+
   controls = new OrbitControls(camera, renderer.domElement);
   controls.target.copy(CAM_ISO.target);
   controls.enableDamping = true;
@@ -486,6 +495,19 @@ function onSceneClick(event) {
 function handlePartInteraction(partName) {
   if (!partName) return;
 
+  // Animate tactile button depression if keycap was clicked
+  if (phMeterModel && phMeterModel.refs && phMeterModel.refs.buttonMeshes) {
+    for (const [btnId, btnGroup] of phMeterModel.refs.buttonMeshes.entries()) {
+      if (partName.includes(btnId)) {
+        btnGroup.position.y -= 0.008;
+        setTimeout(() => {
+          btnGroup.position.y += 0.008;
+        }, 120);
+        break;
+      }
+    }
+  }
+
   if (partName.includes('Btn_Read')) {
     toggleMeasure();
   } else if (partName.includes('Btn_Cal')) {
@@ -494,6 +516,8 @@ function handlePartInteraction(partName) {
     toggleMode();
   } else if (partName.includes('Btn_Hold')) {
     toggleHold();
+  } else if (partName.includes('Btn_Setup')) {
+    sfx.playTouchBeep(720, 0.06);
   } else if (partName.includes('Btn_Power')) {
     togglePower();
   } else if (partName.includes('Power_Plug') || partName.includes('Receptacle')) {
@@ -601,7 +625,7 @@ function toggleHold() {
 }
 
 function toggleArm() {
-  state.targetArmImmersion = state.targetArmImmersion > 0.5 ? 0.0 : 0.85;
+  state.targetArmImmersion = state.targetArmImmersion > 0.5 ? 0.0 : 1.0;
   sfx.playArmGlide(0.4);
   const btn = document.getElementById('btn-arm');
   if (btn) btn.textContent = state.targetArmImmersion > 0.5 ? 'ARM: LOWERED' : 'ARM: RAISED';
@@ -714,10 +738,21 @@ function runClassroomDemo() {
 // ---------------------------------------------------------------------------
 function initUI() {
   // Toolbar buttons
-  document.getElementById('btn-cam-iso')?.addEventListener('click', () => setCamView(CAM_ISO));
-  document.getElementById('btn-cam-front')?.addEventListener('click', () => setCamView(CAM_FRONT));
-  document.getElementById('btn-cam-side')?.addEventListener('click', () => setCamView(CAM_SIDE));
-  document.getElementById('btn-cam-top')?.addEventListener('click', () => setCamView(CAM_TOP));
+  const camButtons = [
+    { id: 'btn-cam-iso', preset: CAM_ISO },
+    { id: 'btn-cam-front', preset: CAM_FRONT },
+    { id: 'btn-cam-console', preset: CAM_CONSOLE },
+    { id: 'btn-cam-side', preset: CAM_SIDE },
+    { id: 'btn-cam-top', preset: CAM_TOP },
+  ];
+
+  camButtons.forEach(({ id, preset }) => {
+    document.getElementById(id)?.addEventListener('click', (e) => {
+      document.querySelectorAll('.view-toolbar .view-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      setCamView(preset);
+    });
+  });
 
   document.getElementById('btn-auto-rotate')?.addEventListener('click', (e) => {
     state.autoRotate = !state.autoRotate;

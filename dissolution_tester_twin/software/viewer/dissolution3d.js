@@ -1433,10 +1433,12 @@ export class Dissolution3D {
     grille.position.y = 0.085;
     fan60.add(grille);
 
+    fan60.name = 'Fan_BaseMotherboard';
     this.mbGroup.add(fan60);
 
     // Power Section: Toroidal Transformer & Filter Capacitors
     const xformer = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.12, 12, 24), MAT_COPPER_COIL);
+    xformer.name = 'Part_ToroidalTransformer';
     xformer.rotation.x = Math.PI / 2;
     xformer.position.set(0.6, 0.16, -0.3);
     this.mbGroup.add(xformer);
