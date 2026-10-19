@@ -2,24 +2,74 @@
  * Agilent 708-DS USP Tablet Dissolution Workstation (Digital Twin 3D Engine)
  * Centrifuge Gold Standard Procedural CAD & Kinematic Assembly
  *
- * Exhaustive Procedural Detail:
- *  - Genuine 3D fasteners (knurled hex socket cap screws, hex bolts, slotted screws, ball bearings)
- *  - Real hollow structural castings (base pan cavity, drive head enclosure with detachable hood)
- *  - Internal base mechanics: 12 kg cast iron ballast plate, elevator 24V DC gearmotor, PSU board, toroidal transformer, filter caps, wiring harness
- *  - Internal drive head mechanics: 24V brushless motor (stator core, 8 copper coils, rotor fan), cogged timing belt, 8 machined pulleys with teeth, idler tensioners, optical encoder, MCU board
- *  - 8 USP Apparatus 2 quick-lock collets, mirror electropolished 316SS shafts (dia 9.5 mm) with laser 25mm depth line, and exact 74.5 x 19.0 x 4.0 mm paddle blades
- *  - 5-wall optical acrylic water bath with 4-nozzle circulation diffuser manifold
- *  - 8 TruCenter anodized vessel collar rings with locating dowels and laser numerals
- *  - 8 precision 1000 mL borosilicate vessels with hemispherical bottoms and ceramic graduations
- *  - Dynamic parabolic media vortex & Noyes-Whitney eroding biconvex Prednisone tablets
- *  - External AutoTemp 1150W heater/circulator with dual LED display, carry handle, and reinforced silicone hoses with worm-gear clamps
- *  - Lab environment with black epoxy resin bench datum Y=0 and bench duplex outlet box (NEMA 5-15P plug & physical AC continuity)
+ * Exhaustive Procedural Detail (Centrifuge Gold Standard):
+ *  1. Lower Chassis & Enclosure:
+ *     - Hollow structural unibody casting with bottom floor, front/side/rear walls, stamped louvers
+ *     - Official SREdesigns Brand Certification Badge (`Badge_SREdesigns`) mounted on the LOWER FRAME
+ *     - Rear I/O Panel: RS-232 DB9 serial port, USB-B peripheral port, RJ45 Ethernet jack, 4-pin Aux trigger port,
+ *       IEC C14 power inlet with dual fuse drawer & rocker switch, brass M5 chassis ground stud with star washer
+ *     - 4× M10 threaded leveling feet with vulcanized NBR rubber suction pads resting at datum Y=0.0
+ *  2. Internal Base Mechanics & Electronics:
+ *     - 12 kg cast iron ballast plate fastened with 4× M8 hex bolts and spring washers
+ *     - Elevator 24V DC worm-gear reduction motor (case, worm gearbox, steel worm, bronze wheel)
+ *     - Flexible spider jaw coupling connecting motor to center precision Acme ball lead screw (dia 18 mm, 4 TPI)
+ *     - Dual heavy-duty angular contact thrust ball bearing pillow blocks (top & bottom)
+ *     - Full Main Controller Motherboard (`PCB_Motherboard`):
+ *       * 32-bit ARM Cortex-M7 / DSP processor (silkscreen markings, pin 1 dot)
+ *       * High-speed Synchronous RAM IC chip (`Part_RAM_Chip`)
+ *       * Solid-State Flash Storage module (`Part_SSD_Module`)
+ *       * Finned extruded aluminum heatsink with thermal compound clip
+ *       * Switching power supply section: toroidal power transformer, bridge rectifier, 3× low-ESR filter capacitors, inductor choke, regulators
+ *       * 60mm brushless DC cooling fan with radial blades and wire finger guard grille
+ *       * Screw terminal barrier strips, shrouded ribbon cable headers with locking clips, color-coded wiring harness
+ *  3. Motorized Elevator Mechanism & Cable Drag Chain:
+ *     - Twin precision-ground chrome guide shafts (dia 25.4 mm x 7.5 length)
+ *     - Dual recirculating linear ball bushing pillow blocks
+ *     - Heavy-duty flanged bronze traveling nut fastened with 4× M5 socket cap screws to head carriage yoke
+ *     - Upper and lower optical slotted interrupter limit switches
+ *     - Flexible nylon cable drag chain (e-chain / caterpillar carrier) routing shielded cables from base to moving head
+ *     - Molded rubber strain relief boots and cable grommets at entry ports
+ *  4. Motorized Drive Head Assembly (`Pivot_DriveHead`):
+ *     - Structural aluminum baseplate casting with 8 flanged bearing bosses
+ *     - Detachable upper inspection hood plate (`Head_TopHood`) fastened with 10× M4 knurled socket head cap screws
+ *     - Front control console: carved recessed pocket for dynamic LCD quad (`UI_LCD`), anti-reflective lens,
+ *       and 4 high-end tactile instrument buttons with dedicated printed labels and status LEDs:
+ *       `[ ▲ ELEV UP ]`, `[ ▼ ELEV DOWN ]`, `[ ▶ STIR RUN ]`, `[ ⏹ STOP TRAY ]`
+ *     - Internal Synchronous Mechanics: 24V brushless motor (stator core, 8 copper coils, rotor fan),
+ *       continuous cogged timing belt, 8 machined aluminum pulleys with real teeth, idlers, 120-slot optical encoder, head MCU
+ *  5. 8 USP Apparatus 2 Spindles & Paddles:
+ *     - 8 quick-lock collets with knurled release sleeves and detents
+ *     - Precision ground mirror electropolished 316SS shafts (dia 9.5 mm) with laser-etched 25mm immersion lines
+ *     - Electropolished 316SS paddle blades (74.5 x 19.0 x 4.0 mm) with high specular silver luster
+ *  6. Molded Optical Acrylic Water Bath & TruCenter System:
+ *     - Hollow 5-wall optical acrylic tank (12mm base, 10mm walls)
+ *     - Heated bath water (37.0°C) with thermal ripples
+ *     - 316SS circulation diffuser manifold with 4 directional discharge jet nozzles
+ *     - Top cover plate with 8 precision vessel apertures
+ *     - 8 TruCenter anodized vessel collar rings with dual locating dowels and laser numerals 1..8
+ *     - 8 precision 1000 mL borosilicate glass vessels with hemispherical bottoms and ceramic graduations
+ *     - 8 dissolution media volumes with dynamic parabolic meniscus and central vortex
+ *     - 8 biconvex 10mg Prednisone tablets undergoing real-time Noyes-Whitney ODE erosion
+ *  7. External AutoTemp 1150W Heater / Circulator (`Part_HeaterCirculatorAutoTemp`):
+ *     - Two-tone enclosure with molded carry handle and rubber grip
+ *     - Recessed front console with high-DPI upright digital LED display (actual 37.0°C in green, setpoint 37.0°C in amber)
+ *     - FULL INTERNAL WORKING PARTS:
+ *       * Shaded-pole 120V pump motor, brass volute chamber, and 6-blade centrifugal impeller
+ *       * 1150W tubular Nichrome heating element inside 316SS flow-through chamber with dual bimetal thermal cutoff switches
+ *       * Solid-state TRIAC heater power controller on aluminum heatsink plate
+ *       * Circulator control PCB with step-down transformer, microprocessor, relay, and 40mm cooling fan
+ *       * Brass quick-disconnect shutoff valves with internal check valve springs
+ *       * Reinforced blue silicone hoses with genuine 3D stainless steel worm-drive hose clamps
+ *  8. Lab Environment & Physical Electrical Continuity:
+ *     - Black epoxy resin lab bench (`INSTRUMENT_BENCH`) at datum Y=0 with brushed stainless steel front edge trim
+ *     - Bench duplex outlet box (`Power_Receptacle_Duplex`) with NEMA 5-15P plug, brass prongs, and SJTOW cord
+ *     - Logical power state bound to electrical continuity (unplugging cuts all power to 0)
  */
 
 import * as THREE from 'three';
 
 // ----------------------------------------------------------------------------
-// Material Generators & PBR Palette (Electropolished Silver Pop & True IOR)
+// Material Generators & PBR Palette (High-Luster Specular Silver & True IOR)
 // ----------------------------------------------------------------------------
 function makeMat(color, opts = {}) {
   return new THREE.MeshStandardMaterial({
@@ -41,23 +91,25 @@ const MAT_CHASSIS_DARK  = makeMat(0x1a2332, { r: 0.52, m: 0.20 });
 const MAT_DRIVE_HEAD    = makeMat(0xf8fafc, { r: 0.26, m: 0.10 });
 const MAT_FASCIA_BEZEL  = makeMat(0x0f172a, { r: 0.60, m: 0.15 });
 
-// High-Luster Electropolished Stainless Steels (Tuned for bright specular silver gleam)
+// High-Luster Electropolished Stainless Steels (Specular Silver Pop from all angles)
 const MAT_316SS_ELECTROPOLISHED = makeMat(0xf8fafc, { r: 0.14, m: 0.88 }); // Spindles & paddle blades
 const MAT_316SS_MIRROR          = MAT_316SS_ELECTROPOLISHED;
 const MAT_316SS_BRUSHED         = makeMat(0xd8e0e8, { r: 0.24, m: 0.82 }); // Collets, fittings, trim
 const MAT_ALUM_ANODIZED         = makeMat(0xcbd5e1, { r: 0.28, m: 0.78 }); // Pulleys, TruCenter rings, carriage
 const MAT_CHROME_STEEL          = makeMat(0xf1f5f9, { r: 0.16, m: 0.88 }); // Guide shafts, lead screw, fasteners
 const MAT_CAST_IRON             = makeMat(0x334155, { r: 0.72, m: 0.38 }); // 12 kg base ballast plate
-const MAT_COPPER_COIL           = makeMat(0xca8a04, { r: 0.25, m: 0.85 }); // Motor windings
-const MAT_BRASS_FITTING         = makeMat(0xd97706, { r: 0.22, m: 0.82 }); // Quick-disconnect valves, bronze nut
+const MAT_COPPER_COIL           = makeMat(0xca8a04, { r: 0.25, m: 0.85 }); // Motor windings & transformer
+const MAT_BRASS_FITTING         = makeMat(0xd97706, { r: 0.22, m: 0.82 }); // Quick-disconnect valves, bronze lead nut
+const MAT_GOLD_PIN              = makeMat(0xfbbf24, { r: 0.15, m: 0.90 }); // DB9, USB, RJ45 gold pins
 
 // Polymers, Elastomers & FR-4
-const MAT_RUBBER_NBR    = makeMat(0x18181b, { r: 0.85, m: 0.05 }); // Leveling pads, boots, gaskets
+const MAT_RUBBER_NBR    = makeMat(0x18181b, { r: 0.85, m: 0.05 }); // Leveling pads, grommets, boots
 const MAT_TIMING_BELT   = makeMat(0x111827, { r: 0.90, m: 0.04 }); // Cogged timing belt
+const MAT_NYLON_DRAG    = makeMat(0x1f2937, { r: 0.65, m: 0.05 }); // Flexible cable drag chain links
 const MAT_SILICONE_HOSE = makeMat(0x0284c7, { r: 0.45, m: 0.05, o: 0.82 }); // Translucent blue circulator hose
 const MAT_CORD_BLACK    = makeMat(0x0a0f1d, { r: 0.75, m: 0.05 }); // 3-conductor SJTOW power cord
 const MAT_PCB_FR4       = makeMat(0x15803d, { r: 0.50, m: 0.12 }); // Green solder-mask motherboard
-const MAT_IC_PACKAGE    = makeMat(0x1e293b, { r: 0.35, m: 0.08 }); // Silicon IC chips
+const MAT_IC_PACKAGE    = makeMat(0x1e293b, { r: 0.35, m: 0.08 }); // Silicon IC chips (CPU, RAM, SSD)
 const MAT_TABLET_SOLID  = makeMat(0xfdfbf7, { r: 0.75, m: 0.02 }); // Prednisone biconvex tablet
 
 // Optical Glass & Acrylics (MeshPhysicalMaterial with physical transmission & IOR)
@@ -204,21 +256,18 @@ function makeBallBearing(outerR = 0.16, innerR = 0.08, width = 0.08) {
   const g = new THREE.Group();
   g.name = 'Fastener_PrecisionBallBearing';
 
-  // Outer Race
   const outerRace = new THREE.Mesh(
     new THREE.CylinderGeometry(outerR, outerR, width, 24, 1, true),
     MAT_CHROME_STEEL
   );
   g.add(outerRace);
 
-  // Inner Race
   const innerRace = new THREE.Mesh(
     new THREE.CylinderGeometry(innerR, innerR, width, 24, 1, true),
     MAT_CHROME_STEEL
   );
   g.add(innerRace);
 
-  // Bearing Shield / Seal ring
   const seal = new THREE.Mesh(
     new THREE.RingGeometry(innerR + 0.01, outerR - 0.01, 24),
     MAT_CHASSIS_DARK
@@ -227,17 +276,44 @@ function makeBallBearing(outerR = 0.16, innerR = 0.08, width = 0.08) {
   seal.position.y = width / 2;
   g.add(seal);
 
-  // 8 Chrome Steel Bearing Balls inside raceway
   const ballR = (outerR - innerR) * 0.35;
   const pitchR = (outerR + innerR) / 2;
   for (let i = 0; i < 8; i++) {
     const ang = (i / 8) * Math.PI * 2;
-    const ball = new THREE.Mesh(
-      new THREE.SphereGeometry(ballR, 12, 12),
-      MAT_CHROME_STEEL
-    );
+    const ball = new THREE.Mesh(new THREE.SphereGeometry(ballR, 12, 12), MAT_CHROME_STEEL);
     ball.position.set(Math.cos(ang) * pitchR, 0, Math.sin(ang) * pitchR);
     g.add(ball);
+  }
+
+  return g;
+}
+
+function makeThrustBearing(outerR = 0.22, innerR = 0.10, height = 0.12) {
+  const g = new THREE.Group();
+  g.name = 'Fastener_ThrustBearing';
+
+  // Lower Grooved Washer / Race
+  const wLower = new THREE.Mesh(new THREE.CylinderGeometry(outerR, outerR, height * 0.35, 24), MAT_CHROME_STEEL);
+  wLower.position.y = -height * 0.32;
+  g.add(wLower);
+
+  // Upper Grooved Washer / Race
+  const wUpper = new THREE.Mesh(new THREE.CylinderGeometry(outerR, outerR, height * 0.35, 24), MAT_CHROME_STEEL);
+  wUpper.position.y = height * 0.32;
+  g.add(wUpper);
+
+  // Brass ball cage with 10 thrust balls
+  const cage = new THREE.Mesh(new THREE.RingGeometry(innerR + 0.02, outerR - 0.02, 24), MAT_BRASS_FITTING);
+  cage.rotation.x = Math.PI / 2;
+  g.add(cage);
+
+  const pitchR = (outerR + innerR) / 2;
+  const ballR = height * 0.24;
+  for (let i = 0; i < 10; i++) {
+    const ang = (i / 10) * Math.PI * 2;
+    const b = new THREE.Mesh(new THREE.SphereGeometry(ballR, 10, 10), MAT_CHROME_STEEL);
+    b.position.set(Math.cos(ang) * pitchR, 0, Math.sin(ang) * pitchR);
+    g.add(b);
   }
 
   return g;
@@ -247,14 +323,12 @@ function makeHoseClamp(diameter = 0.14, width = 0.04) {
   const g = new THREE.Group();
   g.name = 'Fastener_WormGearHoseClamp';
 
-  // Stainless steel band ring
   const band = new THREE.Mesh(
     new THREE.CylinderGeometry(diameter, diameter, width, 20, 1, true),
     MAT_316SS_BRUSHED
   );
   g.add(band);
 
-  // Worm screw housing
   const housing = new THREE.Mesh(
     new THREE.BoxGeometry(width * 1.4, width * 1.2, width * 1.8),
     MAT_316SS_BRUSHED
@@ -262,7 +336,6 @@ function makeHoseClamp(diameter = 0.14, width = 0.04) {
   housing.position.set(diameter + width * 0.4, 0, 0);
   g.add(housing);
 
-  // Slotted hex drive screw head
   const screw = new THREE.Mesh(
     new THREE.CylinderGeometry(width * 0.45, width * 0.45, width * 0.8, 6),
     MAT_CHROME_STEEL
@@ -278,14 +351,12 @@ function makeTimingPulley(radius = 0.18, height = 0.12, numTeeth = 24) {
   const g = new THREE.Group();
   g.name = 'Part_TimingPulley';
 
-  // Main pulley body
   const body = new THREE.Mesh(
     new THREE.CylinderGeometry(radius, radius, height, 32),
     MAT_ALUM_ANODIZED
   );
   g.add(body);
 
-  // Top & bottom guide retention flanges
   const flangeGeo = new THREE.CylinderGeometry(radius * 1.15, radius * 1.15, height * 0.12, 32);
   const fTop = new THREE.Mesh(flangeGeo, MAT_ALUM_ANODIZED);
   fTop.position.y = height * 0.45;
@@ -295,7 +366,6 @@ function makeTimingPulley(radius = 0.18, height = 0.12, numTeeth = 24) {
   fBot.position.y = -height * 0.45;
   g.add(fBot);
 
-  // Procedural teeth around circumference
   for (let t = 0; t < numTeeth; t++) {
     const ang = (t / numTeeth) * Math.PI * 2;
     const tooth = new THREE.Mesh(
@@ -307,12 +377,37 @@ function makeTimingPulley(radius = 0.18, height = 0.12, numTeeth = 24) {
     g.add(tooth);
   }
 
-  // Bore & keyway hub
   const bore = new THREE.Mesh(
     new THREE.CylinderGeometry(radius * 0.35, radius * 0.35, height * 1.05, 16),
     MAT_CHASSIS_DARK
   );
   g.add(bore);
+
+  return g;
+}
+
+function makeCableDragChain(length = 3.6, numLinks = 18) {
+  const g = new THREE.Group();
+  g.name = 'Assembly_CableDragChain';
+
+  const linkL = length / numLinks;
+  for (let i = 0; i < numLinks; i++) {
+    const lMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(0.18, 0.10, linkL * 0.95),
+      MAT_NYLON_DRAG
+    );
+    lMesh.position.set(0, 0, (i - numLinks / 2) * linkL);
+    g.add(lMesh);
+
+    // Pivot pin
+    const pin = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.015, 0.015, 0.20, 8),
+      MAT_CHASSIS_DARK
+    );
+    pin.rotation.z = Math.PI / 2;
+    pin.position.set(0, 0, (i - numLinks / 2) * linkL + linkL * 0.45);
+    g.add(pin);
+  }
 
   return g;
 }
@@ -323,13 +418,13 @@ function makeSREdesignsBadge() {
 
   // Brushed aluminum beveled backing plate
   const plate = new THREE.Mesh(
-    new THREE.BoxGeometry(1.28, 0.42, 0.02),
+    new THREE.BoxGeometry(1.48, 0.44, 0.02),
     MAT_ALUM_ANODIZED
   );
   plate.castShadow = true;
   g.add(plate);
 
-  // Brand canvas with high-DPI procedural vector silkscreen (red pill + white SRE + cyan designs.com)
+  // Brand canvas with high-DPI procedural vector silkscreen
   const canvas = document.createElement('canvas');
   canvas.width = 512;
   canvas.height = 160;
@@ -361,14 +456,14 @@ function makeSREdesignsBadge() {
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
   const face = new THREE.Mesh(
-    new THREE.PlaneGeometry(1.24, 0.38),
+    new THREE.PlaneGeometry(1.44, 0.40),
     new THREE.MeshBasicMaterial({ map: tex })
   );
-  face.position.z = 0.014;
+  face.position.z = 0.012;
   g.add(face);
 
   // Corner socket micro-screws
-  [[-0.60, -0.16], [0.60, -0.16], [-0.60, 0.16], [0.60, 0.16]].forEach(([bx, by]) => {
+  [[-0.68, -0.17], [0.68, -0.17], [-0.68, 0.17], [0.68, 0.17]].forEach(([bx, by]) => {
     const sc = makeSocketHeadCapScrew(0.018, 0.03);
     sc.position.set(bx, by, 0.012);
     sc.rotation.x = Math.PI / 2;
@@ -423,6 +518,10 @@ export class Dissolution3D {
       headTopHood: null,
       elevatorColumns: null,
       leadScrew: null,
+      leadNut: null,
+      dragChain: null,
+      motherboard: null,
+      circulatorPump: null,
       spindles: [],
       paddles: [],
       vortices: [],
@@ -438,7 +537,8 @@ export class Dissolution3D {
       heaterCirculator: null,
       circulatorDisplay: null,
       switchRocker: null,
-      buttons: {}
+      buttons: {},
+      buttonLEDs: {}
     };
 
     this.interactiveMeshes = [];
@@ -531,7 +631,6 @@ export class Dissolution3D {
     this.labRoomGroup.add(bMesh);
 
     // 2. Black Epoxy Resin Lab Bench at Datum Y = 0
-    // Bench top surface sits exactly at Y = 0; instrument feet rest on it
     const benchGeo = new THREE.BoxGeometry(18.0, 0.16, 12.0);
     const benchMat = makeMat(0x0f131a, { r: 0.35, m: 0.15 });
     this.benchMesh = new THREE.Mesh(benchGeo, benchMat);
@@ -565,7 +664,6 @@ export class Dissolution3D {
     this.duplexBoxGroup.name = 'Power_Receptacle_Duplex';
     this.duplexBoxGroup.position.set(-3.8, 0.0, -2.5);
 
-    // Cast aluminum industrial junction box seated on bench
     const box = new THREE.Mesh(
       new THREE.BoxGeometry(0.65, 0.40, 0.85),
       makeMat(0x64748b, { r: 0.35, m: 0.65 })
@@ -575,7 +673,6 @@ export class Dissolution3D {
     box.receiveShadow = true;
     this.duplexBoxGroup.add(box);
 
-    // Stainless steel duplex faceplate with center 6-32 screw
     const plate = new THREE.Mesh(
       new THREE.BoxGeometry(0.68, 0.02, 0.88),
       MAT_316SS_BRUSHED
@@ -596,7 +693,6 @@ export class Dissolution3D {
       rec.position.set(0, 0.42, rz);
       this.duplexBoxGroup.add(rec);
 
-      // Slot apertures: Neutral (wide), Hot (narrow), Ground (round/D-shape)
       const slotN = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.02, 0.10), MAT_CHASSIS_DARK);
       slotN.position.set(-0.06, 0.436, rz);
       this.duplexBoxGroup.add(slotN);
@@ -624,19 +720,16 @@ export class Dissolution3D {
     plugBody.castShadow = true;
     this.animGroups.powerPlug.add(plugBody);
 
-    // Ergonomic finger grip ribs
     for (let r = -1; r <= 1; r++) {
       const rib = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.03, 0.04), makeMat(0x27272a, { r: 0.9 }));
       rib.position.set(0, 0.21 + r * 0.08, 0.16);
       this.animGroups.powerPlug.add(rib);
     }
 
-    // Molded rubber strain relief boot
     const boot = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.14, 0.24, 14), MAT_RUBBER_NBR);
     boot.position.y = 0.48;
     this.animGroups.powerPlug.add(boot);
 
-    // Solid brass prongs
     const pN = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.16, 0.07), MAT_BRASS_FITTING);
     pN.position.set(-0.06, -0.06, 0.0);
     this.animGroups.powerPlug.add(pN);
@@ -649,7 +742,6 @@ export class Dissolution3D {
     pG.position.set(0.0, -0.07, -0.09);
     this.animGroups.powerPlug.add(pG);
 
-    // Inserted into rear duplex receptacle (Z = -0.22)
     this.animGroups.powerPlug.position.set(0, 0.42, -0.18);
     this.duplexBoxGroup.add(this.animGroups.powerPlug);
     this.interactiveMeshes.push(plugBody);
@@ -739,19 +831,16 @@ export class Dissolution3D {
       return;
     }
 
-    // High-tech dark analytical instrument theme
     const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
     bgGrad.addColorStop(0, '#090e17');
     bgGrad.addColorStop(1, '#0f172a');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, w, h);
 
-    // Outer subtle border
     ctx.strokeStyle = '#1e293b';
     ctx.lineWidth = 4;
     ctx.strokeRect(4, 4, w - 8, h - 8);
 
-    // Header bar
     ctx.fillStyle = '#1e293b';
     ctx.fillRect(10, 10, w - 20, 56);
 
@@ -772,7 +861,7 @@ export class Dissolution3D {
     ctx.fillText(st, w - 105, 44);
     ctx.textAlign = 'left';
 
-    // Primary Telemetry: Water Bath Temp & Synchronous Spindle RPM
+    // Primary Telemetry
     ctx.fillStyle = '#111c30';
     ctx.fillRect(20, 80, 480, 150);
     ctx.strokeStyle = '#38bdf8';
@@ -792,7 +881,6 @@ export class Dissolution3D {
     ctx.font = '500 16px "JetBrains Mono", monospace';
     ctx.fillText('°C (37.00 ± 0.50)', 280, 172);
 
-    // Spindle RPM Card
     ctx.fillStyle = '#111c30';
     ctx.fillRect(524, 80, 480, 150);
     ctx.strokeStyle = '#38bdf8';
@@ -842,7 +930,6 @@ export class Dissolution3D {
       ctx.font = 'bold 14px "JetBrains Mono", monospace';
       ctx.fillText(`VESSEL ${i + 1}`, vx + 16, startY + 24);
 
-      // Vertical fill bar
       const barH = 150;
       const barY = startY + 40;
       ctx.fillStyle = '#0f172a';
@@ -901,16 +988,13 @@ export class Dissolution3D {
       return;
     }
 
-    // Industrial instrument front panel
     ctx.fillStyle = '#0b101b';
     ctx.fillRect(0, 0, w, h);
 
-    // Bezel border
     ctx.strokeStyle = '#1e293b';
     ctx.lineWidth = 6;
     ctx.strokeRect(3, 3, w - 6, h - 6);
 
-    // Header
     ctx.fillStyle = '#1e293b';
     ctx.fillRect(10, 10, w - 20, 36);
 
@@ -969,7 +1053,6 @@ export class Dissolution3D {
       ctx.fillText(l.name, lx + 24, ly + 14);
     });
 
-    // Control buttons label footer
     ctx.fillStyle = '#334155';
     ctx.fillRect(10, 212, w - 20, 32);
     ctx.fillStyle = '#94a3b8';
@@ -999,9 +1082,6 @@ export class Dissolution3D {
     this.chassisGroup.name = 'Body_Chassis';
 
     // 1. Hollow Base Pan Casting (622 x 120 x 590 mm -> 6.22 x 1.20 x 5.90)
-    // Modeled as a real hollow housing casting with bottom floor, front/side/rear walls,
-    // exposing the internal 12 kg cast iron ballast, gearmotor, and PSU in exploded view!
-
     // Bottom Baseplate Floor (rests on leveling feet at Y = 0.20)
     const baseFloor = new THREE.Mesh(
       new THREE.BoxGeometry(6.20, 0.12, 5.88),
@@ -1031,7 +1111,7 @@ export class Dissolution3D {
       this.chassisGroup.add(sideWall);
     });
 
-    // Rear Enclosure Wall with stamped ventilation louvers
+    // Rear Enclosure Wall
     const wallR = new THREE.Mesh(new THREE.BoxGeometry(6.22, 1.08, 0.16), MAT_CHASSIS_CREAM);
     wallR.position.set(0, 0.86, -2.87);
     wallR.castShadow = true;
@@ -1053,6 +1133,11 @@ export class Dissolution3D {
       this.chassisGroup.add(scB);
     }
 
+    // Official SREdesigns Brand Certification Badge MOVED TO LOWER FRAME (front right face)
+    const badge = makeSREdesignsBadge();
+    badge.position.set(1.95, 0.86, 2.96);
+    this.chassisGroup.add(badge);
+
     // 2. Threaded Leveling Feet resting on black bench at datum Y = 0
     const footPositions = [
       { name: 'Foot_Leveling_FL', x: -2.8, z:  2.5 },
@@ -1066,23 +1151,19 @@ export class Dissolution3D {
       footGrp.name = fp.name;
       footGrp.position.set(fp.x, 0.0, fp.z);
 
-      // Vulcanized non-marking NBR rubber pad with annular suction ribs
       const pad = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.26, 0.08, 20), MAT_RUBBER_NBR);
       pad.position.y = 0.04;
       pad.castShadow = true;
       footGrp.add(pad);
 
-      // Steel foot base plate
       const plate = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.20, 0.03, 20), MAT_316SS_BRUSHED);
       plate.position.y = 0.095;
       footGrp.add(plate);
 
-      // Threaded steel stud (M10)
       const stud = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.16, 16), MAT_CHROME_STEEL);
       stud.position.y = 0.16;
       footGrp.add(stud);
 
-      // Hexagonal jam locknut
       const nut = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.06, 6), MAT_CHROME_STEEL);
       nut.position.y = 0.20;
       footGrp.add(nut);
@@ -1100,9 +1181,84 @@ export class Dissolution3D {
       this.chassisGroup.add(louver);
     }
 
-    // 4. Rear IEC Power Entry Module, Dual Fuses & Rocker Switch
+    // 4. Rear I/O Panel (Full Analytical Communications & Electrical Ports)
+    const ioPanel = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.65, 0.02), MAT_ALUM_ANODIZED);
+    ioPanel.position.set(-1.4, 0.85, -2.96);
+    this.chassisGroup.add(ioPanel);
+
+    // RS-232 DB-9 Serial Communication Port
+    const db9 = new THREE.Group();
+    db9.name = 'Port_RS232_Serial';
+    db9.position.set(-2.2, 0.95, -2.97);
+    const dShell = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.12, 0.03), MAT_316SS_BRUSHED);
+    db9.add(dShell);
+    [-0.14, 0.14].forEach(sx => {
+      const standoff = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.05, 6), MAT_CHROME_STEEL);
+      standoff.rotation.x = Math.PI / 2;
+      standoff.position.set(sx, 0, 0.02);
+      db9.add(standoff);
+    });
+    // 9 gold contact pins
+    for (let p = 0; p < 9; p++) {
+      const px = -0.08 + (p % 5) * 0.04;
+      const py = p < 5 ? 0.02 : -0.02;
+      const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.02, 6), MAT_GOLD_PIN);
+      pin.rotation.x = Math.PI / 2;
+      pin.position.set(px, py, 0.01);
+      db9.add(pin);
+    }
+    this.chassisGroup.add(db9);
+
+    // USB Type-B Peripheral Port
+    const usbB = new THREE.Group();
+    usbB.name = 'Port_USB_B';
+    usbB.position.set(-1.7, 0.95, -2.97);
+    const uShell = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 0.04), MAT_316SS_BRUSHED);
+    usbB.add(uShell);
+    const uTongue = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.02, 0.02), MAT_CHASSIS_DARK);
+    uTongue.position.z = 0.01;
+    usbB.add(uTongue);
+    this.chassisGroup.add(usbB);
+
+    // RJ45 8P8C Ethernet Port
+    const rj45 = new THREE.Group();
+    rj45.name = 'Port_RJ45_Ethernet';
+    rj45.position.set(-1.25, 0.95, -2.97);
+    const rShell = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.15, 0.05), MAT_316SS_BRUSHED);
+    rj45.add(rShell);
+    const rLedG = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, 0.01), makeMat(0x10b981, { r: 0.2 }));
+    rLedG.position.set(-0.05, 0.06, 0.026);
+    rj45.add(rLedG);
+    const rLedA = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, 0.01), makeMat(0xf59e0b, { r: 0.2 }));
+    rLedA.position.set(0.05, 0.06, 0.026);
+    rj45.add(rLedA);
+    this.chassisGroup.add(rj45);
+
+    // 4-Pin Auxiliary / Autosampler Port
+    const auxPort = new THREE.Group();
+    auxPort.name = 'Port_Aux_Trigger';
+    auxPort.position.set(-0.80, 0.95, -2.97);
+    const aRing = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.04, 16), MAT_ALUM_ANODIZED);
+    aRing.rotation.x = Math.PI / 2;
+    auxPort.add(aRing);
+    this.chassisGroup.add(auxPort);
+
+    // Chassis Ground Stud with brass hex nut and star lock washer
+    const gndStud = new THREE.Group();
+    gndStud.name = 'Part_GroundStud';
+    gndStud.position.set(-0.45, 0.95, -2.97);
+    const gScrew = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.08, 12), MAT_BRASS_FITTING);
+    gScrew.rotation.x = Math.PI / 2;
+    gndStud.add(gScrew);
+    const gNut = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.03, 6), MAT_BRASS_FITTING);
+    gNut.rotation.x = Math.PI / 2;
+    gNut.position.z = 0.03;
+    gndStud.add(gNut);
+    this.chassisGroup.add(gndStud);
+
+    // Rear IEC Power Entry Module & Rocker Switch
     const pemBox = new THREE.Mesh(new THREE.BoxGeometry(0.60, 0.45, 0.04), MAT_CHASSIS_DARK);
-    pemBox.position.set(-2.2, 0.70, -2.96);
+    pemBox.position.set(-2.2, 0.60, -2.96);
     this.chassisGroup.add(pemBox);
 
     const switchMesh = new THREE.Mesh(
@@ -1114,13 +1270,13 @@ export class Dissolution3D {
         roughness: 0.2
       })
     );
-    switchMesh.position.set(-2.2, 0.70, -2.98);
+    switchMesh.position.set(-2.2, 0.60, -2.98);
     switchMesh.name = 'Switch_Rocker';
     this.chassisGroup.add(switchMesh);
     this.animGroups.switchRocker = switchMesh;
     this.interactiveMeshes.push(switchMesh);
 
-    // 5. Rear Quick-Disconnect Water Bulkheads
+    // Rear Quick-Disconnect Water Bulkheads
     [-0.5, 0.5].forEach((hx, idx) => {
       const bulkhead = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.10, 0.16, 16), MAT_316SS_BRUSHED);
       bulkhead.rotation.x = Math.PI / 2;
@@ -1134,7 +1290,7 @@ export class Dissolution3D {
       this.chassisGroup.add(collar);
     });
 
-    // 6. Internal Mechanics in Base Cavity (Ballast, PSU board, gearmotor - fully visible in exploded view!)
+    // 5. Internal Base Mechanics & Electronics (Inside Base Cavity, fully visible in exploded view!)
     // 12 kg Cast Iron Ballast Plate
     const ballast = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.18, 4.2), MAT_CAST_IRON);
     ballast.position.set(0, 0.41, 0.1);
@@ -1148,7 +1304,7 @@ export class Dissolution3D {
       this.chassisGroup.add(bBolt);
     });
 
-    // Elevator 24V DC Reduction Gearmotor in Base Center Rear
+    // Elevator 24V DC Worm-Gear Reduction Motor in Base Center Rear
     const gearMotor = new THREE.Group();
     gearMotor.name = 'Part_ElevatorGearmotor';
     gearMotor.position.set(0, 0.65, -1.75);
@@ -1156,16 +1312,26 @@ export class Dissolution3D {
     const motorBody = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.55, 18), MAT_CHASSIS_DARK);
     gearMotor.add(motorBody);
 
-    const gearBox = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.35, 0.48), MAT_ALUM_ANODIZED);
-    gearBox.position.y = 0.35;
-    gearMotor.add(gearBox);
+    const wormBox = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.38, 0.52), MAT_ALUM_ANODIZED);
+    wormBox.position.y = 0.35;
+    gearMotor.add(wormBox);
 
-    // Mounting bracket with M6 socket screws
-    const mBracket = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.06, 0.65), MAT_316SS_BRUSHED);
+    // Lower Angular Contact Thrust Bearing Pillow Block
+    const thrustBrgLower = makeThrustBearing(0.22, 0.10, 0.14);
+    thrustBrgLower.position.y = 0.60;
+    gearMotor.add(thrustBrgLower);
+
+    // Flexible spider jaw coupling connecting worm shaft to Acme lead screw
+    const flexCoupling = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.22, 18), MAT_ALUM_ANODIZED);
+    flexCoupling.position.y = 0.78;
+    gearMotor.add(flexCoupling);
+
+    // Motor mounting bracket with M6 socket screws
+    const mBracket = new THREE.Mesh(new THREE.BoxGeometry(0.70, 0.06, 0.70), MAT_316SS_BRUSHED);
     mBracket.position.y = -0.28;
     gearMotor.add(mBracket);
 
-    [[-0.24, -0.24], [0.24, -0.24], [-0.24, 0.24], [0.24, 0.24]].forEach(([gx, gz]) => {
+    [[-0.26, -0.26], [0.26, -0.26], [-0.26, 0.26], [0.26, 0.26]].forEach(([gx, gz]) => {
       const sc = makeSocketHeadCapScrew(0.025, 0.05);
       sc.position.set(gx, -0.25, gz);
       gearMotor.add(sc);
@@ -1173,35 +1339,123 @@ export class Dissolution3D {
 
     this.chassisGroup.add(gearMotor);
 
-    // Main Power Supply Motherboard (PCB_PowerSupply)
-    const psuPcb = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.04, 1.4), MAT_PCB_FR4);
-    psuPcb.position.set(-1.8, 0.54, 0.8);
-    psuPcb.name = 'PCB_PowerSupply';
-    this.chassisGroup.add(psuPcb);
-
-    // Toroidal Transformer with copper windings & center mounting disc
-    const xformer = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.12, 12, 24), MAT_COPPER_COIL);
-    xformer.rotation.x = Math.PI / 2;
-    xformer.position.set(-1.3, 0.70, 0.8);
-    this.chassisGroup.add(xformer);
-
-    const xformerCap = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.04, 16), MAT_316SS_BRUSHED);
-    xformerCap.position.set(-1.3, 0.74, 0.8);
-    this.chassisGroup.add(xformerCap);
-
-    // 3x High-Voltage Electrolytic Filter Capacitors
-    for (let c = 0; c < 3; c++) {
-      const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.28, 16), makeMat(0x1d4ed8, { r: 0.35 }));
-      cap.position.set(-2.2 + c * 0.24, 0.68, 0.8);
-      this.chassisGroup.add(cap);
-    }
-
-    // Bridge Rectifier on black finned aluminum heat sink
-    const sink = new THREE.Mesh(new THREE.BoxGeometry(0.40, 0.22, 0.20), makeMat(0x0f172a, { r: 0.50, m: 0.70 }));
-    sink.position.set(-2.2, 0.65, 1.25);
-    this.chassisGroup.add(sink);
+    // 6. Complete Base Motherboard (`PCB_Motherboard`): CPU, RAM, SSD, switching PSU, fan, heatsink
+    this.buildBaseMotherboard();
 
     this.mainGroup.add(this.chassisGroup);
+  }
+
+  buildBaseMotherboard() {
+    this.mbGroup = new THREE.Group();
+    this.mbGroup.name = 'PCB_Motherboard';
+    this.mbGroup.position.set(-1.8, 0.54, 0.8);
+
+    // Green FR-4 substrate (2.4 x 0.04 x 1.6)
+    const board = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.04, 1.6), MAT_PCB_FR4);
+    this.mbGroup.add(board);
+
+    // 6 Brass Standoffs with M3 pan-head screws
+    [[-1.1, -0.7], [0, -0.7], [1.1, -0.7], [-1.1, 0.7], [0, 0.7], [1.1, 0.7]].forEach(([sx, sz]) => {
+      const standoff = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.12, 6), MAT_BRASS_FITTING);
+      standoff.position.set(sx, -0.06, sz);
+      this.mbGroup.add(standoff);
+
+      const screw = makeSlottedScrew(0.02, 0.02);
+      screw.position.set(sx, 0.025, sz);
+      this.mbGroup.add(screw);
+    });
+
+    // Main 32-bit ARM Cortex-M7 / DSP Processor (QFP-144)
+    const cpu = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.03, 0.38), MAT_IC_PACKAGE);
+    cpu.position.set(-0.5, 0.035, 0.1);
+    cpu.name = 'Part_CPU_Processor';
+    this.mbGroup.add(cpu);
+
+    // Pin 1 dot on CPU
+    const pin1 = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.005, 8), MAT_GOLD_PIN);
+    pin1.position.set(-0.64, 0.052, -0.04);
+    this.mbGroup.add(pin1);
+
+    // High-speed Synchronous RAM IC chip (TSOP-54)
+    const ram = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.025, 0.16), MAT_IC_PACKAGE);
+    ram.position.set(-0.5, 0.035, 0.45);
+    ram.name = 'Part_RAM_Chip';
+    this.mbGroup.add(ram);
+
+    // Solid-State Storage Flash Module (eMMC / NAND flash)
+    const ssd = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.025, 0.24), MAT_IC_PACKAGE);
+    ssd.position.set(-0.1, 0.035, 0.45);
+    ssd.name = 'Part_SSD_Module';
+    this.mbGroup.add(ssd);
+
+    // Crystal Oscillator (metal can HC-49)
+    const crystal = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.05, 0.06), MAT_316SS_BRUSHED);
+    crystal.position.set(-0.8, 0.045, 0.1);
+    this.mbGroup.add(crystal);
+
+    // Finned Extruded Aluminum Heatsink over MOSFETs
+    const hs = new THREE.Group();
+    hs.name = 'Part_Heatsink_Extruded';
+    hs.position.set(0.4, 0.02, -0.3);
+    const hsBase = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.04, 0.45), MAT_CHASSIS_DARK);
+    hs.add(hsBase);
+    for (let f = 0; f < 6; f++) {
+      const fin = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.24, 0.45), MAT_CHASSIS_DARK);
+      fin.position.set(-0.22 + f * 0.088, 0.14, 0);
+      hs.add(fin);
+    }
+    this.mbGroup.add(hs);
+
+    // 60mm Brushless DC Cooling Fan with protective finger guard grille
+    const fan60 = new THREE.Group();
+    fan60.name = 'Part_CoolingFan_60mm';
+    fan60.position.set(0.4, 0.25, 0.4);
+    const fanFrame = new THREE.Mesh(new THREE.BoxGeometry(0.60, 0.16, 0.60), MAT_CHASSIS_DARK);
+    fan60.add(fanFrame);
+
+    const fanBore = new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.27, 0.17, 24), MAT_CHASSIS_CREAM);
+    fan60.add(fanBore);
+
+    const fanHub = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.14, 16), MAT_CHASSIS_DARK);
+    fan60.add(fanHub);
+
+    // 7 Curved Fan Blades
+    for (let b = 0; b < 7; b++) {
+      const ang = (b / 7) * Math.PI * 2;
+      const blade = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.08, 0.02), MAT_CHASSIS_DARK);
+      blade.position.set(Math.cos(ang) * 0.18, 0, Math.sin(ang) * 0.18);
+      blade.rotation.y = -ang + Math.PI / 4;
+      fan60.add(blade);
+    }
+    // Wire finger guard grille
+    const grille = new THREE.Mesh(new THREE.RingGeometry(0.08, 0.26, 16), MAT_316SS_BRUSHED);
+    grille.rotation.x = Math.PI / 2;
+    grille.position.y = 0.085;
+    fan60.add(grille);
+
+    this.mbGroup.add(fan60);
+
+    // Power Section: Toroidal Transformer & Filter Capacitors
+    const xformer = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.12, 12, 24), MAT_COPPER_COIL);
+    xformer.rotation.x = Math.PI / 2;
+    xformer.position.set(0.6, 0.16, -0.3);
+    this.mbGroup.add(xformer);
+
+    for (let c = 0; c < 3; c++) {
+      const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.28, 16), makeMat(0x1d4ed8, { r: 0.35 }));
+      cap.position.set(-0.8 + c * 0.20, 0.16, -0.45);
+      this.mbGroup.add(cap);
+    }
+
+    // Shrouded ribbon cable headers with locking clips
+    [-0.2, 0.2].forEach(hx => {
+      const hdr = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.10, 0.10), MAT_CHASSIS_DARK);
+      hdr.position.set(hx, 0.07, -0.65);
+      this.mbGroup.add(hdr);
+    });
+
+    this.chassisGroup.add(this.mbGroup);
+    this.animGroups.motherboard = this.mbGroup;
   }
 
   buildElevatorColumns() {
@@ -1228,7 +1482,6 @@ export class Dissolution3D {
       shaft.castShadow = true;
       this.elevatorGroup.add(shaft);
 
-      // Top shaft retaining collar with real M6 hex socket screws
       const topCollar = new THREE.Mesh(
         new THREE.CylinderGeometry(0.20, 0.20, 0.14, 18),
         MAT_ALUM_ANODIZED
@@ -1251,10 +1504,28 @@ export class Dissolution3D {
     this.elevatorGroup.add(this.leadScrew);
     this.animGroups.leadScrew = this.leadScrew;
 
-    // Flexible jaw coupling connecting lead screw to base gearmotor
-    const coupling = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.20, 16), MAT_ALUM_ANODIZED);
-    coupling.position.set(0, 1.25, -1.75);
-    this.elevatorGroup.add(coupling);
+    // Top Thrust Bearing Pillow Block
+    const thrustTop = makeThrustBearing(0.20, 0.09, 0.12);
+    thrustTop.position.set(0, 8.35, -1.75);
+    this.elevatorGroup.add(thrustTop);
+
+    // Flexible Nylon Cable Drag Chain (routing power and data from base to moving head)
+    this.dragChain = makeCableDragChain(4.5, 22);
+    this.dragChain.position.set(-1.4, 4.5, -1.75);
+    this.dragChain.rotation.x = Math.PI / 2;
+    this.elevatorGroup.add(this.dragChain);
+    this.animGroups.dragChain = this.dragChain;
+
+    // Optical Slotted Interrupter Limit Switches (Top & Bottom)
+    const optoTop = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.08, 0.10), MAT_CHASSIS_DARK);
+    optoTop.position.set(1.4, 8.2, -1.75);
+    optoTop.name = 'Sensor_LimitSwitch_Top';
+    this.elevatorGroup.add(optoTop);
+
+    const optoBot = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.08, 0.10), MAT_CHASSIS_DARK);
+    optoBot.position.set(1.4, 1.8, -1.75);
+    optoBot.name = 'Sensor_LimitSwitch_Bottom';
+    this.elevatorGroup.add(optoBot);
 
     this.mainGroup.add(this.elevatorGroup);
     this.animGroups.elevatorColumns = this.elevatorGroup;
@@ -1265,8 +1536,6 @@ export class Dissolution3D {
     this.bathGroup.name = 'Assembly_WaterBath';
     this.bathGroup.position.set(0, 1.40, 0.15); // Resting on base pan top
 
-    // 1. Seamless Molded Optical Acrylic Tank (Hollow 5-Wall Acrylic Construction)
-    // Real optical thickness (12mm base, 10mm walls) so vessels sit in true open interior cavity
     const tankH = 2.40;
     const tankW = 5.80;
     const tankD = 4.40;
@@ -1275,27 +1544,22 @@ export class Dissolution3D {
     this.bathTankMesh = new THREE.Group();
     this.bathTankMesh.name = 'Bath_Chamber';
 
-    // Tank bottom plate
     const bPlate = new THREE.Mesh(new THREE.BoxGeometry(tankW, wallT, tankD), MAT_BATH_ACRYLIC);
     bPlate.position.set(0, wallT / 2, 0);
     this.bathTankMesh.add(bPlate);
 
-    // Front wall
     const wFront = new THREE.Mesh(new THREE.BoxGeometry(tankW, tankH, wallT), MAT_BATH_ACRYLIC);
     wFront.position.set(0, tankH / 2, tankD / 2 - wallT / 2);
     this.bathTankMesh.add(wFront);
 
-    // Back wall
     const wBack = new THREE.Mesh(new THREE.BoxGeometry(tankW, tankH, wallT), MAT_BATH_ACRYLIC);
     wBack.position.set(0, tankH / 2, -tankD / 2 + wallT / 2);
     this.bathTankMesh.add(wBack);
 
-    // Left wall
     const wLeft = new THREE.Mesh(new THREE.BoxGeometry(wallT, tankH, tankD - wallT * 2), MAT_BATH_ACRYLIC);
     wLeft.position.set(-tankW / 2 + wallT / 2, tankH / 2, 0);
     this.bathTankMesh.add(wLeft);
 
-    // Right wall
     const wRight = new THREE.Mesh(new THREE.BoxGeometry(wallT, tankH, tankD - wallT * 2), MAT_BATH_ACRYLIC);
     wRight.position.set(tankW / 2 - wallT / 2, tankH / 2, 0);
     this.bathTankMesh.add(wRight);
@@ -1303,7 +1567,7 @@ export class Dissolution3D {
     this.bathGroup.add(this.bathTankMesh);
     this.animGroups.bathTank = this.bathTankMesh;
 
-    // 2. Heated Water Bath Liquid Volume (fills open cavity up to Y = 1.90)
+    // Heated Water Bath Liquid Volume
     const waterGeo = new THREE.BoxGeometry(tankW - wallT * 2 - 0.04, 1.85, tankD - wallT * 2 - 0.04);
     this.bathWaterMesh = new THREE.Mesh(waterGeo, MAT_BATH_WATER);
     this.bathWaterMesh.position.set(0, 0.98, 0);
@@ -1311,7 +1575,7 @@ export class Dissolution3D {
     this.bathGroup.add(this.bathWaterMesh);
     this.animGroups.bathWater = this.bathWaterMesh;
 
-    // 3. Top Cover Plate with 8 circular vessel apertures & perimeter seal
+    // Top Cover Plate with 8 circular vessel apertures
     const topPlate = new THREE.Mesh(
       new THREE.BoxGeometry(tankW + 0.02, 0.06, tankD + 0.02),
       MAT_CHASSIS_CREAM
@@ -1337,9 +1601,7 @@ export class Dissolution3D {
       this.bathGroup.add(nozzle);
     });
 
-    // 4. 8-Position Vessel Layout: 2 rows of 4 vessels
-    // Row 1 (front): Z = +0.80, Row 2 (rear): Z = -0.80
-    // X pitch: [-1.80, -0.60, +0.60, +1.80]
+    // 8-Position Vessel Layout
     const rowZ = [0.80, -0.80];
     const colX = [-1.80, -0.60, 0.60, 1.80];
 
@@ -1350,7 +1612,7 @@ export class Dissolution3D {
         const vx = colX[c];
         const vz = rowZ[r];
 
-        // 4a. TruCenter Centering Collar Ring
+        // TruCenter Centering Collar Ring
         const ringGrp = new THREE.Group();
         ringGrp.name = `TruCenter_Ring_0${vesselIdx}`;
         ringGrp.position.set(vx, tankH + 0.06, vz);
@@ -1362,7 +1624,6 @@ export class Dissolution3D {
         ring.castShadow = true;
         ringGrp.add(ring);
 
-        // Dual stainless steel alignment locator pins
         const pin1 = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.04, 8), MAT_316SS_BRUSHED);
         pin1.position.set(0.55, 0.04, 0);
         ringGrp.add(pin1);
@@ -1374,12 +1635,11 @@ export class Dissolution3D {
         this.bathGroup.add(ringGrp);
         this.animGroups.truCenterRings.push(ringGrp);
 
-        // 4b. Precision USP Borosilicate Glass Vessel (1000 mL, hemispherical bottom)
+        // Precision USP Borosilicate Glass Vessel (1000 mL, hemispherical bottom)
         const vGrp = new THREE.Group();
         vGrp.name = `Glass_Vessel_0${vesselIdx}`;
         vGrp.position.set(vx, 0, vz);
 
-        // Cylinder body (dia 1.04 outer, height 1.68)
         const vCyl = new THREE.Mesh(
           new THREE.CylinderGeometry(0.52, 0.52, 1.68, 32, 1, true),
           MAT_BORO_VESSEL
@@ -1388,7 +1648,6 @@ export class Dissolution3D {
         vCyl.castShadow = true;
         vGrp.add(vCyl);
 
-        // Hemispherical bottom (radius 0.52)
         const vHemi = new THREE.Mesh(
           new THREE.SphereGeometry(0.52, 32, 16, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
           MAT_BORO_VESSEL
@@ -1397,7 +1656,6 @@ export class Dissolution3D {
         vHemi.castShadow = true;
         vGrp.add(vHemi);
 
-        // Upper flanged rim
         const vRim = new THREE.Mesh(
           new THREE.CylinderGeometry(0.58, 0.58, 0.05, 32),
           MAT_BORO_VESSEL
@@ -1405,7 +1663,6 @@ export class Dissolution3D {
         vRim.position.set(0, 2.48, 0);
         vGrp.add(vRim);
 
-        // Graduation markings (500, 900, 1000 mL white ceramic rings)
         [1.2, 1.9, 2.1].forEach(gy => {
           const gRing = new THREE.Mesh(
             new THREE.TorusGeometry(0.522, 0.003, 4, 32),
@@ -1419,7 +1676,7 @@ export class Dissolution3D {
         this.bathGroup.add(vGrp);
         this.animGroups.vessels.push(vGrp);
 
-        // 4c. Dissolution Medium Liquid Volume (900 mL)
+        // Dissolution Medium Liquid Volume (900 mL)
         const medGrp = new THREE.Group();
         medGrp.name = `Liquid_Medium_0${vesselIdx}`;
         medGrp.position.set(vx, 0, vz);
@@ -1448,7 +1705,7 @@ export class Dissolution3D {
 
         this.bathGroup.add(medGrp);
 
-        // 4d. Prednisone 10mg USP Biconvex Solid Tablet
+        // Prednisone 10mg USP Biconvex Solid Tablet
         const tabGrp = new THREE.Group();
         tabGrp.name = `Tablet_Solid_0${vesselIdx}`;
         tabGrp.position.set(vx, 0.35, vz);
@@ -1478,14 +1735,11 @@ export class Dissolution3D {
   }
 
   buildDriveHeadAssembly() {
-    // Kinematic Pivot / Motorized Elevator Drive Head
-    // Travels vertically along Y: default lowered position at Y = 4.80
     this.pivotDriveHead = new THREE.Group();
     this.pivotDriveHead.name = 'Pivot_DriveHead';
     this.pivotDriveHead.position.set(0, 4.80, 0.15);
 
     // 1. Structural Lower Baseplate Casting (6.10 x 0.14 x 4.80)
-    // Flanged aluminum casting through which the 8 spindles pass into the bath
     const headBase = new THREE.Mesh(
       new THREE.BoxGeometry(6.10, 0.14, 4.80),
       MAT_ALUM_ANODIZED
@@ -1493,8 +1747,36 @@ export class Dissolution3D {
     headBase.position.set(0, 0.07, 0);
     this.pivotDriveHead.add(headBase);
 
-    // 2. Drive Head Enclosure Walls (Hollow structural casting)
-    // Left and right side housing covers
+    // Heavy-Duty Rear Carriage Yoke (interfaces with Acme lead screw and guide shafts)
+    const carriage = new THREE.Group();
+    carriage.name = 'Part_CarriageYoke';
+    carriage.position.set(0, 0.90, -1.90);
+
+    const cBody = new THREE.Mesh(new THREE.BoxGeometry(5.4, 1.4, 0.6), MAT_ALUM_ANODIZED);
+    carriage.add(cBody);
+
+    // Bronze Traveling Lead Nut
+    const bNut = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.35, 16), MAT_BRASS_FITTING);
+    bNut.position.set(0, 0, 0);
+    carriage.add(bNut);
+
+    // 4× M5 Socket Cap Screws on Nut Flange
+    [[-0.12, -0.12], [0.12, -0.12], [-0.12, 0.12], [0.12, 0.12]].forEach(([nx, nz]) => {
+      const sc = makeSocketHeadCapScrew(0.02, 0.04);
+      sc.position.set(nx, 0.18, nz);
+      carriage.add(sc);
+    });
+
+    // Dual Recirculating Linear Ball Bushings
+    [-2.1, 2.1].forEach(colX => {
+      const bush = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.20, 1.2, 20), MAT_CHROME_STEEL);
+      bush.position.set(colX, 0, 0);
+      carriage.add(bush);
+    });
+
+    this.pivotDriveHead.add(carriage);
+
+    // 2. Drive Head Enclosure Walls (Lower structural housing)
     [-3.00, 3.00].forEach(hx => {
       const hSide = new THREE.Mesh(new THREE.BoxGeometry(0.10, 1.70, 4.80), MAT_DRIVE_HEAD);
       hSide.position.set(hx, 0.95, 0);
@@ -1502,7 +1784,6 @@ export class Dissolution3D {
       this.pivotDriveHead.add(hSide);
     });
 
-    // Rear wall with guide shaft and lead screw clearance openings
     const hRear = new THREE.Mesh(new THREE.BoxGeometry(6.10, 1.70, 0.12), MAT_DRIVE_HEAD);
     hRear.position.set(0, 0.95, -2.34);
     hRear.castShadow = true;
@@ -1520,7 +1801,7 @@ export class Dissolution3D {
     hoodPlate.castShadow = true;
     this.headTopHood.add(hoodPlate);
 
-    // Perimeter cover screws (10x socket cap screws with knurled heads)
+    // 10x M4 Socket Cap Screws on Top Hood
     for (let i = -2; i <= 2; i++) {
       const scF = makeSocketHeadCapScrew(0.03, 0.05);
       scF.position.set(i * 1.2, 0.04, 2.3);
@@ -1550,7 +1831,7 @@ export class Dissolution3D {
     fasciaTrim.position.set(0, 0.95, 2.42);
     this.pivotDriveHead.add(fasciaTrim);
 
-    // Carved Recessed Bezel Pocket for LCD (DIAG-001, DIAG-016)
+    // Carved Recessed Bezel Pocket for LCD
     const bezelPocket = new THREE.Mesh(
       new THREE.BoxGeometry(3.24, 1.18, 0.01),
       makeMat(0x05070a, { r: 0.90 })
@@ -1560,7 +1841,6 @@ export class Dissolution3D {
 
     // Dedicated LCD Quad (UI_LCD)
     const lcdGeo = new THREE.PlaneGeometry(3.18, 1.12);
-    // Invert UV Y coordinates for dynamic canvas (DIAG-005)
     const uvAttr = lcdGeo.attributes.uv;
     for (let i = 0; i < uvAttr.count; i++) {
       uvAttr.setY(i, 1.0 - uvAttr.getY(i));
@@ -1588,48 +1868,82 @@ export class Dissolution3D {
     lens.name = 'Glass_LCDLens';
     this.pivotDriveHead.add(lens);
 
-    // 5. Tactile Pushbuttons (Push keys with chrome bezels & 1mm depress kinematic travel)
+    // 5. Tactile Pushbuttons: High-End Industrial Beveled Keys with Silkscreen Labels
     const btnConfigs = [
-      { name: 'Btn_ElevUp',   label: '▲', color: 0x0284c7, y: 1.35 },
-      { name: 'Btn_ElevDown', label: '▼', color: 0x0284c7, y: 1.08 },
-      { name: 'Btn_Start',    label: '▶', color: 0x16a34a, y: 0.81 },
-      { name: 'Btn_Stop',     label: '⏹', color: 0xdc2626, y: 0.54 }
+      { name: 'Btn_ElevUp',   code: 'ELEV_UP',   text: '▲ ELEV UP',   ledCol: 0x00e5ff, y: 1.42 },
+      { name: 'Btn_ElevDown', code: 'ELEV_DOWN', text: '▼ ELEV DOWN', ledCol: 0x00e5ff, y: 1.12 },
+      { name: 'Btn_Start',    code: 'STIR_START', text: '▶ STIR RUN',  ledCol: 0x10b981, y: 0.82 },
+      { name: 'Btn_Stop',     code: 'STIR_STOP', text: '⏹ STOP TRAY', ledCol: 0xef4444, y: 0.52 }
     ];
 
     btnConfigs.forEach(bc => {
       const bGrp = new THREE.Group();
       bGrp.name = bc.name;
-      bGrp.position.set(1.65, bc.y, 2.44);
+      bGrp.position.set(1.68, bc.y, 2.44);
 
-      // Chrome bezel ring
-      const bRing = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.03, 20), MAT_CHROME_STEEL);
-      bRing.rotation.x = Math.PI / 2;
-      bGrp.add(bRing);
-
-      // Tactile key cap
-      const key = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.10, 0.10, 0.035, 20),
-        makeMat(bc.color, { r: 0.35, m: 0.15 })
+      // Chrome beveled outer bezel frame
+      const bezelFrame = new THREE.Mesh(
+        new THREE.BoxGeometry(0.96, 0.24, 0.03),
+        MAT_CHROME_STEEL
       );
-      key.rotation.x = Math.PI / 2;
-      key.position.z = 0.015;
-      key.name = bc.name;
-      bGrp.add(key);
+      bGrp.add(bezelFrame);
+
+      // Dedicated procedural silkscreen canvas texture for the key face
+      const bCanvas = document.createElement('canvas');
+      bCanvas.width = 256;
+      bCanvas.height = 64;
+      const bCtx = bCanvas.getContext('2d');
+      bCtx.fillStyle = '#1e293b';
+      bCtx.fillRect(0, 0, 256, 64);
+      bCtx.strokeStyle = '#38bdf8';
+      bCtx.lineWidth = 4;
+      bCtx.strokeRect(2, 2, 252, 60);
+
+      bCtx.fillStyle = '#ffffff';
+      bCtx.font = 'bold 22px "JetBrains Mono", monospace';
+      bCtx.textAlign = 'center';
+      bCtx.textBaseline = 'middle';
+      bCtx.fillText(bc.text, 128, 32);
+
+      const bTex = new THREE.CanvasTexture(bCanvas);
+      bTex.colorSpace = THREE.SRGBColorSpace;
+
+      // Tactile key cap (depresses 1mm when clicked)
+      const keyMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(0.90, 0.20, 0.035),
+        new THREE.MeshStandardMaterial({
+          map: bTex,
+          roughness: 0.35,
+          metalness: 0.20
+        })
+      );
+      keyMesh.position.z = 0.02;
+      keyMesh.name = bc.name;
+      bGrp.add(keyMesh);
+
+      // Indicator LED jewel above key
+      const ledJewel = new THREE.Mesh(
+        new THREE.BoxGeometry(0.12, 0.04, 0.02),
+        new THREE.MeshStandardMaterial({
+          color: bc.ledCol,
+          emissive: bc.ledCol,
+          emissiveIntensity: 0.3,
+          roughness: 0.2
+        })
+      );
+      ledJewel.position.set(0, 0.14, 0.015);
+      bGrp.add(ledJewel);
 
       this.pivotDriveHead.add(bGrp);
-      this.animGroups.buttons[bc.name] = key;
-      this.interactiveMeshes.push(key);
+      this.animGroups.buttons[bc.name] = keyMesh;
+      this.animGroups.buttonLEDs[bc.name] = ledJewel;
+      this.interactiveMeshes.push(keyMesh);
     });
 
-    // 6. Official SREdesigns Brand Certification Badge
-    const badge = makeSREdesignsBadge();
-    badge.position.set(1.65, 1.55, 2.445);
-    this.pivotDriveHead.add(badge);
-
-    // 7. Internal Synchronous Drive Mechanics (visible in exploded view!)
+    // 6. Internal Synchronous Drive Mechanics (visible in exploded view!)
     this.buildInternalDriveMechanics();
 
-    // 8. 8 Rotating Spindles & Electropolished Apparatus 2 Paddles
+    // 7. 8 Rotating Spindles & Electropolished Apparatus 2 Paddles
     this.buildSpindles();
 
     this.mainGroup.add(this.pivotDriveHead);
@@ -1641,7 +1955,7 @@ export class Dissolution3D {
     this.timingBeltGroup.name = 'Assembly_TimingBeltDrive';
     this.timingBeltGroup.position.set(0, 0.40, 0);
 
-    // 24V DC Brushless Synchronous Drive Motor (Center rear, X = 0, Z = -1.0)
+    // 24V DC Brushless Synchronous Drive Motor
     const motorHousing = new THREE.Mesh(
       new THREE.CylinderGeometry(0.45, 0.45, 0.65, 24),
       MAT_CHASSIS_DARK
@@ -1649,7 +1963,6 @@ export class Dissolution3D {
     motorHousing.position.set(0, 0.35, -1.0);
     this.timingBeltGroup.add(motorHousing);
 
-    // Radial centrifugal cooling fan
     const fan = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.08, 16), MAT_ALUM_ANODIZED);
     fan.position.set(0, 0.65, -1.0);
     this.timingBeltGroup.add(fan);
@@ -1663,7 +1976,6 @@ export class Dissolution3D {
       this.timingBeltGroup.add(coil);
     }
 
-    // Motor mounting plate with M5 socket cap screws
     const mPlate = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.06, 1.2), MAT_316SS_BRUSHED);
     mPlate.position.set(0, 0.03, -1.0);
     this.timingBeltGroup.add(mPlate);
@@ -1674,8 +1986,7 @@ export class Dissolution3D {
       this.timingBeltGroup.add(sc);
     });
 
-    // Continuous Synchronous Cogged Timing Belt looping across all 8 drive pulleys
-    // Procedural continuous belt profile weaving around outer pulleys
+    // Continuous Synchronous Cogged Timing Belt looping across 8 drive pulleys
     const beltPts = [
       new THREE.Vector3(-1.80, 0.60, 0.98),
       new THREE.Vector3(1.80, 0.60, 0.98),
@@ -1683,7 +1994,7 @@ export class Dissolution3D {
       new THREE.Vector3(1.98, 0.60, -0.80),
       new THREE.Vector3(1.80, 0.60, -0.98),
       new THREE.Vector3(0.50, 0.60, -0.98),
-      new THREE.Vector3(0.00, 0.60, -1.25), // motor drive loop
+      new THREE.Vector3(0.00, 0.60, -1.25),
       new THREE.Vector3(-0.50, 0.60, -0.98),
       new THREE.Vector3(-1.80, 0.60, -0.98),
       new THREE.Vector3(-1.98, 0.60, -0.80),
@@ -1702,18 +2013,17 @@ export class Dissolution3D {
       this.timingBeltGroup.add(idler);
     });
 
-    // 120-Slot Optical Encoder Wheel on central shaft
+    // 120-Slot Optical Encoder Wheel
     const encoder = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.015, 32), MAT_316SS_BRUSHED);
     encoder.position.set(0, 0.18, 0);
     this.timingBeltGroup.add(encoder);
 
-    // Head Microcontroller Board (PCB_HeadMCU)
+    // Head Microcontroller Board
     const headPcb = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.03, 1.0), MAT_PCB_FR4);
     headPcb.position.set(0, 0.22, 1.2);
     headPcb.name = 'PCB_HeadMCU';
     this.timingBeltGroup.add(headPcb);
 
-    // MCU IC package (QFP-64)
     const mcu = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.03, 0.25), MAT_IC_PACKAGE);
     mcu.position.set(0, 0.24, 1.2);
     this.timingBeltGroup.add(mcu);
@@ -1722,8 +2032,6 @@ export class Dissolution3D {
   }
 
   buildSpindles() {
-    // 8 Rotating Spindles with electropolished USP Apparatus 2 Paddles
-    // Mounted into the 8 flanged bearing bosses on the bottom of the drive head
     const rowZ = [0.80, -0.80];
     const colX = [-1.80, -0.60, 0.60, 1.80];
 
@@ -1738,17 +2046,14 @@ export class Dissolution3D {
         sGrp.name = `Spindle_Paddle_0${spindleIdx}`;
         sGrp.position.set(sx, 0, sz);
 
-        // Machined aluminum timing pulley with genuine teeth inside head
         const pulley = makeTimingPulley(0.18, 0.12, 24);
         pulley.position.y = 1.00;
         sGrp.add(pulley);
 
-        // Precision ball bearing in sleeve
         const brg = makeBallBearing(0.16, 0.08, 0.08);
         brg.position.y = 0.22;
         sGrp.add(brg);
 
-        // Precision 316SS flanged bearing sleeve
         const sleeve = new THREE.Mesh(
           new THREE.CylinderGeometry(0.17, 0.17, 0.28, 18, 1, true),
           MAT_316SS_BRUSHED
@@ -1756,7 +2061,6 @@ export class Dissolution3D {
         sleeve.position.y = 0.20;
         sGrp.add(sleeve);
 
-        // Knurled quick-lock collet chuck collar
         const collet = new THREE.Mesh(
           new THREE.CylinderGeometry(0.12, 0.08, 0.22, 16),
           MAT_316SS_BRUSHED
@@ -1764,7 +2068,6 @@ export class Dissolution3D {
         collet.position.y = -0.11;
         sGrp.add(collet);
 
-        // Precision 316SS ground electropolished shaft (dia 9.525 mm -> dia 0.095, length 3.8)
         const shaft = new THREE.Mesh(
           new THREE.CylinderGeometry(0.0476, 0.0476, 3.80, 20),
           MAT_316SS_ELECTROPOLISHED
@@ -1773,7 +2076,6 @@ export class Dissolution3D {
         shaft.castShadow = true;
         sGrp.add(shaft);
 
-        // Laser-etched 25 mm depth index immersion ring
         const indexRing = new THREE.Mesh(
           new THREE.CylinderGeometry(0.048, 0.048, 0.015, 16),
           MAT_CHASSIS_DARK
@@ -1781,7 +2083,6 @@ export class Dissolution3D {
         indexRing.position.y = -3.20;
         sGrp.add(indexRing);
 
-        // Electropolished USP Apparatus 2 Paddle Blade (74.5 x 19 x 4 mm -> 0.745 x 0.19 x 0.04)
         const paddleGeo = new THREE.BoxGeometry(0.745, 0.19, 0.04);
         const paddleMesh = new THREE.Mesh(paddleGeo, MAT_316SS_ELECTROPOLISHED);
         paddleMesh.position.y = -3.70;
@@ -1797,13 +2098,12 @@ export class Dissolution3D {
   }
 
   buildHeaterCirculator() {
-    // External AutoTemp 1150W Heater / Circulator Unit seated on bench at (3.8, 0, -1.2)
+    // External AutoTemp 1150W Heater / Circulator Unit
     this.circulatorGroup = new THREE.Group();
     this.circulatorGroup.name = 'Part_HeaterCirculatorAutoTemp';
     this.circulatorGroup.position.set(3.8, 0.0, -1.2);
 
-    // 1. Two-Tone Enclosure (Glacier cream cowl top & dark graphite lower chassis)
-    // Lower graphite chassis
+    // 1. Two-Tone Enclosure
     const lowerBody = new THREE.Mesh(
       new THREE.BoxGeometry(1.90, 1.80, 2.20),
       MAT_CHASSIS_DARK
@@ -1813,7 +2113,6 @@ export class Dissolution3D {
     lowerBody.receiveShadow = true;
     this.circulatorGroup.add(lowerBody);
 
-    // Glacier cream top cowl
     const topCowl = new THREE.Mesh(
       new THREE.BoxGeometry(1.92, 0.80, 2.22),
       MAT_CHASSIS_CREAM
@@ -1822,7 +2121,6 @@ export class Dissolution3D {
     topCowl.castShadow = true;
     this.circulatorGroup.add(topCowl);
 
-    // Top molded carry handle with rubber grip
     const handleBar = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.12, 1.20), MAT_ALUM_ANODIZED);
     handleBar.position.set(0, 2.70, 0);
     this.circulatorGroup.add(handleBar);
@@ -1831,7 +2129,7 @@ export class Dissolution3D {
     grip.position.set(0, 2.70, 0);
     this.circulatorGroup.add(grip);
 
-    // 2. Recessed Front Control Console with Dynamic High-DPI LED Texture
+    // 2. Recessed Front Control Console with Upright Dynamic High-DPI LED Texture (DIAG-005)
     const bezelPocket = new THREE.Mesh(new THREE.BoxGeometry(1.72, 1.04, 0.02), MAT_FASCIA_BEZEL);
     bezelPocket.position.set(0, 1.80, 1.11);
     this.circulatorGroup.add(bezelPocket);
@@ -1880,6 +2178,64 @@ export class Dissolution3D {
       });
     });
 
+    // 6. FULL INTERNAL WORKING MECHANICS (Circulation pump, Nichrome heater, cutoff switches, PCB)
+    const pumpGrp = new THREE.Group();
+    pumpGrp.name = 'Part_CirculatorPump';
+    pumpGrp.position.set(-0.25, 0.70, 0.0);
+
+    // Shaded-pole 120V AC pump motor
+    const pMotor = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.48, 18), MAT_CHASSIS_DARK);
+    pumpGrp.add(pMotor);
+
+    // Brass centrifugal volute chamber
+    const volute = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.22, 18), MAT_BRASS_FITTING);
+    volute.position.y = -0.32;
+    pumpGrp.add(volute);
+
+    // 6-Blade Centrifugal Impeller inside volute
+    for (let b = 0; b < 6; b++) {
+      const ang = (b / 6) * Math.PI * 2;
+      const blade = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.14, 0.02), MAT_CHASSIS_DARK);
+      blade.position.set(Math.cos(ang) * 0.10, -0.32, Math.sin(ang) * 0.10);
+      blade.rotation.y = -ang + Math.PI / 4;
+      pumpGrp.add(blade);
+    }
+    this.circulatorGroup.add(pumpGrp);
+    this.animGroups.circulatorPump = pumpGrp;
+
+    // 1150W Stainless Steel Flow-Through Heating Chamber with Nichrome Element
+    const heaterChamber = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.22, 0.22, 0.85, 20),
+      MAT_316SS_ELECTROPOLISHED
+    );
+    heaterChamber.position.set(0.45, 0.80, 0.1);
+    heaterChamber.name = 'Part_HeaterChamber_1150W';
+    this.circulatorGroup.add(heaterChamber);
+
+    // Dual Bimetal Over-Temperature Safety Cutoffs
+    [-0.25, 0.25].forEach((cy, idx) => {
+      const cutoff = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.03, 12), MAT_BRASS_FITTING);
+      cutoff.rotation.z = Math.PI / 2;
+      cutoff.position.set(0.68, 0.80 + cy, 0.1);
+      cutoff.name = `Sensor_ThermalCutoff_0${idx + 1}`;
+      this.circulatorGroup.add(cutoff);
+    });
+
+    // Solid-State TRIAC Heater Power Controller on Heatsink Plate
+    const triacSink = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.40, 0.40), MAT_CHASSIS_DARK);
+    triacSink.position.set(0.80, 0.80, -0.45);
+    this.circulatorGroup.add(triacSink);
+
+    // Circulator Controller PCB with Step-Down Transformer & 40mm Fan
+    const circPcb = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.03, 0.6), MAT_PCB_FR4);
+    circPcb.position.set(0, 1.35, -0.4);
+    circPcb.name = 'PCB_CirculatorController';
+    this.circulatorGroup.add(circPcb);
+
+    const cXformer = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.20, 0.25), MAT_COPPER_COIL);
+    cXformer.position.set(-0.4, 1.46, -0.4);
+    this.circulatorGroup.add(cXformer);
+
     // Flexible Insulated Quick-Disconnect Silicone Hoses with Genuine 3D Hose Clamps
     this.buildCirculatorHoses();
 
@@ -1888,7 +2244,6 @@ export class Dissolution3D {
   }
 
   buildCirculatorHoses() {
-    // Hose 1: Supply Line (connecting from circulator rear to water bath manifold)
     const p1 = [
       new THREE.Vector3(3.35, 0.90, -2.40),
       new THREE.Vector3(2.40, 0.45, -2.50),
@@ -1901,7 +2256,6 @@ export class Dissolution3D {
     hose1.name = 'Hose_Circulator_Supply';
     this.mainGroup.add(hose1);
 
-    // 3D Worm-Drive Hose Clamps at both ends
     const clamp1A = makeHoseClamp(0.075, 0.03);
     clamp1A.position.set(3.35, 0.90, -2.36);
     this.mainGroup.add(clamp1A);
@@ -1910,7 +2264,6 @@ export class Dissolution3D {
     clamp1B.position.set(-0.50, 0.90, -2.80);
     this.mainGroup.add(clamp1B);
 
-    // Hose 2: Return Line
     const p2 = [
       new THREE.Vector3(4.25, 0.90, -2.40),
       new THREE.Vector3(2.60, 0.35, -2.60),
@@ -2057,11 +2410,9 @@ export class Dissolution3D {
 
     // 2. Drive Head Kinematic Elevation Travel (when not in exploded view)
     if (!this.exploded && this.animGroups.pivotDriveHead) {
-      // 0 to 311 mm maps to Y offset 0 to 3.11 units
       const targetY = 4.80 + (this.headElevationMm / 100.0);
       this.animGroups.pivotDriveHead.position.y += (targetY - this.animGroups.pivotDriveHead.position.y) * 0.10;
 
-      // Rotate lead screw with elevation movement
       if (this.animGroups.leadScrew) {
         this.animGroups.leadScrew.rotation.y += 0.08;
       }
@@ -2076,18 +2427,15 @@ export class Dissolution3D {
         s.rotation.y = this.spindleAngle;
       });
 
-      // Motor rotor fan rotation
       if (this.animGroups.motorRotor) {
         this.animGroups.motorRotor.rotation.y += deltaAngle * 2.0;
       }
 
-      // Dynamic parabolic vortex depression depth
       const vDepth = Math.min(0.28, (this.spindleRpm / 150.0) * 0.28);
       this.animGroups.vortices.forEach(v => {
         v.scale.set(1.0 + vDepth * 0.5, 1.0 + vDepth * 2.0, 1.0 + vDepth * 0.5);
       });
     } else {
-      // Collapse vortex when stirring stops
       this.animGroups.vortices.forEach(v => {
         v.scale.set(1.0, 1.0, 1.0);
       });
