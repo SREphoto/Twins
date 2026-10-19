@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agilent 708-DS USP Tablet Dissolution Apparatus Digital Twin · SREdesigns</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <header class="top-bar">
+    <div class="brand-section">
+      <span class="brand-logo">SREdesigns</span>
+      <span class="model-title">AGILENT 708-DS</span>
+      <span class="badge-sre">SREDESIGNS</span>
+      <span class="subtitle">USP Tablet Dissolution Apparatus (Apparatus 2 Paddles)</span>
+    </div>
+    <div class="header-center">
+      <div class="btn-group">
+        <span style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin-right: 4px;">VIEW:</span>
+        <button id="btn-view-modern" class="btn-tool active">MODERN</button>
+        <button id="btn-view-retro" class="btn-tool">+ RETRO</button>
+        <button id="btn-view-night" class="btn-tool">☾ NIGHT</button>
+      </div>
+    </div>
+    <div class="header-right">
+      <div id="status-pill" class="pill standby">STANDBY</div>
+      <div id="continuity-status" class="continuity-pill">AC continuity established · 115/230V</div>
+    </div>
+  </header>
+
+  <div class="toolbar-container">
+    <div class="btn-group">
+      <button id="btn-cam-iso" class="btn-tool active">ISO</button>
+      <button id="btn-cam-front" class="btn-tool">Front</button>
+      <button id="btn-cam-spindles" class="btn-tool">Spindles</button>
+      <button id="btn-cam-bath" class="btn-tool">Bath</button>
+      <button id="btn-cam-side" class="btn-tool">Side</button>
+      <button id="btn-cam-top" class="btn-tool">Top</button>
+      <button id="btn-cam-rear" class="btn-tool">Rear</button>
+      <button id="btn-explode" class="btn-tool">Exploded view</button>
+      <button id="btn-wireframe" class="btn-tool">Wireframe</button>
+      <button id="btn-autorotate" class="btn-tool">Auto-rotate</button>
+      <div class="slider-group">
+        <span>Orbit</span>
+        <input id="slider-orbit" type="range" min="0" max="2" step="0.1" value="1.0">
+      </div>
+      <div class="slider-group">
+        <span>Zoom</span>
+        <input id="slider-zoom" type="range" min="20" max="70" step="1" value="45">
+      </div>
+    </div>
+    <div class="btn-group">
+      <div class="slider-group">
+        <span>Light</span>
+        <input id="slider-light" type="range" min="0.2" max="2.0" step="0.1" value="1.0">
+      </div>
+      <button id="btn-mute" class="btn-tool">Mute SFX</button>
+      <button id="btn-plug" class="btn-tool">🔌 AC Plug</button>
+      <button id="btn-toggle-instrument" class="btn-tool">▾ Controls</button>
+      <button id="btn-toggle-parts" class="btn-tool">▾ Parts</button>
+    </div>
+  </div>
+
+  <div id="viewport3d"></div>
+
+  <!-- Collapsible Instrument Controls Panel -->
+  <aside id="panel-instrument" class="instrument panel-collapsible">
+    <div class="panel-header">
+      <span class="panel-title">Dissolution Tester Controls</span>
+      <button id="btn-close-instrument" class="btn-collapse" title="Collapse Panel">▾</button>
+    </div>
+    <div class="panel-body">
+      <!-- Drive Head Kinematic Elevator -->
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        <span class="metric-label">MOTORIZED DRIVE HEAD ELEVATOR</span>
+        <div class="action-grid">
+          <button id="btn-elev-up" class="btn-action elevate">▲ RAISE HEAD</button>
+          <button id="btn-elev-down" class="btn-action elevate">▼ LOWER HEAD</button>
+        </div>
+      </div>
+
+      <!-- Spindles & Agitation -->
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        <span class="metric-label">USP APPARATUS 2 SPINDLE DRIVE</span>
+        <div class="action-grid">
+          <button id="btn-start-stirring" class="btn-action run">START STIRRING</button>
+          <button id="btn-stop-stirring" class="btn-action stop">STOP STIRRING</button>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
+          <span style="font-size: 10px; color: var(--text-muted);">SPEED SETPOINT:</span>
+          <span id="setpoint-rpm-val" style="font-size: 11px; font-family: var(--font-mono); font-weight: 700; color: var(--cyan);">50 RPM</span>
+        </div>
+        <input id="slider-spindle-rpm" type="range" min="25" max="250" step="5" value="50" style="accent-color: var(--cyan); width: 100%;">
+      </div>
+
+      <!-- Water Bath Thermoregulation -->
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        <span class="metric-label">WATER BATH HEATER CIRCULATOR</span>
+        <div class="action-grid">
+          <button id="btn-toggle-heater" class="btn-action">TOGGLE HEATER</button>
+          <button id="btn-drop-tablets" class="btn-action run">💊 DROP TABLETS</button>
+        </div>
+      </div>
+
+      <!-- Real-time Instrument Telemetry -->
+      <div class="metric-box">
+        <span class="metric-label">WATER BATH TEMPERATURE</span>
+        <span id="readout-temp" class="metric-val">21.50 °C</span>
+        <span class="metric-sub">USP Spec: 37.00 ± 0.50 °C · 1150W Circulator</span>
+      </div>
+
+      <div class="metric-box">
+        <span class="metric-label">SPINDLE SPEED (SYNCHRONOUS)</span>
+        <span id="readout-rpm" class="metric-val">0.0 RPM</span>
+        <span class="metric-sub">Synchronous Timing Belt · Optical Encoder</span>
+      </div>
+
+      <div class="metric-box">
+        <span class="metric-label">NOYES-WHITNEY MEAN RELEASE</span>
+        <span id="readout-release" class="metric-val">0.00 %</span>
+        <span id="readout-release-sub" class="metric-sub">Prednisone 10mg USP · 900 mL Deaerated H2O</span>
+      </div>
+
+      <div class="metric-box">
+        <span class="metric-label">DRIVE HEAD ELEVATION</span>
+        <span id="readout-elevation" class="metric-val">0.0 mm</span>
+        <span class="metric-sub">Kinematic Stroke: 0.0 to 311.0 mm</span>
+      </div>
+
+      <!-- 8-Position Vessel Dissolution Grid -->
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <span class="metric-label">8-POSITION DISSOLUTION VESSELS</span>
+        <div id="vessel-container" class="vessel-grid">
+          <!-- Populated dynamically by JS -->
+        </div>
+      </div>
+
+      <!-- GLP Analytical Batch Table -->
+      <div class="glp-section">
+        <div class="glp-header-row">
+          <span class="glp-title">USP &lt;711&gt; GLP RUN RECORDS</span>
+          <button id="btn-export-csv" class="btn-export">Export CSV</button>
+        </div>
+        <div class="glp-table-wrap">
+          <table class="glp-table">
+            <thead>
+              <tr>
+                <th>Batch</th>
+                <th>RPM</th>
+                <th>Temp</th>
+                <th>Avg %</th>
+                <th>%RSD</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="glp-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Collapsible Parts Explorer Panel -->
+  <aside id="panel-parts" class="parts panel-collapsible collapsed">
+    <div class="panel-header">
+      <span class="panel-title">Part Explorer</span>
+      <button id="btn-close-parts" class="btn-collapse" title="Collapse Panel">▾</button>
+    </div>
+    <div class="panel-body">
+      <input id="parts-search" type="text" class="search-box" placeholder="Search 28 components...">
+      <div class="parts-tree" id="parts-tree">
+        <!-- Dynamically populated with all 28 semantic components -->
+      </div>
+    </div>
+  </aside>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
