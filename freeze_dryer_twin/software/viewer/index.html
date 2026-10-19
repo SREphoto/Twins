@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Labconco FreeZone 4.5L (-84°C) Digital Twin · SREdesigns</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Three.js + OrbitControls CDN -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <header class="top-bar">
+    <div class="brand-section">
+      <span class="brand-logo">SREdesigns</span>
+      <span class="model-title">FREEZONE 4.5L</span>
+      <span class="badge-sre">SREDESIGNS</span>
+      <span class="subtitle">Benchtop Cascade Freeze Dryer (-84°C)</span>
+    </div>
+    <div class="header-center">
+      <div class="btn-group">
+        <span style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin-right: 4px;">VIEW:</span>
+        <button id="btn-view-modern" class="btn-tool active">MODERN</button>
+        <button id="btn-view-retro" class="btn-tool">+ RETRO</button>
+        <button id="btn-view-night" class="btn-tool">☾ NIGHT</button>
+      </div>
+    </div>
+    <div class="header-right">
+      <div id="status-pill" class="pill standby">STANDBY</div>
+      <div id="continuity-status" class="continuity-pill">AC continuity established · 115/230V</div>
+    </div>
+  </header>
+
+  <div class="toolbar-container">
+    <div class="btn-group">
+      <button id="btn-cam-iso" class="btn-tool active">ISO</button>
+      <button id="btn-cam-front" class="btn-tool">Front</button>
+      <button id="btn-cam-collector" class="btn-tool">Collector</button>
+      <button id="btn-cam-manifold" class="btn-tool">Manifold</button>
+      <button id="btn-cam-side" class="btn-tool">Side</button>
+      <button id="btn-cam-top" class="btn-tool">Top</button>
+      <button id="btn-cam-rear" class="btn-tool">Rear</button>
+      <button id="btn-explode" class="btn-tool">Exploded view</button>
+      <button id="btn-wireframe" class="btn-tool">Wireframe</button>
+      <button id="btn-autorotate" class="btn-tool">Auto-rotate</button>
+      <div class="slider-group">
+        <span>Orbit</span>
+        <input id="slider-orbit" type="range" min="0" max="2" step="0.1" value="1.0">
+      </div>
+      <div class="slider-group">
+        <span>Zoom</span>
+        <input id="slider-zoom" type="range" min="20" max="70" step="1" value="45">
+      </div>
+    </div>
+    <div class="btn-group">
+      <div class="slider-group">
+        <span>Light</span>
+        <input id="slider-light" type="range" min="0.2" max="2.0" step="0.1" value="1.0">
+      </div>
+      <button id="btn-mute" class="btn-tool">Mute SFX</button>
+      <button id="btn-plug" class="btn-tool">🔌 AC Plug</button>
+      <button id="btn-toggle-instrument" class="btn-tool">▾ Controls</button>
+      <button id="btn-toggle-parts" class="btn-tool">▾ Parts</button>
+    </div>
+  </div>
+
+  <div id="viewport3d"></div>
+
+  <!-- Collapsible Instrument Controls Panel -->
+  <aside id="panel-instrument" class="instrument panel-collapsible">
+    <div class="panel-header">
+      <span class="panel-title">Freeze Dryer Controls</span>
+      <button id="btn-close-instrument" class="btn-collapse" title="Collapse Panel">▾</button>
+    </div>
+    <div class="panel-body">
+      <div class="action-grid">
+        <button id="btn-refrig" class="btn-action run">START REFRIG</button>
+        <button id="btn-vacuum" class="btn-action">START VACUUM</button>
+        <button id="btn-vent" class="btn-action">VENT CHAMBER</button>
+        <button id="btn-defrost" class="btn-action stop">DEFROST</button>
+      </div>
+
+      <!-- Real-time Thermal & Vacuum Metrics -->
+      <div class="metric-box">
+        <span class="metric-label">COLLECTOR TEMPERATURE</span>
+        <span id="readout-temp" class="metric-val">+21.5 °C</span>
+        <span class="metric-sub">Target: -84.0 °C (Cascade Stage 2)</span>
+      </div>
+
+      <div class="metric-box">
+        <span class="metric-label">CHAMBER VACUUM</span>
+        <span id="readout-vacuum" class="metric-val">1013.25 mbar</span>
+        <span class="metric-sub">Edwards RV5 Pumping · Pirani Sensor</span>
+      </div>
+
+      <div class="metric-box">
+        <span class="metric-label">COLLECTOR FROST ACCUMULATION</span>
+        <span id="readout-frost" class="metric-val">0.0 g</span>
+        <span id="readout-frost-sub" class="metric-sub">Ice Capacity: 4.5 L · Thickness: 0.0 mm</span>
+      </div>
+
+      <!-- 12 Quick-Seal Ports -->
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <span class="metric-label">12-PORT QUICK-SEAL VALVES</span>
+        <div id="valve-container" class="valve-grid">
+          <!-- Populated dynamically by JS -->
+        </div>
+      </div>
+
+      <!-- GLP Analytical Batch Table -->
+      <div class="glp-section">
+        <div class="glp-header-row">
+          <span class="glp-title">GLP BATCH RUN LOG</span>
+          <button id="btn-export-csv" class="btn-export">Export CSV</button>
+        </div>
+        <table class="glp-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Batch</th>
+              <th>Temp</th>
+              <th>Vac</th>
+              <th>Frost</th>
+            </tr>
+          </thead>
+          <tbody id="glp-log-body">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Collapsible Part Explorer Panel -->
+  <aside id="panel-parts" class="parts panel-collapsible">
+    <div class="panel-header">
+      <span class="panel-title">Part Explorer</span>
+      <button id="btn-close-parts" class="btn-collapse" title="Collapse Panel">▾</button>
+    </div>
+    <div class="panel-body">
+      <input id="input-search-parts" class="search-input" type="text" placeholder="Search 3D assemblies...">
+      <div id="part-list" class="part-list">
+        <!-- Populated dynamically from PART_CATALOG -->
+      </div>
+    </div>
+  </aside>
+
+  <footer class="status-bar">
+    <span id="status-hint">Interactive 3D Twin: click Quick-Seal valve levers, touchscreen softkeys, front rocker, or AC power plug</span>
+    <span>SREdesigns Digital Twin Engine · WebGL / Three.js</span>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
