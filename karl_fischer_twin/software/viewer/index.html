@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Metrohm 901 Titrando · Karl Fischer Moisture Titrator Twin</title>
+  <link rel="stylesheet" href="style.css?v=20261018-kf1" />
+  <link rel="stylesheet" href="../../../lab_viewer/shared/chemmate_themes.css?v=20261018-view" />
+</head>
+<body>
+  <div id="app">
+    <!-- Top Header Bar -->
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">SREdesigns</span>
+        <span class="brand-model">METROHM 901</span>
+        <span class="badge-sredesigns">SREdesigns</span>
+        <span class="brand-tag">Volumetric Karl Fischer Moisture Titrator Twin</span>
+      </div>
+
+      <!-- View Chooser (Modern, Retro, Night) -->
+      <div class="view-chooser" role="group" aria-label="Visual view style">
+        <span class="view-chooser-label">VIEW:</span>
+        <div class="view-chooser-group">
+          <button type="button" class="view-choice-btn active" id="btn-view-modern" title="Modern View (Default high-tech instrument theme)">
+            <span class="view-choice-text">MODERN</span>
+          </button>
+          <button type="button" class="view-choice-btn" id="btn-view-retro" title="Retro View (ChemMate warm archival paper & Swiss red educational style)">
+            <span class="view-choice-text retro"><span class="cm-mini-plus">+</span> RETRO</span>
+          </button>
+          <button type="button" class="view-choice-btn" id="btn-view-night" title="Night View (Dark greys, deep blacks, and precision Swiss reds)">
+            <span class="view-choice-text night"><span class="night-glyph">☾</span> NIGHT</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="topbar-status">
+        <span id="status-pill" class="pill run">STANDBY</span>
+        <span id="status-detail" class="muted">AC continuity established · 100-240V</span>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="workspace">
+      <!-- 3D Stage Section -->
+      <section class="stage">
+        <!-- View Toolbar with Standardized Controls -->
+        <div class="view-toolbar">
+          <button type="button" class="view-btn active" id="btn-cam-iso" title="Isometric view">ISO</button>
+          <button type="button" class="view-btn" id="btn-cam-front" title="Front view">Front</button>
+          <button type="button" class="view-btn" id="btn-cam-console" title="Zoom to Touchscreen & Keypad">Console</button>
+          <button type="button" class="view-btn" id="btn-cam-cell" title="Zoom to Titration Cell & Electrodes">Cell Station</button>
+          <button type="button" class="view-btn" id="btn-cam-dosino" title="Zoom to Dosino 800 Dispenser">Dosino Drive</button>
+          <button type="button" class="view-btn" id="btn-cam-side" title="Side view">Side</button>
+          <button type="button" class="view-btn" id="btn-cam-top" title="Top view">Top</button>
+          <button type="button" class="view-btn" id="btn-cam-rear" title="Rear view">Rear</button>
+          <button type="button" class="view-btn" id="btn-explode" title="Separate assemblies">Exploded view</button>
+          <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe">Wireframe</button>
+          <button type="button" class="view-btn" id="btn-auto-rotate" title="Orbit camera automatically">Auto-rotate</button>
+
+          <!-- Interactive Sliders -->
+          <label class="orbit-speed-ctrl" title="Auto-orbit speed">
+            <span>Orbit</span>
+            <input type="range" id="orbit-speed" min="0.2" max="4" step="0.1" value="1.0" />
+            <span id="orbit-speed-val">1.0×</span>
+          </label>
+          <label class="orbit-speed-ctrl" title="Camera zoom">
+            <span>Zoom</span>
+            <input type="range" id="camera-zoom" min="0" max="100" step="1" value="45" />
+            <span id="camera-zoom-val">45%</span>
+          </label>
+          <label class="orbit-speed-ctrl" title="Lab lighting intensity">
+            <span>Light</span>
+            <input type="range" id="lab-light" min="0.2" max="2.5" step="0.1" value="1.0" />
+            <span id="lab-light-val">1.0×</span>
+          </label>
+          <button type="button" class="view-btn" id="btn-sfx-mute" title="Mute audio sounds">Mute SFX</button>
+          <button type="button" class="view-btn" id="btn-plug-toggle" title="Toggle AC plug connection">🔌 AC Plug</button>
+        </div>
+
+        <div id="viewport3d" class="viewport"></div>
+        <div id="hud-tooltip" class="hud-tooltip" style="display: none;"></div>
+        <div class="stage-hint">Interactive 3D Twin: tap touchscreen softkeys, tactile buttons, magnetic stirrer knob, Dosino drive, or AC power plug</div>
+      </section>
+
+      <!-- Instrument Controls Panel -->
+      <aside class="instrument panel-collapsible" id="panel-instrument" data-panel="instrument">
+        <div class="panel-header">
+          <h2>Titrator Controls</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="instrument" title="Collapse panel" aria-expanded="true">▾</button>
+        </div>
+        <div class="panel-body">
+          <div class="btn-grid">
+            <button type="button" class="btn btn-primary" id="btn-condition">CONDITION CELL</button>
+            <button type="button" class="btn btn-scan" id="btn-start">START TITR</button>
+          </div>
+          <div class="btn-grid">
+            <button type="button" class="btn" id="btn-inject">INJECT SAMPLE</button>
+            <button type="button" class="btn btn-danger" id="btn-stop">STOP</button>
+          </div>
+
+          <!-- Sample Selection -->
+          <div class="form-group">
+            <label for="sample-select">Sample Analyte</label>
+            <select id="sample-select">
+              <option value="water_std_1">Hydranal Water Standard 1.0% (1.0000 g)</option>
+              <option value="water_std_01">Hydranal Water Standard 0.1% (2.0000 g)</option>
+              <option value="pure_methanol">HPLC Anhydrous Methanol (5.0000 g)</option>
+              <option value="pharma_api">Lyophilized API Powder (0.2500 g)</option>
+              <option value="custom_water">Custom Pure Water (0.0100 g)</option>
+            </select>
+          </div>
+
+          <!-- Magnetic Stirrer Slider -->
+          <div class="form-group">
+            <label for="stir-speed-slider">Magnetic Stirrer Speed: <span id="stir-speed-val" style="color: var(--cyan); font-weight: 700;">600 RPM</span></label>
+            <input type="range" id="stir-speed-slider" min="0" max="1500" step="50" value="600" />
+          </div>
+
+          <!-- Live Analytical Readouts -->
+          <div class="card-readout">
+            <span class="readout-label">POLARIZED POTENTIAL U</span>
+            <span class="readout-val" id="readout-potential">540 mV</span>
+            <span class="readout-sub">Double-Pt Pin Electrode (Ipol = 20 µA)</span>
+          </div>
+
+          <div class="card-readout">
+            <span class="readout-label">DOSINO 800 TITRANT CONSUMED</span>
+            <span class="readout-val amber" id="readout-volume">0.0000 mL</span>
+            <span class="readout-sub">Titer: 4.985 mg H2O/mL · Res: 0.1 µL</span>
+          </div>
+
+          <div class="card-readout">
+            <span class="readout-label">CALCULATED WATER CONTENT</span>
+            <span class="readout-val green" id="readout-water">0.000 %</span>
+            <span class="readout-sub" id="readout-ppm">0.0 ppm · Drift: 8.5 µg/min</span>
+          </div>
+
+          <!-- GLP Compliance Batch Log -->
+          <div class="form-group" style="margin-top: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label>GLP Batch Run Log</label>
+              <button type="button" class="btn" id="btn-export-csv" style="padding: 2px 8px; font-size: 0.7rem;">Export CSV</button>
+            </div>
+            <div style="max-height: 180px; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px; background: #0a0e14;">
+              <table class="glp-table" id="glp-table">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Sample</th>
+                    <th>Mass</th>
+                    <th>mL</th>
+                    <th>H2O %</th>
+                  </tr>
+                </thead>
+                <tbody id="glp-tbody">
+                  <!-- Dynamic Batch Entries -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Part Explorer Panel -->
+      <aside class="parts panel-collapsible" id="panel-parts" data-panel="parts">
+        <div class="panel-header">
+          <h2>Part Explorer</h2>
+          <button type="button" class="panel-collapse-btn" data-collapse="parts" title="Collapse panel" aria-expanded="true">▾</button>
+        </div>
+        <div class="panel-body">
+          <input type="text" id="part-search" class="parts-search" placeholder="Search 3D assemblies..." />
+          <div class="part-list" id="part-list">
+            <!-- Populated dynamically by app.js -->
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script src="sfx.js?v=20261018-kf1"></script>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="app.js?v=20261018-kf1"></script>
+</body>
+</html>
