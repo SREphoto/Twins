@@ -907,20 +907,23 @@
 
       function updateCardLinks(theme) {
         allLinks.forEach(a => {
-          const rawHref = a.getAttribute('href');
-          if (!rawHref || rawHref.startsWith('#') || rawHref.startsWith('javascript:')) return;
+          if (!a.dataset.origHref) {
+            a.dataset.origHref = a.getAttribute('href');
+          }
+          const baseHref = a.dataset.origHref;
+          if (!baseHref || baseHref.startsWith('#') || baseHref.startsWith('javascript:')) return;
           try {
-            const url = new URL(rawHref, window.location.href);
+            const [pathPart, queryPart] = baseHref.split('?');
+            const [pathAndHash, hashPart] = pathPart.split('#');
+            const searchParams = new URLSearchParams(queryPart || '');
             if (theme && theme !== 'modern') {
-              url.searchParams.set('theme', theme);
+              searchParams.set('theme', theme);
             } else {
-              url.searchParams.delete('theme');
+              searchParams.delete('theme');
             }
-            // Retain path relative to current page
-            const path = url.pathname.replace(/^\//, '');
-            const search = url.search ? url.search : '';
-            const hash = url.hash ? url.hash : '';
-            a.setAttribute('href', path + search + hash);
+            const newQuery = searchParams.toString();
+            const newHref = pathAndHash + (newQuery ? '?' + newQuery : '') + (hashPart ? '#' + hashPart : '');
+            a.setAttribute('href', newHref);
           } catch (_) {}
         });
       }
