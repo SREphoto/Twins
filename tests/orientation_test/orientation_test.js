@@ -129,11 +129,10 @@ export function createUniversalDecalQuad(width, height, normal, upHint, title, s
   const n = normal.clone().normalize();
   let vUp = upHint ? upHint.clone().normalize() : new THREE.Vector3(0, 1, 0);
 
-  // If normal is nearly parallel to vUp (e.g. flat horizontal plane facing +Y):
-  if (Math.abs(n.dot(vUp)) > 0.95) {
-    // For horizontal top surface facing operator at -Z:
-    // vUp is (0, 0, -1) so localX = vUp x n = (1, 0, 0) [Right = +X]
-    vUp = n.y > 0 ? new THREE.Vector3(0, 0, -1) : new THREE.Vector3(0, 0, 1);
+  // If normal is strictly parallel to vUp (only true horizontal decks facing pure +Y or -Y):
+  if (Math.abs(n.dot(vUp)) > 0.999) {
+    // For horizontal top surface facing operator at -Z, top edge points away in +Z:
+    vUp = n.y > 0 ? new THREE.Vector3(0, 0, 1) : new THREE.Vector3(0, 0, -1);
   }
 
   // Orthogonalize vUp with respect to n: vUp = normalize(vUp - (vUp · n) * n)
@@ -217,7 +216,7 @@ const planeConfigs = [
     sub: 'Flat benchtop deck facing UP',
     angleText: 'PITCH: 0.0° (Y-UP)',
     normal: new THREE.Vector3(0, 1, 0),
-    upHint: new THREE.Vector3(0, 0, -1),
+    upHint: new THREE.Vector3(0, 0, 1),
     pos: new THREE.Vector3(-4.5, 0.02, -1.8),
   },
   // 2. Sloped Console 15° (Shimadzu UV-Vis / Benchtop pH deck)
@@ -352,13 +351,19 @@ document.getElementById('btn-iso')?.addEventListener('click', () => setView('iso
 document.getElementById('btn-top')?.addEventListener('click', () => setView('top'));
 document.getElementById('btn-side')?.addEventListener('click', () => setView('side'));
 
+window.camera = camera;
+window.controls = controls;
 window.setView = setView;
 window.focusPlane = (idx) => {
   const cfg = planeConfigs[idx - 1];
   if (!cfg) return;
   const n = cfg.normal.clone().normalize();
   controls.target.copy(cfg.pos);
-  camera.position.copy(cfg.pos).add(n.multiplyScalar(2.8));
+  if (Math.abs(n.y) > 0.9) {
+    camera.position.copy(cfg.pos).add(new THREE.Vector3(0, 2.2, -1.8));
+  } else {
+    camera.position.copy(cfg.pos).add(n.multiplyScalar(2.8));
+  }
   controls.update();
 };
 window.__ready = true;

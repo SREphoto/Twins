@@ -351,10 +351,10 @@ export function createDecalQuad(width, height, normal, upHint = new THREE.Vector
   const n = normal.clone().normalize();
   let vUp = upHint.clone().normalize();
 
-  // If normal is nearly parallel to vUp (e.g. flat horizontal plane facing +Y):
-  if (Math.abs(n.dot(vUp)) > 0.95) {
-    // For horizontal top surface, operator stands at -Z looking towards +Z
-    vUp = n.y > 0 ? new THREE.Vector3(0, 0, -1) : new THREE.Vector3(0, 0, 1);
+  // If normal is strictly parallel to vUp (only true horizontal decks facing pure +Y or -Y):
+  if (Math.abs(n.dot(vUp)) > 0.999) {
+    // For horizontal top surface, operator stands at -Z looking towards +Z (top edge points in +Z):
+    vUp = n.y > 0 ? new THREE.Vector3(0, 0, 1) : new THREE.Vector3(0, 0, -1);
   }
 
   // Gram-Schmidt orthogonalization: vUp = normalize(vUp - (vUp · n) * n)
