@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SREdesigns 10-Plane Orientation Benchmark Test</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0f172a;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
+    #viewport { width: 100%; height: 100%; display: block; }
+    #header {
+      position: absolute;
+      top: 12px;
+      left: 16px;
+      z-index: 100;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid #334155;
+      padding: 10px 16px;
+      border-radius: 8px;
+      backdrop-filter: blur(8px);
+    }
+    #header h1 { font-size: 16px; color: #38bdf8; margin-bottom: 4px; }
+    #header p { font-size: 12px; color: #94a3b8; }
+    #toolbar {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      z-index: 100;
+      display: flex;
+      gap: 8px;
+    }
+    button {
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #38bdf8;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    button:hover { background: #38bdf8; color: #0f172a; }
+  </style>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="header">
+    <h1>SREdesigns 10-Plane Decal Orientation Benchmark</h1>
+    <p>Every plane must show: [▲ TOP ▲] at top, [L-TO-R] readable left-to-right, [▼ BOT ▼] at bottom</p>
+  </div>
+  <div id="toolbar">
+    <button id="btn-front">CAM: FRONT</button>
+    <button id="btn-iso">CAM: ISO</button>
+    <button id="btn-top">CAM: TOP</button>
+    <button id="btn-side">CAM: SIDE</button>
+  </div>
+  <div id="viewport"></div>
+
+  <script type="module" src="orientation_test.js?v=20261019-v4"></script>
+</body>
+</html>

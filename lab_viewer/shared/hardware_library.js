@@ -323,3 +323,51 @@ export function createRockerSwitch(options = {}) {
 
   return group;
 }
+
+/**
+ * Universal Guaranteed Upright Decal & LCD Quad Factory (createDecalQuad)
+ * 
+ * Works for ANY surface orientation: horizontal decks, sloped consoles, vertical fascias, and compound angles.
+ * Automatically computes an orthonormal basis [localX, vUp, normal] and applies UV Y-inversion
+ * so that procedural CanvasTextures (flipY = false) render strictly upright and unmirrored.
+ * 
+ * @param {number} width - Plane width (local X)
+ * @param {number} height - Plane height (local Y)
+ * @param {THREE.Vector3} normal - Surface normal pointing outward toward the operator
+ * @param {THREE.Vector3} [upHint] - Desired up direction (default: world +Y, or -Z for Y-up desks)
+ * @param {THREE.Material} [material] - Optional material; defaults to MeshBasicMaterial
+ * @returns {THREE.Mesh} Fully oriented Plane mesh
+ */
+export function createDecalQuad(width, height, normal, upHint = new THREE.Vector3(0, 1, 0), material = null) {
+  const geo = new THREE.PlaneGeometry(width, height);
+
+  // Canonical UV Y-inversion for CanvasTexture with flipY = false
+  const uv = geo.attributes.uv;
+  for (let i = 0; i < uv.count; i++) {
+    uv.setY(i, 1.0 - uv.getY(i));
+  }
+  uv.needsUpdate = true;
+
+  const n = normal.clone().normalize();
+  let vUp = upHint.clone().normalize();
+
+  // If normal is nearly parallel to vUp (e.g. flat horizontal plane facing +Y):
+  if (Math.abs(n.dot(vUp)) > 0.95) {
+    // For horizontal top surface, operator stands at -Z looking towards +Z
+    vUp = n.y > 0 ? new THREE.Vector3(0, 0, -1) : new THREE.Vector3(0, 0, 1);
+  }
+
+  // Gram-Schmidt orthogonalization: vUp = normalize(vUp - (vUp · n) * n)
+  vUp.sub(n.clone().multiplyScalar(vUp.dot(n))).normalize();
+
+  // Right-hand rule: localX = vUp x n
+  const localX = new THREE.Vector3().crossVectors(vUp, n).normalize();
+  const mat4 = new THREE.Matrix4().makeBasis(localX, vUp, n);
+
+  const mat = material || new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.setRotationFromMatrix(mat4);
+
+  return mesh;
+}
+
