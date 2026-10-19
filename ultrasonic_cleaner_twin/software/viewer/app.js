@@ -11,8 +11,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { DragControls } from 'three/addons/controls/DragControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { buildLabRoom, INSTRUMENT_BENCH } from '../../../centrifuge_twin/software/viewer/centrifuge3d.js?v=20260726-proc';
-import { createUltrasonicCleanerModel } from './ultrasonic3d.js?v=20260726-proc';
+import { buildLabRoom, INSTRUMENT_BENCH } from '../../../centrifuge_twin/software/viewer/centrifuge3d.js?v=20261019-gold1';
+import { createUltrasonicCleanerModel } from './ultrasonic3d.js?v=20261019-gold1';
 import { sfx } from './sfx.js';
 import { initChemMateTheme } from '../../../lab_viewer/shared/chemmate_theme_manager.js';
 
@@ -26,6 +26,8 @@ const cleanLog = document.getElementById('clean-log');
 
 // Simulation State
 const state = {
+  isPluggedIn: true,
+  rearSwitchOn: true,
   powerOn: true,
   running: false,
   degas: false,
@@ -66,7 +68,8 @@ const mouse = new THREE.Vector2();
 
 // Dynamic LCD Canvas Texture
 const lcdTexture = new THREE.CanvasTexture(lcdCanvas);
-lcdTexture.flipY = false; // MANDATORY CAD GOVERNANCE RULE
+lcdTexture.flipY = true;
+lcdTexture.colorSpace = THREE.SRGBColorSpace;
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 
@@ -92,6 +95,11 @@ function init3D() {
   controls.target.set(-0.25, 1.75, -0.1);
   controls.enableDamping = true;
   controls.maxPolarAngle = Math.PI * 0.495;
+
+  window.__camera = camera;
+  window.__controls = controls;
+  window.__scene = scene;
+  window.__appState = state;
 
   ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
   scene.add(ambientLight);
@@ -151,7 +159,7 @@ function init3D() {
   // Initialize basket to bench position
   if (mdl.basket) {
     // Offset basket to open bench on the right
-    mdl.basket.position.set(2.0, 0.0, -0.2); 
+    mdl.basket.position.set(2.70, 0.0, -0.2); 
   }
 
   // Collect all meshes for wireframe/focus/raycasting
@@ -239,7 +247,7 @@ function setupDragControls() {
           state.basketLocation = 'lowered';
         }
       } else {
-        mdl.basket.position.set(2.0, 0.0, -0.2);
+        mdl.basket.position.set(2.70, 0.0, -0.2);
         state.basketLocation = 'bench';
       }
       sfx.playBeep(750);
@@ -263,7 +271,7 @@ function setupDragControls() {
         // Snap to bench in front of basket
         state.sampleLocation = 'bench';
         modelRoot.add(sampleGroup);
-        sampleGroup.position.set(2.0, 0.0, -0.9);
+        sampleGroup.position.set(2.70, 0.0, -0.9);
         logEvent('Sample moved to lab bench.');
       }
       sfx.playBeep(750);
@@ -274,44 +282,15 @@ function setupDragControls() {
 // ─── POWER CORD ──────────────────────────────────────────────────────────────
 
 function createPowerCord(outletPos, surfaceY) {
-  // Get IEC exit point in world coords
-  const iecWorld = new THREE.Vector3(
-    mdl.iecExit.x, mdl.iecExit.y, mdl.iecExit.z
-  );
-  modelRoot.localToWorld(iecWorld);
-
-  const curve = new THREE.CatmullRomCurve3([
-    iecWorld,
-    new THREE.Vector3(iecWorld.x - 0.15, surfaceY + 0.06, iecWorld.z + 0.06),
-    new THREE.Vector3(iecWorld.x - 0.3, surfaceY + 0.035, iecWorld.z + 0.3),
-    new THREE.Vector3(outletPos.x - 0.3, surfaceY + 0.03, outletPos.z - 0.3),
-    new THREE.Vector3(outletPos.x, outletPos.y - 0.05, outletPos.z - 0.12),
-  ]);
-
-  const cordGeo = new THREE.TubeGeometry(curve, 48, 0.024, 8, false);
-  const cordMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.8 });
-  const cordMesh = new THREE.Mesh(cordGeo, cordMat);
-  cordMesh.castShadow = true;
-  cordMesh.name = "Body_PowerCord";
-  scene.add(cordMesh);
-
-  // Molded IEC C13 plug at machine end
-  const iecPlug = new THREE.Mesh(
-    new THREE.BoxGeometry(0.12, 0.08, 0.14),
-    new THREE.MeshStandardMaterial({ color: 0x0f0f10, roughness: 0.6 })
-  );
-  iecPlug.position.copy(iecWorld).add(new THREE.Vector3(0, 0, 0.04));
-  iecPlug.name = "Body_IECPlug";
-  scene.add(iecPlug);
-
-  // Wall outlet plug
-  const plug = new THREE.Mesh(
-    new THREE.BoxGeometry(0.1, 0.07, 0.14),
-    new THREE.MeshStandardMaterial({ color: 0x0a0a0b, roughness: 0.6 })
-  );
-  plug.position.set(outletPos.x, outletPos.y - 0.05, outletPos.z - 0.08);
-  plug.name = "Body_WallPlug";
-  scene.add(plug);
+  // Model contains Power_Receptacle_Duplex, Power_Plug_NEMA, and Power_Cord_SJTOW
+  if (mdl.outletGroup && outletPos) {
+    const worldOutlet = new THREE.Vector3(outletPos.x, surfaceY + 0.15, outletPos.z);
+    modelRoot.worldToLocal(worldOutlet);
+    mdl.outletGroup.position.set(worldOutlet.x, 0.15, worldOutlet.z);
+    if (mdl.plugGroup) {
+      mdl.plugGroup.position.set(worldOutlet.x, 0.23, worldOutlet.z - 0.16);
+    }
+  }
 }
 
 // ─── SAMPLE SYSTEM ───────────────────────────────────────────────────────────
@@ -326,7 +305,7 @@ function rebuild3DSample(type) {
   }
   
   // Position on the bench in front of basket
-  sampleGroup.position.set(2.0, 0.0, -0.9);
+  sampleGroup.position.set(2.70, 0.0, -0.9);
   state.sampleLocation = 'bench';
 
   if (type === 'grease') {
@@ -456,15 +435,21 @@ function rebuild3DSample(type) {
 // ─── LCD ─────────────────────────────────────────────────────────────────────
 
 function drawLCD() {
-  lcdCtx.fillStyle = '#020b14';
-  lcdCtx.fillRect(0, 0, 1024, 512);
-  if (!state.powerOn) {
-    lcdCtx.fillStyle = '#1e293b';
-    lcdCtx.font = 'bold 36px monospace';
-    lcdCtx.fillText('POWER OFF', 40, 60);
+  const hasPower = state.isPluggedIn && state.rearSwitchOn && state.powerOn;
+  if (!hasPower) {
+    lcdCtx.fillStyle = '#020b14';
+    lcdCtx.fillRect(0, 0, 1024, 512);
+    if (state.isPluggedIn && state.rearSwitchOn && !state.powerOn) {
+      lcdCtx.fillStyle = '#1e293b';
+      lcdCtx.font = 'bold 36px monospace';
+      lcdCtx.fillText('POWER OFF', 40, 60);
+    }
     lcdTexture.needsUpdate = true;
     return;
   }
+
+  lcdCtx.fillStyle = '#020b14';
+  lcdCtx.fillRect(0, 0, 1024, 512);
   lcdCtx.fillStyle = '#00d4e8';
   lcdCtx.font = 'bold 36px monospace';
   lcdCtx.fillText('ULTRASONIC 3000-PRO', 40, 60);
@@ -523,7 +508,15 @@ function logEvent(msg) {
 }
 
 function updateStatusPill() {
-  if (!state.powerOn) {
+  if (!state.isPluggedIn) {
+    statusPill.textContent = 'NO POWER';
+    statusPill.className = 'pill fault';
+    statusDetail.textContent = 'Power cord unplugged from bench duplex outlet';
+  } else if (!state.rearSwitchOn) {
+    statusPill.textContent = 'OFFLINE';
+    statusPill.className = 'pill';
+    statusDetail.textContent = 'Rear rocker mains switch turned OFF';
+  } else if (!state.powerOn) {
     statusPill.textContent = 'POWER OFF';
     statusPill.className = 'pill';
     statusDetail.textContent = 'Press POWER to start';
@@ -627,7 +620,13 @@ function onPointerDown(event) {
       }
       curr = curr.parent;
     }
-    const nm = (targetMesh.name || hitMesh.name || '').toLowerCase();
+    let parentNm = '';
+    let p = hitMesh;
+    while (p && p !== scene) {
+      if (p.name) parentNm += ' ' + p.name.toLowerCase();
+      p = p.parent;
+    }
+    const nm = ((targetMesh.name || hitMesh.name || '') + ' ' + parentNm).toLowerCase();
 
     if (keyId) {
       // Glow support
@@ -668,6 +667,14 @@ function onPointerDown(event) {
     else if (nm.includes('basket')) {
       if (state.basketLocation === 'bench') moveBasket();
       else liftBasket();
+    }
+    // Handle power plug / receptacle / cord click
+    else if (nm.includes('plug') || nm.includes('receptacle') || nm.includes('power_cord')) {
+      togglePlugContinuity();
+    }
+    // Handle rear switch click
+    else if (nm.includes('switchrear') || nm.includes('switch_rear') || nm.includes('powerswitchrear')) {
+      toggleRearSwitch();
     }
   }
 }
@@ -718,7 +725,7 @@ function moveBasket() {
     logEvent('Basket moved from lab bench to machine (raised).');
   } else if (state.basketLocation === 'raised') {
     state.basketLocation = 'bench';
-    mdl.basket.position.set(2.0, 0.0, -0.2); // Position on lab bench
+    mdl.basket.position.set(2.70, 0.0, -0.2); // Position on lab bench
     logEvent('Basket moved from machine to lab bench.');
   } else {
     alert('Basket must be raised before moving it to the bench.');
@@ -775,6 +782,11 @@ function updateBasketUI() {
 }
 
 function togglePower() {
+  if (!state.isPluggedIn || !state.rearSwitchOn) {
+    sfx.playBeep(300);
+    logEvent('Cannot power ON: AC cord unplugged or rear rocker switch open.');
+    return;
+  }
   state.powerOn = !state.powerOn;
   sfx.playRelayClick();
   if (!state.powerOn) {
@@ -786,6 +798,41 @@ function togglePower() {
   drawLCD();
   updateStatusPill();
   logEvent(state.powerOn ? 'Mains power ON.' : 'Mains power OFF.');
+}
+
+function togglePlugContinuity() {
+  state.isPluggedIn = !state.isPluggedIn;
+  sfx.playRelayClick();
+  if (mdl && mdl.plugGroup) {
+    if (state.isPluggedIn) {
+      mdl.plugGroup.position.set(-mdl.bodyWidth / 2 - 1.20, 0.15 + 0.08, 1.20 - 0.16);
+    } else {
+      mdl.plugGroup.position.set(-mdl.bodyWidth / 2 - 1.20, 0.08, 1.20 - 0.55);
+    }
+  }
+  if (!state.isPluggedIn) {
+    state.running = false;
+    state.heaterOn = false;
+    sfx.setTransducerHum(false);
+    if (mdl.cavitationParticles) mdl.cavitationParticles.visible = false;
+  }
+  drawLCD();
+  updateStatusPill();
+  logEvent(state.isPluggedIn ? 'Mains NEMA 5-15P plug seated in duplex receptacle.' : 'Mains cord disconnected from outlet.');
+}
+
+function toggleRearSwitch() {
+  state.rearSwitchOn = !state.rearSwitchOn;
+  sfx.playRelayClick();
+  if (!state.rearSwitchOn) {
+    state.running = false;
+    state.heaterOn = false;
+    sfx.setTransducerHum(false);
+    if (mdl.cavitationParticles) mdl.cavitationParticles.visible = false;
+  }
+  drawLCD();
+  updateStatusPill();
+  logEvent(state.rearSwitchOn ? 'Rear rocker circuit breaker switch turned ON.' : 'Rear rocker switch turned OFF.');
 }
 
 function toggleDegas() {

@@ -29,6 +29,7 @@ Cause Analysis, and Mathematical Fixes
 | **DIAG-020** | Kinematic Exposure       | Exploded view conceals internal motor/coils behind shell  | Shell chassis left at origin $(0,0,0)$ during exploded view      | Elevate unibody shell $+105\text{ mm}$ along vertical kinematic axis |
 | **DIAG-021** | Kinematic Direction      | Toggle lever points to TOUCH while running in CONTINUOUS  | Counter-clockwise Z-rotation treated as clockwise in 3D space    | Synchronize 3D rotational sign with silkscreen text and mode states  |
 | **DIAG-022** | Preflight QA / Framing   | Sample tube/cap cut off at top of camera frame; blind QA  | Tight camera framing; agent skipped visual inspection of renders | Total bounding box framing; mandatory `view_file` preflight audit    |
+| **DIAG-023** | Texture Orientation / UV | Text, logos, or LCD digits upside-down or mirrored on -Z face | Rotating plane geometry around Y by $\pi$ flips X in world space; applying $(1-x, 1-y)$ creates a $180^\circ$ rotation | Use explicit `makeOperatorFacingQuadGeo` BufferGeometry with correct screen-to-UV mapping; see `LESSONS_LEARNED.md` |
 
 ---
 
