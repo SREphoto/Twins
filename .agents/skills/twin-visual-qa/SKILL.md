@@ -173,3 +173,24 @@ Before approving any build:
 10. **Lab Desk Registry**:
     - Register the twin in `lab_viewer/machines/registry.js` with `"status": "ready"`.
 
+---
+
+## 4. Mandatory 7-Stage Operator Experience & Internal Anatomy Presentation (`walkthrough.md`)
+
+When presenting a completed machine to the user, `walkthrough.md` must include visual screenshots and detailed real-world explanations for all 7 stages:
+
+1. **Powering On & Electrical Continuity (`STATE_UNPLUGGED` & `STATE_STANDBY`)**: Connecting the NEMA 5-15P plug to `Power_Receptacle_Duplex`, switching on mains power, and verifying LCD illumination.
+2. **Product & External Accessory Setup (`STATE_LABWARE_PREP`)**: Preparing sample vessels, media, and dosage units/specimens outside or in the raised loading position.
+3. **Insertion, Loading & Safety (`STATE_INSERTION_SAFETY`)**: Mounting accessories, lowering/closing the chamber or lift mechanism, and verifying safety interlocks (power, thermal, level, lid).
+4. **Physical & Software Machine Setup (`CAM_CONSOLE`)**: Configuring physical membrane keys/knobs (`Btn_*`, `Knob_*`) and web UI parameters (monograph profile, temperature, speed, timer).
+5. **Active Run, Live Outputs & "How/Why" Process Physics (`STATE_ACTIVE` & `CAM_PROCESS_CLOSEUP`)**: Explaining real-time telemetry outputted to the user (LCD, HUD, audio) and the physical/chemical mechanisms occurring during operation.
+6. **End-of-Run Output & Results Examination (`STATE_COMPLETE`)**: Inspecting the finished sample state, evaluating pass/fail criteria, and examining the exported GLP CSV audit trail.
+7. **Internal Working Shots & Electromechanical, Power, Sensor & Data Anatomy (`STAGE7_POWER_ROUTING`, `STAGE7_MOTORS_ACTUATORS`, `STAGE7_SENSORS_OPTICS`, `STAGE7_DATA_COMMS`, `CAM_EXPLODED`)**:
+   - **7A (Power Supply & Routing)**: Close-up of the switching PSU, toroidal transformer, EMI filter, SSR heatsink, and color-coded 3D wiring harnesses routing AC and DC power throughout the entire machine.
+   - **7B (Motors & Actuators)**: Close-up of all internal motors (drive motor, lift stepper actuators, circulation pump motor, cooling fan) and mechanical linkages.
+   - **7C (Sensors, Controllers & Mirrors)**: Close-up of all internal sensors (PT100 RTD, optical encoders, limit switches, float sensor, optical endpoint detectors, and 45° optical relay mirrors).
+   - **7D (Data Storage, Wireless & Ports)**: Close-up of the motherboard data chips (MCU, DRAM, eMMC/SSD Flash, RTC backup battery, ADC), Wi-Fi / Bluetooth BLE radio module + antenna, and rear I/O ports (`RS-232`, `USB-B`, `USB-A Flash`, `RJ45 Ethernet`).
+8. **Narrated Social Media Walkthrough Video & In-App Guided Tour (`ERWEKA_ZT322_Social_Walkthrough.mp4` & `🎬 Guided Tour`)**:
+   - Every twin must provide an interactive `🎬 Guided Tour` mode (`TOUR_CHAPTERS` + `#tourOverlay`) in the viewer and a standalone 1080p narrated `.mp4` walkthrough video generated via `node scripts/generate_walkthrough_video.mjs <twin_dir> <artifact_mp4_path>` and verified by **Gate 5** of `scripts/oga_validator.mjs`.
+
+

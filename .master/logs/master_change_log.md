@@ -4,6 +4,43 @@ Newest first. Template: `templates/change_log_entry.md`.
 
 ---
 
+## 2026-10-25 · OGA · build-erweka-zt322-disintegration-tester-twin
+
+| Field   | Value                                                                                                                                                                                                                                                            |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | OGA (Organizational Governance Agent) / Digital Twin Architecture Team                                                                                                                                                                                           |
+| Machine | `disintegration_tester_twin`, `lab_viewer`, `workspace`                                                                                                                                                                                                          |
+| Intent  | Plan and execute the ERWEKA ZT 322 Tablet Disintegration Tester (USP <701> / Ph. Eur. 2.9.1) digital twin (`disintegration_tester_twin`) to the 13-Subagent Centrifuge Gold Standard: dual-station independent basket lift mechanism, precision $55.0\text{ mm}$ harmonic oscillation drive ($30\text{ CPM}$), $6.5\text{ L}$ clear molded acrylic water bath with $1000\text{ W}$ PT100 immersion heater/circulator, dual $1000\text{ mL}$ borosilicate glass beakers, USP Apparatus A 6-tube baskets with 10-mesh 316L stainless steel bottom screens and V-grooved fluted guide disks, full internal electronics bay (`Body_PCB_Motherboard`, `Body_Part_MCU_Core`, `Body_Part_RAM_Chip`, `Body_Part_SSD_Module`, `Body_Assembly_PowerSupply`, `Body_Part_ToroidalTransformer`, `Body_Relay_SSR_Heater`, `Body_Fan_CabinetCooling_Blower`), hard electrical continuity (`Body_Power_Receptacle_Duplex`, `Body_Power_Plug_NEMA`, `Body_Power_Cord_SJTOW`), dynamic Canvas LCD (`UI_LCD`), pure Python state machine with 10/10 passing unit tests, Web Audio synthesizer, and master registry integration. |
+
+### Created
+
+- `disintegration_tester_twin/research/sources.md`: OEM ERWEKA ZT 322 technical specifications and USP <701> / Ph. Eur. 2.9.1 regulatory metrological tolerances.
+- `disintegration_tester_twin/docs/dimensions.md`: 1:1 millimeter coordinate system, datum $Y = 0$ grounding, basket-rack assembly geometry, and harmonic drive physics equations.
+- `disintegration_tester_twin/docs/BOM.md`: Complete 30+ part Bill of Materials adhering to the Semantic Part Taxonomy.
+- `disintegration_tester_twin/docs/control_spec.md`: Deterministic state transition diagram, safety interlocks, and GLP telemetry CSV schema.
+- `disintegration_tester_twin/software/controller/disintegration_controller.py`: Pure Python controller modeling AC power continuity, thermal bath PID loop, dual basket lift kinematics, harmonic stroke counter, and monograph tablet disintegration curves.
+- `disintegration_tester_twin/software/controller/test_controller.py`: 10-test unit test suite verifying power interlocks, stroke cadence, thermal regulation, and GLP export (100% pass rate).
+- `disintegration_tester_twin/software/viewer/disintegration3d.js`: Exhaustive procedural Three.js 3D assembly with genuine 3D hex socket fasteners, leveling feet, internal PCB/PSU/SSR/motor bay, acrylic bath, Griffin beakers, and dual 6-tube USP Apparatus A baskets.
+- `disintegration_tester_twin/software/viewer/sfx.js`: Web Audio API procedural soundscape (30 CPM stepper harmonic drive hum, water bath circulator purr, SSR relay click, membrane key beep, completion chime).
+- `disintegration_tester_twin/software/viewer/app.js`: Real-time simulation orchestrator, interactive raycaster, Part Explorer, and GLP CSV generator.
+- `disintegration_tester_twin/software/viewer/index.html` & `style.css`: Centrifuge Gold-Standard collapsible 3-panel UI with Modern, Retro, and Night View Chooser support.
+- `disintegration_tester_twin/scripts/test.sh` & `serve.sh`: Executable test runner and local HTTP server scripts.
+- `disintegration_tester_twin/docs/ERWEKA_ZT322_Social_Walkthrough.mp4`: 10-chapter narrated H.264/AAC social media walkthrough video covering Stages 1–6 and Internal Working Anatomy 7A–7D.
+- `disintegration_tester_twin/docs/media/`: High-resolution operator workflow and Stage 7A–7D internal anatomy renders.
+- `presentations.html`: Video Presentations & Internal Working Anatomy Hub page linked from the landing page.
+- `scripts/generate_walkthrough_video.mjs`: Automated Headless Chrome CDP + macOS `say` + `ffmpeg` social media walkthrough video generator.
+- `.master/registry/disintegration_tester_twin_manifest.md`: Machine manifest for the ERWEKA ZT 322 twin.
+- `.master/logs/report_cards/2026-10-25_OGA_disintegration-tester.md`: Session self-report card.
+
+### Changed
+
+- `index.html`: Added Card #17 (`ERWEKA ZT 322` / `disintegration_tester_twin`) and updated operational twin counters to 17.
+- `lab_viewer/machines/registry.js`: Registered `disintegration_tester` along with `karl_fischer`, `freeze_dryer`, and `dissolution_tester`.
+- `scripts/oga_validator.mjs`: Added Gate 5 verifying end-to-end 3D power routing harnesses, multi-motor actuators, internal sensors & 45-degree optical relay mirrors, wireless (Wi-Fi / Bluetooth BLE 5.2) & USB storage, and 10-chapter guided tour presentation.
+- `.master/registry/machines.md`: Added `disintegration_tester_twin` as an active Gold-Standard machine (`yes`).
+
+---
+
 ## 2026-10-18 · OGA-UI · centrifuge-topbar-dropdown-and-workflow-consolidation
 
 | Field   | Value                                                                                                                                                                                                                                                            |

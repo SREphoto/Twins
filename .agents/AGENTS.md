@@ -109,4 +109,34 @@ All agents must strictly cross-reference `.agents/TROUBLESHOOTING_LOG.md` before
 
 Before requesting signoff or claiming completion, the agent must execute and document the 10-point checklist (`CHK-01` through `CHK-10`) in `.agents/TROUBLESHOOTING_LOG.md`. Every screenshot MUST be visually reviewed using `view_file`.
 
+## 11. Mandatory Completed Machine Presentation & Operator Walkthrough Standard
+
+Whenever presenting a completed machine digital twin (`walkthrough.md` and final user presentation), you MUST provide a comprehensive **Visual Operator Experience Walkthrough & Internal Working Anatomy Guide** illustrated with dedicated high-resolution screenshots (captured via CDP and verified with `view_file`) covering all 7 operational and anatomical stages:
+
+1. **Powering On & Electrical Continuity (`STATE_UNPLUGGED` vs. `STATE_STANDBY`)**:
+   - Show and explain the real-life power-up sequence: inspecting the power cord, inserting the NEMA 5-15P plug into the benchtop duplex receptacle (`Power_Receptacle_Duplex`), flipping the main breaker/rocker switch, and verifying transition from blackout (`POWER_OFF`) to self-test standby (`STANDBY`).
+2. **Product, Reagent & External Accessory Setup (`STATE_LABWARE_PREP`)**:
+   - Show and explain how the operator prepares consumables, reagents, media, and external accessories prior to loading (e.g., filling vessels/baths, preparing sample tubes/baskets/disks, selecting monograph samples).
+3. **Physical Insertion, Loading & Safety Protocols (`STATE_INSERTION_SAFETY`)**:
+   - Show and explain how accessories and samples are physically inserted/mounted into the machine (e.g., raising/lowering lift mechanisms, coupling quick-release collets, closing safety lids/doors) and detail all real-world and digital safety interlocks (power continuity, thermal cutoffs, liquid level sensors, lid interlocks).
+4. **Physical & Software Machine Setup (`CAM_CONSOLE`)**:
+   - Show a close-up of the operator console (`UI_LCD` and tactile `Btn_*` / `Knob_*` controls) alongside the web control panel, explaining how the operator configures physical controls and software parameters (temperature setpoints, speed/RPM/CPM, timers, sample profiles) before starting a run.
+5. **Active Run, Live User Outputs & Process Physics ("How & Why") (`STATE_ACTIVE` & `CAM_PROCESS_CLOSEUP`)**:
+   - Show the machine actively running and explain:
+     - **What is happening physically and chemically (How & Why)**: The underlying mechanical kinematics, fluid dynamics, thermodynamics, or optical physics occurring inside the reaction chamber/vessels.
+     - **What is outputted to the user while running**: Live `UI_LCD` telemetry readouts, web HUD metrics, progress timers, visual indicators, and procedural Web Audio acoustic cues.
+6. **End-of-Run Output & Results Examination (`STATE_COMPLETE`)**:
+   - Show the completed state (e.g., lifted baskets, separated fractions, final titration endpoint) and explain what outputs are generated at completion, how the operator physically inspects the product/vessels in real life, how pass/fail criteria are evaluated, and how to export and examine the GLP analytical CSV audit trail.
+7. **Internal Working Shots & Complete Electromechanical, Power, Sensor & Data Anatomy (`STAGE7_POWER_ROUTING`, `STAGE7_MOTORS_ACTUATORS`, `STAGE7_SENSORS_OPTICS`, `STAGE7_DATA_COMMS`, `CAM_EXPLODED`)**:
+   - Provide dedicated close-up visual shots inside the machine (with outer panels hidden or exploded) and explain how every internal system operates as a real instrument:
+     - **7A. Power Supply & End-to-End Power Routing**: Visuals of the AC mains IEC inlet, fuse/switch, EMI filter, toroidal step-down transformer, enclosed switching PSU (`Assembly_PowerSupply`) with screw terminal barrier strip, solid-state relays (`SSR`) on finned heatsinks, chassis ground lug, and **color-coded 3D wiring harnesses** showing how AC and DC power are routed to every motor, heater, sensor, and board across the entire machine.
+     - **7B. All Motors & Mechanical Actuators**: Visuals of every motor in the machine (main drive motor, lift/positioning stepper motors, fluid circulation pump motor, convective cooling fan motor) and their mechanical transmission linkages (eccentric cranks, planetary gearboxes, trapezoidal lead screws, bearings, guide shafts, tubing).
+     - **7C. Controllers, Sensors & Optical/Mirror Assemblies**: Visuals of all physical sensors (PT100 RTD thermal probes, Hall-effect / optical encoders, limit microswitches, liquid level floats, laser/IR optical endpoint detectors, and internal 45° optical relay mirrors) and how their signals feed back to the controller.
+     - **7D. Data Components, Storage, Wireless (Wi-Fi/Bluetooth) & I/O Ports**: Visuals of the FR-4 motherboard (`PCB_Motherboard`), MCU (`Part_MCU_Core`), DRAM (`Part_RAM_Chip`), non-volatile eMMC/SSD Flash (`Part_SSD_Module`), battery-backed RTC (`CR2032`), 24-bit ADC, shielded **Wi-Fi / Bluetooth Low Energy (BLE) radio module** with U.FL coax and external dipole antenna, and rear bulkhead data ports (`RS-232 DB9`, `USB-B`, `USB-A Flash Host`, `RJ45 Ethernet LAN`), with a complete explanation of how analytical data is sampled, saved in non-volatile memory, and transported (wired & wireless).
+8. **Narrated Social Media Walkthrough Video & In-App Guided Tour (`ERWEKA_ZT322_Social_Walkthrough.mp4` & `🎬 Guided Tour`)**:
+   - Every completed machine twin MUST include both:
+     1. An in-app **`🎬 Guided Tour`** button (`#btnGuidedTour` / `TOUR_CHAPTERS`) with Web Speech API voiceover narration and broadcast lower-third captions (`#tourOverlay`).
+     2. A standalone 1080p H.264/AAC `.mp4` social media walkthrough video with voiceover narration generated locally via `node scripts/generate_walkthrough_video.mjs <twin_dir>` (`say` + `ffmpeg`, `$0.00` local pipeline) and verified by **Gate 5** of `scripts/oga_validator.mjs`.
+
+
 

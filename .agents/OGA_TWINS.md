@@ -119,7 +119,27 @@ graph TD
 
 ---
 
-## 5. Workforce Dispatch Template (For Every Machine Build)
+## 5. Mandatory Completed Machine Presentation Standard (7-Stage Visual Walkthrough)
+
+No completed machine delivery is accepted unless `walkthrough.md` includes a full **7-Stage Visual Operator Walkthrough & Internal Anatomy Guide** with dedicated CDP screenshots (`view_file` verified):
+
+1. **Stage 1 — Powering On & Circuit Continuity**: Visual comparison and step-by-step explanation of `STATE_UNPLUGGED` (blackout LCD, disconnected NEMA plug) vs. `STATE_STANDBY` (plugged into `Power_Receptacle_Duplex`, power switch ON, boot telemetry active).
+2. **Stage 2 — Product & External Accessory Setup**: Visual shot (`STATE_LABWARE_PREP`) and explanation of real-life reagent, vessel, and sample preparation prior to insertion.
+3. **Stage 3 — Insertion, Loading & Safety Verification**: Visual shot (`STATE_INSERTION_SAFETY`) and explanation of loading samples/accessories into the instrument (e.g. motorized basket lift, rotor loading, door interlocks) and verifying all safety interlocks.
+4. **Stage 4 — Physical & Software Machine Setup**: Close-up of the physical console (`CAM_CONSOLE`) and software controls explaining parameter configuration (setpoints, timers, monographs).
+5. **Stage 5 — Active Run, Live Telemetry & "How and Why" Physics**: Active run visuals (`STATE_ACTIVE`, `CAM_PROCESS_CLOSEUP`) explaining both what is outputted to the operator in real time (LCD, HUD, audio) and the physical/chemical mechanisms occurring inside the machine.
+6. **Stage 6 — End-of-Run Output & Results Examination**: Visual shot (`STATE_COMPLETE`) explaining completion outputs, physical sample inspection criteria, and GLP CSV analytical data review.
+7. **Stage 7 — Internal Working Shots & Complete Power, Motor, Sensor & Data Anatomy**: Dedicated close-ups of:
+   - **7A (`STAGE7_POWER_ROUTING`)**: Power supply (switching PSU, toroidal transformer, EMI filter, SSR heatsink) and color-coded 3D wiring harnesses showing how power is routed through the entire machine.
+   - **7B (`STAGE7_MOTORS_ACTUATORS`)**: Every internal motor (drive motor, lift stepper motors, pump motor, cooling fan) and mechanical transmission linkage.
+   - **7C (`STAGE7_SENSORS_OPTICS`)**: All internal sensors, microswitches, thermal probes, optical encoders, and optical relay mirrors.
+   - **7D (`STAGE7_DATA_COMMS`)**: All data components on the motherboard (MCU, RAM, eMMC/SSD Flash, RTC battery, 24-bit ADC), wireless connectivity (Wi-Fi / Bluetooth BLE module & external antenna), and rear physical data ports (`RS-232`, `USB-B`, `USB-A Flash`, `RJ45 Ethernet`), explaining how data is digitized, saved, and transported.
+8. **Stage 8 — Narrated Social Media Walkthrough Video & In-App Guided Tour**:
+   - Every twin must provide an interactive `🎬 Guided Tour` mode (`TOUR_CHAPTERS` + `#tourOverlay`) in the viewer and a standalone narrated `.mp4` walkthrough video generated via `node scripts/generate_walkthrough_video.mjs <twin_dir>` and enforced by **Gate 5** of `scripts/oga_validator.mjs`.
+
+---
+
+## 6. Workforce Dispatch Template (For Every Machine Build)
 
 Whenever a new machine is initiated or overhauled, OGA generates a formal dispatch in `.agents/dispatches/`:
 

@@ -192,6 +192,46 @@ check(
   'Missing physical rear I/O communication and power inlet ports'
 );
 
+// 5. Deep Internal Anatomy, Sensors, Mirrors, Wireless & Guided Walkthrough Presentation
+console.log(`\n--- GATE 5: Deep Internal Anatomy, Wireless & Walkthrough Presentation ---`);
+check(
+  'INT-01: End-to-End Color-Coded 3D Power Routing Harnesses',
+  /Body_Wire_|makeWiringHarness|TubeGeometry/.test(content3d),
+  'Missing color-coded 3D internal power & signal wiring harnesses (Body_Wire_*)'
+);
+
+check(
+  'INT-02: Multi-Motor & Actuator Suite',
+  /Motor_Harmonic|Motor_Drive|Motor_Lift|Motor_BathPump/.test(content3d),
+  'Missing complete internal motor & actuator suite (Drive motor, Lift actuators, Pump)'
+);
+
+check(
+  'INT-03: Internal Sensors & 45-Degree Optical Relay Mirrors',
+  /Sensor_PT100/.test(content3d) && /Mirror_OpticalRelay/.test(content3d),
+  'Missing internal sensors (PT100, Tachometer/Encoder, Float/Limit) or 45-degree optical relay mirrors'
+);
+
+check(
+  'INT-04: Wireless (Wi-Fi / Bluetooth BLE) & Removable USB Storage',
+  /WiFi_BLE|Antenna_WiFi/.test(content3d) && /Port_RJ45|USB_Drive/.test(content3d),
+  'Missing shielded Wi-Fi/BLE radio module, external dipole antenna, RJ45 LAN, or removable USB flash drive'
+);
+
+check(
+  'PRES-01: Guided Walkthrough Tour & Voiceover Presentation Support',
+  /TOUR_CHAPTERS|startGuidedTour/.test(contentApp),
+  'Missing 10-chapter guided walkthrough tour & voiceover presentation support in app.js'
+);
+
+const docsDir = path.join(targetPath, 'docs');
+const docsFiles = fs.existsSync(docsDir) ? fs.readdirSync(docsDir) : [];
+check(
+  'PRES-02: Standalone Narrated Social Media Walkthrough Video (.mp4)',
+  docsFiles.some(f => f.endsWith('_Social_Walkthrough.mp4') || f.endsWith('_Walkthrough.mp4')),
+  'Missing standalone narrated social media walkthrough video (*_Social_Walkthrough.mp4) in docs/'
+);
+
 // Summary & Gate Decision
 console.log(`\n========================================================`);
 if (totalErrors === 0) {

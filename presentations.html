@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SREdesigns · Video Presentations &amp; Internal Anatomy Walkthroughs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070a0f;
+      --card-bg: rgba(18, 25, 38, 0.80);
+      --card-border: rgba(42, 53, 69, 0.75);
+      --card-hover: rgba(28, 38, 58, 0.92);
+      --cyan: #00d4e8;
+      --cyan-glow: rgba(0, 212, 232, 0.35);
+      --green: #3dd68c;
+      --amber: #f0b429;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --font: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+      --mono: 'IBM Plex Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image:
+        radial-gradient(ellipse at 50% 0%, rgba(0, 212, 232, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 90%, rgba(61, 214, 140, 0.08) 0%, transparent 50%);
+    }
+
+    header {
+      background: rgba(10, 14, 20, 0.88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 0.9rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: inherit;
+    }
+    .brand-badge {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(6, 182, 212, 0.2));
+      border: 1px solid rgba(245, 158, 11, 0.6);
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #fbbf24;
+      text-transform: uppercase;
+    }
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .brand-title span { color: var(--cyan); }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-back {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .btn-back:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .hub-pill {
+      font-size: 0.72rem;
+      font-family: var(--mono);
+      padding: 0.3rem 0.65rem;
+      border-radius: 999px;
+      background: rgba(0, 212, 232, 0.15);
+      border: 1px solid rgba(0, 212, 232, 0.4);
+      color: var(--cyan);
+      font-weight: 600;
+    }
+
+    /* View Chooser */
+    .view-chooser {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      padding: 3px 6px;
+    }
+    .view-chooser-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: #64758b;
+      letter-spacing: 0.06em;
+      padding: 0 4px 0 2px;
+    }
+    .view-chooser-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .view-choice-btn {
+      appearance: none;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #94a3b8;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 9px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .view-choice-btn.active {
+      background: #1e2b3c;
+      color: #38bdf8;
+      border-color: rgba(56, 189, 248, 0.35);
+    }
+    .cm-mini-plus { color: #d62828; font-weight: 800; }
+
+    main {
+      flex: 1;
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 3.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* Cinema Showcase Card */
+    .cinema-card {
+      background: linear-gradient(135deg, rgba(14, 24, 42, 0.95), rgba(9, 14, 24, 0.92));
+      border: 1px solid rgba(0, 212, 232, 0.45);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), 0 0 28px rgba(0, 212, 232, 0.12);
+      border-radius: 18px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .cinema-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .cinema-tag {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+    }
+    .cinema-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-top: 0.25rem;
+    }
+    .cinema-sub {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+      max-width: 820px;
+      line-height: 1.5;
+    }
+
+    .cinema-layout {
+      display: grid;
+      grid-template-columns: 1.65fr 1fr;
+      gap: 1.25rem;
+      align-items: stretch;
+    }
+
+    .video-wrap {
+      background: #030508;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .video-wrap video {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: #000;
+    }
+
+    .chapter-panel {
+      background: rgba(12, 17, 26, 0.85);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      max-height: 520px;
+      overflow-y: auto;
+    }
+    .chapter-panel-title {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .chapter-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 8px;
+      padding: 0.55rem 0.75rem;
+      text-align: left;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.18s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .chapter-btn:hover, .chapter-btn.active {
+      background: rgba(0, 212, 232, 0.14);
+      border-color: var(--cyan);
+    }
+    .ch-meta {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--cyan);
+      font-weight: 600;
+    }
+    .ch-name {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .cinema-actions {
+      display: flex;
+      gap: 0.85rem;
+      flex-wrap: wrap;
+      padding-top: 0.25rem;
+    }
+    .btn-primary {
+      background: var(--cyan);
+      color: #050b14;
+      font-weight: 700;
+      font-size: 0.88rem;
+      padding: 0.7rem 1.25rem;
+      border-radius: 9px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 0 18px var(--cyan-glow);
+      transition: all 0.2s ease;
+    }
+    .btn-primary:hover {
+      background: #38bdf8;
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      font-weight: 600;
+      font-size: 0.86rem;
+      padding: 0.7rem 1.2rem;
+      border-radius: 9px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+    .btn-secondary:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    /* Section Title */
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .section-title span {
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 400;
+    }
+
+    /* 10-Stage Visual Breakdown Grid */
+    .stage-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 1.25rem;
+    }
+    .stage-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.22s ease;
+    }
+    .stage-card:hover {
+      border-color: rgba(0, 212, 232, 0.45);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+    }
+    .stage-img {
+      width: 100%;
+      height: 215px;
+      object-fit: cover;
+      border-bottom: 1px solid var(--card-border);
+      background: #05080c;
+    }
+    .stage-body {
+      padding: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+    }
+    .stage-badge {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--cyan);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .stage-heading {
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .stage-desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .stage-footer {
+      padding: 0.75rem 1.1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .stage-link {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--cyan);
+      text-decoration: none;
+    }
+    .stage-link:hover { text-decoration: underline; }
+
+    footer {
+      background: #090e15;
+      border-top: 1px solid var(--card-border);
+      padding: 1.25rem;
+      text-align: center;
+      font-size: 0.78rem;
+      color: #64748b;
+    }
+
+    /* Retro & Night Theme Overrides */
+    body[data-theme="retro"] {
+      background: #f2ece1;
+      color: #161514;
+    }
+    body[data-theme="retro"] header {
+      background: rgba(242, 236, 225, 0.94);
+      border-bottom: 1.5px solid #bfb5a4;
+    }
+    body[data-theme="retro"] .cinema-card,
+    body[data-theme="retro"] .stage-card,
+    body[data-theme="retro"] .chapter-panel {
+      background: #fbf9f4;
+      border-color: #bfb5a4;
+      color: #161514;
+    }
+    body[data-theme="retro"] .stage-heading,
+    body[data-theme="retro"] .ch-name,
+    body[data-theme="retro"] .cinema-title {
+      color: #161514;
+    }
+    body[data-theme="retro"] .stage-desc,
+    body[data-theme="retro"] .cinema-sub {
+      color: #4a463d;
+    }
+    body[data-theme="retro"] .btn-primary {
+      background: #d62828;
+      color: #fff;
+    }
+    body[data-theme="retro"] .btn-secondary,
+    body[data-theme="retro"] .btn-back {
+      color: #161514;
+      border-color: #bfb5a4;
+      background: #ebe4d5;
+    }
+
+    body[data-theme="night"] {
+      background: #0a0c10;
+      color: #f0f3f8;
+    }
+    body[data-theme="night"] .btn-primary {
+      background: #ff3344;
+      color: #fff;
+    }
+
+    @media (max-width: 900px) {
+      .cinema-layout { grid-template-columns: 1fr; }
+      .stage-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="index.html" class="brand-wrap">
+      <div class="brand-badge">SREdesigns</div>
+      <div class="brand-title">LAB <span>Twins</span></div>
+    </a>
+
+    <div class="header-nav">
+      <a href="index.html" class="btn-back">← Back to Instrument Catalog</a>
+
+      <div class="view-chooser" role="group" aria-label="Visual view style">
+        <span class="view-chooser-label">VIEW:</span>
+        <div class="view-chooser-group">
+          <button type="button" class="view-choice-btn active" id="btn-view-modern">MODERN</button>
+          <button type="button" class="view-choice-btn" id="btn-view-retro"><span class="cm-mini-plus">+</span> RETRO</button>
+          <button type="button" class="view-choice-btn" id="btn-view-night">☾ NIGHT</button>
+        </div>
+      </div>
+
+      <div class="hub-pill">🎬 VIDEO PRESENTATIONS</div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Featured Narrated Video Presentation: ERWEKA ZT 322 -->
+    <section id="erweka-zt322" class="cinema-card">
+      <div class="cinema-header">
+        <div>
+          <div class="cinema-tag">Narrated Social Media Walkthrough &amp; Internal Working Anatomy (10 Chapters · 03:05)</div>
+          <h1 class="cinema-title">ERWEKA ZT 322 · USP &lt;701&gt; Tablet Disintegration Tester</h1>
+          <p class="cinema-sub">
+            Complete real-life operator walkthrough with voiceover narration—covering powering on &amp; hard circuit continuity, reagent/vessel setup, basket loading &amp; safety interlocks, physical/software setup, 30.0 CPM sinusoidal disintegration physics, 21 CFR Part 11 CSV audit export, and full X-ray internal shots of the power supply, color-coded 3D wiring harnesses, all 5 motors, 8 sensors, 45° gold optical relay mirrors, and Wi-Fi / Bluetooth BLE 5.2 data architecture.
+          </p>
+        </div>
+      </div>
+
+      <div class="cinema-layout">
+        <div class="video-wrap">
+          <video id="mainVideoPlayer" controls playsinline preload="metadata" poster="disintegration_tester_twin/docs/media/zt_CAM_ISO.png">
+            <source src="disintegration_tester_twin/docs/ERWEKA_ZT322_Social_Walkthrough.mp4" type="video/mp4" />
+            Your browser does not support HTML5 video.
+          </video>
+        </div>
+
+        <div class="chapter-panel">
+          <div class="chapter-panel-title">Interactive Voiceover Chapters (Click to Seek)</div>
+
+          <button class="chapter-btn active" data-seek="0">
+            <div class="ch-meta"><span>STAGE 1 / 10</span><span>00:00</span></div>
+            <div class="ch-name">1. Powering On &amp; Hard Circuit Continuity</div>
+          </button>
+
+          <button class="chapter-btn" data-seek="19">
+            <div class="ch-meta"><span>STAGE 2 / 10</span><span>00:19</span></div>
+            <div class="ch-name">2. Product, Beaker &amp; Fluted Disk Setup</div>
+          </button>
+
+          <button class="chapter-btn" data-seek="37">
+            <div class="ch-meta"><span>STAGE 3 / 10</span><span>00:37</span></div>
+            <div class="ch-name">3. Basket Insertion &amp; Safety Interlocks</div>
+          </button>
+
+          <button class="chapter-btn" data-seek="53">
+            <div class="ch-meta"><span>STAGE 4 / 10</span><span>00:53</span></div>
+            <div class="ch-name">4. Console &amp; Software Setup (37.0 °C PID)</div>
+          </button>
+
+          <button class="chapter-btn" data-seek="68">
+            <div class="ch-meta"><span>STAGE 5 / 10</span><span>01:08</span></div>
+            <div class="ch-name">5. Active 30.0 CPM Run &amp; Disintegration Physics</div>
+          </button>
+
+          <button class="chapter-btn" data-seek="86">
+            <div class="ch-meta"><span>STAGE 6 / 10</span><span>01:26</span></div>
+            <div class="ch-name">6. End-of-Run Mesh Inspection &amp; GLP CSV</div>
+          </button>
+
+          <button class="chapter-btn" data-seek="105">
+            <div class="ch-meta"><span>STAGE 7A / 10</span><span>01:45</span></div>
+            <div class="ch-name">7A. Internal Power Supply &amp; 3D Power Routing</div>
+          </button>
+
+          <button class="chapter-btn" data-seek="126">
+            <div class="ch-meta"><span>STAGE 7B / 10</span><span>02:06</span></div>
+            <div class="ch-name">7B. All 5 Internal Motors &amp; Lead Screw Actuators</div>
+          </button>
+
+          <button class="chapter-btn" data-seek="147">
+            <div class="ch-meta"><span>STAGE 7C / 10</span><span>02:27</span></div>
+            <div class="ch-name">7C. All 8 Sensors &amp; 45° Gold Optical Mirrors</div>
+          </button>
+
+          <button class="chapter-btn" data-seek="166">
+            <div class="ch-meta"><span>STAGE 7D / 10</span><span>02:46</span></div>
+            <div class="ch-name">7D. Data Chips, 16GB SSD, Wi-Fi/BLE 5.2 &amp; Ports</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="cinema-actions">
+        <a href="disintegration_tester_twin/software/viewer/index.html?tour=1" class="btn-primary">
+          🎬 Launch Live 3D Guided Tour (with Voiceover)
+        </a>
+        <a href="disintegration_tester_twin/software/viewer/index.html" class="btn-secondary">
+          🔬 Open Interactive 3D Digital Twin
+        </a>
+        <a href="disintegration_tester_twin/docs/ERWEKA_ZT322_Social_Walkthrough.mp4" download="ERWEKA_ZT322_Social_Walkthrough.mp4" class="btn-secondary">
+          ⬇ Download Social Media MP4 (8.5 MB)
+        </a>
+      </div>
+    </section>
+
+    <!-- 10-Stage Visual Operator & Internal Working Anatomy Gallery -->
+    <div class="section-title">
+      Complete 10-Stage Visual Walkthrough &amp; Internal Working Anatomy <span>(Click any stage to inspect live in 3D)</span>
+    </div>
+
+    <div class="stage-grid">
+      <!-- Stage 1 -->
+      <div class="stage-card">
+        <img class="stage-img" src="disintegration_tester_twin/docs/media/zt_STAGE1_POWERED_ON.png" alt="Stage 1 Powering On and Continuity" />
+        <div class="stage-body">
+          <div class="stage-badge">STAGE 1 · POWER &amp; ELECTRICAL CONTINUITY</div>
+          <div class="stage-heading">Bench Duplex Outlet, NEMA 5-15P Plug &amp; Breaker</div>
+          <p class="stage-desc">
+            Enforces hard electrical continuity (`isPluggedIn && powerSwitchOn`). Unplugging the SJTOW cord from `Body_Power_Receptacle_Duplex` immediately cuts power (`POWER_OFF`); plugging in wakes `UI_LCD` into `STANDBY`.
+          </p>
+        </div>
+        <div class="stage-footer">
+          <a class="stage-link" href="disintegration_tester_twin/software/viewer/index.html?chapter=0">Inspect Stage 1 in 3D ➔</a>
+        </div>
+      </div>
+
+      <!-- Stage 2 -->
+      <div class="stage-card">
+        <img class="stage-img" src="disintegration_tester_twin/docs/media/zt_STAGE2_LABWARE_PREP.png" alt="Stage 2 Labware Prep" />
+        <div class="stage-body">
+          <div class="stage-badge">STAGE 2 · PRODUCT &amp; ACCESSORY SETUP</div>
+          <div class="stage-heading">1000 mL Griffin Beakers, 6-Tube Baskets &amp; Fluted Disks</div>
+          <p class="stage-desc">
+            Operator fills the 6.5 L acrylic bath, pours 800 mL simulated gastric fluid into dual 1000 mL borosilicate Griffin beakers, and loads 12 tablets and V-grooved fluted guide disks into the raised USP Apparatus A baskets.
+          </p>
+        </div>
+        <div class="stage-footer">
+          <a class="stage-link" href="disintegration_tester_twin/software/viewer/index.html?chapter=1">Inspect Stage 2 in 3D ➔</a>
+        </div>
+      </div>
+
+      <!-- Stage 3 -->
+      <div class="stage-card">
+        <img class="stage-img" src="disintegration_tester_twin/docs/media/zt_STAGE3_INSERTION_SAFETY.png" alt="Stage 3 Insertion and Safety" />
+        <div class="stage-body">
+          <div class="stage-badge">STAGE 3 · INSERTION &amp; SAFETY PROTOCOLS</div>
+          <div class="stage-heading">Quick-Release Collet Coupling &amp; Safety Interlocks</div>
+          <p class="stage-desc">
+            Baskets lock into knurled 316SS quick-release collets (`Knob_Collet_QuickRelease_01/02`) and lower into the media while verifying USP immersion depth geometry, low-water float cutoff, and 50 °C thermal protection.
+          </p>
+        </div>
+        <div class="stage-footer">
+          <a class="stage-link" href="disintegration_tester_twin/software/viewer/index.html?chapter=2">Inspect Stage 3 in 3D ➔</a>
+        </div>
+      </div>
+
+      <!-- Stage 4 -->
+      <div class="stage-card">
+        <img class="stage-img" src="disintegration_tester_twin/docs/media/zt_STAGE4_CONSOLE_SETUP.png" alt="Stage 4 Console Setup" />
+        <div class="stage-body">
+          <div class="stage-badge">STAGE 4 · PHYSICAL &amp; SOFTWARE CONSOLE SETUP</div>
+          <div class="stage-heading">USP Monograph Selection &amp; 37.0 °C PID Pre-Heating</div>
+          <p class="stage-desc">
+            Close-up of `UI_LCD` and tactile membrane buttons (`[START]`, `[STOP]`, `[TEMP]`, `[TIME]`, `[LIFT]`). Selecting the Aspirin IR monograph and engaging the 1500 W PID heater warms the bath to 37.0 ± 0.5 °C.
+          </p>
+        </div>
+        <div class="stage-footer">
+          <a class="stage-link" href="disintegration_tester_twin/software/viewer/index.html?chapter=3">Inspect Stage 4 in 3D ➔</a>
+        </div>
+      </div>
+
+      <!-- Stage 5 -->
+      <div class="stage-card">
+        <img class="stage-img" src="disintegration_tester_twin/docs/media/zt_STAGE5_RUNNING_BATH_CLOSEUP.png" alt="Stage 5 Active Disintegration Run" />
+        <div class="stage-body">
+          <div class="stage-badge">STAGE 5 · ACTIVE RUN &amp; "HOW / WHY" PHYSICS</div>
+          <div class="stage-heading">30.0 CPM Sinusoidal Oscillation &amp; Excipient Swelling</div>
+          <p class="stage-desc">
+            Pure harmonic reciprocation (`y(t) = 27.5 sin(πt) mm`, 55.0 mm stroke) drives laminar gastric fluid through the 10-mesh (2.0 mm) screens as superdisintegrant swelling breaks apart tablets and updates live LCD counters.
+          </p>
+        </div>
+        <div class="stage-footer">
+          <a class="stage-link" href="disintegration_tester_twin/software/viewer/index.html?chapter=4">Inspect Stage 5 in 3D ➔</a>
+        </div>
+      </div>
+
+      <!-- Stage 6 -->
+      <div class="stage-card">
+        <img class="stage-img" src="disintegration_tester_twin/docs/media/zt_STAGE6_COMPLETE_INSPECTION.png" alt="Stage 6 Results Inspection" />
+        <div class="stage-body">
+          <div class="stage-badge">STAGE 6 · END-OF-RUN OUTPUT &amp; RESULTS INSPECTION</div>
+          <div class="stage-heading">Raised 10-Mesh Screen Inspection &amp; 21 CFR 11 CSV</div>
+          <p class="stage-desc">
+            Upon complete disintegration (`0/6 Intact`), the drive halts at TDC, sounds a completion chime, raises the baskets for visual inspection of the empty 10-mesh screens, and exports the timestamped GLP CSV audit trail.
+          </p>
+        </div>
+        <div class="stage-footer">
+          <a class="stage-link" href="disintegration_tester_twin/software/viewer/index.html?chapter=5">Inspect Stage 6 in 3D ➔</a>
+        </div>
+      </div>
+
+      <!-- Stage 7A -->
+      <div class="stage-card">
+        <img class="stage-img" src="disintegration_tester_twin/docs/media/zt_STAGE7A_POWER_ROUTING.png" alt="Stage 7A Internal Power Supply and Routing" />
+        <div class="stage-body">
+          <div class="stage-badge">STAGE 7A · INTERNAL POWER SUPPLY &amp; ROUTING</div>
+          <div class="stage-heading">24V Switching PSU, 180VA Toroid, 25A SSR &amp; 3D Harnesses</div>
+          <p class="stage-desc">
+            Visualizes the IEC C14 inlet, DPST breaker, Schaffner EMI filter, chassis ground lug, 180VA toroidal transformer, Mean Well 24VDC 150W PSU (filter caps + 7-screw barrier strip), Crydom 25A SSR, DC bus, and color-coded 3D wiring harnesses.
+          </p>
+        </div>
+        <div class="stage-footer">
+          <a class="stage-link" href="disintegration_tester_twin/software/viewer/index.html?chapter=6">Inspect Stage 7A in 3D ➔</a>
+        </div>
+      </div>
+
+      <!-- Stage 7B -->
+      <div class="stage-card">
+        <img class="stage-img" src="disintegration_tester_twin/docs/media/zt_STAGE7B_MOTORS_ACTUATORS.png" alt="Stage 7B All 5 Internal Motors" />
+        <div class="stage-body">
+          <div class="stage-badge">STAGE 7B · ALL 5 INTERNAL MOTORS &amp; ACTUATORS</div>
+          <div class="stage-heading">Harmonic BLDC Gearmotor, Dual Lift Steppers, Pump &amp; Fan</div>
+          <p class="stage-desc">
+            Shows M1 (24V BLDC planetary gearmotor + crank), M2 &amp; M3 (dual NEMA 17 basket-lift steppers + TR10x2 stainless lead screws), M4 (magnetic-drive bath pump + silicone hoses + glowing 1500W heater coil), and M5 (80mm cooling blower).
+          </p>
+        </div>
+        <div class="stage-footer">
+          <a class="stage-link" href="disintegration_tester_twin/software/viewer/index.html?chapter=7">Inspect Stage 7B in 3D ➔</a>
+        </div>
+      </div>
+
+      <!-- Stage 7C -->
+      <div class="stage-card">
+        <img class="stage-img" src="disintegration_tester_twin/docs/media/zt_STAGE7C_SENSORS_OPTICS.png" alt="Stage 7C Internal Sensors and 45 Degree Mirrors" />
+        <div class="stage-body">
+          <div class="stage-badge">STAGE 7C · ALL 8 SENSORS &amp; 45° OPTICAL MIRRORS</div>
+          <div class="stage-heading">PT100 RTD, Optical Encoders &amp; 45° Gold Relay Mirrors</div>
+          <p class="stage-desc">
+            Shows S1 (PT100 RTD bath probe), S2 (TDC optic sensor), S3 (1024-PPR rotary encoder), S4/S5 (lift limit microswitches), S6 (low-water float switch), and S7/S8 (850nm IR lasers bouncing off 45° gold optical relay mirrors beneath both baskets).
+          </p>
+        </div>
+        <div class="stage-footer">
+          <a class="stage-link" href="disintegration_tester_twin/software/viewer/index.html?chapter=8">Inspect Stage 7C in 3D ➔</a>
+        </div>
+      </div>
+
+      <!-- Stage 7D -->
+      <div class="stage-card">
+        <img class="stage-img" src="disintegration_tester_twin/docs/media/zt_STAGE7D_DATA_COMMS.png" alt="Stage 7D Data Storage Wireless and Ports" />
+        <div class="stage-body">
+          <div class="stage-badge">STAGE 7D · DATA, 16GB SSD, WI-FI / BLE 5.2 &amp; PORTS</div>
+          <div class="stage-heading">ARM Cortex-M4, 24-Bit ADC, CR2032 RTC, Wireless &amp; I/O</div>
+          <p class="stage-desc">
+            Motherboard with U1 (ARM Cortex-M4), U2 (64MB SDRAM), U3 (16GB eMMC SSD), U4 (24-bit ADC), BT1 (CR2032 RTC), U5 (Wi-Fi 802.11ac + BLE 5.2 RF shield + U.FL coax to 2.4GHz dipole antenna), RS-232, USB-B, USB-A 32GB Flash drive &amp; RJ45 LAN.
+          </p>
+        </div>
+        <div class="stage-footer">
+          <a class="stage-link" href="disintegration_tester_twin/software/viewer/index.html?chapter=9">Inspect Stage 7D in 3D ➔</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>SRE Laboratory Systems · Digital Twin Engineering Division · Complete Operator &amp; Internal Anatomy Presentations</p>
+  </footer>
+
+  <script>
+    (function() {
+      const video = document.getElementById('mainVideoPlayer');
+      const chapterBtns = document.querySelectorAll('.chapter-btn');
+
+      chapterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          chapterBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const sec = parseFloat(btn.getAttribute('data-seek') || '0');
+          if (video) {
+            video.currentTime = sec;
+            video.play().catch(() => {});
+          }
+        });
+      });
+
+      // Theme switcher synchronization
+      const btnModern = document.getElementById('btn-view-modern');
+      const btnRetro = document.getElementById('btn-view-retro');
+      const btnNight = document.getElementById('btn-view-night');
+
+      function setTheme(theme) {
+        const raw = String(theme || '').toLowerCase();
+        let currentTheme = 'modern';
+        if (raw === 'night') currentTheme = 'night';
+        else if (raw === 'retro' || raw === 'chemmate') currentTheme = 'retro';
+
+        btnModern?.classList.toggle('active', currentTheme === 'modern');
+        btnRetro?.classList.toggle('active', currentTheme === 'retro');
+        btnNight?.classList.toggle('active', currentTheme === 'night');
+
+        if (currentTheme === 'modern') {
+          delete document.body.dataset.theme;
+        } else {
+          document.body.dataset.theme = currentTheme;
+        }
+        try { localStorage.setItem('twins_lab_theme', currentTheme); } catch (_) {}
+      }
+
+      btnModern?.addEventListener('click', () => setTheme('modern'));
+      btnRetro?.addEventListener('click', () => setTheme('retro'));
+      btnNight?.addEventListener('click', () => setTheme('night'));
+
+      const params = new URLSearchParams(window.location.search);
+      setTheme(params.get('theme') || localStorage.getItem('twins_lab_theme') || 'modern');
+    })();
+  </script>
+</body>
+</html>

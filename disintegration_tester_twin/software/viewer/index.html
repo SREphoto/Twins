@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ERWEKA ZT 322 Tablet Disintegration Tester (USP <701>) · SREdesigns Digital Twin</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../../../lab_viewer/shared/chemmate_themes.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <header class="top-bar">
+    <div class="brand-section">
+      <span class="brand-badge">SREDESIGNS</span>
+      <span class="instrument-title">ERWEKA ZT 322</span>
+      <span class="instrument-subtitle">USP <701> Dual-Station Tablet Disintegration Tester</span>
+    </div>
+    <div class="top-controls">
+      <button id="btnGuidedTour" class="btn-icon tour-btn">🎬 Guided Tour</button>
+      <button id="btnPowerPlug" class="btn-icon">⚡ Cord Plugged In</button>
+      <button id="btnExportGLP" class="btn-icon">📄 Export GLP CSV</button>
+      <div class="btn-group">
+        <button class="btn-icon" data-camera="iso">ISO</button>
+        <button class="btn-icon" data-camera="front">Front</button>
+        <button class="btn-icon" data-camera="console">Console</button>
+        <button class="btn-icon" data-camera="side">Side</button>
+        <button class="btn-icon" data-camera="top">Top</button>
+      </div>
+    </div>
+  </header>
+
+  <div id="viewport3d"></div>
+
+  <!-- Collapsible Left Instrument Control Panel -->
+  <aside class="instrument panel-collapsible">
+    <div class="panel-header">
+      <span class="panel-title">Instrument Controls</span>
+      <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">USP &lt;701&gt;</span>
+    </div>
+    <div class="panel-content">
+      <div class="section-group">
+        <label class="section-label">Pharmacopeial Sample Monograph</label>
+        <select id="selectSample" style="background:#0c1016; color:#f8fafc; border:1px solid #232d3f; padding:8px; border-radius:6px; font-size:12px;">
+          <option value="aspirin_ir">Aspirin 500 mg Immediate-Release (3.5 min)</option>
+          <option value="vitamin_c">Ascorbic Acid 1000 mg Compressed (8.0 min)</option>
+          <option value="enteric_acid">Enteric-Coated Aspirin (Gastric Acid pH 1.2)</option>
+        </select>
+      </div>
+
+      <div class="section-group">
+        <label class="section-label">Harmonic Crank Drive (30 Strokes / Min)</label>
+        <div class="control-row">
+          <button id="btnStart" class="btn-action" style="flex:1;">▶ START TEST</button>
+          <button id="btnStop" class="btn-action danger" style="flex:1;">⏹ STOP</button>
+        </div>
+      </div>
+
+      <div class="section-group">
+        <label class="section-label">Flow-Through Heating System (1500 W)</label>
+        <div class="control-row">
+          <button id="btnHeater" class="btn-action secondary" style="flex:1;">♨ Toggle Bath Heater</button>
+          <button id="btnLift" class="btn-action secondary" style="flex:1;">⏏ Basket Lift</button>
+        </div>
+      </div>
+
+      <div class="section-group">
+        <label class="section-label">Live Telemetry Metrics</label>
+        <div class="control-row">
+          <span style="color:var(--text-secondary); font-size:12px;">Bath Temperature:</span>
+          <span id="valTemp" class="metric-value">21.5 °C</span>
+        </div>
+        <div class="control-row">
+          <span style="color:var(--text-secondary); font-size:12px;">Stroke Rate:</span>
+          <span id="valCPM" class="metric-value">0.0 CPM</span>
+        </div>
+        <div class="control-row">
+          <span style="color:var(--text-secondary); font-size:12px;">Remaining Time:</span>
+          <span id="valTime" class="metric-value">15:00</span>
+        </div>
+        <div class="control-row">
+          <span style="color:var(--text-secondary); font-size:12px;">Station 1 Intact:</span>
+          <span id="valStn1" class="metric-value">6 / 6</span>
+        </div>
+        <div class="control-row">
+          <span style="color:var(--text-secondary); font-size:12px;">Station 2 Intact:</span>
+          <span id="valStn2" class="metric-value">6 / 6</span>
+        </div>
+      </div>
+
+      <div class="section-group">
+        <label class="section-label">Internal Anatomy &amp; Exploded View</label>
+        <input id="sliderExplode" type="range" min="0" max="1" step="0.01" value="0" style="width:100%; margin-bottom:6px;">
+        <button id="btnCutaway" class="btn-action secondary" style="width:100%;">🔍 Toggle Cutaway X-Ray</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Collapsible Right Part Explorer Panel -->
+  <aside class="parts panel-collapsible">
+    <div class="panel-header">
+      <span class="panel-title">Part Explorer</span>
+      <span style="font-size: 11px; color: var(--text-muted);">52 CAD Assemblies</span>
+    </div>
+    <div class="panel-content">
+      <div id="partTreeList" class="tree-container"></div>
+    </div>
+  </aside>
+
+  <!-- Broadcast Cinema Lower-Third Voiceover & Chapter Overlay -->
+  <div id="tourOverlay" class="tour-overlay hidden">
+    <div class="tour-header">
+      <span id="tourBadge" class="tour-badge">STAGE 1 / 10</span>
+      <span id="tourTitle" class="tour-title">Powering On &amp; Electrical Continuity</span>
+    </div>
+    <p id="tourCaption" class="tour-caption">
+      Welcome to the SREdesigns Digital Twin of the ERWEKA ZT 322 USP 701 Tablet Disintegration Tester.
+    </p>
+  </div>
+
+  <!-- Footer Telemetry Bar -->
+  <footer class="telemetry-bar">
+    <div class="telemetry-items">
+      <span>HARMONIC DRIVE: <span id="ftrDrive" class="telemetry-val">PARKED</span></span>
+      <span>STROKE AMPLITUDE: <span class="telemetry-val">55.0 mm</span></span>
+      <span>WATER BATH: <span class="telemetry-val">37.0 °C NOMINAL</span></span>
+    </div>
+    <div>
+      <span>USP &lt;701&gt; / Ph. Eur. 2.9.1 / JP 6.09 COMPLIANT</span>
+    </div>
+  </footer>
+
+  <script type="module" src="app.js?v=20261025-zt1"></script>
+</body>
+</html>

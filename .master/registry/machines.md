@@ -15,6 +15,10 @@
 | `hotplate_twin`              | active | yes   | [hotplate_twin_manifest.md](hotplate_twin_manifest.md)                             | Precision digital magnetic hotplate stirrer with PT1000 ATC; lab_viewer id `hotplate`      |
 | `spectrophotometer_twin`     | active | yes   | [spectrophotometer_twin_manifest.md](spectrophotometer_twin_manifest.md)         | Dual-beam UV-Vis spectrophotometer with Czerny-Turner optics & 6-cell carousel; lab_viewer id `spectrophotometer` |
 | `ftir_twin`                  | active | yes   | [ftir_twin_manifest.md](ftir_twin_manifest.md)                                   | Research FTIR Spectrometer with Michelson interferometer & Diamond ATR station; lab_viewer id `ftir` |
+| `karl_fischer_twin`          | active | yes   | [karl_fischer_twin_manifest.md](karl_fischer_twin_manifest.md)                   | Metrohm 901 Titrando volumetric Karl Fischer titrator with 800 Dosino; lab_viewer id `karl_fischer` |
+| `freeze_dryer_twin`          | active | yes   | [freeze_dryer_twin_manifest.md](freeze_dryer_twin_manifest.md)                   | Labconco FreeZone 4.5L (-84°C) cascade benchtop freeze dryer; lab_viewer id `freeze_dryer`  |
+| `dissolution_tester_twin`    | active | yes   | [dissolution_tester_twin_manifest.md](dissolution_tester_twin_manifest.md)       | Agilent 708-DS USP <711> 8-vessel tablet dissolution apparatus; lab_viewer id `dissolution_tester` |
+| `disintegration_tester_twin` | active | yes   | [disintegration_tester_twin_manifest.md](disintegration_tester_twin_manifest.md) | ERWEKA ZT 322 USP <701> dual-station tablet disintegration tester; lab_viewer id `disintegration_tester` |
 | `lab_viewer`                 | active | —     | (workspace shell)                                                                | Multi-machine desk under `Twins/lab_viewer/`                                                |
 
 ## How to add
