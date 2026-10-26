@@ -4,6 +4,25 @@ Newest first. Template: `templates/change_log_entry.md`.
 
 ---
 
+## 2026-10-25 · OGA · update-readme-with-machine-showcase-and-github-pages-links
+
+| Field   | Value                                                                                                                                                                                                                                                            |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | OGA (Organizational Governance Agent) / Digital Twin Architecture Team                                                                                                                                                                                           |
+| Machine | `workspace`, `lab_viewer`, `all_twins`                                                                                                                                                                                                                           |
+| Intent  | Update repository README.md into a high-visibility public showcase of scientific instrument digital twins: eliminate developer backend commands and internal SOP references, introduce multi-angle visual showcases (isometric, active, exploded, and internal working anatomy), and migrate all links to the live GitHub Pages website (https://srephoto.github.io/Twins/). |
+
+### Created
+
+- `docs/media/showcase/`: High-resolution multi-view renders for centrifuge, analytical balance, rotary evaporator, hotplate stirrer, high-pressure reactor, inert glove box, and ERWEKA ZT 322 tablet disintegration tester.
+- `scripts/capture_showcase.mjs`: Automated CDP multi-twin showcase screenshot orchestrator.
+
+### Changed
+
+- `README.md`: Transformed from developer backend notes into an interactive public showcase featuring multi-angle instrument galleries, live GitHub Pages links, and fleet catalogue.
+
+---
+
 ## 2026-10-25 · OGA · build-erweka-zt322-disintegration-tester-twin
 
 | Field   | Value                                                                                                                                                                                                                                                            |
