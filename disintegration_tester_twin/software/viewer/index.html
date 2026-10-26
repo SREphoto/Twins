@@ -1,141 +1,467 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ERWEKA ZT 322 Tablet Disintegration Tester (USP <701>) · SREdesigns Digital Twin</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="../../../lab_viewer/shared/chemmate_themes.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ERWEKA ZT 322 · USP &lt;701&gt; Disintegration Tester</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=20261026-centrifuge-gold" />
   <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-      }
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
     }
+  }
   </script>
 </head>
 <body>
-  <header class="top-bar">
-    <div class="brand-section">
-      <span class="brand-badge">SREDESIGNS</span>
-      <span class="instrument-title">ERWEKA ZT 322</span>
-      <span class="instrument-subtitle">USP <701> Dual-Station Tablet Disintegration Tester</span>
-    </div>
-    <div class="top-controls">
-      <button id="btnGuidedTour" class="btn-icon tour-btn">🎬 Guided Tour</button>
-      <button id="btnPowerPlug" class="btn-icon">⚡ Cord Plugged In</button>
-      <button id="btnExportGLP" class="btn-icon">📄 Export GLP CSV</button>
-      <div class="btn-group">
-        <button class="btn-icon" data-camera="iso">ISO</button>
-        <button class="btn-icon" data-camera="front">Front</button>
-        <button class="btn-icon" data-camera="console">Console</button>
-        <button class="btn-icon" data-camera="side">Side</button>
-        <button class="btn-icon" data-camera="top">Top</button>
-      </div>
-    </div>
-  </header>
-
-  <div id="viewport3d"></div>
-
-  <!-- Collapsible Left Instrument Control Panel -->
-  <aside class="instrument panel-collapsible">
-    <div class="panel-header">
-      <span class="panel-title">Instrument Controls</span>
-      <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">USP &lt;701&gt;</span>
-    </div>
-    <div class="panel-content">
-      <div class="section-group">
-        <label class="section-label">Pharmacopeial Sample Monograph</label>
-        <select id="selectSample" style="background:#0c1016; color:#f8fafc; border:1px solid #232d3f; padding:8px; border-radius:6px; font-size:12px;">
-          <option value="aspirin_ir">Aspirin 500 mg Immediate-Release (3.5 min)</option>
-          <option value="vitamin_c">Ascorbic Acid 1000 mg Compressed (8.0 min)</option>
-          <option value="enteric_acid">Enteric-Coated Aspirin (Gastric Acid pH 1.2)</option>
-        </select>
-      </div>
-
-      <div class="section-group">
-        <label class="section-label">Harmonic Crank Drive (30 Strokes / Min)</label>
-        <div class="control-row">
-          <button id="btnStart" class="btn-action" style="flex:1;">▶ START TEST</button>
-          <button id="btnStop" class="btn-action danger" style="flex:1;">⏹ STOP</button>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand-cluster">
+        <div class="cm-brand-dropdown-container">
+          <button type="button" class="cm-brand cm-brand-trigger" id="cm-brand-menu-btn" aria-expanded="false" aria-haspopup="true" title="ChemMate Suite Menu">
+            <span class="cm-cross-box" aria-hidden="true">+</span>
+            <span class="cm-brand-text">ChemMate</span>
+            <span class="cm-dropdown-chevron" aria-hidden="true">▾</span>
+          </button>
+          <div class="cm-dropdown-menu" id="cm-brand-dropdown" role="menu" aria-label="ChemMate Navigation">
+            <div class="cm-dropdown-header">CHEMMATE EDUCATIONAL SUITE</div>
+            <a href="../../../presentations.html" class="cm-dropdown-item" role="menuitem">
+              <span class="cm-dropdown-icon">🎬</span>
+              <span class="cm-dropdown-text">Video Presentations Hub</span>
+            </a>
+            <a href="#" class="cm-dropdown-item is-active" role="menuitem">
+              <span class="cm-dropdown-icon">🔬</span>
+              <span class="cm-dropdown-text">Interactive Labs</span>
+              <span class="cm-dropdown-tag">ACTIVE</span>
+            </a>
+            <a href="../../../lab_viewer/index.html" class="cm-dropdown-item" role="menuitem">
+              <span class="cm-dropdown-icon">🧪</span>
+              <span class="cm-dropdown-text">Master Lab Desk</span>
+            </a>
+            <div class="cm-dropdown-sep"></div>
+            <a href="../../../index.html" class="cm-dropdown-item cm-dropdown-portal" role="menuitem">
+              <span class="cm-dropdown-icon">🏛</span>
+              <span class="cm-dropdown-text">Instrument Suite Portal</span>
+            </a>
+          </div>
+          <span class="cm-brand-divider" aria-hidden="true">|</span>
+        </div>
+        <div class="brand">
+          <span class="brand-num">17</span>
+          <span class="brand-name-group">
+            <span class="brand-mark">ERWEKA</span>
+            <span class="brand-model">ZT 322</span>
+          </span>
         </div>
       </div>
 
-      <div class="section-group">
-        <label class="section-label">Flow-Through Heating System (1500 W)</label>
-        <div class="control-row">
-          <button id="btnHeater" class="btn-action secondary" style="flex:1;">♨ Toggle Bath Heater</button>
-          <button id="btnLift" class="btn-action secondary" style="flex:1;">⏏ Basket Lift</button>
+      <div class="topbar-right" style="display:flex; align-items:center; gap:0.65rem;">
+        <button type="button" class="pill" id="btnGuidedTour" style="cursor:pointer;" title="Launch 10-Stage Narrated Guided Tour">🎬 GUIDED TOUR</button>
+        <button type="button" class="pill run" id="btnPowerPlug" style="cursor:pointer;" title="Plug / Unplug NEMA 5-15P Mains Cord">⚡ CORD PLUGGED IN</button>
+
+        <div class="view-chooser" role="group" aria-label="Visual view style">
+          <span class="view-chooser-label">VIEW:</span>
+          <div class="view-chooser-group">
+            <button type="button" class="view-choice-btn active" id="btn-view-modern" title="Modern View (Default high-tech instrument theme)">
+              <span class="view-choice-text">MODERN</span>
+            </button>
+            <button type="button" class="view-choice-btn" id="btn-view-retro" title="Retro View (ChemMate warm archival paper & Swiss red educational style)">
+              <span class="view-choice-text retro"><span class="cm-mini-plus">+</span> RETRO</span>
+            </button>
+            <button type="button" class="view-choice-btn" id="btn-view-night" title="Night View (Dark greys, deep blacks, and precision Swiss reds)">
+              <span class="view-choice-text night"><span class="night-glyph">☾</span> NIGHT</span>
+            </button>
+          </div>
         </div>
       </div>
+    </header>
 
-      <div class="section-group">
-        <label class="section-label">Live Telemetry Metrics</label>
-        <div class="control-row">
-          <span style="color:var(--text-secondary); font-size:12px;">Bath Temperature:</span>
-          <span id="valTemp" class="metric-value">21.5 °C</span>
-        </div>
-        <div class="control-row">
-          <span style="color:var(--text-secondary); font-size:12px;">Stroke Rate:</span>
-          <span id="valCPM" class="metric-value">0.0 CPM</span>
-        </div>
-        <div class="control-row">
-          <span style="color:var(--text-secondary); font-size:12px;">Remaining Time:</span>
-          <span id="valTime" class="metric-value">15:00</span>
-        </div>
-        <div class="control-row">
-          <span style="color:var(--text-secondary); font-size:12px;">Station 1 Intact:</span>
-          <span id="valStn1" class="metric-value">6 / 6</span>
-        </div>
-        <div class="control-row">
-          <span style="color:var(--text-secondary); font-size:12px;">Station 2 Intact:</span>
-          <span id="valStn2" class="metric-value">6 / 6</span>
-        </div>
-      </div>
+    <div class="workspace">
+      <!-- 3D Stage (Left / Center, flex-grows as right panels collapse) -->
+      <section class="stage">
+        <div class="view-toolbar">
+          <!-- Backdrop Stage (Retro/Night) -->
+          <div class="toolbar-group" id="cm-stage-switcher" hidden>
+            <button type="button" class="view-btn active" id="btn-cm-plate" title="Diagram plate backdrop">Plate</button>
+            <button type="button" class="view-btn" id="btn-cm-bench" title="Lab room backdrop">Lab Room</button>
+            <button type="button" class="view-btn active" id="btn-cm-callouts" title="Toggle callouts">Callouts</button>
+          </div>
 
-      <div class="section-group">
-        <label class="section-label">Internal Anatomy &amp; Exploded View</label>
-        <input id="sliderExplode" type="range" min="0" max="1" step="0.01" value="0" style="width:100%; margin-bottom:6px;">
-        <button id="btnCutaway" class="btn-action secondary" style="width:100%;">🔍 Toggle Cutaway X-Ray</button>
-      </div>
-    </div>
-  </aside>
+          <!-- Camera Angle Presets -->
+          <div class="toolbar-group">
+            <button type="button" class="view-btn active" data-camera="iso" title="3/4 Isometric perspective">ISO</button>
+            <button type="button" class="view-btn" data-camera="front" title="Front elevation">Front</button>
+            <button type="button" class="view-btn" data-camera="side" title="Side profile">Side</button>
+            <button type="button" class="view-btn" data-camera="top" title="Top overhead">Top</button>
+            <button type="button" class="view-btn" data-camera="console" title="Operator LCD & keypad">Console</button>
+          </div>
 
-  <!-- Collapsible Right Part Explorer Panel -->
-  <aside class="parts panel-collapsible">
-    <div class="panel-header">
-      <span class="panel-title">Part Explorer</span>
-      <span style="font-size: 11px; color: var(--text-muted);">52 CAD Assemblies</span>
-    </div>
-    <div class="panel-content">
-      <div id="partTreeList" class="tree-container"></div>
-    </div>
-  </aside>
+          <!-- Inspection & Wireframe Modes -->
+          <div class="toolbar-group">
+            <button type="button" class="view-btn" id="btn-explode" title="Separate major assemblies along kinematic axes">Exploded</button>
+            <button type="button" class="view-btn" id="btn-cutaway" title="Ghost outer sheet-metal enclosure to inspect internal anatomy">Cutaway</button>
+            <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe mesh inspection">Wireframe</button>
+            <button type="button" class="view-btn" id="btn-view-reset" title="Reset camera and assembly state">Reset</button>
+            <button type="button" class="view-btn" id="btn-toggle-panels" title="Collapse or expand all right-side panels">Hide Panels</button>
+          </div>
 
-  <!-- Broadcast Cinema Lower-Third Voiceover & Chapter Overlay -->
-  <div id="tourOverlay" class="tour-overlay hidden">
-    <div class="tour-header">
-      <span id="tourBadge" class="tour-badge">STAGE 1 / 10</span>
-      <span id="tourTitle" class="tour-title">Powering On &amp; Electrical Continuity</span>
+          <!-- Camera & Orbit Controls -->
+          <div class="toolbar-group">
+            <button type="button" class="view-btn" id="btn-auto-rotate" title="Orbit camera automatically">Auto-rotate</button>
+            <label class="orbit-speed-ctrl" title="Auto-orbit speed">
+              <span>Orbit</span>
+              <input type="range" id="orbit-speed" min="0.2" max="4" step="0.1" value="1.1" />
+              <span id="orbit-speed-val">1.1×</span>
+            </label>
+            <label class="orbit-speed-ctrl" title="Camera zoom">
+              <span>Zoom</span>
+              <input type="range" id="camera-zoom" min="0" max="100" step="1" value="52" />
+              <span id="camera-zoom-val">52%</span>
+            </label>
+          </div>
+
+          <!-- Lighting & Atmosphere (Dark / Light / Warm / Cool / Retro / Night) -->
+          <div class="toolbar-group">
+            <label class="orbit-speed-ctrl light-ctrl" title="Overall lab brightness">
+              <span>Light</span>
+              <input type="range" id="lab-light" min="0.15" max="2.2" step="0.05" value="1.0" />
+              <span id="lab-light-val">1.0×</span>
+            </label>
+            <label class="orbit-speed-ctrl light-ctrl" title="Lighting & backdrop mood">
+              <span>Mood</span>
+              <select id="lab-light-mood" aria-label="Lighting mood">
+                <option value="neutral" selected>Dark Lab</option>
+                <option value="bright">Light Lab</option>
+                <option value="dim">Dim Studio</option>
+                <option value="cool">Cool Cleanroom</option>
+                <option value="warm">Warm Tungsten</option>
+                <option value="chemmate">Retro Paper</option>
+                <option value="night">Night Red</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div id="viewport3d" class="viewport"></div>
+
+        <!-- ChemMate Retro-Educational Archival Plate Overlay -->
+        <div id="cm-plate-overlay" class="cm-plate-overlay" aria-hidden="true">
+          <div class="cm-plate-header">
+            <div class="cm-plate-header-left">
+              <span class="cm-reg-cross">+</span>
+              <span class="cm-plate-idx">17</span>
+              <span class="cm-plate-rule">|</span>
+              <span class="cm-plate-heading">ERWEKA ZT 322 — USP &lt;701&gt; Tablet Disintegration &amp; Harmonic Drive</span>
+            </div>
+            <div class="cm-plate-header-right">
+              PHARMACOPEIAL DOSAGE FORM DISINTEGRATION.<br />
+              TIER 1 · GOLD STANDARD DIGITAL TWIN
+            </div>
+          </div>
+
+          <!-- Dynamic SVG leader lines connecting 3D anchors to editorial callouts -->
+          <svg id="cm-callouts-svg" class="cm-callouts-svg" preserveAspectRatio="none"></svg>
+
+          <!-- Editorial Callout Cards -->
+          <div id="cm-callouts-layer" class="cm-callouts-layer">
+            <button type="button" class="cm-callout cm-callout-left" data-callout="drive" style="top: 20%;">
+              <span class="cm-callout-title">Harmonic Crank Drive</span>
+              <span class="cm-callout-badge">30.0 CPM · 55 mm</span>
+              <span class="cm-callout-desc">24V BLDC planetary gearmotor + counterbalanced eccentric crank &amp; Heim rod.</span>
+            </button>
+            <button type="button" class="cm-callout cm-callout-left" data-callout="baskets" style="top: 46%;">
+              <span class="cm-callout-title">USP Apparatus A Baskets</span>
+              <span class="cm-callout-badge">2 × 6 Tubes</span>
+              <span class="cm-callout-desc">77.5 mm borosilicate tubes, V-grooved fluted disks &amp; 10-mesh 316L wire screens.</span>
+            </button>
+            <button type="button" class="cm-callout cm-callout-left" data-callout="electronics" style="top: 72%;">
+              <span class="cm-callout-title">Internal Power &amp; MCU Bay</span>
+              <span class="cm-callout-desc">Mean Well 24V PSU, 180VA toroid, 25A SSR, ARM Cortex-M4 &amp; BLE 5.2.</span>
+            </button>
+
+            <button type="button" class="cm-callout cm-callout-right" data-callout="bath" style="top: 26%;">
+              <span class="cm-callout-title">Thermostatic Water Bath</span>
+              <span class="cm-callout-badge">37.0 ± 0.2 °C</span>
+              <span class="cm-callout-desc">6.5 L optical acrylic vessel with 1500W Incoloy coil, PT100 RTD &amp; 45° gold mirrors.</span>
+            </button>
+            <button type="button" class="cm-callout cm-callout-right" data-callout="console" style="top: 56%;">
+              <span class="cm-callout-title">Operator Fascia &amp; LCD</span>
+              <span class="cm-callout-desc">High-DPI telemetry display + tactile membrane switches &amp; GLP audit logging.</span>
+            </button>
+          </div>
+
+          <!-- Bottom-left Sample Monograph Legend -->
+          <div class="cm-legend-box" id="cm-legend-box">
+            <div class="cm-legend-kicker" id="cm-legend-title">USP &lt;701&gt; Monograph Profile</div>
+            <div class="cm-legend-items" id="cm-legend-items"></div>
+          </div>
+
+          <!-- Bottom-right Physics Equation & Worksheet Card -->
+          <div class="cm-equation-card">
+            <span class="cm-paperclip" aria-hidden="true"></span>
+            <div class="cm-eq-head">
+              <span class="cm-eq-badge">USP &lt;701&gt;</span>
+              <span class="cm-eq-kicker">HARMONIC KINEMATICS</span>
+              <span class="cm-eq-sub">LIVE TELEMETRY</span>
+            </div>
+            <div class="cm-eq-formula">
+              <div class="cm-eq-side">
+                <div class="cm-eq-expr" id="cm-eq-cpm">30.0 CPM</div>
+                <span class="cm-eq-pill" id="cm-eq-state-pill">STANDBY</span>
+              </div>
+              <span class="cm-eq-arrow">⟶</span>
+              <div class="cm-eq-side">
+                <div class="cm-eq-expr" id="cm-eq-temp">37.0 °C</div>
+                <span class="cm-eq-pill is-balanced" id="cm-eq-intact-pill">12 / 12 INTACT</span>
+              </div>
+            </div>
+            <div class="cm-eq-steps">
+              <div class="cm-eq-steps-title">Y(t) = Y₀ + 27.5 mm · sin(2π · f · t)</div>
+              <ol>
+                <li>Equilibrate 1000 mL beakers &amp; bath to 37.0 ± 0.5 °C</li>
+                <li>Load 6 tablets + fluted guide disks into each basket</li>
+                <li>Oscillate at 29–32 CPM until zero firm cores remain</li>
+              </ol>
+            </div>
+          </div>
+
+          <span class="cm-reg-cross cm-reg-bl">+</span>
+          <div class="cm-plate-footer-right">
+            <span>REASON THROUGH CHEMISTRY.<br />BUILD A BRIGHTER TOMORROW.</span>
+            <span class="cm-reg-cross">+</span>
+          </div>
+        </div>
+
+        <!-- Broadcast Cinema Lower-Third Voiceover & Chapter Overlay -->
+        <div id="tourOverlay" class="tour-overlay hidden">
+          <div class="tour-header">
+            <span id="tourBadge" class="tour-badge">STAGE 1 / 10</span>
+            <span id="tourTitle" class="tour-title">Powering On &amp; Electrical Continuity</span>
+          </div>
+          <p id="tourCaption" class="tour-caption">
+            Welcome to the SREdesigns Digital Twin of the ERWEKA ZT 322 USP 701 Tablet Disintegration Tester.
+          </p>
+        </div>
+
+        <p id="viewport-status" class="viewport-caption">Ready · ERWEKA ZT 322 USP &lt;701&gt; Digital Twin</p>
+        <div class="stage-hint">Drag to orbit · Wireframe / Cutaway / Exploded · Click Part Explorer to isolate · Collapsible right panels</div>
+      </section>
+
+      <!-- ===================================================================
+           RIGHT PANEL 01: Instrument Control Panel (Collapsible)
+      ==================================================================== -->
+      <aside class="instrument panel-collapsible" id="panel-instrument" data-panel="instrument">
+        <div class="panel-head">
+          <div class="panel-head-title-wrap">
+            <span class="cm-panel-num">01</span>
+            <h2 class="panel-title">Control panel</h2>
+          </div>
+          <button type="button" class="panel-collapse-btn" data-collapse="instrument" title="Collapse panel" aria-expanded="true">▾</button>
+        </div>
+        <div class="panel-body">
+          <div class="instrument-frame">
+            <canvas id="lcd-mirror" width="1024" height="512" class="lcd" aria-label="Instrument display"></canvas>
+
+            <!-- Parameter Adjust Rockers -->
+            <div class="keypad-section">
+              <div class="keypad-section-header">
+                <span class="section-kicker">PARAMETER SETPOINTS</span>
+                <span class="section-hint">USP &lt;701&gt; LIMITS</span>
+              </div>
+              <div class="rocker-row">
+                <div class="key-cluster rocker" title="Bath temperature setpoint (35.0–39.0 °C)">
+                  <span class="cluster-label">TEMP</span>
+                  <div class="rocker-pair">
+                    <button type="button" class="key key-rock" id="btn-temp-up" title="Increase target bath temp">▲</button>
+                    <button type="button" class="key key-rock" id="btn-temp-down" title="Decrease target bath temp">▼</button>
+                  </div>
+                </div>
+                <div class="key-cluster rocker" title="Run duration timer adjustment">
+                  <span class="cluster-label">TIME</span>
+                  <div class="rocker-pair">
+                    <button type="button" class="key key-rock" id="btn-time-up" title="Increase test duration (+1 min)">▲</button>
+                    <button type="button" class="key key-rock" id="btn-time-down" title="Decrease test duration (-1 min)">▼</button>
+                  </div>
+                </div>
+                <div class="key-cluster rocker" title="Harmonic stroke frequency (29–32 CPM)">
+                  <span class="cluster-label">CPM</span>
+                  <div class="rocker-pair">
+                    <button type="button" class="key key-rock" id="btn-cpm-up" title="Increase CPM">▲</button>
+                    <button type="button" class="key key-rock" id="btn-cpm-down" title="Decrease CPM">▼</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tactile Membrane Keypad -->
+            <div class="keypad-section">
+              <div class="keypad-section-header">
+                <span class="section-kicker">MEMBRANE KEYPAD</span>
+                <span class="section-hint">TACTILE SWITCHES</span>
+              </div>
+              <div class="keypad-membrane-grid" role="group" aria-label="Disintegration tester keypad">
+                <button type="button" class="key key-power" id="btn-power-sw" title="Rear Mains Rocker Breaker">
+                  <span class="key-glyph">⏻</span>
+                  <span class="key-label">POWER</span>
+                </button>
+                <button type="button" class="key key-primary key-start" id="btnStart" title="Start 30 CPM Harmonic Oscillation">
+                  <span class="key-glyph">▶</span>
+                  <span class="key-label">START</span>
+                </button>
+                <button type="button" class="key key-open" id="btnStop" title="Stop Harmonic Drive">
+                  <span class="key-glyph">◼</span>
+                  <span class="key-label">STOP</span>
+                </button>
+                <button type="button" class="key key-cool" id="btnHeater" title="Toggle 1500W Immersion Heater & Pump">
+                  <span class="key-glyph">♨</span>
+                  <span class="key-label">HEATER</span>
+                </button>
+                <button type="button" class="key key-mode" id="btnLift" title="Raise / Lower Dual Motorized Basket Lift">
+                  <span class="key-glyph">⏏</span>
+                  <span class="key-label">BASKET LIFT</span>
+                </button>
+                <button type="button" class="key key-hold" id="btnExportGLP" title="Export 21 CFR Part 11 CSV Audit Trail">
+                  <span class="key-glyph">📄</span>
+                  <span class="key-label">GLP CSV</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Operational Actions & Internal Inspection Suite -->
+            <div class="action-suite">
+              <div class="action-suite-group">
+                <div class="action-suite-title">INTERNAL ANATOMY &amp; CONTINUITY</div>
+                <div class="action-suite-grid grid-2">
+                  <button type="button" class="btn" id="btnCutaway" title="Toggle X-Ray Cutaway of Outer Sheet-Metal">
+                    <span class="btn-glyph">🔍</span> Cutaway X-Ray
+                  </button>
+                  <button type="button" class="btn" id="btn-explode-panel" title="Explode Assemblies Vertically">
+                    <span class="btn-glyph">⚙</span> Explode CAD
+                  </button>
+                </div>
+                <div style="margin-top:6px;">
+                  <input id="sliderExplode" type="range" min="0" max="1" step="0.01" value="0" style="width:100%; accent-color:var(--cyan);" title="Continuous Exploded View Slider" />
+                </div>
+              </div>
+
+              <div class="action-suite-group">
+                <div class="action-suite-title">AUTOMATED WORKFLOW &amp; STAGE TOURS</div>
+                <div class="action-suite-grid grid-2">
+                  <button type="button" class="btn btn-demo" id="btn-demo-quick" title="Equilibrate 37°C, lower baskets, and run accelerated disintegration">
+                    <span class="btn-glyph">▶</span> Quick run
+                  </button>
+                  <button type="button" class="btn btn-demo btn-story" id="btn-tour-panel" title="10-Stage Narrated Operator &amp; Internal Anatomy Tour">
+                    <span class="btn-glyph">🎬</span> Guided tour
+                  </button>
+                  <button type="button" class="btn btn-demo" id="btn-inspect-power" title="Inspect Stage 7A Power Supply &amp; 3D Wiring Harnesses">
+                    <span class="btn-glyph">⚡</span> Power &amp; PSU
+                  </button>
+                  <button type="button" class="btn btn-demo btn-showcase" id="btn-inspect-pcb" title="Inspect Stage 7D Motherboard, MCU, SSD &amp; BLE 5.2">
+                    <span class="btn-glyph">🖧</span> PCB &amp; Wireless
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <p class="instrument-note">
+              <strong>Real-world continuity:</strong> Unplugging the NEMA 5-15P cord or turning off POWER immediately cuts 24VDC &amp; heater power.
+            </p>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ===================================================================
+           RIGHT PANEL 02: Part Explorer (Collapsible, Isolate + Wireframe)
+      ==================================================================== -->
+      <aside class="parts panel-collapsible" id="parts-panel" data-panel="parts">
+        <div class="panel-head">
+          <div class="panel-head-title-wrap">
+            <span class="cm-panel-num">02</span>
+            <h2 class="panel-title">Part explorer</h2>
+          </div>
+          <button type="button" class="panel-collapse-btn" data-collapse="parts" title="Collapse panel" aria-expanded="true">▾</button>
+        </div>
+        <div class="panel-body">
+          <p class="hint">
+            All named CAD assemblies, motors, sensors, and wiring harnesses. Click any part to isolate (others wireframe) and zoom in.
+          </p>
+          <button type="button" class="btn" id="btn-parts-clear">Clear focus</button>
+          <p id="parts-focus-status" class="lab-status muted">No part focused</p>
+          <p id="parts-count" class="hint">52 CAD Assemblies</p>
+          <div id="parts-list" class="parts-list" role="list"></div>
+          <!-- Legacy container alias for backwards compatibility -->
+          <div id="partTreeList" hidden></div>
+        </div>
+      </aside>
+
+      <!-- ===================================================================
+           RIGHT PANEL 03: Lab Bench & USP <701> Tablet Baskets (Collapsible)
+      ==================================================================== -->
+      <aside class="lab panel-collapsible" id="panel-lab" data-panel="lab">
+        <div class="panel-head">
+          <div class="panel-head-title-wrap">
+            <span class="cm-panel-num">03</span>
+            <h2 class="panel-title">Lab bench</h2>
+          </div>
+          <button type="button" class="panel-collapse-btn" data-collapse="lab" title="Collapse panel" aria-expanded="true">▾</button>
+        </div>
+        <div class="panel-body">
+          <label class="field">
+            <span>Pharmacopeial Sample Monograph</span>
+            <select id="selectSample">
+              <option value="aspirin_ir">Aspirin 500 mg Immediate-Release (3.5 min)</option>
+              <option value="vitamin_c">Ascorbic Acid 1000 mg Compressed (8.0 min)</option>
+              <option value="enteric_acid">Enteric-Coated Aspirin (Gastric Acid pH 1.2)</option>
+            </select>
+          </label>
+          <p id="material-desc" class="hint">USP &lt;701&gt; Immediate-Release Tablets in 0.1 N HCl Simulated Gastric Fluid at 37.0 °C.</p>
+
+          <div class="lab-btns">
+            <button type="button" class="btn" id="btn-reload-tablets">Reload 12 fresh tablets + disks</button>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; font-family:var(--mono); font-size:0.74rem; background:var(--panel-2); padding:8px; border-radius:8px; border:1px solid var(--border);">
+            <div>Bath: <strong id="valTemp" style="color:var(--cyan);">21.5 °C</strong></div>
+            <div>Drive: <strong id="valCPM" style="color:var(--cyan);">0.0 CPM</strong></div>
+            <div>Timer: <strong id="valTime" style="color:var(--cyan);">15:00</strong></div>
+            <div>State: <strong id="ftrDrive" style="color:var(--green);">PARKED</strong></div>
+            <div>Stn 1: <strong id="valStn1">6 / 6</strong></div>
+            <div>Stn 2: <strong id="valStn2">6 / 6</strong></div>
+          </div>
+
+          <p id="lab-status" class="lab-status">Ready — select monograph, pre-heat bath to 37.0 °C, and press START.</p>
+
+          <div class="lab-boards">
+            <div>
+              <h3>Basket A (6 Tubes)</h3>
+              <div id="basket-a-grid" class="tablet-grid"></div>
+            </div>
+            <div>
+              <h3>Basket B (6 Tubes)</h3>
+              <div id="basket-b-grid" class="tablet-grid"></div>
+            </div>
+          </div>
+
+          <div class="lab-bottom">
+            <div>
+              <h3>Basket &amp; Tablet Preview</h3>
+              <canvas id="tube-preview" width="240" height="220"></canvas>
+              <p id="tube-preview-label" class="hint">USP Apparatus A 10-Mesh</p>
+            </div>
+            <div>
+              <h3>GLP Disintegration Log</h3>
+              <pre id="sep-log" class="sep-log">USP &lt;701&gt; Audit Log Ready.</pre>
+            </div>
+          </div>
+        </div>
+      </aside>
     </div>
-    <p id="tourCaption" class="tour-caption">
-      Welcome to the SREdesigns Digital Twin of the ERWEKA ZT 322 USP 701 Tablet Disintegration Tester.
-    </p>
   </div>
 
-  <!-- Footer Telemetry Bar -->
-  <footer class="telemetry-bar">
-    <div class="telemetry-items">
-      <span>HARMONIC DRIVE: <span id="ftrDrive" class="telemetry-val">PARKED</span></span>
-      <span>STROKE AMPLITUDE: <span class="telemetry-val">55.0 mm</span></span>
-      <span>WATER BATH: <span class="telemetry-val">37.0 °C NOMINAL</span></span>
-    </div>
-    <div>
-      <span>USP &lt;701&gt; / Ph. Eur. 2.9.1 / JP 6.09 COMPLIANT</span>
-    </div>
-  </footer>
-
-  <script type="module" src="app.js?v=20261025-zt1"></script>
+  <script type="module" src="app.js?v=20261026-centrifuge-gold"></script>
 </body>
 </html>

@@ -4,6 +4,23 @@ Newest first. Template: `templates/change_log_entry.md`.
 
 ---
 
+## 2026-10-26 · OGA · disintegration-tester-industrial-cad-and-centrifuge-ui-parity
+
+| Field   | Value                                                                                                                                                                                                                                                            |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | OGA (Organizational Governance Agent) / Digital Twin Architecture Team                                                                                                                                                                                           |
+| Machine | `disintegration_tester_twin`                                                                                                                                                                                                                                     |
+| Intent  | Overhaul `disintegration_tester_twin` internal mechanical/electronics CAD and Web UI to eliminate "Lego" look and achieve 100% Centrifuge Gold Standard UI parity: (1) Replace all floating upright signboard placards with flush laser-etched IC markings, PCB silkscreens, and flush component specification stickers; (2) Upgrade internal parts to genuine industrial CAD geometry & procedural PBR materials (2048x1400 FR-4 PCB with QFP-176 gull-wing leads on `U1`, TSOP leads on `U2`, BGA substrate on `U3`, SMD capacitors/inductors, Phoenix Contact screw headers; perforated honeycomb sheet-metal `LRS-150-24` PSU cage exposing internal 400V filter caps, yellow Mylar chopper transformer, heatsinks, and 7-screw barrier strip with crimp ferrules; helical copper-wound toroidal transformer with Kapton band and dished washer; 11-fin black anodized SSR heatsink on DIN rail; laminated silicon-steel NEMA 17 steppers with red elastomer jaw spider couplings; 16-fin BLDC gearmotor with 2-stage planetary gearbox and counterbalanced crank flywheel with Heim rod-end bearings; and dressed floor-pan wiring harnesses with nylon cable ties); (3) Align `index.html`, `style.css`, and `app.js` 1:1 with `centrifuge_twin` featuring all collapsible panels on the right (`01 Control panel`, `02 Part explorer`, `03 Lab bench`), `Hide Panels`, `Wireframe`, Part Explorer isolate mode, `Light` & `Mood` selector (`Dark Lab`, `Light Lab`, `Dim Studio`, `Cool Cleanroom`, `Warm Tungsten`, `Retro Paper`, `Night Red`), and topbar `MODERN` / `+ RETRO` / `☾ NIGHT` View Chooser with dynamic 2D-projected SVG callout leader lines. |
+
+### Changed
+
+- `disintegration_tester_twin/software/viewer/disintegration3d.js`: Rebuilt internal mechanics, electronics bay, power supply, motors, sensors, and wiring harnesses with industrial CAD detail, procedural brushed metal and copper textures, and flush surface labels.
+- `disintegration_tester_twin/software/viewer/index.html`: Rebuilt DOM layout to match `centrifuge_twin` with `.topbar` View Chooser, `.view-toolbar` (`Wireframe`, `Hide Panels`, `Light`, `Mood`), `#cm-plate-overlay` SVG leader-line callouts, and right-side collapsible panels (`instrument`, `parts`, `lab`).
+- `disintegration_tester_twin/software/viewer/style.css`: Upgraded to the full 3,990-line Centrifuge Gold Standard stylesheet supporting Modern Dark Lab, Light Lab, Retro Paper, and Night Red themes.
+- `disintegration_tester_twin/software/viewer/app.js`: Wired Centrifuge UI controls, Part Explorer isolate-in-solid/wireframe-others, dynamic 2D SVG callout projection, collapsible panels, and 10-chapter guided tour.
+
+---
+
 ## 2026-10-25 · OGA · update-readme-with-machine-showcase-and-github-pages-links
 
 | Field   | Value                                                                                                                                                                                                                                                            |
