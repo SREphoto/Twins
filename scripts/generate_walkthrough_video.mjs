@@ -17,9 +17,42 @@ import os from 'os';
 import { spawn, execFileSync } from 'child_process';
 
 const ROOT = process.cwd();
-const TWIN_DIR = process.argv[2] || 'disintegration_tester_twin';
+
+// Parse CLI flags and arguments
+const args = process.argv.slice(2);
+let TWIN_DIR = 'disintegration_tester_twin';
+let ARTIFACT_MP4 = '';
+let CUSTOM_AUDIO_DIR = '';
+let VOICE_ID = process.env.GEMINI_TTS_VOICE || 'voice_r6j5bn13iimw';
+
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === '--audio-dir' && args[i + 1]) {
+    CUSTOM_AUDIO_DIR = path.resolve(args[i + 1]);
+    i++;
+  } else if (args[i] === '--voice' && args[i + 1]) {
+    VOICE_ID = args[i + 1];
+    i++;
+  } else if (args[i] === '--artifact' && args[i + 1]) {
+    ARTIFACT_MP4 = path.resolve(args[i + 1]);
+    i++;
+  } else if (!args[i].startsWith('--')) {
+    if (!TWIN_DIR || TWIN_DIR === 'disintegration_tester_twin') {
+      TWIN_DIR = args[i];
+    } else if (!ARTIFACT_MP4) {
+      ARTIFACT_MP4 = path.resolve(args[i]);
+    }
+  }
+}
+
+// Fallback search in <TWIN_DIR>/docs/audio if not explicitly given
+if (!CUSTOM_AUDIO_DIR) {
+  const defaultAudioDir = path.join(ROOT, TWIN_DIR, 'docs', 'audio');
+  if (fs.existsSync(defaultAudioDir)) {
+    CUSTOM_AUDIO_DIR = defaultAudioDir;
+  }
+}
+
 const OUT_MP4 = path.join(ROOT, TWIN_DIR, 'docs', 'ERWEKA_ZT322_Social_Walkthrough.mp4');
-const ARTIFACT_MP4 = process.argv[3] || '';
 const PORT = 8772;
 const CDP_PORT = 9229;
 
@@ -139,10 +172,33 @@ async function main() {
     const segmentFiles = [];
 
     for (const ch of chapters) {
-      console.log(`  🎙️  Synthesizing voiceover & capturing 3D motion for [${ch.badge}]...`);
-      const aiffPath = path.join(tmpDir, `vo_${ch.idx}.aiff`);
-      execFileSync('/usr/bin/say', ['-r', '185', '-o', aiffPath, ch.voiceover]);
-      const durSec = getAudioDurationSec(aiffPath) + 0.5;
+      // Check for custom audio stem (e.g. Gemini Flash 3.8 TTS voice_r6j5bn13iimw)
+      let audioPath = null;
+      if (CUSTOM_AUDIO_DIR && fs.existsSync(CUSTOM_AUDIO_DIR)) {
+        const candidates = [
+          path.join(CUSTOM_AUDIO_DIR, `vo_${ch.idx}.mp3`),
+          path.join(CUSTOM_AUDIO_DIR, `vo_${ch.idx}.wav`),
+          path.join(CUSTOM_AUDIO_DIR, `vo_${ch.idx}.m4a`),
+          path.join(CUSTOM_AUDIO_DIR, `vo_${ch.idx}.aiff`),
+          path.join(CUSTOM_AUDIO_DIR, `chapter_${ch.idx + 1}.mp3`),
+          path.join(CUSTOM_AUDIO_DIR, `chapter_${ch.idx + 1}.wav`)
+        ];
+        for (const cand of candidates) {
+          if (fs.existsSync(cand) && fs.statSync(cand).size > 0) {
+            audioPath = cand;
+            break;
+          }
+        }
+      }
+
+      if (audioPath) {
+        console.log(`  🎙️  [Gemini Flash 3.8 Voice: ${VOICE_ID}] Using audio stem for [${ch.badge}]: ${path.basename(audioPath)}`);
+      } else {
+        console.log(`  🎙️  [Local Synthesis Fallback /usr/bin/say] Synthesizing voiceover for [${ch.badge}]...`);
+        audioPath = path.join(tmpDir, `vo_${ch.idx}.aiff`);
+        execFileSync('/usr/bin/say', ['-r', '185', '-o', audioPath, ch.voiceover]);
+      }
+      const durSec = getAudioDurationSec(audioPath) + 0.5;
 
       // Activate chapter in 3D scene
       await send('Runtime.evaluate', {
@@ -197,7 +253,7 @@ async function main() {
         '-f', 'image2',
         '-framerate', String(fps),
         '-i', path.join(frameDir, 'f_%03d.png'),
-        '-i', aiffPath,
+        '-i', audioPath,
         '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2,fps=30',
         '-c:v', 'libx264',
         '-pix_fmt', 'yuv420p',
