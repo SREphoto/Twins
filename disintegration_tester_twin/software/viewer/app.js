@@ -291,12 +291,13 @@ export const TOUR_CHAPTERS = [
     badge: 'STAGE 7A / 10 · INTERNAL POWER SUPPLY & ROUTING',
     title: 'Power Inlet, Transformer, 24V Supply & Wiring Harnesses',
     voiceover: 'Inside the lower cabinet, electricity enters through the rear power socket. It passes through an isolation transformer, a twenty-four-volt power supply, and a solid-state relay that controls the immersion heater. Bundled wiring harnesses distribute power to all internal parts.',
-    camPos: [-3.2, 2.4, -2.6],
-    camTarget: [-0.95, 0.45, 0.15],
+    camPos: [-3.1, 1.9, -2.5],
+    camTarget: [-0.85, 0.50, 0.15],
     setup: (app) => {
       app.setExplodedValue(0);
+      app.engine.setCutaway(true);
       app.engine.enclosureShell.visible = false;
-      app.engine.bathGroup.visible = false;
+      app.engine.bathGroup.visible = true;
       app.engine.driveGroup.visible = true;
       app.engine.driveHead.visible = true;
       app.heaterActive = true;
@@ -311,8 +312,11 @@ export const TOUR_CHAPTERS = [
     camPos: [-3.6, 4.2, -4.4],
     camTarget: [0.0, 2.8, 0.35],
     setup: (app) => {
+      app.engine.setCutaway(true);
       app.engine.enclosureShell.visible = false;
       app.engine.bathGroup.visible = true;
+      app.engine.driveGroup.visible = true;
+      app.engine.driveHead.visible = true;
       app.oscillationActive = true;
       app.state = 'RUNNING';
       app.basketLowered = true;
@@ -325,13 +329,14 @@ export const TOUR_CHAPTERS = [
     badge: 'STAGE 7C / 10 · MOTHERBOARD, eMMC SSD, WI-FI / BLE & PORTS',
     title: 'Controller Motherboard, Processor, Storage & Rear Ports',
     voiceover: 'The main computer board controls the entire instrument. It houses the central processor, system memory, solid-state storage for test records, and a battery backup for the clock. Network and serial ports on the rear panel allow data export to laboratory computers.',
-    camPos: [1.85, 2.15, -2.35],
+    camPos: [1.85, 1.85, -2.25],
     camTarget: [0.35, 0.42, 0.35],
     setup: (app) => {
+      app.engine.setCutaway(true);
       app.engine.enclosureShell.visible = false;
-      app.engine.bathGroup.visible = false;
-      app.engine.driveGroup.visible = false;
-      app.engine.driveHead.visible = false;
+      app.engine.bathGroup.visible = true;
+      app.engine.driveGroup.visible = true;
+      app.engine.driveHead.visible = true;
       app.syncToEngine();
     }
   }
@@ -1122,17 +1127,7 @@ class DisintegrationApp {
     // Hide / Show Right Side Panels (#btn-toggle-panels)
     const btnTogglePanels = document.getElementById('btn-toggle-panels');
     btnTogglePanels?.addEventListener('click', () => {
-      this.panelsHidden = !this.panelsHidden;
-      document.querySelectorAll('.panel-collapsible').forEach((p) => {
-        p.classList.toggle('is-collapsed', this.panelsHidden);
-      });
-      document.querySelectorAll('[data-collapse]').forEach((b) => {
-        b.textContent = this.panelsHidden ? '▸' : '▾';
-        b.setAttribute('aria-expanded', this.panelsHidden ? 'false' : 'true');
-      });
-      btnTogglePanels.classList.toggle('active', this.panelsHidden);
-      btnTogglePanels.textContent = this.panelsHidden ? 'Show Panels' : 'Hide Panels';
-      requestAnimationFrame(() => this.engine.onWindowResize());
+      this.setPanelsHidden(!this.panelsHidden);
     });
 
     // Individual Collapsible Right Panels ([data-collapse="instrument"|"parts"|"lab"])
@@ -1338,9 +1333,65 @@ class DisintegrationApp {
     this.logEvent('Exported 21 CFR Part 11 GLP Analytical CSV report.');
   }
 
+  setPanelsHidden(hidden) {
+    this.panelsHidden = Boolean(hidden);
+    document.querySelectorAll('.panel-collapsible').forEach((p) => {
+      p.classList.toggle('is-collapsed', this.panelsHidden);
+      p.style.display = this.panelsHidden ? 'none' : '';
+    });
+    document.querySelectorAll('[data-collapse]').forEach((b) => {
+      b.textContent = this.panelsHidden ? '▸' : '▾';
+      b.setAttribute('aria-expanded', this.panelsHidden ? 'false' : 'true');
+    });
+    const btnTogglePanels = document.getElementById('btn-toggle-panels');
+    if (btnTogglePanels) {
+      btnTogglePanels.classList.toggle('active', this.panelsHidden);
+      btnTogglePanels.textContent = this.panelsHidden ? 'Show Panels' : 'Hide Panels';
+    }
+    this.engine.onWindowResize();
+    requestAnimationFrame(() => this.engine.onWindowResize());
+  }
+
   // --------------------------------------------------------------------------
-  // Interactive Guided Walkthrough Tour with Voiceover Narration
+  // Interactive Guided Walkthrough Tour with Voiceover Narration & Live Captions
   // --------------------------------------------------------------------------
+  splitIntoCaptionChunks(text, maxWords = 13) {
+    if (!text) return [''];
+    const sentences = text.split(/(?<=[.!?])\s+/);
+    const chunks = [];
+    for (const s of sentences) {
+      const words = s.trim().split(/\s+/).filter(Boolean);
+      if (words.length <= maxWords) {
+        if (words.length) chunks.push(words.join(' '));
+      } else {
+        for (let i = 0; i < words.length; i += maxWords) {
+          chunks.push(words.slice(i, i + maxWords).join(' '));
+        }
+      }
+    }
+    return chunks.length ? chunks : [text];
+  }
+
+  updateTourCaptionForProgress(idx, progress = 0) {
+    const ch = TOUR_CHAPTERS[idx];
+    if (!ch) return;
+    const capEl = document.getElementById('tourCaption');
+    if (!capEl) return;
+    const chunks = this.splitIntoCaptionChunks(ch.voiceover, 13);
+    const totalChars = chunks.reduce((acc, c) => acc + c.length, 0) || 1;
+    const targetChar = Math.max(0, Math.min(0.999, progress)) * totalChars;
+    let accum = 0;
+    let chosen = chunks[0];
+    for (const c of chunks) {
+      accum += c.length;
+      if (targetChar <= accum) {
+        chosen = c;
+        break;
+      }
+    }
+    capEl.textContent = chosen;
+  }
+
   toggleGuidedTour() {
     if (this.tourActive) this.stopGuidedTour();
     else this.startGuidedTour();
@@ -1349,6 +1400,7 @@ class DisintegrationApp {
   startGuidedTour() {
     this.tourActive = true;
     this.tourIndex = 0;
+    this.setPanelsHidden(true);
     const btn = document.getElementById('btnGuidedTour');
     if (btn) {
       btn.textContent = '⏹ Stop Tour';
@@ -1371,6 +1423,8 @@ class DisintegrationApp {
       btn.textContent = '🎬 Guided Tour';
       btn.classList.remove('active');
     }
+    this.setPanelsHidden(false);
+    this.engine.manualLiftProgress = null;
     this.engine.enclosureShell.visible = true;
     this.engine.bathGroup.visible = true;
     this.engine.driveGroup.visible = true;
@@ -1380,19 +1434,18 @@ class DisintegrationApp {
     this.setCameraPreset('iso');
   }
 
-  applyTourChapter(idx) {
+  applyTourChapter(idx, progress = 0) {
     const ch = TOUR_CHAPTERS[idx];
     if (!ch) return null;
 
     const overlay = document.getElementById('tourOverlay');
     const badgeEl = document.getElementById('tourBadge');
     const titleEl = document.getElementById('tourTitle');
-    const capEl = document.getElementById('tourCaption');
 
     if (overlay) overlay.classList.remove('hidden');
     if (badgeEl) badgeEl.textContent = ch.badge;
     if (titleEl) titleEl.textContent = ch.title;
-    if (capEl) capEl.textContent = ch.voiceover;
+    this.updateTourCaptionForProgress(idx, progress);
 
     if (ch.setup) ch.setup(this);
     if (ch.camPos && ch.camTarget) {
@@ -1410,7 +1463,7 @@ class DisintegrationApp {
       return;
     }
 
-    const ch = this.applyTourChapter(this.tourIndex);
+    const ch = this.applyTourChapter(this.tourIndex, 0);
     const advance = () => {
       if (!this.tourActive) return;
       this.tourIndex++;
@@ -1426,6 +1479,11 @@ class DisintegrationApp {
 
     const audio = new Audio(audioUrl);
     this.currentTourAudio = audio;
+    audio.ontimeupdate = () => {
+      if (audio.duration > 0) {
+        this.updateTourCaptionForProgress(this.tourIndex, audio.currentTime / audio.duration);
+      }
+    };
     audio.onended = advance;
     audio.onerror = () => {
       // Fallback to Web Speech API if audio file cannot be loaded

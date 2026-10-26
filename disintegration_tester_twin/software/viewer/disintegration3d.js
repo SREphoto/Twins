@@ -138,23 +138,43 @@ const MAT_WIRE_SENSOR     = makeMat(0x0e7490, { r: 0.36, m: 0.15 });
 const MAT_RIBBON_GREY     = makeMat(0x475569, { r: 0.46, m: 0.12 });
 const MAT_SILICONE_HOSE   = makeMat(0x93c5fd, { r: 0.22, m: 0.05, o: 0.74, dw: false });
 
-// Optical Glass & Acrylics
+// Optical Glass, Acrylics & Aqueous Media
+// Deterministic alpha-blended PBR hierarchy (transmission: 0 + strict renderOrder)
+// prevents Three.js single-bounce transmission pass from culling nested water & beakers.
 const MAT_BATH_ACRYLIC = new THREE.MeshPhysicalMaterial({
-  color: 0xffffff, transmission: 0.94, roughness: 0.04, ior: 1.49,
-  thickness: 0.06, transparent: true, opacity: 1.0, clearcoat: 1.0,
-  depthWrite: false, side: THREE.DoubleSide
+  color: 0xe0f2fe, roughness: 0.05, metalness: 0.05, ior: 1.49,
+  reflectivity: 0.9, clearcoat: 1.0, clearcoatRoughness: 0.04,
+  transparent: true, opacity: 0.18, depthWrite: false, side: THREE.FrontSide
+});
+
+const MAT_BASKET_ACRYLIC = new THREE.MeshPhysicalMaterial({
+  color: 0xf0f9ff, roughness: 0.06, metalness: 0.05, ior: 1.49,
+  reflectivity: 0.85, clearcoat: 1.0,
+  transparent: true, opacity: 0.28, depthWrite: false, side: THREE.DoubleSide
 });
 
 const MAT_BEAKER_BOROSILICATE = new THREE.MeshPhysicalMaterial({
-  color: 0xffffff, transmission: 0.96, roughness: 0.02, ior: 1.52,
-  thickness: 0.03, transparent: true, opacity: 1.0, clearcoat: 1.0,
-  depthWrite: false, side: THREE.DoubleSide
+  color: 0xe0f2fe, roughness: 0.03, metalness: 0.06, ior: 1.52,
+  reflectivity: 0.95, clearcoat: 1.0, clearcoatRoughness: 0.02,
+  transparent: true, opacity: 0.24, depthWrite: false, side: THREE.FrontSide
 });
 
 const MAT_WATER_FLUID = new THREE.MeshPhysicalMaterial({
-  color: 0x38bdf8, transmission: 0.86, roughness: 0.08, ior: 1.333,
-  thickness: 0.8, transparent: true, opacity: 0.62,
-  depthWrite: false, side: THREE.DoubleSide
+  color: 0x38bdf8, roughness: 0.06, metalness: 0.02, ior: 1.333,
+  reflectivity: 0.75, clearcoat: 0.9,
+  transparent: true, opacity: 0.22, depthWrite: false, side: THREE.FrontSide
+});
+
+const MAT_BEAKER_FLUID = new THREE.MeshPhysicalMaterial({
+  color: 0x0ea5e9, roughness: 0.04, metalness: 0.02, ior: 1.333,
+  reflectivity: 0.85, clearcoat: 1.0,
+  transparent: true, opacity: 0.36, depthWrite: false, side: THREE.FrontSide
+});
+
+const MAT_MENISCUS_SURFACE = new THREE.MeshPhysicalMaterial({
+  color: 0x7dd3fc, roughness: 0.03, metalness: 0.08, ior: 1.333,
+  reflectivity: 0.95, clearcoat: 1.0,
+  transparent: true, opacity: 0.52, depthWrite: false, side: THREE.DoubleSide
 });
 
 const MAT_LASER_BEAM = makeMat(0xef4444, {
@@ -878,19 +898,38 @@ export class Disintegration3D {
     const bathMesh = new THREE.Mesh(new THREE.BoxGeometry(3.80, 1.90, 2.10), MAT_BATH_ACRYLIC);
     bathMesh.name = 'Glass_Bath_AcrylicVessel';
     bathMesh.position.y = 1.90 / 2;
-    bathMesh.castShadow = true;
+    bathMesh.renderOrder = 50;
     this.bathGroup.add(bathMesh);
+
+    // Subtle Acrylic Edge Framing Lines for crisp 3D tank silhouette
+    const bathEdges = new THREE.LineSegments(
+      new THREE.EdgesGeometry(new THREE.BoxGeometry(3.802, 1.902, 2.102)),
+      new THREE.LineBasicMaterial({ color: 0x7dd3fc, transparent: true, opacity: 0.42 })
+    );
+    bathEdges.position.y = 1.90 / 2;
+    bathEdges.renderOrder = 52;
+    this.bathGroup.add(bathEdges);
 
     // Machined Acrylic Cover Plate with Dual Beaker Cutout Collars
     const topRim = new THREE.Mesh(new THREE.BoxGeometry(3.88, 0.05, 2.18), MAT_BATH_ACRYLIC);
     topRim.name = 'Glass_Bath_TopCover';
     topRim.position.y = 1.90;
+    topRim.renderOrder = 51;
     this.bathGroup.add(topRim);
 
     const waterMesh = new THREE.Mesh(new THREE.BoxGeometry(3.68, 1.64, 1.98), MAT_WATER_FLUID);
     waterMesh.name = 'Glass_Bath_WaterVolume';
     waterMesh.position.y = 1.64 / 2 + 0.05;
+    waterMesh.renderOrder = 40;
     this.bathGroup.add(waterMesh);
+
+    // Crisp Bath Water Top Meniscus Surface Plane
+    const bathSurface = new THREE.Mesh(new THREE.PlaneGeometry(3.66, 1.96), MAT_MENISCUS_SURFACE);
+    bathSurface.rotation.x = -Math.PI / 2;
+    bathSurface.position.y = 1.69;
+    bathSurface.renderOrder = 42;
+    this.bathGroup.add(bathSurface);
+    this.animNodes.menisci.push(bathSurface);
 
     // Serpentine 1500W Incoloy 800 Immersion Heater Coil + Bulkhead Compression Glands
     const heaterCurve = new THREE.CatmullRomCurve3([
@@ -974,41 +1013,73 @@ export class Disintegration3D {
     drainGroup.add(valveHandle);
 
     // Dual 1000 mL Borosilicate 3.3 Low-Form Griffin Beakers with Retaining Rings
+    // Seated at y = 0.22 inside bathGroup (above the immersion heater coil at y = 0.12)
+    // reaching up to the top cover collar at y = 1.90 (height = 1.68 dm).
     const beakerCenters = [-0.825, 0.825];
     for (let stn = 0; stn < 2; stn++) {
       const cx = beakerCenters[stn];
       const beakerGroup = new THREE.Group();
       beakerGroup.name = `Glass_Beaker_0${stn + 1}`;
-      beakerGroup.position.set(cx, 0.06, 0);
+      beakerGroup.position.set(cx, 0.22, 0);
       this.bathGroup.add(beakerGroup);
 
-      // Stainless Retaining Collar on Bath Cover
+      // Stainless Retaining Collar on Bath Cover (y = 0.22 + 1.68 = 1.90)
       const collar = new THREE.Mesh(new THREE.TorusGeometry(0.54, 0.022, 12, 36), MAT_316SS_BRUSHED);
       collar.rotation.x = Math.PI / 2;
-      collar.position.y = 1.84;
+      collar.position.y = 1.68;
       beakerGroup.add(collar);
 
+      // Bottom Stainless Support Ring Cradle inside Bath
+      const btmSupport = new THREE.Mesh(new THREE.TorusGeometry(0.51, 0.015, 10, 32), MAT_316SS_BRUSHED);
+      btmSupport.rotation.x = Math.PI / 2;
+      btmSupport.position.y = 0.0;
+      beakerGroup.add(btmSupport);
+
       const wallMesh = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.525, 0.525, 1.45, 36, 1, true),
+        new THREE.CylinderGeometry(0.525, 0.525, 1.68, 36, 1, true),
         MAT_BEAKER_BOROSILICATE
       );
-      wallMesh.position.y = 1.45 / 2;
+      wallMesh.position.y = 1.68 / 2;
+      wallMesh.renderOrder = 30;
       beakerGroup.add(wallMesh);
 
-      const btmMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.525, 0.525, 0.04, 36), MAT_BEAKER_BOROSILICATE);
-      btmMesh.position.y = 0.02;
+      const btmMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.525, 0.525, 0.03, 36), MAT_BEAKER_BOROSILICATE);
+      btmMesh.position.y = 0.015;
+      btmMesh.renderOrder = 30;
       beakerGroup.add(btmMesh);
 
       const rimMesh = new THREE.Mesh(new THREE.TorusGeometry(0.525, 0.02, 12, 36), MAT_BEAKER_BOROSILICATE);
-      rimMesh.position.y = 1.45;
+      rimMesh.position.y = 1.68;
       rimMesh.rotation.x = Math.PI / 2;
+      rimMesh.renderOrder = 31;
       beakerGroup.add(rimMesh);
 
-      const fluidMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.495, 0.495, 1.12, 32), MAT_WATER_FLUID);
+      // White Enamel Volumetric Graduation Rings on Beaker Wall (200..1000 mL)
+      for (let g = 1; g <= 5; g++) {
+        const gradRing = new THREE.Mesh(
+          new THREE.TorusGeometry(0.526, 0.004, 6, 36, Math.PI * 0.45),
+          new THREE.MeshBasicMaterial({ color: 0xf8fafc, transparent: true, opacity: 0.55, depthWrite: false })
+        );
+        gradRing.rotation.x = Math.PI / 2;
+        gradRing.rotation.z = -Math.PI * 0.72;
+        gradRing.position.y = g * 0.26;
+        gradRing.renderOrder = 32;
+        beakerGroup.add(gradRing);
+      }
+
+      const fluidMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.505, 0.505, 1.36, 32), MAT_BEAKER_FLUID);
       fluidMesh.name = `Glass_Fluid_Beaker_0${stn + 1}`;
-      fluidMesh.position.y = 1.12 / 2 + 0.04;
+      fluidMesh.position.y = 1.36 / 2 + 0.03;
+      fluidMesh.renderOrder = 20;
       beakerGroup.add(fluidMesh);
       this.animNodes.beakerFluids.push(fluidMesh);
+
+      // Top Parabolic Meniscus Surface Disc inside Beaker
+      const meniscusDisc = new THREE.Mesh(new THREE.CylinderGeometry(0.504, 0.504, 0.012, 32), MAT_MENISCUS_SURFACE);
+      meniscusDisc.position.y = 1.39;
+      meniscusDisc.renderOrder = 22;
+      beakerGroup.add(meniscusDisc);
+      this.animNodes.menisci.push(meniscusDisc);
     }
   }
 
@@ -1387,25 +1458,28 @@ export class Disintegration3D {
       this.driveHead.add(basketGroup);
       this.animNodes.baskets.push(basketGroup);
 
-      const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 3.20, 16), MAT_316SS_ELECTROPOLISHED);
+      // Precision 316L Suspension Rod from Quick-Release Collet (-0.22) to Basket Top Plate (-0.875)
+      const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.72, 16), MAT_316SS_ELECTROPOLISHED);
       rod.name = `Pivot_Rod_Suspension_0${stn + 1}`;
-      rod.position.y = -1.60;
+      rod.position.y = -0.54;
       basketGroup.add(rod);
 
       const basketFrame = new THREE.Group();
       basketFrame.name = `Pivot_Basket_Assembly_0${stn + 1}`;
-      basketFrame.position.y = -3.20;
+      basketFrame.position.y = -1.65;
       basketGroup.add(basketFrame);
 
       const plateGeo = new THREE.CylinderGeometry(0.45, 0.45, 0.055, 32);
-      const topPlate = new THREE.Mesh(plateGeo, MAT_BATH_ACRYLIC);
+      const topPlate = new THREE.Mesh(plateGeo, MAT_BASKET_ACRYLIC);
       topPlate.name = `Glass_Basket_Plate_Top_0${stn + 1}`;
       topPlate.position.y = 0.775;
+      topPlate.renderOrder = 10;
       basketFrame.add(topPlate);
 
-      const btmPlate = new THREE.Mesh(plateGeo, MAT_BATH_ACRYLIC);
+      const btmPlate = new THREE.Mesh(plateGeo, MAT_BASKET_ACRYLIC);
       btmPlate.name = `Glass_Basket_Plate_Btm_0${stn + 1}`;
       btmPlate.position.y = 0;
+      btmPlate.renderOrder = 10;
       basketFrame.add(btmPlate);
 
       // Stainless Steel Bottom Clamping Ring + 10-Mesh Woven Wire Cloth
@@ -1438,15 +1512,17 @@ export class Disintegration3D {
 
         const tube = new THREE.Mesh(
           new THREE.CylinderGeometry(0.1275, 0.1275, 0.775, 24, 1, true),
-          MAT_BATH_ACRYLIC
+          MAT_BASKET_ACRYLIC
         );
         tube.name = `Glass_Tube_Acrylic_${stn + 1}_0${i + 1}`;
         tube.position.set(tx, 0.3875, tz);
+        tube.renderOrder = 10;
         basketFrame.add(tube);
 
-        const disk = new THREE.Mesh(new THREE.CylinderGeometry(0.1035, 0.1035, 0.095, 20), MAT_BATH_ACRYLIC);
+        const disk = new THREE.Mesh(new THREE.CylinderGeometry(0.1035, 0.1035, 0.095, 20), MAT_BASKET_ACRYLIC);
         disk.name = `Glass_Disk_Fluted_${stn + 1}_0${i + 1}`;
         disk.position.set(tx, 0.20, tz);
+        disk.renderOrder = 11;
         basketFrame.add(disk);
 
         const tabMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.078, 0.078, 0.042, 24), MAT_TABLET_WHITE);
@@ -2705,15 +2781,20 @@ export class Disintegration3D {
 
     // Smooth vertical parking lift interpolation (0 = parked above beakers, 1 = immersed)
     const targetLift = (hasPower && this.state.basketLowered) ? 1.0 : 0.0;
-    this.liftProgress += (targetLift - this.liftProgress) * Math.min(1, dt * 5.0);
+    if (typeof this.manualLiftProgress === 'number') {
+      this.liftProgress = this.manualLiftProgress;
+    } else {
+      this.liftProgress += (targetLift - this.liftProgress) * Math.min(1, dt * 5.0);
+    }
 
     // Sinusoidal vertical displacement: y(t) = A * sin(omega * t), A = 0.275 dm (27.5 mm)
     const strokeOffset = (hasPower && this.state.state === 'RUNNING')
       ? 0.275 * Math.sin(this.crankPhase)
       : 0.0;
 
-    // Drive head base Y: parked = 5.75 dm, lowered = 4.92 dm + sinusoidal strokeOffset
-    const baseHeadY = 5.75 - this.liftProgress * 0.83 + strokeOffset;
+    // Drive head base Y: parked = 6.08 dm (baskets at Y=4.43..5.205, cleanly above beaker rim Y=4.36),
+    // lowered = 4.78 dm + strokeOffset (baskets at Y=2.855..3.405, strictly inside beaker fluid Y=2.71..4.07)
+    const baseHeadY = 6.08 - this.liftProgress * 1.30 + strokeOffset;
 
     if (this.state.explodeFactor === 0) {
       this.driveHead.position.y = baseHeadY;
