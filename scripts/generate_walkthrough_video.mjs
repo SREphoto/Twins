@@ -171,70 +171,70 @@ async function main() {
     const CHAPTERS = [
       {
         idx: 0,
+        badge: 'STAGE 0 / 10 · OVERVIEW & OPERATION',
+        title: 'Erweka Tablet Disintegration Tester Overview',
+        voiceover: 'The Erweka Tablet Disintegration Tester is a benchtop laboratory instrument used by pharmaceutical scientists and quality control analysts to measure how long it takes for solid medicine tablets and capsules to completely break apart in liquid. When a patient swallows a pill, the pill must first soften, break down, and pass into solution before the active medicine can be absorbed by the body. This machine recreates the physical environment of the human stomach. It consists of a clear heated water bath held steadily at thirty-seven degrees Celsius, two one-liter glass beakers filled with test fluid, and two stainless steel basket assemblies. Mechanically, an internal electric motor turns a gearbox and crank arm that moves the baskets up and down thirty times every minute across a fifty-five millimeter stroke. Two independent motorized lead screws automatically lower the baskets into the fluid when a test begins and raise them out of the beakers when the timer finishes. As the tablets move through the warm fluid, the liquid softens the pill binder, and the movement washes the particles through the mesh screen. The operator then verifies that no firm core remains, and the digital controller records the exact disintegration time for compliance records.',
+        camPos: [-5.4, 4.2, -7.2]
+      },
+      {
+        idx: 1,
         badge: 'STAGE 1 / 10 · POWER & CONTINUITY',
         title: 'Powering On & Electrical Continuity',
         voiceover: 'To start, the operator plugs the power cord into the bench outlet and turns on the rear power switch. Once powered, the machine completes a self-test and enters standby mode.',
         camPos: [-5.8, 4.4, -7.8]
       },
       {
-        idx: 1,
+        idx: 2,
         badge: 'STAGE 2 / 10 · PRODUCT & MEDIA SETUP',
         title: 'Preparing Water Bath, Beakers, Tablets & Disks',
         voiceover: 'Next, the operator fills the water bath and places two one-liter glass beakers inside, filled with test liquid. Six tablets are placed into each of the two basket assemblies, with a plastic fluted disk set on top of each tablet to keep it submerged.',
         camPos: [-3.8, 4.8, -6.2]
       },
       {
-        idx: 2,
+        idx: 3,
         badge: 'STAGE 3 / 10 · INSERTION & SAFETY INTERLOCKS',
         title: 'Coupling Quick-Release Baskets & Lowering into Immersion',
         voiceover: 'The baskets snap onto the quick-release couplings on the upper arm. Motorized lead screws then lower the baskets into the beakers. A safety sensor prevents operation if the water level is too low.',
         camPos: [-2.8, 3.9, -5.6]
       },
       {
-        idx: 3,
+        idx: 4,
         badge: 'STAGE 4 / 10 · CONSOLE & SOFTWARE SETUP',
         title: 'Selecting Monograph & Pre-Heating Bath to 37.0 °C',
         voiceover: 'On the front control panel, the operator selects the test profile, sets the fifteen-minute timer, and turns on the heater. The circulating water warms to thirty-seven degrees Celsius, matching human body temperature.',
         camPos: [0.35, 1.65, -4.6]
       },
       {
-        idx: 4,
+        idx: 5,
         badge: 'STAGE 5 / 10 · ACTIVE RUN & DISINTEGRATION PHYSICS',
         title: '30 Strokes Per Minute & Hydrodynamic Shear Breakdown',
         voiceover: 'Pressing start begins the test. The drive arm moves the baskets up and down thirty times per minute through the warm liquid. As the tablets absorb the fluid, they soften and break apart, passing through the wire mesh at the bottom of each tube.',
         camPos: [-2.6, 3.6, -5.0]
       },
       {
-        idx: 5,
+        idx: 6,
         badge: 'STAGE 6 / 10 · END-OF-RUN INSPECTION & GLP CSV',
         title: 'Automatic Basket Lift, Screen Inspection & Report Export',
         voiceover: 'When the test finishes, the baskets lift automatically out of the beakers. The operator visually inspects the wire screens to confirm all tablets have completely broken down, and the instrument saves a test report to memory.',
         camPos: [-2.8, 4.3, -5.4]
       },
       {
-        idx: 6,
+        idx: 7,
         badge: 'STAGE 7A / 10 · INTERNAL POWER SUPPLY & ROUTING',
         title: 'Power Inlet, Transformer, 24V Supply & Wiring Harnesses',
         voiceover: 'Inside the lower cabinet, electricity enters through the rear power socket. It passes through an isolation transformer, a twenty-four-volt power supply, and a solid-state relay that controls the immersion heater. Bundled wiring harnesses distribute power to all internal parts.',
         camPos: [-3.2, 2.4, -2.6]
       },
       {
-        idx: 7,
+        idx: 8,
         badge: 'STAGE 7B / 10 · ALL 5 INTERNAL MOTORS & ACTUATORS',
         title: 'Main Stroke Motor, Lift Screws, Water Pump & Blower Fan',
         voiceover: 'Five separate electric motors drive the mechanics. The main motor turns a gearbox and crank arm to move the test baskets up and down. Two stepper motors turn vertical screw shafts to lift and lower the arm. A small water pump circulates the bath, and a fan cools the cabinet.',
         camPos: [-3.6, 4.2, -4.4]
       },
       {
-        idx: 8,
-        badge: 'STAGE 7C / 10 · INTERNAL SENSORS & 45° DIELECTRIC MIRRORS',
-        title: 'Temperature Probe, Encoders, Limit Switches & Float Sensor',
-        voiceover: 'Sensors monitor the machine during operation. A stainless steel probe measures bath water temperature, while optical sensors and switches track the motor speed, crank position, and upper arm limits. A float switch monitors the water level.',
-        camPos: [-2.8, 3.2, -3.8]
-      },
-      {
         idx: 9,
-        badge: 'STAGE 7D / 10 · MOTHERBOARD, eMMC SSD, WI-FI / BLE & PORTS',
+        badge: 'STAGE 7C / 10 · MOTHERBOARD, eMMC SSD, WI-FI / BLE & PORTS',
         title: 'Controller Motherboard, Processor, Storage & Rear Ports',
         voiceover: 'The main computer board controls the entire instrument. It houses the central processor, system memory, solid-state storage for test records, and a battery backup for the clock. Network and serial ports on the rear panel allow data export to laboratory computers.',
         camPos: [1.85, 2.15, -2.35]

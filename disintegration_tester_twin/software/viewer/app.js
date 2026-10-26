@@ -169,6 +169,29 @@ const PART_CATALOG = [
 // ----------------------------------------------------------------------------
 export const TOUR_CHAPTERS = [
   {
+    id: 'STAGE_0',
+    badge: 'STAGE 0 / 10 · OVERVIEW & OPERATION',
+    title: 'Erweka Tablet Disintegration Tester Overview',
+    voiceover: 'The Erweka Tablet Disintegration Tester is a benchtop laboratory instrument used by pharmaceutical scientists and quality control analysts to measure how long it takes for solid medicine tablets and capsules to completely break apart in liquid. When a patient swallows a pill, the pill must first soften, break down, and pass into solution before the active medicine can be absorbed by the body. This machine recreates the physical environment of the human stomach. It consists of a clear heated water bath held steadily at thirty-seven degrees Celsius, two one-liter glass beakers filled with test fluid, and two stainless steel basket assemblies. Mechanically, an internal electric motor turns a gearbox and crank arm that moves the baskets up and down thirty times every minute across a fifty-five millimeter stroke. Two independent motorized lead screws automatically lower the baskets into the fluid when a test begins and raise them out of the beakers when the timer finishes. As the tablets move through the warm fluid, the liquid softens the pill binder, and the movement washes the particles through the mesh screen. The operator then verifies that no firm core remains, and the digital controller records the exact disintegration time for compliance records.',
+    camPos: [-5.4, 4.2, -7.2],
+    camTarget: [-0.2, 2.4, -0.4],
+    setup: (app) => {
+      app.setExplodedValue(0);
+      app.engine.setCutaway(false);
+      app.engine.enclosureShell.visible = true;
+      app.engine.bathGroup.visible = true;
+      app.engine.driveGroup.visible = true;
+      app.engine.driveHead.visible = true;
+      app.isPluggedIn = true;
+      app.powerSwitchOn = true;
+      app.state = 'STANDBY';
+      app.oscillationActive = false;
+      app.heaterActive = false;
+      app.basketLowered = false;
+      app.syncToEngine();
+    }
+  },
+  {
     id: 'STAGE_1',
     badge: 'STAGE 1 / 10 · POWER & CONTINUITY',
     title: 'Powering On & Electrical Continuity',
@@ -299,20 +322,7 @@ export const TOUR_CHAPTERS = [
   },
   {
     id: 'STAGE_7C',
-    badge: 'STAGE 7C / 10 · INTERNAL SENSORS & 45° DIELECTRIC MIRRORS',
-    title: 'Temperature Probe, Encoders, Limit Switches & Float Sensor',
-    voiceover: 'Sensors monitor the machine during operation. A stainless steel probe measures bath water temperature, while optical sensors and switches track the motor speed, crank position, and upper arm limits. A float switch monitors the water level.',
-    camPos: [-2.8, 3.2, -3.8],
-    camTarget: [-0.25, 2.35, -0.45],
-    setup: (app) => {
-      app.engine.enclosureShell.visible = false;
-      app.engine.bathGroup.visible = true;
-      app.syncToEngine();
-    }
-  },
-  {
-    id: 'STAGE_7D',
-    badge: 'STAGE 7D / 10 · MOTHERBOARD, eMMC SSD, WI-FI / BLE & PORTS',
+    badge: 'STAGE 7C / 10 · MOTHERBOARD, eMMC SSD, WI-FI / BLE & PORTS',
     title: 'Controller Motherboard, Processor, Storage & Rear Ports',
     voiceover: 'The main computer board controls the entire instrument. It houses the central processor, system memory, solid-state storage for test records, and a battery backup for the clock. Network and serial ports on the rear panel allow data export to laboratory computers.',
     camPos: [1.85, 2.15, -2.35],
@@ -1350,6 +1360,10 @@ class DisintegrationApp {
   stopGuidedTour() {
     this.tourActive = false;
     if (this.tourTimer) clearTimeout(this.tourTimer);
+    if (this.currentTourAudio) {
+      this.currentTourAudio.pause();
+      this.currentTourAudio = null;
+    }
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     document.getElementById('tourOverlay')?.classList.add('hidden');
     const btn = document.getElementById('btnGuidedTour');
@@ -1403,16 +1417,43 @@ class DisintegrationApp {
       this.tourTimer = setTimeout(() => this.runTourStep(), 800);
     };
 
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utter = new SpeechSynthesisUtterance(ch.voiceover);
-      utter.rate = 1.02;
-      utter.onend = advance;
-      utter.onerror = advance;
-      window.speechSynthesis.speak(utter);
-    } else {
-      this.tourTimer = setTimeout(advance, 8000);
+    // Play high-definition Gemini Flash 3.8 voice stem if available, fallback to Web Speech API
+    const audioUrl = `../../docs/audio/vo_${this.tourIndex}.mp3`;
+    if (this.currentTourAudio) {
+      this.currentTourAudio.pause();
+      this.currentTourAudio = null;
     }
+
+    const audio = new Audio(audioUrl);
+    this.currentTourAudio = audio;
+    audio.onended = advance;
+    audio.onerror = () => {
+      // Fallback to Web Speech API if audio file cannot be loaded
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(ch.voiceover);
+        utter.rate = 1.02;
+        utter.onend = advance;
+        utter.onerror = advance;
+        window.speechSynthesis.speak(utter);
+      } else {
+        this.tourTimer = setTimeout(advance, 8000);
+      }
+    };
+
+    audio.play().catch(() => {
+      // Fallback if browser blocks audio autoplay
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(ch.voiceover);
+        utter.rate = 1.02;
+        utter.onend = advance;
+        utter.onerror = advance;
+        window.speechSynthesis.speak(utter);
+      } else {
+        this.tourTimer = setTimeout(advance, 8000);
+      }
+    });
   }
 }
 
