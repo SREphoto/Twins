@@ -194,11 +194,14 @@ def slice_audio(audio_in: Path, out_dir: Path, intervals):
         
         cmd = [
             '/usr/local/bin/ffmpeg', '-y',
-            '-i', str(audio_in),
             '-ss', f"{item['start']:.3f}",
+            '-i', str(audio_in),
             '-t', f"{dur:.3f}",
-            '-af', f"afade=t=in:st=0:d=0.04,afade=t=out:st={max(0, dur-0.05):.3f}:d=0.05",
+            '-af', f"asetpts=PTS-STARTPTS,afade=t=in:st=0:d=0.04,afade=t=out:st={max(0, dur-0.05):.3f}:d=0.05",
+            '-c:a', 'libmp3lame',
             '-b:a', '128k',
+            '-ar', '44100',
+            '-ac', '2',
             str(out_file)
         ]
         subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)

@@ -377,6 +377,8 @@ async function main() {
         '-pix_fmt', 'yuv420p',
         '-c:a', 'aac',
         '-b:a', '128k',
+        '-ar', '44100',
+        '-ac', '2',
         '-shortest',
         segPath
       ], { stdio: 'ignore' });

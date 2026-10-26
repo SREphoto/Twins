@@ -23,4 +23,5 @@ venv/
 
 # Temporary logs & scratch
 *.log
+*.wav
 scratch/

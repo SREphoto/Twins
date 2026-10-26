@@ -16,20 +16,20 @@ Slices erweka_full_voice.wav into exactly 10 synchronized chapter stems:
 import os
 import subprocess
 
-AUDIO_IN = 'disintegration_tester_twin/docs/audio/erweka_full_voice.wav'
+AUDIO_IN = 'disintegration_tester_twin/docs/audio/master_voiceover.wav'
 OUT_DIR = 'disintegration_tester_twin/docs/audio'
 
 CUTS = [
-    (0.00, 92.10, 'STAGE 0 · OVERVIEW & OPERATION', 'vo_0.wav'),
-    (92.40, 104.60, 'STAGE 1 · POWER & CONTINUITY', 'vo_1.wav'),
-    (105.00, 122.00, 'STAGE 2 · PRODUCT & MEDIA SETUP', 'vo_2.wav'),
-    (122.20, 135.50, 'STAGE 3 · INSERTION & SAFETY INTERLOCKS', 'vo_3.wav'),
-    (135.80, 149.80, 'STAGE 4 · CONSOLE & SOFTWARE SETUP', 'vo_4.wav'),
-    (150.00, 165.80, 'STAGE 5 · ACTIVE RUN & DISINTEGRATION PHYSICS', 'vo_5.wav'),
-    (166.00, 180.00, 'STAGE 6 · END-OF-RUN INSPECTION & REPORT', 'vo_6.wav'),
-    (180.20, 199.20, 'STAGE 7A · INTERNAL POWER SUPPLY & ROUTING', 'vo_7.wav'),
-    (199.60, 218.40, 'STAGE 7B · ALL 5 MOTORS & ACTUATORS', 'vo_8.wav'),
-    (218.60, 235.80, 'STAGE 7C · MOTHERBOARD, STORAGE & PORTS', 'vo_9.wav'),
+    (0.00, 92.10, 'STAGE 0 · OVERVIEW & OPERATION', 'vo_0.mp3'),
+    (92.40, 104.60, 'STAGE 1 · POWER & CONTINUITY', 'vo_1.mp3'),
+    (105.00, 122.00, 'STAGE 2 · PRODUCT & MEDIA SETUP', 'vo_2.mp3'),
+    (122.20, 135.50, 'STAGE 3 · INSERTION & SAFETY INTERLOCKS', 'vo_3.mp3'),
+    (135.80, 149.80, 'STAGE 4 · CONSOLE & SOFTWARE SETUP', 'vo_4.mp3'),
+    (150.00, 165.80, 'STAGE 5 · ACTIVE RUN & DISINTEGRATION PHYSICS', 'vo_5.mp3'),
+    (166.00, 180.00, 'STAGE 6 · END-OF-RUN INSPECTION & REPORT', 'vo_6.mp3'),
+    (180.20, 199.20, 'STAGE 7A · INTERNAL POWER SUPPLY & ROUTING', 'vo_7.mp3'),
+    (199.60, 218.40, 'STAGE 7B · ALL 5 MOTORS & ACTUATORS', 'vo_8.mp3'),
+    (218.60, 235.80, 'STAGE 7C · MOTHERBOARD, STORAGE & PORTS', 'vo_9.mp3'),
 ]
 
 def main():
@@ -43,10 +43,14 @@ def main():
         
         cmd = [
             '/usr/local/bin/ffmpeg', '-y',
-            '-i', AUDIO_IN,
             '-ss', f'{start:.3f}',
+            '-i', AUDIO_IN,
             '-t', f'{dur:.3f}',
-            '-af', f'afade=t=in:st=0:d=0.04,afade=t=out:st={dur-0.05:.3f}:d=0.05',
+            '-af', f'asetpts=PTS-STARTPTS,afade=t=in:st=0:d=0.04,afade=t=out:st={dur-0.05:.3f}:d=0.05',
+            '-c:a', 'libmp3lame',
+            '-b:a', '128k',
+            '-ar', '44100',
+            '-ac', '2',
             out_path
         ]
         subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
