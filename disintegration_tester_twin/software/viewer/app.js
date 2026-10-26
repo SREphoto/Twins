@@ -171,8 +171,8 @@ export const TOUR_CHAPTERS = [
   {
     id: 'STAGE_1',
     badge: 'STAGE 1 / 10 · POWER & CONTINUITY',
-    title: 'Powering On & Hard Electrical Continuity',
-    voiceover: 'Welcome to the S R E designs Digital Twin of the ERWEKA Z T 322 U S P 701 Tablet Disintegration Tester. Physical circuit continuity is enforced. Plugging the NEMA 5-15P cord into the bench duplex receptacle and engaging the rear breaker powers up the system into Standby.',
+    title: 'Powering On & Electrical Continuity',
+    voiceover: 'To start, the operator plugs the power cord into the bench outlet and turns on the rear power switch. Once powered, the machine completes a self-test and enters standby mode.',
     camPos: [-5.8, 4.4, -7.8],
     camTarget: [-0.4, 2.2, -0.2],
     setup: (app) => {
@@ -194,8 +194,8 @@ export const TOUR_CHAPTERS = [
   {
     id: 'STAGE_2',
     badge: 'STAGE 2 / 10 · PRODUCT & MEDIA SETUP',
-    title: 'Preparing Beakers, Gastric Media, Tablets & Fluted Disks',
-    voiceover: 'In Stage 2, the operator fills the optical acrylic bath, seats two one-thousand milliliter borosilicate Griffin beakers with simulated gastric fluid, and loads twelve dosage units with fluted cylindrical disks into the two U S P Apparatus A baskets.',
+    title: 'Preparing Water Bath, Beakers, Tablets & Disks',
+    voiceover: 'Next, the operator fills the water bath and places two one-liter glass beakers inside, filled with test liquid. Six tablets are placed into each of the two basket assemblies, with a plastic fluted disk set on top of each tablet to keep it submerged.',
     camPos: [-3.8, 4.8, -6.2],
     camTarget: [0.0, 3.4, -0.85],
     setup: (app) => {
@@ -207,8 +207,8 @@ export const TOUR_CHAPTERS = [
   {
     id: 'STAGE_3',
     badge: 'STAGE 3 / 10 · INSERTION & SAFETY INTERLOCKS',
-    title: 'Coupling Quick-Release Collets & Lowering into Immersion',
-    voiceover: 'In Stage 3, each basket locks into the quick-release stainless steel collets on the horizontal bridge arm and lowers smoothly into the test media via dual trapezoidal lead screws, protected by low-water float cutoffs and stroke immersion clearances.',
+    title: 'Coupling Quick-Release Baskets & Lowering into Immersion',
+    voiceover: 'The baskets snap onto the quick-release couplings on the upper arm. Motorized lead screws then lower the baskets into the beakers. A safety sensor prevents operation if the water level is too low.',
     camPos: [-2.8, 3.9, -5.6],
     camTarget: [0.0, 2.9, -0.85],
     setup: (app) => {
@@ -219,8 +219,8 @@ export const TOUR_CHAPTERS = [
   {
     id: 'STAGE_4',
     badge: 'STAGE 4 / 10 · CONSOLE & SOFTWARE SETUP',
-    title: 'Selecting USP Monograph & Pre-Heating Bath to 37.0 °C',
-    voiceover: 'In Stage 4, the analyst selects the Immediate-Release Aspirin monograph on the front console, verifies the fifteen-minute timer, and engages the one-thousand-watt P I D immersion heater to equilibrate the water bath to thirty-seven degrees Celsius.',
+    title: 'Selecting Monograph & Pre-Heating Bath to 37.0 °C',
+    voiceover: 'On the front control panel, the operator selects the test profile, sets the fifteen-minute timer, and turns on the heater. The circulating water warms to thirty-seven degrees Celsius, matching human body temperature.',
     camPos: [0.35, 1.65, -4.6],
     camTarget: [0.35, 1.40, -2.0],
     setup: (app) => {
@@ -232,8 +232,8 @@ export const TOUR_CHAPTERS = [
   {
     id: 'STAGE_5',
     badge: 'STAGE 5 / 10 · ACTIVE RUN & DISINTEGRATION PHYSICS',
-    title: '30.0 CPM Sinusoidal Oscillation & Hydrodynamic Shear',
-    voiceover: 'In Stage 5, pressing Start engages pure sinusoidal vertical oscillation at thirty strokes per minute across a fifty-five millimeter stroke. Hydrodynamic fluid shear and excipient swelling break down the tablets through the ten-mesh stainless screens while live telemetry streams to the L C D.',
+    title: '30 Strokes Per Minute & Hydrodynamic Shear Breakdown',
+    voiceover: 'Pressing start begins the test. The drive arm moves the baskets up and down thirty times per minute through the warm liquid. As the tablets absorb the fluid, they soften and break apart, passing through the wire mesh at the bottom of each tube.',
     camPos: [-2.6, 3.6, -5.0],
     camTarget: [0.0, 2.8, -0.85],
     setup: (app) => {
@@ -250,8 +250,8 @@ export const TOUR_CHAPTERS = [
   {
     id: 'STAGE_6',
     badge: 'STAGE 6 / 10 · END-OF-RUN INSPECTION & GLP CSV',
-    title: 'Automatic Park Lift, 10-Mesh Inspection & 21 CFR 11 Export',
-    voiceover: 'In Stage 6, as soon as all twelve tablets disintegrate through the ten-mesh wire screens, the harmonic drive parks automatically, the baskets lift for visual inspection confirming zero firm cores remain, and a complete 21 C F R Part 11 C S V audit trail is exported.',
+    title: 'Automatic Basket Lift, Screen Inspection & Report Export',
+    voiceover: 'When the test finishes, the baskets lift automatically out of the beakers. The operator visually inspects the wire screens to confirm all tablets have completely broken down, and the instrument saves a test report to memory.',
     camPos: [-2.8, 4.3, -5.4],
     camTarget: [0.0, 3.2, -0.85],
     setup: (app) => {
@@ -266,8 +266,8 @@ export const TOUR_CHAPTERS = [
   {
     id: 'STAGE_7A',
     badge: 'STAGE 7A / 10 · INTERNAL POWER SUPPLY & ROUTING',
-    title: '180VA Toroidal XFMR, Perforated LRS-150-24 SMPS, 25A SSR & Harnesses',
-    voiceover: 'Now let us inspect the internal engineering. In Stage 7A, AC mains power enters through the rear I E C inlet into a helical copper-wound toroidal isolation transformer, a Mean Well twenty-four volt switching power supply with perforated honeycomb cage and seven-screw barrier strip, and an eleven-fin solid-state heater relay, with cable-tied harnesses routing power across the floor pan.',
+    title: 'Power Inlet, Transformer, 24V Supply & Wiring Harnesses',
+    voiceover: 'Inside the lower cabinet, electricity enters through the rear power socket. It passes through an isolation transformer, a twenty-four-volt power supply, and a solid-state relay that controls the immersion heater. Bundled wiring harnesses distribute power to all internal parts.',
     camPos: [-3.2, 2.4, -2.6],
     camTarget: [-0.95, 0.45, 0.15],
     setup: (app) => {
@@ -283,8 +283,8 @@ export const TOUR_CHAPTERS = [
   {
     id: 'STAGE_7B',
     badge: 'STAGE 7B / 10 · ALL 5 INTERNAL MOTORS & ACTUATORS',
-    title: 'Finned BLDC Servo + Planetary Gearbox, NEMA 17 Steppers, Pump & Blower',
-    voiceover: 'In Stage 7B, we see all five internal motors: Motor 1 is the sixteen-fin brushless servo coupled to a two-stage planetary gearbox and counterbalanced crank flywheel; Motors 2 and 3 are laminated silicon-steel NEMA 17 steppers with red elastomer jaw spider couplings driving trapezoidal lead screws; Motor 4 is the magnetic-drive circulation pump with brass hose barbs; and Motor 5 is the rear cooling fan.',
+    title: 'Main Stroke Motor, Lift Screws, Water Pump & Blower Fan',
+    voiceover: 'Five separate electric motors drive the mechanics. The main motor turns a gearbox and crank arm to move the test baskets up and down. Two stepper motors turn vertical screw shafts to lift and lower the arm. A small water pump circulates the bath, and a fan cools the cabinet.',
     camPos: [-3.6, 4.2, -4.4],
     camTarget: [0.0, 2.8, 0.35],
     setup: (app) => {
@@ -300,8 +300,8 @@ export const TOUR_CHAPTERS = [
   {
     id: 'STAGE_7C',
     badge: 'STAGE 7C / 10 · INTERNAL SENSORS & 45° DIELECTRIC MIRRORS',
-    title: 'PT100 RTD, Optical Encoders, Roller Microswitches & 45° Gimbal Mirrors',
-    voiceover: 'In Stage 7C, internal sensors monitor every degree of freedom: a Class A P T 100 bath probe with stainless knurled union, slotted optical stroke interrupter, quadrature shaft encoder, roller-lever limit microswitches, magnetic reed float switch, and collimated laser detectors with forty-five-degree dielectric mirrors in kinematic gimbals.',
+    title: 'Temperature Probe, Encoders, Limit Switches & Float Sensor',
+    voiceover: 'Sensors monitor the machine during operation. A stainless steel probe measures bath water temperature, while optical sensors and switches track the motor speed, crank position, and upper arm limits. A float switch monitors the water level.',
     camPos: [-2.8, 3.2, -3.8],
     camTarget: [-0.25, 2.35, -0.45],
     setup: (app) => {
@@ -313,8 +313,8 @@ export const TOUR_CHAPTERS = [
   {
     id: 'STAGE_7D',
     badge: 'STAGE 7D / 10 · MOTHERBOARD, eMMC SSD, WI-FI / BLE & PORTS',
-    title: 'STM32H743 QFP-176, LPDDR4, 16GB SSD, CR2032 RTC, Wi-Fi/BLE & Rear I/O',
-    voiceover: 'Finally, in Stage 7D, the multi-layer FR-4 motherboard features gull-wing Q F P leads on the S T M 32 microcontroller, L P D D R 4 memory, a sixteen-gigabyte e M M C flash vault, twenty-four-bit A D C, C R 2032 battery socket, Phoenix Contact terminal blocks, and a shielded Wi-Fi and Bluetooth B L E module feeding the rear dipole antenna alongside R S-232, U S B, and Ethernet ports.',
+    title: 'Controller Motherboard, Processor, Storage & Rear Ports',
+    voiceover: 'The main computer board controls the entire instrument. It houses the central processor, system memory, solid-state storage for test records, and a battery backup for the clock. Network and serial ports on the rear panel allow data export to laboratory computers.',
     camPos: [1.85, 2.15, -2.35],
     camTarget: [0.35, 0.42, 0.35],
     setup: (app) => {

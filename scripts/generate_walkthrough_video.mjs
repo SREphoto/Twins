@@ -20,7 +20,7 @@ const ROOT = process.cwd();
 
 // Parse CLI flags and arguments
 const args = process.argv.slice(2);
-let TWIN_DIR = 'disintegration_tester_twin';
+let TWIN_DIR = '';
 let ARTIFACT_MP4 = '';
 let CUSTOM_AUDIO_DIR = '';
 let VOICE_ID = process.env.GEMINI_TTS_VOICE || 'voice_r6j5bn13iimw';
@@ -36,12 +36,16 @@ for (let i = 0; i < args.length; i++) {
     ARTIFACT_MP4 = path.resolve(args[i + 1]);
     i++;
   } else if (!args[i].startsWith('--')) {
-    if (!TWIN_DIR || TWIN_DIR === 'disintegration_tester_twin') {
+    if (!TWIN_DIR) {
       TWIN_DIR = args[i];
     } else if (!ARTIFACT_MP4) {
       ARTIFACT_MP4 = path.resolve(args[i]);
     }
   }
+}
+
+if (!TWIN_DIR) {
+  TWIN_DIR = 'disintegration_tester_twin';
 }
 
 // Fallback search in <TWIN_DIR>/docs/audio if not explicitly given
@@ -152,26 +156,94 @@ async function main() {
     await send('Runtime.enable');
     await sleep(2500);
 
-    // Fetch chapter metadata from the live twin application
-    const chaptersRes = await send('Runtime.evaluate', {
-      expression: `
-        (() => {
-          // Import chapters via window.app
-          const list = [];
-          for (let i = 0; i < 10; i++) {
-            const ch = window.app.applyTourChapter(i);
-            if (ch) list.push({ idx: i, id: ch.id, badge: ch.badge, title: ch.title, voiceover: ch.voiceover, camPos: ch.camPos });
-          }
-          return JSON.stringify(list);
-        })()
-      `,
-      returnByValue: true
-    });
+    // Wait for window.app to initialize
+    for (let retry = 0; retry < 30; retry++) {
+      const readyRes = await send('Runtime.evaluate', {
+        expression: 'Boolean(window.app && window.app.engine && window.app.applyTourChapter)',
+        returnByValue: true
+      });
+      if (readyRes && readyRes.result && readyRes.result.value) {
+        break;
+      }
+      await sleep(300);
+    }
 
-    const chapters = JSON.parse(chaptersRes.result.value);
+    const CHAPTERS = [
+      {
+        idx: 0,
+        badge: 'STAGE 1 / 10 · POWER & CONTINUITY',
+        title: 'Powering On & Electrical Continuity',
+        voiceover: 'To start, the operator plugs the power cord into the bench outlet and turns on the rear power switch. Once powered, the machine completes a self-test and enters standby mode.',
+        camPos: [-5.8, 4.4, -7.8]
+      },
+      {
+        idx: 1,
+        badge: 'STAGE 2 / 10 · PRODUCT & MEDIA SETUP',
+        title: 'Preparing Water Bath, Beakers, Tablets & Disks',
+        voiceover: 'Next, the operator fills the water bath and places two one-liter glass beakers inside, filled with test liquid. Six tablets are placed into each of the two basket assemblies, with a plastic fluted disk set on top of each tablet to keep it submerged.',
+        camPos: [-3.8, 4.8, -6.2]
+      },
+      {
+        idx: 2,
+        badge: 'STAGE 3 / 10 · INSERTION & SAFETY INTERLOCKS',
+        title: 'Coupling Quick-Release Baskets & Lowering into Immersion',
+        voiceover: 'The baskets snap onto the quick-release couplings on the upper arm. Motorized lead screws then lower the baskets into the beakers. A safety sensor prevents operation if the water level is too low.',
+        camPos: [-2.8, 3.9, -5.6]
+      },
+      {
+        idx: 3,
+        badge: 'STAGE 4 / 10 · CONSOLE & SOFTWARE SETUP',
+        title: 'Selecting Monograph & Pre-Heating Bath to 37.0 °C',
+        voiceover: 'On the front control panel, the operator selects the test profile, sets the fifteen-minute timer, and turns on the heater. The circulating water warms to thirty-seven degrees Celsius, matching human body temperature.',
+        camPos: [0.35, 1.65, -4.6]
+      },
+      {
+        idx: 4,
+        badge: 'STAGE 5 / 10 · ACTIVE RUN & DISINTEGRATION PHYSICS',
+        title: '30 Strokes Per Minute & Hydrodynamic Shear Breakdown',
+        voiceover: 'Pressing start begins the test. The drive arm moves the baskets up and down thirty times per minute through the warm liquid. As the tablets absorb the fluid, they soften and break apart, passing through the wire mesh at the bottom of each tube.',
+        camPos: [-2.6, 3.6, -5.0]
+      },
+      {
+        idx: 5,
+        badge: 'STAGE 6 / 10 · END-OF-RUN INSPECTION & GLP CSV',
+        title: 'Automatic Basket Lift, Screen Inspection & Report Export',
+        voiceover: 'When the test finishes, the baskets lift automatically out of the beakers. The operator visually inspects the wire screens to confirm all tablets have completely broken down, and the instrument saves a test report to memory.',
+        camPos: [-2.8, 4.3, -5.4]
+      },
+      {
+        idx: 6,
+        badge: 'STAGE 7A / 10 · INTERNAL POWER SUPPLY & ROUTING',
+        title: 'Power Inlet, Transformer, 24V Supply & Wiring Harnesses',
+        voiceover: 'Inside the lower cabinet, electricity enters through the rear power socket. It passes through an isolation transformer, a twenty-four-volt power supply, and a solid-state relay that controls the immersion heater. Bundled wiring harnesses distribute power to all internal parts.',
+        camPos: [-3.2, 2.4, -2.6]
+      },
+      {
+        idx: 7,
+        badge: 'STAGE 7B / 10 · ALL 5 INTERNAL MOTORS & ACTUATORS',
+        title: 'Main Stroke Motor, Lift Screws, Water Pump & Blower Fan',
+        voiceover: 'Five separate electric motors drive the mechanics. The main motor turns a gearbox and crank arm to move the test baskets up and down. Two stepper motors turn vertical screw shafts to lift and lower the arm. A small water pump circulates the bath, and a fan cools the cabinet.',
+        camPos: [-3.6, 4.2, -4.4]
+      },
+      {
+        idx: 8,
+        badge: 'STAGE 7C / 10 · INTERNAL SENSORS & 45° DIELECTRIC MIRRORS',
+        title: 'Temperature Probe, Encoders, Limit Switches & Float Sensor',
+        voiceover: 'Sensors monitor the machine during operation. A stainless steel probe measures bath water temperature, while optical sensors and switches track the motor speed, crank position, and upper arm limits. A float switch monitors the water level.',
+        camPos: [-2.8, 3.2, -3.8]
+      },
+      {
+        idx: 9,
+        badge: 'STAGE 7D / 10 · MOTHERBOARD, eMMC SSD, WI-FI / BLE & PORTS',
+        title: 'Controller Motherboard, Processor, Storage & Rear Ports',
+        voiceover: 'The main computer board controls the entire instrument. It houses the central processor, system memory, solid-state storage for test records, and a battery backup for the clock. Network and serial ports on the rear panel allow data export to laboratory computers.',
+        camPos: [1.85, 2.15, -2.35]
+      }
+    ];
+
     const segmentFiles = [];
 
-    for (const ch of chapters) {
+    for (const ch of CHAPTERS) {
       // Check for custom audio stem (e.g. Gemini Flash 3.8 TTS voice_r6j5bn13iimw)
       let audioPath = null;
       if (CUSTOM_AUDIO_DIR && fs.existsSync(CUSTOM_AUDIO_DIR)) {

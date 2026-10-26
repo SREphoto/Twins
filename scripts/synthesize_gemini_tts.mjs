@@ -40,52 +40,52 @@ const CHAPTERS = [
   {
     idx: 0,
     badge: 'STAGE 1 / 10 · POWER & CONTINUITY',
-    text: 'Welcome to the S R E designs Digital Twin of the ERWEKA Z T 322 U S P 701 Tablet Disintegration Tester. Physical circuit continuity is enforced. Plugging the NEMA 5-15P cord into the bench duplex receptacle and engaging the rear breaker powers up the system into Standby.'
+    text: 'To start, the operator plugs the power cord into the bench outlet and turns on the rear power switch. Once powered, the machine completes a self-test and enters standby mode.'
   },
   {
     idx: 1,
     badge: 'STAGE 2 / 10 · PRODUCT & MEDIA SETUP',
-    text: 'In Stage 2, the operator fills the optical acrylic bath, seats two one-thousand milliliter borosilicate Griffin beakers with simulated gastric fluid, and loads twelve dosage units with fluted cylindrical disks into the two U S P Apparatus A baskets.'
+    text: 'Next, the operator fills the water bath and places two one-liter glass beakers inside, filled with test liquid. Six tablets are placed into each of the two basket assemblies, with a plastic fluted disk set on top of each tablet to keep it submerged.'
   },
   {
     idx: 2,
     badge: 'STAGE 3 / 10 · INSERTION & SAFETY INTERLOCKS',
-    text: 'In Stage 3, each basket locks into the quick-release stainless steel collets on the horizontal bridge arm and lowers smoothly into the test media via dual trapezoidal lead screws, protected by low-water float cutoffs and stroke immersion clearances.'
+    text: 'The baskets snap onto the quick-release couplings on the upper arm. Motorized lead screws then lower the baskets into the beakers. A safety sensor prevents operation if the water level is too low.'
   },
   {
     idx: 3,
     badge: 'STAGE 4 / 10 · CONSOLE & SOFTWARE SETUP',
-    text: 'In Stage 4, the analyst selects the Immediate-Release Aspirin monograph on the front console, verifies the fifteen-minute timer, and engages the one-thousand-watt P I D immersion heater to equilibrate the water bath to thirty-seven degrees Celsius.'
+    text: 'On the front control panel, the operator selects the test profile, sets the fifteen-minute timer, and turns on the heater. The circulating water warms to thirty-seven degrees Celsius, matching human body temperature.'
   },
   {
     idx: 4,
     badge: 'STAGE 5 / 10 · ACTIVE RUN & DISINTEGRATION PHYSICS',
-    text: 'In Stage 5, pressing Start engages pure sinusoidal vertical oscillation at thirty strokes per minute across a fifty-five millimeter stroke. Hydrodynamic fluid shear and excipient swelling break down the tablets through the ten-mesh stainless screens while live telemetry streams to the L C D.'
+    text: 'Pressing start begins the test. The drive arm moves the baskets up and down thirty times per minute through the warm liquid. As the tablets absorb the fluid, they soften and break apart, passing through the wire mesh at the bottom of each tube.'
   },
   {
     idx: 5,
     badge: 'STAGE 6 / 10 · END-OF-RUN INSPECTION & GLP CSV',
-    text: 'In Stage 6, as soon as all twelve tablets disintegrate through the ten-mesh wire screens, the harmonic drive parks automatically, the baskets lift for visual inspection confirming zero firm cores remain, and a complete 21 C F R Part 11 C S V audit trail is exported.'
+    text: 'When the test finishes, the baskets lift automatically out of the beakers. The operator visually inspects the wire screens to confirm all tablets have completely broken down, and the instrument saves a test report to memory.'
   },
   {
     idx: 6,
     badge: 'STAGE 7A / 10 · INTERNAL POWER SUPPLY & ROUTING',
-    text: 'Now let us inspect the internal engineering. In Stage 7A, AC mains power enters through the rear I E C inlet into a helical copper-wound toroidal isolation transformer, a Mean Well twenty-four volt switching power supply with perforated honeycomb cage and seven-screw barrier strip, and an eleven-fin solid-state heater relay, with cable-tied harnesses routing power across the floor pan.'
+    text: 'Inside the lower cabinet, electricity enters through the rear power socket. It passes through an isolation transformer, a twenty-four-volt power supply, and a solid-state relay that controls the immersion heater. Bundled wiring harnesses distribute power to all internal parts.'
   },
   {
     idx: 7,
     badge: 'STAGE 7B / 10 · ALL 5 INTERNAL MOTORS & ACTUATORS',
-    text: 'In Stage 7B, we see all five internal motors: Motor 1 is the sixteen-fin brushless servo coupled to a two-stage planetary gearbox and counterbalanced crank flywheel; Motors 2 and 3 are laminated silicon-steel NEMA 17 steppers with red elastomer jaw spider couplings driving trapezoidal lead screws; Motor 4 is the magnetic-drive circulation pump with brass hose barbs; and Motor 5 is the rear cooling fan.'
+    text: 'Five separate electric motors drive the mechanics. The main motor turns a gearbox and crank arm to move the test baskets up and down. Two stepper motors turn vertical screw shafts to lift and lower the arm. A small water pump circulates the bath, and a fan cools the cabinet.'
   },
   {
     idx: 8,
     badge: 'STAGE 7C / 10 · INTERNAL SENSORS & 45° DIELECTRIC MIRRORS',
-    text: 'In Stage 7C, internal sensors monitor every degree of freedom: a Class A P T 100 bath probe with stainless knurled union, slotted optical stroke interrupter, quadrature shaft encoder, roller-lever limit microswitches, magnetic reed float switch, and collimated laser detectors with forty-five-degree dielectric mirrors in kinematic gimbals.'
+    text: 'Sensors monitor the machine during operation. A stainless steel probe measures bath water temperature, while optical sensors and switches track the motor speed, crank position, and upper arm limits. A float switch monitors the water level.'
   },
   {
     idx: 9,
     badge: 'STAGE 7D / 10 · MOTHERBOARD, eMMC SSD, WI-FI / BLE & PORTS',
-    text: 'Finally, in Stage 7D, the multi-layer FR-4 motherboard features gull-wing Q F P leads on the S T M 32 microcontroller, L P D D R 4 memory, a sixteen-gigabyte e M M C flash vault, twenty-four-bit A D C, C R 2032 battery socket, Phoenix Contact terminal blocks, and a shielded Wi-Fi and Bluetooth B L E module feeding the rear dipole antenna alongside R S-232, U S B, and Ethernet ports.'
+    text: 'The main computer board controls the entire instrument. It houses the central processor, system memory, solid-state storage for test records, and a battery backup for the clock. Network and serial ports on the rear panel allow data export to laboratory computers.'
   }
 ];
 
