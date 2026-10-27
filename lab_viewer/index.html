@@ -2,65 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lab Systems · Lab viewer</title>
-  <link rel="stylesheet" href="style.css?v=20261018-view" />
-</head>
-<body>
-  <div id="app">
-    <header class="topbar">
-      <div class="brand">
-        <span class="brand-mark">LAB</span>
-        <span class="brand-model">Systems</span>
-        <span class="brand-tag">Multi-machine training lab</span>
-      </div>
-
-      <div class="view-chooser" role="group" aria-label="Visual view style">
-        <span class="view-chooser-label">VIEW:</span>
-        <div class="view-chooser-group">
-          <button type="button" class="view-choice-btn active" id="btn-view-modern" title="Modern View (Default high-tech instrument theme)">
-            <span class="view-choice-text">MODERN</span>
-          </button>
-          <button type="button" class="view-choice-btn" id="btn-view-retro" title="Retro View (ChemMate warm archival paper & Swiss red educational style)">
-            <span class="view-choice-text retro"><span class="cm-mini-plus">+</span> RETRO</span>
-          </button>
-          <button type="button" class="view-choice-btn" id="btn-view-night" title="Night View (Dark greys, deep blacks, and precision Swiss reds)">
-            <span class="view-choice-text night"><span class="night-glyph">☾</span> NIGHT</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="machine-picker">
-        <label for="machine-select">Machine</label>
-        <select id="machine-select" aria-label="Choose lab machine"></select>
-      </div>
-
-      <div class="topbar-status">
-        <span id="status-pill" class="pill">READY</span>
-        <span id="status-detail" class="muted">Select a machine</span>
-      </div>
-    </header>
-
-    <div class="stage-shell">
-      <div id="switch-banner" class="switch-banner" aria-live="polite"></div>
-      <!-- Shared lab desk (visible during machine switches) -->
-      <div id="transition-host" aria-hidden="true"></div>
-      <!-- Full interactive twin for the selected machine -->
-      <iframe
-        id="machine-frame"
-        class="is-hidden"
-        title="Machine twin"
-        allow="autoplay"
-      ></iframe>
-    </div>
-
-    <footer class="footer-hint">
-      <strong>Lab desk:</strong> choose a machine above.
-      Ready twins load their own control panels and 3D.
-      Switching slides the current instrument off the desk, then loads the next.
-      Gold sample: <code>centrifuge_twin</code> · process: <code>.master/</code>
-    </footer>
-  </div>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SREdesigns · Grand Chemistry & Pharmaceutical Complex</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=20261027-grand" />
 
   <script type="importmap">
   {
@@ -70,6 +17,172 @@
     }
   }
   </script>
-  <script type="module" src="app.js?v=20261018-view"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- Top Navigation Header -->
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">SRE</span>
+        <span class="brand-title">BIOMEDICAL RESEARCH COMPLEX</span>
+        <span class="brand-sub">Grand Chemistry & Pharmaceutical Laboratory</span>
+      </div>
+
+      <div class="header-center">
+        <div id="hud-zone-pill" class="hud-zone-pill">Zone 8: Thermal Air-Lock Vestibule</div>
+        <select id="quick-travel-select" class="quick-travel-select" aria-label="Jump to Station">
+          <option value="">⚡ Quick Station Jump...</option>
+          <option value="user_office">Zone 9: User's Private Executive Office</option>
+          <option value="conference">Zone 10: Executive Conference Room</option>
+          <option value="airlock">Zone 8: Thermal Air-Lock Vestibule</option>
+          <option value="dissolution">Zone 1: Agilent 708-DS Dissolution Tester</option>
+          <option value="spectrophotometer">Zone 1: Shimadzu UV-2600i Spectrophotometer</option>
+          <option value="ftir">Zone 1: Nicolet iS50 FTIR ATR Spectrometer</option>
+          <option value="karl_fischer">Zone 1: Metrohm 901 Karl Fischer Titrator</option>
+          <option value="balance">Zone 1: 0.1 mg Analytical Microbalance</option>
+          <option value="centrifuge">Zone 3: MICRO 5424-R Microcentrifuge</option>
+          <option value="freeze_dryer">Zone 3: Labconco -84°C Freeze Dryer</option>
+          <option value="rotovap">Zone 2: Buchi Rotovap R-300 (Fume Hood)</option>
+          <option value="hotplate">Zone 2: Ceramic Hotplate Magnetic Stirrer</option>
+          <option value="glove_box">Zone 4: MBraun Inert Atmosphere Glove Box</option>
+        </select>
+      </div>
+
+      <div class="header-actions">
+        <button id="btn-audio-toggle" class="btn-icon" title="Toggle Procedural Audio">
+          <span id="audio-icon">🔊</span> AUDIO
+        </button>
+        <button id="btn-help-controls" class="btn-icon" title="Controls Help">
+          <span>⌨️</span> CONTROLS
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Viewport Stage -->
+    <main class="main-stage">
+      <div id="canvas-host"></div>
+
+      <!-- Center Reticle / Crosshair -->
+      <div id="hud-crosshair" class="hud-crosshair"></div>
+
+      <!-- In-World Interaction Prompt Pill -->
+      <div id="interaction-prompt-pill" class="interaction-prompt-pill is-hidden">
+        <span class="prompt-icon">💡</span>
+        <span id="prompt-text">Click to interact</span>
+      </div>
+
+      <!-- Situationally Aware Collapsible Assistant Sidebar -->
+      <aside id="smart-sidebar" class="smart-sidebar">
+        <!-- Toggle Button -->
+        <button id="btn-sidebar-toggle" class="sidebar-toggle-tab" title="Toggle Assistant Sidebar (Tab)">
+          <span id="sidebar-toggle-icon">◀</span>
+        </button>
+
+        <div class="sidebar-header">
+          <div class="sidebar-title">
+            <span>ChemMate Lab Director</span>
+          </div>
+          <span class="sidebar-badge" id="sidebar-context-badge">AIRLOCK</span>
+        </div>
+
+        <div class="sidebar-scroll-content">
+          <!-- Card 1: Facility Environment & Safety Status -->
+          <div class="sidebar-card">
+            <div class="card-title">
+              <span>Facility Environment</span>
+              <span class="status-dot"></span>
+            </div>
+            <div class="telemetry-grid">
+              <div class="telemetry-item">
+                <div class="telemetry-label">AIR TEMP</div>
+                <div class="telemetry-val" id="env-temp">21.0 °C</div>
+              </div>
+              <div class="telemetry-item">
+                <div class="telemetry-label">DIFF PRESSURE</div>
+                <div class="telemetry-val" id="env-pres">+0.03" w.g.</div>
+              </div>
+              <div class="telemetry-item">
+                <div class="telemetry-label">HUMIDITY</div>
+                <div class="telemetry-val" id="env-humidity">45% RH</div>
+              </div>
+              <div class="telemetry-item">
+                <div class="telemetry-label">PPE GOWNING</div>
+                <div class="telemetry-val" style="color: var(--green);">COMPLIANT</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Active Station / Instrument Telemetry -->
+          <div class="sidebar-card" id="card-telemetry">
+            <div class="card-title">
+              <span id="telemetry-station-name">Active Instrument</span>
+              <span class="status-dot" id="instrument-status-dot"></span>
+            </div>
+            <div class="telemetry-grid" id="telemetry-dynamic-grid">
+              <div class="telemetry-item">
+                <div class="telemetry-label">STATUS</div>
+                <div class="telemetry-val" id="t-status">STANDBY</div>
+              </div>
+              <div class="telemetry-item">
+                <div class="telemetry-label">PRIMARY PARAM</div>
+                <div class="telemetry-val" id="t-param1">—</div>
+              </div>
+              <div class="telemetry-item">
+                <div class="telemetry-label">TEMPERATURE</div>
+                <div class="telemetry-val" id="t-temp">—</div>
+              </div>
+              <div class="telemetry-item">
+                <div class="telemetry-label">TIMER</div>
+                <div class="telemetry-val" id="t-timer">—</div>
+              </div>
+            </div>
+
+            <!-- Physical Output Action Buttons -->
+            <div class="action-btn-row">
+              <button class="action-btn" id="btn-print-slip">🖨️ Thermal Slip</button>
+              <button class="action-btn" id="btn-download-csv">💾 USB CSV</button>
+            </div>
+          </div>
+
+          <!-- Card 3: SOP Monograph & Accreditation Rubric -->
+          <div class="sidebar-card" id="card-sop">
+            <div class="card-title">
+              <span id="sop-title">SOP & Monograph Checklist</span>
+            </div>
+            <div id="sop-checklist-container">
+              <label class="checklist-item done">
+                <input type="checkbox" checked disabled />
+                <span>1. Verify thermal airlock seals and PPE compliance</span>
+              </label>
+              <label class="checklist-item done">
+                <input type="checkbox" checked disabled />
+                <span>2. Check benchtop electrical continuity (NEMA plug)</span>
+              </label>
+              <label class="checklist-item">
+                <input type="checkbox" id="chk-step3" />
+                <span id="lbl-step3">3. Calibrate instrument zero & baseline</span>
+              </label>
+              <label class="checklist-item">
+                <input type="checkbox" id="chk-step4" />
+                <span id="lbl-step4">4. Run test monograph and verify tolerance</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Card 4: Smart AI Lab Advisor Guidance -->
+          <div class="sidebar-card">
+            <div class="card-title">
+              <span>Smart Lab Advisor</span>
+            </div>
+            <div class="advisor-box" id="advisor-guidance-text">
+              Welcome to the Grand Chemistry & Pharmaceutical Complex. Walk freely using WASD and mouse look, or click any machine from across the room to glide directly into the operator chair.
+            </div>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script type="module" src="app.js"></script>
 </body>
 </html>

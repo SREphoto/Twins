@@ -2119,13 +2119,15 @@ export class Disintegration3D {
     this.consoleGroup.add(lens);
 
     // Physical tactile buttons positioned directly underneath corresponding on-screen soft keys
-    // Left-to-Right: [START] [STOP] [LIFT] [TEMP] [TIME] (Aligned 1:1 with LCD layout above)
+    // In operator-facing frame (+X is Left, -X is Right):
+    // Left-to-Right: [START] (+0.84) -> [STOP] (+0.42) -> [LIFT] (0.00) -> [TEMP] (-0.42) -> [TIME] (-0.84)
+    // Aligns 1:1 directly underneath the on-screen soft-touch action bar above
     const btnConfigs = [
-      { name: 'Btn_Start', label: 'START', color: 0x16a34a, x: -0.84 },
-      { name: 'Btn_Stop',  label: 'STOP',  color: 0xdc2626, x: -0.42 },
+      { name: 'Btn_Start', label: 'START', color: 0x16a34a, x:  0.84 },
+      { name: 'Btn_Stop',  label: 'STOP',  color: 0xdc2626, x:  0.42 },
       { name: 'Btn_Lift',  label: 'LIFT',  color: 0x0284c7, x:  0.00 },
-      { name: 'Btn_Temp',  label: 'TEMP',  color: 0xea580c, x:  0.42 },
-      { name: 'Btn_Time',  label: 'TIME',  color: 0x475569, x:  0.84 }
+      { name: 'Btn_Temp',  label: 'TEMP',  color: 0xea580c, x: -0.42 },
+      { name: 'Btn_Time',  label: 'TIME',  color: 0x475569, x: -0.84 }
     ];
 
     this.buttons = [];
@@ -3057,11 +3059,45 @@ export class Disintegration3D {
     this.electronicsGroup.add(ductCoverLeft);
 
     // Upright Tower Central Vertical Cable Riser Channel (Body_Tower_WireRiserChannel)
-    // Completely encloses all vertical motor/encoder wiring — ZERO wires floating in thin air
-    const ductTower = new THREE.Mesh(new THREE.BoxGeometry(0.22, 3.80, 0.16), MAT_PVC_DUCT);
+    // Runs seamlessly from floor pan (Y=0.10) to motor deck (Y=4.40) — ZERO wires floating in thin air
+    const ductTower = new THREE.Mesh(new THREE.BoxGeometry(0.24, 4.30, 0.18), MAT_PVC_DUCT);
     ductTower.name = 'Body_Tower_WireRiserChannel';
-    ductTower.position.set(-0.20, 3.50, 1.55);
+    ductTower.position.set(-0.20, 2.25, 1.55);
     this.electronicsGroup.add(ductTower);
+
+    // Structural Aluminum Column Wire Conduits under Left & Right Lift Motors M2/M3
+    for (const side of [-1, 1]) {
+      const colConduit = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 2.25, 20), MAT_ALUM_DARK_ANO);
+      colConduit.name = `Body_Conduit_LiftMotor_${side < 0 ? 'L' : 'R'}`;
+      colConduit.position.set(side * 0.80, 0.20 + 2.25 / 2, 1.00);
+      this.electronicsGroup.add(colConduit);
+    }
+
+    // Vertical 316 Stainless Steel Feed Conduit for Immersion Heater Cable
+    // Runs seamlessly from floor duct (Y=0.20) to bath heater compression gland (Y=2.58)
+    const heaterConduit = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 2.38, 20), MAT_316SS_BRUSHED);
+    heaterConduit.name = 'Body_Conduit_BathHeaterFeed';
+    heaterConduit.position.set(-1.45, 0.20 + 2.38 / 2, 0.09);
+    this.electronicsGroup.add(heaterConduit);
+
+    // Vertical 316 Stainless Steel Feed Conduit for PT100 RTD Temperature Probe Cable
+    const pt100Conduit = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 2.38, 20), MAT_316SS_BRUSHED);
+    pt100Conduit.name = 'Body_Conduit_PT100_Feed';
+    pt100Conduit.position.set(0.0, 0.20 + 2.38 / 2, 0.09);
+    this.electronicsGroup.add(pt100Conduit);
+
+    // Chassis Sub-Frame Grounding Stud on Left Structural Stiffener Rail
+    const frameGroundLug = new THREE.Group();
+    frameGroundLug.name = 'Body_Ground_Lug_SideRail';
+    frameGroundLug.position.set(-1.95, 0.25, 0.0);
+    const frameLugStud = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.08, 16), MAT_BRASS_FITTING);
+    frameLugStud.rotation.z = Math.PI / 2;
+    frameGroundLug.add(frameLugStud);
+    const frameLugBolt = makeHexSocketBolt(0.018, 0.04, 'Fastener_HexM4_SideRailPE');
+    frameLugBolt.rotation.z = Math.PI / 2;
+    frameLugBolt.position.x = 0.03;
+    frameGroundLug.add(frameLugBolt);
+    this.electronicsGroup.add(frameGroundLug);
 
     // Rubber strain-relief exit grommet at top of tower riser conduit
     const towerGrommet = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.04, 16), MAT_RUBBER_CORD);
@@ -3163,17 +3199,15 @@ export class Disintegration3D {
       ],
       0.020, 0x16a34a, 'Body_Wire_PE_HubToPSU'
     ));
-    // Branch C: Star Hub to Stainless Bath Cradle Ground Lug
+    // Branch C: Star Hub to Left Chassis Sub-Frame Stiffener Rail Grounding Lug
     this.electronicsGroup.add(makeWiringHarness(
       [
-        [-0.85, 0.16, 1.55],
-        [-1.58, 0.16, 1.55],
-        [-1.58, 0.20, 1.35],
-        [-1.58, 0.20, -0.65],
-        [-1.40, 0.20, -0.65],
-        [-1.40, 2.28, -0.65]
+        [-0.85, 0.16, 1.55], // Star Ground Hub
+        [-1.58, 0.16, 1.55], // Enters left longitudinal duct
+        [-1.58, 0.20, 0.00], // Runs inside left duct
+        [-1.95, 0.25, 0.00]  // Exits duct directly into Body_Ground_Lug_SideRail
       ],
-      0.020, 0x16a34a, 'Body_Wire_PE_HubToBathCradle'
+      0.020, 0x16a34a, 'Body_Wire_PE_HubToSideRail'
     ));
     // Branch D: Star Hub to Upright Tower Frame Ground Lug (via Tower Riser Conduit)
     this.electronicsGroup.add(makeWiringHarness(
@@ -3230,12 +3264,11 @@ export class Disintegration3D {
     this.electronicsGroup.add(makeWiringHarness(
       [
         [-1.20, 0.635, 1.20], // Bolted under SSR1 Screw 2 with ring lug
-        [-1.20, 0.20, 1.20],  // Drops straight DOWN into duct
+        [-1.20, 0.20, 1.20],  // Drops straight DOWN into rear duct
         [-1.58, 0.20, 1.20],  // Enters left longitudinal duct
-        [-1.58, 0.20, -0.85], // Runs along duct to immersion heater bulkhead
-        [-0.55, 0.20, -0.85],
-        [-0.55, 2.30, -0.85], // Rises inside ceramic protective conduit
-        [-0.35, 2.48, -0.85]  // Connects to immersion heater compression gland
+        [-1.58, 0.20, 0.09],  // Runs inside duct to heater conduit base
+        [-1.45, 0.20, 0.09],  // Enters Body_Conduit_BathHeaterFeed
+        [-1.45, 2.58, 0.09]   // Rises INSIDE conduit directly to heater compression gland
       ],
       0.026, 0xdc2626, 'Body_Wire_Heater_HighTemp_Silicone'
     ));
@@ -3266,14 +3299,14 @@ export class Disintegration3D {
       0.024, 0x8b5cf6, 'Body_Wire_Motor_BLDC_TowerLoom'
     ));
 
-    // 9. Dual Z-Axis Lift Stepper Motor Harnesses (DRV2/3 -> Duct -> Column Bases -> M2/M3 Motors)
+    // 9. Dual Z-Axis Lift Stepper Motor Harnesses (DRV2/3 -> Duct -> Column Conduits -> M2/M3 Motors)
     this.electronicsGroup.add(makeWiringHarness(
       [
         [0.03, 0.52, 1.15],  // DRV2 output connector
         [0.03, 0.20, 1.35],  // Drops into rear duct
-        [-0.80, 0.20, 1.35], // Runs to left column base
-        [-0.80, 0.20, 0.08],
-        [-0.80, 2.45, 0.08]  // Rises directly inside structural column to M2 motor
+        [-0.80, 0.20, 1.35], // Runs inside duct to left column base
+        [-0.80, 0.20, 1.00], // Enters Body_Conduit_LiftMotor_L at base
+        [-0.80, 2.45, 1.00]  // Rises INSIDE column conduit directly to M2 motor
       ],
       0.018, 0x06b6d4, 'Body_Wire_Motor_Lift_Left'
     ));
@@ -3281,9 +3314,9 @@ export class Disintegration3D {
       [
         [0.61, 0.52, 1.15], // DRV3 output connector
         [0.61, 0.20, 1.35],
-        [0.80, 0.20, 1.35], // Runs to right column base
-        [0.80, 0.20, 0.08],
-        [0.80, 2.45, 0.08]  // Rises directly inside structural column to M3 motor
+        [0.80, 0.20, 1.35], // Runs inside duct to right column base
+        [0.80, 0.20, 1.00], // Enters Body_Conduit_LiftMotor_R at base
+        [0.80, 2.45, 1.00]  // Rises INSIDE column conduit directly to M3 motor
       ],
       0.018, 0x06b6d4, 'Body_Wire_Motor_Lift_Right'
     ));
@@ -3310,15 +3343,13 @@ export class Disintegration3D {
       0.016, 0x64748b, 'Body_Wire_Fan_Power'
     ));
 
-    // 12. PT100 RTD Bath Temperature Sensor Shielded Cable (Probe Head -> Left Duct -> J3 Header beside ADC U4)
+    // 12. PT100 RTD Bath Temperature Sensor Shielded Cable (Probe Head -> Bulkhead Gland -> Conduit -> J3 Header)
     this.electronicsGroup.add(makeWiringHarness(
       [
-        [0, 2.42, 0.76],     // PT100 probe DIN connector head
-        [-1.40, 2.42, 0.76],
-        [-1.40, 0.20, 0.76], // Drops through sealed chassis grommet
-        [-1.58, 0.20, 0.76], // Enters left longitudinal duct
-        [-1.58, 0.20, 0.03], // Runs inside duct to J3 alignment
-        [-0.47, 0.20, 0.03], // Exits duct toward PCB
+        [0.00, 3.61, -0.09], // PT100 probe DIN connector head
+        [0.00, 2.58, 0.09],  // Enters Body_Conduit_PT100_Feed at top gland
+        [0.00, 0.20, 0.09],  // Drops INSIDE vertical conduit to floor
+        [-0.47, 0.20, 0.09], // Enters duct toward PCB
         [-0.47, 0.38, 0.03]  // Plugs directly into Body_Connector_J3_PT100 (Zero IC piercing!)
       ],
       0.016, 0x10b981, 'Body_Wire_Sensor_PT100_Shielded'
@@ -3602,10 +3633,10 @@ export class Disintegration3D {
         const isPassed = bootP >= itemP - 0.12;
 
         ctx.fillStyle = isPassed ? '#22c55e' : '#64748b';
-        ctx.fillText(isPassed ? '[ ✓ ]' : '[ · ]', 460, startY + i * 44);
+        ctx.fillText(isPassed ? '[ ✓ ]' : '[ · ]', 430, startY + i * 44);
 
         ctx.fillStyle = isPassed ? '#e2e8f0' : '#475569';
-        ctx.fillText(testItems[i], 520, startY + i * 44);
+        ctx.fillText(testItems[i], 540, startY + i * 44);
       }
 
       // Animated System Boot Progress Bar

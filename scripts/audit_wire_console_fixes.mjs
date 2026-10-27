@@ -65,10 +65,10 @@ async function run() {
   const chromePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
   const chrome = spawn(chromePath, [
     '--headless=new',
-    '--disable-gpu',
     `--remote-debugging-port=${CDP_PORT}`,
-    '--hide-scrollbars',
     '--window-size=1920,1080',
+    '--disable-gpu-sandbox',
+    '--no-sandbox',
     `http://127.0.0.1:${PORT}/disintegration_tester_twin/software/viewer/index.html`
   ]);
 
@@ -91,6 +91,15 @@ async function run() {
       ws.send(JSON.stringify({ id: curId, method, params }));
     });
 
+    ws.addEventListener('message', (evt) => {
+      const msg = JSON.parse(evt.data);
+      if (msg.method === 'Runtime.consoleAPICalled') {
+        console.log('BROWSER LOG:', msg.params.type, msg.params.args.map(a => a.value || a.description).join(' '));
+      } else if (msg.method === 'Runtime.exceptionThrown') {
+        console.error('BROWSER EXCEPTION:', msg.params.exceptionDetails);
+      }
+    });
+
     await send('Page.enable');
     await send('Runtime.enable');
     await send('Emulation.setDeviceMetricsOverride', {
@@ -106,78 +115,90 @@ async function run() {
       {
         name: 'audit_01_internals_wiring_overhaul',
         expr: `
-          const app = window.app;
-          const eng = app.engine;
-          eng.setCutaway(true);
-          eng.enclosureShell.visible = false;
-          eng.bathGroup.visible = true;
-          app.isPluggedIn = true;
-          app.powerSwitchOn = true;
-          app.heaterActive = true;
-          app.state = 'STANDBY';
-          app.syncToEngine();
-          // Angle matching user's red-circled image looking down at PSU, SSR & PCB
-          eng.camera.position.set(-2.8, 1.85, 0.4);
-          eng.controls.target.set(-0.85, 0.50, 0.25);
-          eng.controls.update();
-          eng.render();
+          (() => {
+            const app = window.app;
+            const eng = app.engine;
+            eng.setCutaway(true);
+            eng.enclosureShell.visible = false;
+            eng.bathGroup.visible = true;
+            app.isPluggedIn = true;
+            app.powerSwitchOn = true;
+            app.heaterActive = true;
+            app.state = 'STANDBY';
+            app.syncToEngine();
+            // Angle matching user's red-circled image looking down at PSU, SSR & PCB
+            eng.camera.position.set(-2.8, 1.85, 0.4);
+            eng.controls.target.set(-0.85, 0.50, 0.25);
+            eng.controls.update();
+            eng.renderer.render(eng.scene, eng.camera);
+          })()
         `,
         wait: 600
       },
       {
         name: 'audit_02_console_screen_and_buttons',
         expr: `
-          const app = window.app;
-          const eng = app.engine;
-          eng.setCutaway(false);
-          eng.enclosureShell.visible = true;
-          app.isPluggedIn = true;
-          app.powerSwitchOn = true;
-          app.state = 'STANDBY';
-          app.syncToEngine();
-          // Straight on close-up of front console UI_LCD and physical buttons
-          eng.camera.position.set(0.35, 1.40, -4.2);
-          eng.controls.target.set(0.35, 1.35, -2.01);
-          eng.controls.update();
-          eng.render();
+          (() => {
+            const app = window.app;
+            const eng = app.engine;
+            document.querySelectorAll('.panel-collapsible').forEach(el => el.style.display = 'none');
+            eng.onWindowResize();
+            eng.setCutaway(false);
+            eng.enclosureShell.visible = true;
+            app.isPluggedIn = true;
+            app.powerSwitchOn = true;
+            app.state = 'STANDBY';
+            app.syncToEngine();
+            // Straight on centered close-up of front console UI_LCD and physical buttons
+            eng.camera.position.set(0.35, 1.30, -4.6);
+            eng.controls.target.set(0.35, 1.25, -2.01);
+            eng.controls.update();
+            eng.renderer.render(eng.scene, eng.camera);
+          })()
         `,
         wait: 600
       },
       {
         name: 'audit_03_boot_screen_sredesigns',
         expr: `
-          const app = window.app;
-          const eng = app.engine;
-          eng.setCutaway(false);
-          eng.enclosureShell.visible = true;
-          app.isPluggedIn = true;
-          app.powerSwitchOn = true;
-          app.state = 'BOOTING';
-          app.bootProgress = 0.65;
-          app.syncToEngine();
-          eng.camera.position.set(0.35, 1.48, -3.8);
-          eng.controls.target.set(0.35, 1.45, -2.01);
-          eng.controls.update();
-          eng.render();
+          (() => {
+            const app = window.app;
+            const eng = app.engine;
+            document.querySelectorAll('.panel-collapsible').forEach(el => el.style.display = 'none');
+            eng.onWindowResize();
+            eng.setCutaway(false);
+            eng.enclosureShell.visible = true;
+            app.isPluggedIn = true;
+            app.powerSwitchOn = true;
+            app.state = 'BOOTING';
+            app.bootProgress = 0.65;
+            app.syncToEngine();
+            eng.camera.position.set(0.35, 1.35, -4.2);
+            eng.controls.target.set(0.35, 1.30, -2.01);
+            eng.controls.update();
+            eng.renderer.render(eng.scene, eng.camera);
+          })()
         `,
         wait: 600
       },
       {
         name: 'audit_04_exterior_fit_finish_and_fan',
         expr: `
-          const app = window.app;
-          const eng = app.engine;
-          eng.setCutaway(false);
-          eng.enclosureShell.visible = true;
-          app.isPluggedIn = true;
-          app.powerSwitchOn = true;
-          app.state = 'STANDBY';
-          app.syncToEngine();
-          // 3/4 rear-side isometric showing corner rails, fan exhaust port & stainless bath rim
-          eng.camera.position.set(4.8, 3.2, 4.2);
-          eng.controls.target.set(0.2, 1.6, 0.0);
-          eng.controls.update();
-          eng.render();
+          (() => {
+            const app = window.app;
+            const eng = app.engine;
+            eng.setCutaway(false);
+            eng.enclosureShell.visible = true;
+            app.isPluggedIn = true;
+            app.powerSwitchOn = true;
+            app.state = 'STANDBY';
+            app.syncToEngine();
+            // 3/4 rear-side isometric showing corner rails, fan exhaust port & stainless bath rim
+            eng.camera.position.set(4.8, 3.2, 4.2);
+            eng.controls.target.set(0.2, 1.6, 0.0);
+            eng.controls.update();
+            eng.renderer.render(eng.scene, eng.camera);
+          })()
         `,
         wait: 600
       }
@@ -185,7 +206,10 @@ async function run() {
 
     for (const s of shots) {
       console.log(`Capturing [${s.name}]...`);
-      await send('Runtime.evaluate', { expression: s.expr });
+      const evalRes = await send('Runtime.evaluate', { expression: s.expr });
+      if (evalRes && evalRes.exceptionDetails) {
+        console.error(`  Eval error in [${s.name}]:`, evalRes.exceptionDetails);
+      }
       await sleep(s.wait);
       const shot = await send('Page.captureScreenshot', { format: 'png' });
       const outPath = path.join(OUT_DIR, `${s.name}.png`);
