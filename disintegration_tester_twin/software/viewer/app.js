@@ -508,6 +508,7 @@ class DisintegrationApp {
     e.state.isPluggedIn = this.isPluggedIn;
     e.state.switchOn = this.powerSwitchOn;
     e.state.state = this.hasPower ? this.state : 'POWER_OFF';
+    e.state.bootProgress = this.bootProgress || 0;
     e.state.bathTempC = this.bathTempC;
     e.state.targetTempC = this.targetTempC;
     e.state.heaterOn = this.hasPower && this.heaterActive;
@@ -536,36 +537,81 @@ class DisintegrationApp {
   }
 
   // --------------------------------------------------------------------------
-  // Electrical Continuity & Tactile Controls
+  // Electrical Continuity & SREdesigns Instrument Boot Sequence
   // --------------------------------------------------------------------------
+  triggerBootSequence() {
+    if (!this.hasPower) {
+      this.state = 'POWER_OFF';
+      this.bootProgress = 0;
+      this.syncToEngine();
+      return;
+    }
+
+    this.state = 'BOOTING';
+    this.bootProgress = 0.05;
+    this.sfx.relayThud?.();
+    this.syncToEngine();
+
+    if (this._bootTimer) clearInterval(this._bootTimer);
+    const startT = performance.now();
+    const durationMs = 2200; // 2.2-second authentic hardware self-test
+
+    this._bootTimer = setInterval(() => {
+      if (!this.hasPower) {
+        clearInterval(this._bootTimer);
+        this._bootTimer = null;
+        this.state = 'POWER_OFF';
+        this.bootProgress = 0;
+        this.syncToEngine();
+        return;
+      }
+      const elapsed = performance.now() - startT;
+      this.bootProgress = Math.min(1.0, elapsed / durationMs);
+      this.syncToEngine();
+
+      if (elapsed >= durationMs) {
+        clearInterval(this._bootTimer);
+        this._bootTimer = null;
+        this.state = 'STANDBY';
+        this.sfx.beep?.();
+        this.logEvent('System diagnostics passed: 21 CFR 11 Boot completed');
+        this.syncToEngine();
+      }
+    }, 50);
+  }
+
   togglePlug() {
     this.isPluggedIn = !this.isPluggedIn;
     this.sfx.click();
     if (!this.hasPower) {
+      if (this._bootTimer) clearInterval(this._bootTimer);
       this.state = 'POWER_OFF';
+      this.bootProgress = 0;
       this.oscillationActive = false;
       this.heaterActive = false;
       this.sfx.stopMotor();
       this.sfx.stopPump();
+      this.syncToEngine();
     } else {
-      this.state = 'STANDBY';
+      this.triggerBootSequence();
     }
-    this.syncToEngine();
   }
 
   togglePowerSwitch() {
     this.powerSwitchOn = !this.powerSwitchOn;
     this.sfx.click();
     if (!this.hasPower) {
+      if (this._bootTimer) clearInterval(this._bootTimer);
       this.state = 'POWER_OFF';
+      this.bootProgress = 0;
       this.oscillationActive = false;
       this.heaterActive = false;
       this.sfx.stopMotor();
       this.sfx.stopPump();
+      this.syncToEngine();
     } else {
-      this.state = 'STANDBY';
+      this.triggerBootSequence();
     }
-    this.syncToEngine();
   }
 
   startTest() {

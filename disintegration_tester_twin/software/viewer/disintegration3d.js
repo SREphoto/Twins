@@ -725,70 +725,90 @@ export class Disintegration3D {
     const hasPower = this.state.isPluggedIn && this.state.switchOn && this.state.state !== 'POWER_OFF';
     if (!hasPower) return;
 
-    // Convert UV to Canvas pixel coordinates (1024 x 512)
-    const cx = uv.x * 1024;
-    const cy = uv.y * 512;
+    // Convert UV to Canvas pixel coordinates (2048 x 1024)
+    const cx = uv.x * 2048;
+    const cy = uv.y * 1024;
 
     // Add glowing cyan touch ripple at (cx, cy)
-    this.touchRipples.push({ x: cx, y: cy, radius: 8, maxRadius: 55, alpha: 0.95 });
+    this.touchRipples.push({ x: cx, y: cy, radius: 12, maxRadius: 80, alpha: 0.95 });
 
-    // Interactive Touch Zones on the 7.0" High-DPI Screen:
-    // Bottom Control Bar (Y in [415, 495]):
-    // START: [28, 175]
-    if (cx >= 28 && cx <= 175 && cy >= 415 && cy <= 495) {
+    // Interactive Touch Zones on the High-DPI 2048x1024 Screen:
+    // 1. Bottom Soft-Touch Action Bar (Y in [720, 890]):
+    // START: [48, 348]
+    if (cx >= 48 && cx <= 348 && cy >= 720 && cy <= 890) {
       this.onTouchAction?.('start');
       this.renderLCD();
       return;
     }
-    // STOP: [190, 335]
-    if (cx >= 190 && cx <= 335 && cy >= 415 && cy <= 495) {
+    // STOP: [376, 676]
+    if (cx >= 376 && cx <= 676 && cy >= 720 && cy <= 890) {
       this.onTouchAction?.('stop');
       this.renderLCD();
       return;
     }
-    // LIFT: [350, 495]
-    if (cx >= 350 && cx <= 495 && cy >= 415 && cy <= 495) {
+    // LIFT: [704, 1004]
+    if (cx >= 704 && cx <= 1004 && cy >= 720 && cy <= 890) {
       this.onTouchAction?.('lift');
       this.renderLCD();
       return;
     }
-    // HEATER: [510, 655]
-    if (cx >= 510 && cx <= 655 && cy >= 415 && cy <= 495) {
+    // HEATER: [1032, 1332]
+    if (cx >= 1032 && cx <= 1332 && cy >= 720 && cy <= 890) {
       this.onTouchAction?.('heater');
       this.renderLCD();
       return;
     }
-    // SAMPLE MONOGRAPH: [670, 835]
-    if (cx >= 670 && cx <= 835 && cy >= 415 && cy <= 495) {
+    // SAMPLE MONOGRAPH: [1360, 1680]
+    if (cx >= 1360 && cx <= 1680 && cy >= 720 && cy <= 890) {
       this.onTouchAction?.('sample');
       this.renderLCD();
       return;
     }
-    // RELOAD TABLETS: [850, 996]
-    if (cx >= 850 && cx <= 996 && cy >= 415 && cy <= 495) {
+    // RELOAD TABLETS: [1708, 2000]
+    if (cx >= 1708 && cx <= 2000 && cy >= 720 && cy <= 890) {
       this.onTouchAction?.('reload');
       this.renderLCD();
       return;
     }
 
-    // Telemetry Cards adjustment touch buttons:
-    // Temp -/+ (Card 1): [230, 310], [130, 240]
-    if (cx >= 230 && cx <= 310 && cy >= 130 && cy <= 240) {
-      this.onTouchAction?.('temp_adj', cy < 185 ? 0.5 : -0.5);
-      this.renderLCD();
-      return;
+    // 2. Telemetry Cards adjustment touch buttons (Stacked [+] over [−]):
+    // Card 1 Temp buttons: X in [520, 620]
+    if (cx >= 520 && cx <= 620) {
+      if (cy >= 150 && cy <= 215) {
+        this.onTouchAction?.('temp_adj', 0.5); // [+]
+        this.renderLCD();
+        return;
+      } else if (cy >= 220 && cy <= 285) {
+        this.onTouchAction?.('temp_adj', -0.5); // [−]
+        this.renderLCD();
+        return;
+      }
     }
-    // CPM -/+ (Card 2): [550, 630], [130, 240]
-    if (cx >= 550 && cx <= 630 && cy >= 130 && cy <= 240) {
-      this.onTouchAction?.('cpm_adj', cy < 185 ? 0.5 : -0.5);
-      this.renderLCD();
-      return;
+
+    // Card 2 CPM buttons: X in [1170, 1270]
+    if (cx >= 1170 && cx <= 1270) {
+      if (cy >= 150 && cy <= 215) {
+        this.onTouchAction?.('cpm_adj', 0.5); // [+]
+        this.renderLCD();
+        return;
+      } else if (cy >= 220 && cy <= 285) {
+        this.onTouchAction?.('cpm_adj', -0.5); // [−]
+        this.renderLCD();
+        return;
+      }
     }
-    // Time -/+ (Card 3): [890, 980], [130, 240]
-    if (cx >= 890 && cx <= 980 && cy >= 130 && cy <= 240) {
-      this.onTouchAction?.('time_adj', cy < 185 ? 60 : -60);
-      this.renderLCD();
-      return;
+
+    // Card 3 Timer buttons: X in [1850, 1950]
+    if (cx >= 1850 && cx <= 1950) {
+      if (cy >= 150 && cy <= 215) {
+        this.onTouchAction?.('time_adj', 60); // [+]
+        this.renderLCD();
+        return;
+      } else if (cy >= 220 && cy <= 285) {
+        this.onTouchAction?.('time_adj', -60); // [−]
+        this.renderLCD();
+        return;
+      }
     }
 
     this.renderLCD();
@@ -803,9 +823,9 @@ export class Disintegration3D {
     const name = btn.name;
     if (name === 'Btn_Start') this.onTouchAction?.('start');
     else if (name === 'Btn_Stop') this.onTouchAction?.('stop');
+    else if (name === 'Btn_Lift') this.onTouchAction?.('lift');
     else if (name === 'Btn_Temp') this.onTouchAction?.('heater');
     else if (name === 'Btn_Time') this.onTouchAction?.('time_adj', 60);
-    else if (name === 'Btn_Lift') this.onTouchAction?.('lift');
   }
 
   // --------------------------------------------------------------------------
@@ -1056,6 +1076,88 @@ export class Disintegration3D {
     const badge = makeSREdesignsBadge();
     badge.position.set(-1.55, 0.42, -2.01);
     this.enclosureShell.add(badge);
+
+    // ========================================================================
+    // Premium Industrial Fit & Finish: Dark Anodized Aluminum Corner Rails
+    // ========================================================================
+    const cornerPositions = [
+      [-2.15, -2.00, 'FL'],
+      [ 2.15, -2.00, 'FR'],
+      [-2.15,  2.00, 'RL'],
+      [ 2.15,  2.00, 'RR']
+    ];
+    for (const [rx, rz, id] of cornerPositions) {
+      const railGroup = new THREE.Group();
+      railGroup.name = `Body_Chassis_CornerRail_${id}`;
+      railGroup.position.set(rx, 0.12 + 2.28 / 2, rz);
+      this.enclosureShell.add(railGroup);
+
+      // Extruded aluminum protective corner extrusion
+      const railMesh = new THREE.Mesh(new THREE.BoxGeometry(0.08, 2.28, 0.08), MAT_ALUM_DARK_ANO);
+      railGroup.add(railMesh);
+
+      // Flush stainless M3 countersunk hex fasteners securing corner extrusions
+      for (const fy of [-0.85, -0.28, 0.28, 0.85]) {
+        const fb = makeHexSocketBolt(0.015, 0.035, `Fastener_HexM3_Rail_${id}`);
+        fb.position.set(rx < 0 ? -0.042 : 0.042, fy, 0);
+        fb.rotation.z = rx < 0 ? Math.PI / 2 : -Math.PI / 2;
+        railGroup.add(fb);
+      }
+    }
+
+    // ========================================================================
+    // Authentic Exterior M5 Cabinet Cooling Fan Exhaust Port & Wire Finger-Guard
+    // (Precisely aligned with internal 80mm M5 axial blower at X=1.38, Y=1.12)
+    // ========================================================================
+    const exhaustGroup = new THREE.Group();
+    exhaustGroup.name = 'Body_Chassis_FanExhaust';
+    exhaustGroup.position.set(1.38, 1.12, 2.01);
+    this.enclosureShell.add(exhaustGroup);
+
+    // Recessed dark bezel housing the exhaust filter
+    const exBezel = new THREE.Mesh(new THREE.BoxGeometry(0.86, 0.86, 0.04), MAT_IC_PACKAGE);
+    exhaustGroup.add(exBezel);
+
+    // Fine wire mesh backing screen
+    const meshBacking = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.74, 0.74),
+      new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.4, wireframe: true })
+    );
+    meshBacking.position.z = 0.022;
+    exhaustGroup.add(meshBacking);
+
+    // Chrome concentric circular wire finger-guard rings
+    for (const r of [0.12, 0.22, 0.32]) {
+      const gRing = new THREE.Mesh(new THREE.TorusGeometry(r, 0.009, 8, 32), MAT_CHROME_STEEL);
+      gRing.position.z = 0.025;
+      exhaustGroup.add(gRing);
+    }
+
+    // Radial stainless cross spokes
+    for (let a = 0; a < 4; a++) {
+      const spoke = new THREE.Mesh(new THREE.BoxGeometry(0.70, 0.014, 0.014), MAT_CHROME_STEEL);
+      spoke.rotation.z = (a * Math.PI) / 4;
+      spoke.position.z = 0.025;
+      exhaustGroup.add(spoke);
+    }
+
+    // 4 Corner M4 hex bolts mounting exhaust frame to chassis rear bulkhead
+    for (const [bx, by] of [[-0.34, -0.34], [0.34, -0.34], [-0.34, 0.34], [0.34, 0.34]]) {
+      const b = makeHexSocketBolt(0.016, 0.04, 'Fastener_HexM4_Exhaust');
+      b.rotation.x = Math.PI / 2;
+      b.position.set(bx, by, 0.025);
+      exhaustGroup.add(b);
+    }
+
+    // Industrial airflow caution silkscreen label
+    const exLabel = makeFlushSurfaceLabel(
+      'CABINET EXHAUST · M5 FAN',
+      'KEEP AIRFLOW CLEAR · 45 CFM',
+      0.78, 0.12, '#0f172a', '#e2e8f0', '#38bdf8'
+    );
+    exLabel.rotation.y = Math.PI;
+    exLabel.position.set(0, -0.52, 0.01);
+    exhaustGroup.add(exLabel);
   }
 
   setCutaway(enabled) {
@@ -1101,6 +1203,56 @@ export class Disintegration3D {
     topRim.position.y = 1.90;
     topRim.renderOrder = 51;
     this.bathGroup.add(topRim);
+
+    // ========================================================================
+    // Premium Pharmaceutical Fit & Finish: Brushed 316 Stainless Steel Bath Framing
+    // (Rigid protective U-channel top rim perimeter + heavy-duty corner brackets)
+    // ========================================================================
+    const bathFraming = new THREE.Group();
+    bathFraming.name = 'Body_Bath_StainlessFraming';
+    this.bathGroup.add(bathFraming);
+
+    // Front & Rear top rim protective U-channel rails
+    for (const rz of [-1.06, 1.06]) {
+      const rail = new THREE.Mesh(new THREE.BoxGeometry(3.92, 0.045, 0.055), MAT_316SS_BRUSHED);
+      rail.position.set(0, 1.92, rz);
+      bathFraming.add(rail);
+    }
+    // Left & Right top rim protective U-channel rails
+    for (const rx of [-1.91, 1.91]) {
+      const rail = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.045, 2.16), MAT_316SS_BRUSHED);
+      rail.position.set(rx, 1.92, 0);
+      bathFraming.add(rail);
+    }
+
+    // 4 Corner reinforcement gussets & M3 fasteners capping the top rim
+    const bathCorners = [
+      [-1.91, -1.06, 'FL'],
+      [ 1.91, -1.06, 'FR'],
+      [-1.91,  1.06, 'RL'],
+      [ 1.91,  1.06, 'RR']
+    ];
+    for (const [cx, cz, cid] of bathCorners) {
+      const gusset = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.048, 0.12), MAT_316SS_ELECTROPOLISHED);
+      gusset.position.set(cx, 1.92, cz);
+      bathFraming.add(gusset);
+
+      const bolt = makeHexSocketBolt(0.015, 0.035, `Fastener_HexM3_BathRim_${cid}`);
+      bolt.position.set(cx, 1.95, cz);
+      bathFraming.add(bolt);
+    }
+
+    // 4 Structural bottom retention brackets anchoring bath acrylic vessel to deck
+    for (const [bx, bz, bid] of bathCorners) {
+      const btmBracket = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.14, 0.14), MAT_316SS_BRUSHED);
+      btmBracket.name = `Body_Bracket_BathRetainer_${bid}`;
+      btmBracket.position.set(bx, 0.07, bz);
+      bathFraming.add(btmBracket);
+
+      const bBolt = makeHexSocketBolt(0.016, 0.04, `Fastener_HexM4_BathBase_${bid}`);
+      bBolt.position.set(bx, 0.145, bz);
+      bathFraming.add(bBolt);
+    }
 
     const waterMesh = new THREE.Mesh(new THREE.BoxGeometry(3.68, 1.64, 1.98), MAT_WATER_FLUID);
     waterMesh.name = 'Glass_Bath_WaterVolume';
@@ -1941,10 +2093,10 @@ export class Disintegration3D {
     trimFrame.position.z = 0.015;
     this.consoleGroup.add(trimFrame);
 
-    const lcdW = 1.68, lcdH = 0.84;
+    const lcdW = 2.24, lcdH = 1.18;
     this.lcdCanvas = document.createElement('canvas');
-    this.lcdCanvas.width = 1024;
-    this.lcdCanvas.height = 512;
+    this.lcdCanvas.width = 2048;
+    this.lcdCanvas.height = 1024;
     this.lcdCtx = this.lcdCanvas.getContext('2d');
 
     this.lcdTexture = new THREE.CanvasTexture(this.lcdCanvas);
@@ -1957,27 +2109,29 @@ export class Disintegration3D {
       new THREE.MeshBasicMaterial({ map: this.lcdTexture, side: THREE.DoubleSide })
     );
     this.lcdMesh.name = 'UI_LCD';
-    this.lcdMesh.position.set(0, 0.22, -0.035);
+    this.lcdMesh.position.set(0, 0.08, -0.035);
     this.consoleGroup.add(this.lcdMesh);
 
     const lens = new THREE.Mesh(new THREE.BoxGeometry(lcdW + 0.04, lcdH + 0.04, 0.012), MAT_BEAKER_BOROSILICATE);
     lens.name = 'Glass_LCDLens';
-    lens.position.set(0, 0.22, -0.044);
+    lens.position.set(0, 0.08, -0.044);
     lens.raycast = () => {}; // Transparent to raycasting so touch clicks pass directly to UI_LCD
     this.consoleGroup.add(lens);
 
+    // Physical tactile buttons positioned directly underneath corresponding on-screen soft keys
+    // Left-to-Right: [START] [STOP] [LIFT] [TEMP] [TIME] (Aligned 1:1 with LCD layout above)
     const btnConfigs = [
       { name: 'Btn_Start', label: 'START', color: 0x16a34a, x: -0.84 },
       { name: 'Btn_Stop',  label: 'STOP',  color: 0xdc2626, x: -0.42 },
-      { name: 'Btn_Temp',  label: 'TEMP',  color: 0xea580c, x:  0.00 },
-      { name: 'Btn_Time',  label: 'TIME',  color: 0x2563eb, x:  0.42 },
-      { name: 'Btn_Lift',  label: 'LIFT',  color: 0x64748b, x:  0.84 }
+      { name: 'Btn_Lift',  label: 'LIFT',  color: 0x0284c7, x:  0.00 },
+      { name: 'Btn_Temp',  label: 'TEMP',  color: 0xea580c, x:  0.42 },
+      { name: 'Btn_Time',  label: 'TIME',  color: 0x475569, x:  0.84 }
     ];
 
     this.buttons = [];
     for (const b of btnConfigs) {
       const btn = makeTactileButton(b.name, b.label, b.color, 0.26, 0.16);
-      btn.position.set(b.x, -0.44, -0.034);
+      btn.position.set(b.x, -0.55, -0.034);
       this.consoleGroup.add(btn);
       this.buttons.push(btn);
     }
@@ -2249,18 +2403,80 @@ export class Disintegration3D {
     xtal.position.set(-0.28, 0.028, -0.04);
     pcbGroup.add(xtal);
 
-    // Green Phoenix Contact Pluggable Screw-Terminal Headers along PCB Perimeter
+    // ========================================================================
+    // Dedicated Physical 3D Connectors on Motherboard PCB Perimeter (J1..J8)
+    // (Wires terminate strictly at real industrial keyed plugs & screw headers)
+    // ========================================================================
     const phoenixGreen = makeMat(0x16a34a, { r: 0.35, m: 0.1 });
-    for (const [hx, hz, hw, hd] of [
-      [-0.78, 0.48, 0.22, 0.09],
-      [-0.48, 0.54, 0.28, 0.09],
-      [-0.08, 0.54, 0.34, 0.09],
-      [0.32, 0.54, 0.24, 0.09]
-    ]) {
-      const hdr = new THREE.Mesh(new THREE.BoxGeometry(hw, 0.09, hd), phoenixGreen);
-      hdr.position.set(hx, 0.055, hz);
-      pcbGroup.add(hdr);
+    const nylonWhite = makeMat(0xf8fafc, { r: 0.45, m: 0.05 });
+    const shroudGrey = makeMat(0x334155, { r: 0.40, m: 0.10 });
+
+    // J1: 4-Pin Molex Mini-Fit Jr. 24V / 5V DC Power Input Header
+    const j1Group = new THREE.Group();
+    j1Group.name = 'Body_Connector_J1_Power';
+    j1Group.position.set(-0.70, 0.045, 0.54);
+    pcbGroup.add(j1Group);
+    const j1Body = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.09, 0.10), nylonWhite);
+    j1Group.add(j1Body);
+    for (let p = -1; p <= 1; p += 2) {
+      const pin1 = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.03, 0.015), MAT_GOLD_CONTACT);
+      pin1.position.set(p * 0.04, 0.045, -0.02);
+      j1Group.add(pin1);
+      const pin2 = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.03, 0.015), MAT_GOLD_CONTACT);
+      pin2.position.set(p * 0.04, 0.045, 0.02);
+      j1Group.add(pin2);
     }
+
+    // J2: 3x 4-Pin Green Phoenix Contact Pluggable Terminal Headers (Stepper Control Bus)
+    for (let d = 0; d < 3; d++) {
+      const j2Hdr = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.09, 0.09), phoenixGreen);
+      j2Hdr.name = `Body_Connector_J2_Stepper_${d + 1}`;
+      j2Hdr.position.set(-0.32 + d * 0.28, 0.045, 0.54);
+      pcbGroup.add(j2Hdr);
+    }
+
+    // J3: 3-Position Screw Terminal Block for PT100 RTD Temperature Probe (Near ADC U4)
+    const j3Group = new THREE.Group();
+    j3Group.name = 'Body_Connector_J3_PT100';
+    j3Group.position.set(-0.82, 0.045, -0.22);
+    pcbGroup.add(j3Group);
+    const j3Body = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.08, 0.18), phoenixGreen);
+    j3Group.add(j3Body);
+    for (let s = -1; s <= 1; s++) {
+      const sc = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.02, 12), MAT_316SS_ELECTROPOLISHED);
+      sc.position.set(0, 0.04, s * 0.05);
+      j3Group.add(sc);
+    }
+
+    // J4: 2-Pin Molex Header for SSR Heater PWM Drive (Near Relays)
+    const j4Hdr = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.12), nylonWhite);
+    j4Hdr.name = 'Body_Connector_J4_SSR';
+    j4Hdr.position.set(-0.82, 0.045, 0.15);
+    pcbGroup.add(j4Hdr);
+
+    // J5: 2-Pin JST-XH Header for M4 Bath Circulation Pump Motor
+    const j5Hdr = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.12), nylonWhite);
+    j5Hdr.name = 'Body_Connector_J5_Pump';
+    j5Hdr.position.set(0.82, 0.045, -0.25);
+    pcbGroup.add(j5Hdr);
+
+    // J6: 3-Pin Latching Fan Header for M5 Cabinet Cooling Blower
+    const j6Hdr = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.16), shroudGrey);
+    j6Hdr.name = 'Body_Connector_J6_Fan';
+    j6Hdr.position.set(0.82, 0.045, 0.25);
+    pcbGroup.add(j6Hdr);
+
+    // J7: 8-Pin Shrouded IDC Box Header for Optical Sensors & Limit Switches
+    const j7Hdr = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.08, 0.11), shroudGrey);
+    j7Hdr.name = 'Body_Connector_J7_Sensors';
+    j7Hdr.position.set(0.60, 0.045, -0.54);
+    pcbGroup.add(j7Hdr);
+
+    // J8: 40-Pin Shrouded IDC Box Header for Front Console Ribbon Cable
+    const j8Hdr = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.09, 0.12), shroudGrey);
+    j8Hdr.name = 'Body_Connector_J8_Console';
+    j8Hdr.position.set(-0.35, 0.045, -0.54);
+    pcbGroup.add(j8Hdr);
 
     // Status LED Array on Motherboard (5V, 24V, MCU Heartbeat, Heater PWM)
     const ledColors = [0x22c55e, 0x22c55e, 0x38bdf8, 0xf59e0b];
@@ -2498,10 +2714,24 @@ export class Disintegration3D {
     ssrGroup.add(ssrBody);
 
     // Clear polycarbonate finger-safe terminal cover & 4 screw terminals (1/L1, 2/T1, 3/+DC, 4/-DC)
-    for (const [tx, tz] of [[-0.12, -0.12], [0.12, -0.12], [-0.12, 0.12], [0.12, 0.12]]) {
+    const ssrTermPositions = [[-0.12, -0.12], [0.12, -0.12], [-0.12, 0.12], [0.12, 0.12]];
+    const ssrBootColors = [0xeab308, 0xeab308, 0xdc2626, 0x2563eb];
+    for (let t = 0; t < 4; t++) {
+      const [tx, tz] = ssrTermPositions[t];
+      // Screw head
       const termScrew = new THREE.Mesh(new THREE.CylinderGeometry(0.026, 0.026, 0.03, 14), MAT_316SS_ELECTROPOLISHED);
-      termScrew.position.set(tx, 0.195, tz);
+      termScrew.position.set(tx, 0.198, tz);
       ssrGroup.add(termScrew);
+
+      // Crimp ring terminal lug clamped under screw
+      const lug = new THREE.Mesh(new THREE.CylinderGeometry(0.034, 0.034, 0.008, 16), MAT_316SS_ELECTROPOLISHED);
+      lug.position.set(tx, 0.191, tz);
+      ssrGroup.add(lug);
+
+      // Insulated crimp sleeve boot extending toward wire duct
+      const boot = new THREE.Mesh(new THREE.BoxGeometry(0.028, 0.022, 0.06), makeMat(ssrBootColors[t], { r: 0.4 }));
+      boot.position.set(tx, 0.191, tz < 0 ? tz - 0.035 : tz + 0.035);
+      ssrGroup.add(boot);
     }
 
     const ssrSpec = makeFlushSurfaceLabel(
@@ -2803,7 +3033,7 @@ export class Disintegration3D {
     this.mainsRockerMesh = rockerSwitch;
 
     // ========================================================================
-    // 9. Industrial Slotted PVC Wiring Ducts, DIN Terminal Rail & Star PE Hub
+    // 9. Industrial Slotted PVC Wiring Ducts, Tower Conduit & Star PE Hub
     // (Complies with DIN EN 60204-1 / UL 508A Industrial Wiring Standards)
     // ========================================================================
     // Rear Transverse Slotted PVC Wiring Duct (Body_WiringDuct_Rear)
@@ -2826,11 +3056,18 @@ export class Disintegration3D {
     ductCoverLeft.position.set(-1.58, 0.29, 0.05);
     this.electronicsGroup.add(ductCoverLeft);
 
-    // Upright Tower Vertical Cable Riser Duct (Body_WiringDuct_TowerRiser)
-    const ductTower = new THREE.Mesh(new THREE.BoxGeometry(0.18, 2.60, 0.18), MAT_PVC_DUCT);
-    ductTower.name = 'Body_WiringDuct_TowerRiser';
-    ductTower.position.set(-1.45, 3.80, 0.88);
+    // Upright Tower Central Vertical Cable Riser Channel (Body_Tower_WireRiserChannel)
+    // Completely encloses all vertical motor/encoder wiring — ZERO wires floating in thin air
+    const ductTower = new THREE.Mesh(new THREE.BoxGeometry(0.22, 3.80, 0.16), MAT_PVC_DUCT);
+    ductTower.name = 'Body_Tower_WireRiserChannel';
+    ductTower.position.set(-0.20, 3.50, 1.55);
     this.electronicsGroup.add(ductTower);
+
+    // Rubber strain-relief exit grommet at top of tower riser conduit
+    const towerGrommet = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.04, 16), MAT_RUBBER_CORD);
+    towerGrommet.rotation.x = Math.PI / 2;
+    towerGrommet.position.set(-0.20, 4.25, 1.55);
+    this.electronicsGroup.add(towerGrommet);
 
     // 35mm Top-Hat DIN Rail with Modular Terminal Blocks (Body_TerminalBlock_DIN)
     const dinRailTerm = new THREE.Mesh(new THREE.BoxGeometry(1.20, 0.06, 0.02), MAT_316SS_BRUSHED);
@@ -2857,7 +3094,7 @@ export class Disintegration3D {
     groundNut.position.y = 0.04;
     groundHub.add(groundNut);
 
-    // Chassis P-Clamps for dressed surface runs
+    // Chassis P-Clamps securing raceway runs
     const pClampPositions = [
       [-1.38, 0.14, 0.70], [-1.38, 0.14, -0.20], [-1.38, 0.14, -0.65],
       [1.10, 0.14, 0.50], [1.10, 0.14, 1.10], [0.35, 0.14, -1.10]
@@ -2871,18 +3108,22 @@ export class Disintegration3D {
     }
 
     // ========================================================================
-    // Orthogonal Point-to-Point Industrial Wiring Harnesses
-    // (Routed strictly along ducts, chassis channels, and vertical risers)
+    // Authentic Industrial Wiring Harnesses (DIN EN 60204-1 Compliant)
+    // - Every wire originates and terminates at physical connectors or screw terminals
+    // - Wires route strictly through slotted PVC ducts, vertical conduits, or P-clamps
+    // - ZERO wires pierce through PSU perforated cage, SSR rating label, or raw IC packages
+    // - ZERO wires float in open air
     // ========================================================================
+
     // 1. High-Voltage AC Mains Live (IEC Inlet -> Rocker Switch -> Rear Duct -> Terminal Block)
     this.electronicsGroup.add(makeWiringHarness(
       [
         [-1.32, 0.48, 1.95],
         [-1.32, 0.48, 2.01],
         [-0.92, 0.48, 2.01],
-        [-0.92, 0.22, 1.95],
-        [-0.92, 0.22, 1.35],
-        [-0.40, 0.22, 1.35],
+        [-0.92, 0.20, 1.95],
+        [-0.92, 0.20, 1.35],
+        [-0.40, 0.20, 1.35],
         [-0.40, 0.38, 1.68]
       ],
       0.022, 0xdc2626, 'Body_Wire_AC_Mains_Live'
@@ -2892,9 +3133,9 @@ export class Disintegration3D {
     this.electronicsGroup.add(makeWiringHarness(
       [
         [-1.24, 0.44, 1.95],
-        [-1.24, 0.22, 1.95],
-        [-1.24, 0.22, 1.35],
-        [-0.53, 0.22, 1.35],
+        [-1.24, 0.20, 1.95],
+        [-1.24, 0.20, 1.35],
+        [-0.53, 0.20, 1.35],
         [-0.53, 0.38, 1.68]
       ],
       0.020, 0x2563eb, 'Body_Wire_AC_Mains_Neutral'
@@ -2911,13 +3152,14 @@ export class Disintegration3D {
       ],
       0.020, 0x16a34a, 'Body_Wire_PE_InletToHub'
     ));
-    // Branch B: Star Hub to Switching PSU Metal Chassis Ground
+    // Branch B: Star Hub to PSU Front Barrier Strip PE Terminal (Entering from bottom via duct — ZERO cage piercing)
     this.electronicsGroup.add(makeWiringHarness(
       [
         [-0.85, 0.16, 1.55],
-        [-0.85, 0.16, 1.35],
-        [-1.18, 0.16, 1.35],
-        [-1.18, 0.28, 1.25]
+        [-1.40, 0.16, 1.55],
+        [-1.40, 0.20, 1.20],
+        [-1.40, 0.20, 1.08],
+        [-1.40, 0.36, 1.00]
       ],
       0.020, 0x16a34a, 'Body_Wire_PE_HubToPSU'
     ));
@@ -2926,176 +3168,206 @@ export class Disintegration3D {
       [
         [-0.85, 0.16, 1.55],
         [-1.58, 0.16, 1.55],
-        [-1.58, 0.16, -0.65],
-        [-1.40, 0.16, -0.65],
+        [-1.58, 0.20, 1.35],
+        [-1.58, 0.20, -0.65],
+        [-1.40, 0.20, -0.65],
         [-1.40, 2.28, -0.65]
       ],
       0.020, 0x16a34a, 'Body_Wire_PE_HubToBathCradle'
     ));
-    // Branch D: Star Hub to Upright Tower Frame Ground Lug
+    // Branch D: Star Hub to Upright Tower Frame Ground Lug (via Tower Riser Conduit)
     this.electronicsGroup.add(makeWiringHarness(
       [
         [-0.85, 0.16, 1.55],
-        [-0.85, 0.16, 1.35],
-        [0.0, 0.16, 1.35],
+        [-0.20, 0.16, 1.55],
+        [-0.20, 2.45, 1.55],
         [0.0, 2.45, 1.35]
       ],
       0.020, 0x16a34a, 'Body_Wire_PE_HubToTower'
     ));
 
-    // 4. +24V DC High-Current Power Bus (PSU1 -> Rear Duct -> Stepper Drivers DRV1..3 & SSR)
+    // 4. Mean Well Switching PSU DC Output Main Trunk (Exits DOWNWARDS from front barrier strip into duct)
+    // ZERO wires emerge from top perforated cage or rating decal
     this.electronicsGroup.add(makeWiringHarness(
       [
-        [-1.08, 0.38, 1.05],
-        [-1.08, 0.22, 1.05],
-        [-1.08, 0.22, 1.35],
-        [0.61, 0.22, 1.35],
-        [0.61, 0.72, 1.20]
+        [-1.04, 0.36, 1.00], // Front barrier terminal screw (+V)
+        [-1.04, 0.36, 1.08], // Exits forward through insulated boot
+        [-1.04, 0.20, 1.08], // Drops down to floor raceway
+        [-1.04, 0.20, 1.35], // Enters transverse rear duct
+        [0.05, 0.20, 1.35],  // Runs inside duct to stepper drivers
+        [0.05, 0.48, 1.25]   // Feeds 24V bus to DRV1..3 power input
       ],
       0.024, 0xf97316, 'Body_Wire_DC_24V_Bus'
     ));
 
-    // 5. +5V / +3.3V Logic Bus (PSU1 -> Left Duct -> Motherboard J1 Header)
+    // 5. Regulated 5VDC / 24VDC Logic Feed from PSU to Motherboard J1 Header (via Ducts to J1)
     this.electronicsGroup.add(makeWiringHarness(
       [
-        [-1.18, 0.38, 0.98],
-        [-1.18, 0.22, 0.98],
-        [-1.58, 0.22, 0.98],
-        [-1.58, 0.22, 0.35],
-        [0.25, 0.22, 0.35],
-        [0.25, 0.36, 0.35]
+        [-1.16, 0.36, 1.00], // Front barrier terminal screw (-V)
+        [-1.16, 0.36, 1.08],
+        [-1.16, 0.20, 1.08],
+        [-1.16, 0.20, 1.35],
+        [-0.35, 0.20, 1.35], // Runs along duct to X=-0.35
+        [-0.35, 0.20, 0.85], // Turns toward PCB
+        [-0.35, 0.38, 0.79]  // Plugs directly into Body_Connector_J1_Power (4-pin Molex)
       ],
-      0.018, 0xef4444, 'Body_Wire_DC_5V_Logic'
+      0.020, 0xef4444, 'Body_Wire_DC_5V_Logic'
     ));
 
-    // 6. High-Temperature Switched Heater Feed (SSR1 -> Left Duct -> Bath Immersion Coil)
+    // 6. High-Temperature Switched Heater Load (SSR1 Screws 1 & 2 -> Left Duct -> Bath Immersion Coil)
+    // Screw 1 AC In (bolted with crimp ring terminal):
     this.electronicsGroup.add(makeWiringHarness(
       [
-        [-1.32, 0.58, 1.20],
-        [-1.58, 0.58, 1.20],
-        [-1.58, 0.22, 1.20],
-        [-1.58, 0.22, -0.85],
-        [-0.55, 0.22, -0.85],
-        [-0.55, 2.30, -0.85],
-        [-0.35, 2.48, -0.85]
+        [-0.40, 0.38, 1.68], // AC Live terminal block
+        [-0.40, 0.20, 1.35],
+        [-1.44, 0.20, 1.35],
+        [-1.44, 0.20, 1.20],
+        [-1.44, 0.635, 1.20] // Bolted under SSR1 Screw 1 with ring lug
+      ],
+      0.022, 0xdc2626, 'Body_Wire_SSR_AC_Live_In'
+    ));
+    // Screw 2 Switched AC Out to Heater (bolted with crimp ring terminal):
+    this.electronicsGroup.add(makeWiringHarness(
+      [
+        [-1.20, 0.635, 1.20], // Bolted under SSR1 Screw 2 with ring lug
+        [-1.20, 0.20, 1.20],  // Drops straight DOWN into duct
+        [-1.58, 0.20, 1.20],  // Enters left longitudinal duct
+        [-1.58, 0.20, -0.85], // Runs along duct to immersion heater bulkhead
+        [-0.55, 0.20, -0.85],
+        [-0.55, 2.30, -0.85], // Rises inside ceramic protective conduit
+        [-0.35, 2.48, -0.85]  // Connects to immersion heater compression gland
       ],
       0.026, 0xdc2626, 'Body_Wire_Heater_HighTemp_Silicone'
     ));
 
-    // 7. BLDC Main Stroke Motor M1 Cable (DRV1 -> Rear Duct -> Tower Riser Duct -> M1 Bulkhead)
+    // 7. SSR1 DC Control PWM (Motherboard J4 Header -> Duct -> SSR1 Screws 3 & 4 Ring Terminals)
     this.electronicsGroup.add(makeWiringHarness(
       [
-        [-0.55, 0.78, 1.15],
-        [-0.55, 0.22, 1.35],
-        [-1.45, 0.22, 1.35],
-        [-1.45, 3.80, 0.88],
-        [-0.20, 3.80, 0.88],
-        [-0.20, 4.20, 0.56],
-        [0.0, 4.20, 0.56]
+        [-0.47, 0.38, 0.40], // Body_Connector_J4_SSR on PCB
+        [-0.47, 0.20, 0.40],
+        [-1.32, 0.20, 0.40],
+        [-1.32, 0.20, 1.44],
+        [-1.32, 0.635, 1.44] // Ring lugs bolted to Screws 3 & 4
+      ],
+      0.016, 0x38bdf8, 'Body_Wire_SSR_Control_PWM'
+    ));
+
+    // 8. Main Stroke BLDC Servo Motor M1 Power & Hall Loom (DRV1 -> Rear Duct -> Tower Riser Conduit -> M1)
+    // Travel strictly INSIDE the enclosed Body_Tower_WireRiserChannel conduit
+    this.electronicsGroup.add(makeWiringHarness(
+      [
+        [-0.55, 0.52, 1.15], // DRV1 output connector
+        [-0.55, 0.20, 1.35], // Drops into rear duct
+        [-0.20, 0.20, 1.35],
+        [-0.20, 0.20, 1.55], // Enters Tower Riser Conduit at base
+        [-0.20, 4.20, 1.55], // Rises INSIDE conduit all the way to motor deck
+        [0.0, 4.20, 0.56]    // Exits through rubber grommet into M1 motor junction box
       ],
       0.024, 0x8b5cf6, 'Body_Wire_Motor_BLDC_TowerLoom'
     ));
 
-    // 8. Dual Z-Axis Lift Stepper Motor Harnesses (DRV2/3 -> Duct -> M2/M3 Motors)
+    // 9. Dual Z-Axis Lift Stepper Motor Harnesses (DRV2/3 -> Duct -> Column Bases -> M2/M3 Motors)
     this.electronicsGroup.add(makeWiringHarness(
       [
-        [0.03, 0.78, 1.15],
-        [0.03, 0.22, 1.35],
-        [-1.22, 0.22, 1.35],
-        [-1.22, 0.22, 0.08],
-        [-1.22, 2.45, 0.08]
+        [0.03, 0.52, 1.15],  // DRV2 output connector
+        [0.03, 0.20, 1.35],  // Drops into rear duct
+        [-0.80, 0.20, 1.35], // Runs to left column base
+        [-0.80, 0.20, 0.08],
+        [-0.80, 2.45, 0.08]  // Rises directly inside structural column to M2 motor
       ],
       0.018, 0x06b6d4, 'Body_Wire_Motor_Lift_Left'
     ));
     this.electronicsGroup.add(makeWiringHarness(
       [
-        [0.61, 0.78, 1.15],
-        [0.61, 0.22, 1.35],
-        [1.22, 0.22, 1.35],
-        [1.22, 0.22, 0.08],
-        [1.22, 2.45, 0.08]
+        [0.61, 0.52, 1.15], // DRV3 output connector
+        [0.61, 0.20, 1.35],
+        [0.80, 0.20, 1.35], // Runs to right column base
+        [0.80, 0.20, 0.08],
+        [0.80, 2.45, 0.08]  // Rises directly inside structural column to M3 motor
       ],
       0.018, 0x06b6d4, 'Body_Wire_Motor_Lift_Right'
     ));
 
-    // 9. Circulation Pump M4 & Rear Fan M5 Harnesses (Motherboard -> Ducts -> Actuators)
+    // 10. M4 Circulation Pump Motor (Motherboard J5 Connector -> Floor Duct -> M4 Terminal Box)
     this.electronicsGroup.add(makeWiringHarness(
       [
-        [0.67, 0.36, 0.79],
-        [0.67, 0.22, 0.79],
-        [1.38, 0.22, 0.79],
-        [1.38, 0.22, -0.52],
-        [1.38, 0.38, -0.52]
+        [1.17, 0.38, 0.00],  // Body_Connector_J5_Pump on PCB
+        [1.17, 0.20, 0.00],
+        [1.38, 0.20, 0.00],
+        [1.38, 0.38, -0.52]  // Plugs into M4 motor terminal housing
       ],
       0.018, 0x3b82f6, 'Body_Wire_Motor_BathPump'
     ));
+
+    // 11. M5 Rear Cabinet Cooling Fan (Motherboard J6 Connector -> Rear Bulkhead -> M5 Fan)
     this.electronicsGroup.add(makeWiringHarness(
       [
-        [0.67, 0.36, 0.79],
-        [0.67, 0.22, 1.35],
-        [1.38, 0.22, 1.35],
-        [1.38, 0.85, 1.88]
+        [1.17, 0.38, 0.50],  // Body_Connector_J6_Fan on PCB
+        [1.17, 0.20, 0.50],
+        [1.38, 0.20, 1.35],
+        [1.38, 0.85, 1.88]   // Plugs into M5 fan power header
       ],
       0.016, 0x64748b, 'Body_Wire_Fan_Power'
     ));
 
-    // 10. PT100 RTD Bath Temperature Sensor Shielded Cable (Probe -> Left Duct -> ADC U4)
+    // 12. PT100 RTD Bath Temperature Sensor Shielded Cable (Probe Head -> Left Duct -> J3 Header beside ADC U4)
     this.electronicsGroup.add(makeWiringHarness(
       [
-        [0, 2.42, -1.52],
-        [-1.58, 2.42, -1.52],
-        [-1.58, 0.22, -1.52],
-        [-1.58, 0.22, 0.03],
-        [-0.13, 0.22, 0.03],
-        [-0.13, 0.36, 0.03]
+        [0, 2.42, 0.76],     // PT100 probe DIN connector head
+        [-1.40, 2.42, 0.76],
+        [-1.40, 0.20, 0.76], // Drops through sealed chassis grommet
+        [-1.58, 0.20, 0.76], // Enters left longitudinal duct
+        [-1.58, 0.20, 0.03], // Runs inside duct to J3 alignment
+        [-0.47, 0.20, 0.03], // Exits duct toward PCB
+        [-0.47, 0.38, 0.03]  // Plugs directly into Body_Connector_J3_PT100 (Zero IC piercing!)
       ],
       0.016, 0x10b981, 'Body_Wire_Sensor_PT100_Shielded'
     ));
 
-    // 11. Encoder & Tower Limit Switches Harness (Tower Riser Duct -> Motherboard)
+    // 13. Upper Tower Limit Microswitches & S3 Encoder (Tower -> Riser Conduit -> Rear Duct -> J7 Header)
     this.electronicsGroup.add(makeWiringHarness(
       [
-        [0, 4.20, 0.92],
-        [-1.45, 4.20, 0.92],
-        [-1.45, 0.22, 0.92],
-        [0.27, 0.22, 0.92],
-        [0.27, 0.36, 0.79]
+        [0, 4.20, 0.92],     // Tower limit switches & encoder
+        [-0.20, 4.20, 1.55], // Enters Tower Riser Conduit at top grommet
+        [-0.20, 0.20, 1.55], // Travels down inside enclosed conduit
+        [0.95, 0.20, 1.35],  // Runs through rear duct
+        [0.95, 0.20, -0.29],
+        [0.95, 0.38, -0.29]  // Plugs into Body_Connector_J7_Sensors
       ],
       0.016, 0x22c55e, 'Body_Wire_Sensor_Encoder_Limits'
     ));
 
-    // 12. Laser / IR Optical Disintegration Detectors Harness (Sensors -> Floor Channel -> Motherboard)
+    // 14. Dual Laser / IR Optical Disintegration Detectors Harness (Sensors -> Floor Channel -> J7 Header)
     this.electronicsGroup.add(makeWiringHarness(
       [
         [-1.38, 2.16, -0.85],
         [-1.58, 2.16, -0.85],
-        [-1.58, 0.22, -0.85],
-        [-0.13, 0.22, -0.85],
-        [-0.13, 0.36, 0.79]
+        [-1.58, 0.20, -0.85],
+        [0.95, 0.20, -0.85],
+        [0.95, 0.38, -0.29]  // Plugs into Body_Connector_J7_Sensors
       ],
       0.015, 0xf43f5e, 'Body_Wire_Sensor_OpticalLaser'
     ));
 
-    // 13. Wi-Fi / BLE RF Coax Pigtail (U5 Radio Module -> Rear Bulkhead RP-SMA Jack)
+    // 15. Wi-Fi / BLE RF Coax Pigtail (U5 Radio Module -> Rear Bulkhead RP-SMA Jack)
     this.electronicsGroup.add(makeWiringHarness(
       [
         [0.95, 0.36, 0.69],
-        [0.95, 0.22, 0.69],
-        [0.95, 0.22, 1.45],
-        [0.88, 0.22, 1.98],
-        [0.88, 0.48, 1.98]
+        [0.95, 0.20, 0.69],
+        [0.88, 0.20, 1.98],
+        [0.88, 0.48, 1.98]   // RP-SMA bulkhead jack
       ],
       0.012, 0xeab308, 'Body_Cable_Coax_WiFiAntenna', false
     ));
 
-    // 14. Flat Grey 40-Pin IDC Ribbon Cable (Motherboard J-CON -> Front Operator LCD Console)
+    // 16. Flat Grey 40-Pin IDC Ribbon Cable (Motherboard J8 Header -> Front Operator LCD Console)
     this.electronicsGroup.add(makeWiringHarness(
       [
-        [0.35, 0.36, -0.35],
-        [0.35, 0.22, -0.35],
+        [0.00, 0.38, -0.29], // Body_Connector_J8_Console on PCB
+        [0.00, 0.22, -0.29],
+        [0.00, 0.22, -1.85], // Runs forward along base floor channel
         [0.35, 0.22, -1.85],
-        [0.35, 0.95, -1.85],
-        [0.35, 1.40, -1.96]
+        [0.35, 1.35, -1.96]  // Enters rear of Body_Console_Operator
       ],
       0.026, 0x94a3b8, 'Body_Cable_Ribbon_LCD'
     ));
@@ -3222,7 +3494,7 @@ export class Disintegration3D {
   }
 
   // --------------------------------------------------------------------------
-  // High-DPI Dynamic Canvas UI_LCD (DIAG-005: flipY = false, Upright UVs)
+  // High-DPI Dynamic Canvas UI_LCD (2048x1024, flipY = false, Upright UVs)
   // --------------------------------------------------------------------------
   renderLCD() {
     const ctx = this.lcdCtx;
@@ -3234,46 +3506,168 @@ export class Disintegration3D {
     if (!hasPower) {
       ctx.fillStyle = '#05070a';
       ctx.fillRect(0, 0, w, h);
-      ctx.strokeStyle = '#111827';
-      ctx.lineWidth = 4;
-      ctx.strokeRect(10, 10, w - 20, h - 20);
-      ctx.fillStyle = '#1f2937';
-      ctx.font = '600 24px "Inter", sans-serif';
-      ctx.fillText('NO MAINS POWER — INSERT NEMA PLUG & SWITCH BREAKER ON', 140, h / 2);
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 6;
+      ctx.strokeRect(20, 20, w - 40, h - 40);
+      ctx.fillStyle = '#475569';
+      ctx.font = '700 36px "Inter", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('NO MAINS POWER — INSERT NEMA 5-15P PLUG & SWITCH REAR BREAKER ON', w / 2, h / 2);
       this.lcdTexture.needsUpdate = true;
       return;
     }
 
+    // ========================================================================
+    // SREdesigns Industrial Instrument Boot Screen & Self-Test Checklist
+    // ========================================================================
+    if (this.state.state === 'BOOTING') {
+      const grad = ctx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, '#060a14');
+      grad.addColorStop(1, '#020409');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Fine hexagonal diagnostic grid watermark
+      ctx.strokeStyle = 'rgba(14, 165, 233, 0.08)';
+      ctx.lineWidth = 2;
+      for (let gx = 0; gx < w; gx += 80) {
+        ctx.beginPath();
+        ctx.moveTo(gx, 0);
+        ctx.lineTo(gx, h);
+        ctx.stroke();
+      }
+      for (let gy = 0; gy < h; gy += 80) {
+        ctx.beginPath();
+        ctx.moveTo(0, gy);
+        ctx.lineTo(w, gy);
+        ctx.stroke();
+      }
+
+      // SREdesigns Brand Emblem at Center Top
+      ctx.save();
+      ctx.translate(w / 2, 175);
+
+      // Glowing Hexagon Shield
+      ctx.beginPath();
+      for (let s = 0; s < 6; s++) {
+        const a = (s * Math.PI) / 3 - Math.PI / 6;
+        const hx = Math.cos(a) * 72;
+        const hy = Math.sin(a) * 72;
+        if (s === 0) ctx.moveTo(hx, hy);
+        else ctx.lineTo(hx, hy);
+      }
+      ctx.closePath();
+      ctx.fillStyle = '#0f172a';
+      ctx.fill();
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 5;
+      ctx.stroke();
+
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = '900 36px "Inter", system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('SRE', 0, 0);
+      ctx.restore();
+
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = '800 38px "Inter", sans-serif';
+      ctx.fillText('SRE DESIGNS', w / 2, 280);
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '600 22px "Inter", sans-serif';
+      ctx.fillText('PRECISION PHARMACEUTICAL DIGITAL TWIN · MODEL ZT 322', w / 2, 320);
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = '600 18px "JetBrains Mono", monospace';
+      ctx.fillText('CORE OS v4.2.1 · ARM CORTEX-M7 480MHz · 21 CFR PART 11 SECURE VAULT', w / 2, 355);
+
+      // Diagnostic Self-Test Checklist Items
+      const bootP = this.state.bootProgress || 0.5;
+      const testItems = [
+        'SYSTEM MEMORY: 512 MB LPDDR4 BUS INTEGRITY',
+        'STEPPER DRIVERS: DM542 3-AXIS ACTUATORS READY (24VDC 4.2A)',
+        'PT100 RTD 24-BIT DELTA-SIGMA ADC: CALIBRATED (37.0°C REF)',
+        '650nm DUAL LASER IR OPTICAL DISINTEGRATION SENSORS: ALIGNED',
+        '1000W INCOLOY BATH HEATER & CIRCULATION PUMP: READY',
+        '21 CFR 11 ENCRYPTED FLASH VAULT & GBIT LAN: ONLINE'
+      ];
+
+      ctx.textAlign = 'left';
+      ctx.font = '600 22px "JetBrains Mono", monospace';
+      const startY = 415;
+      for (let i = 0; i < testItems.length; i++) {
+        const itemP = (i + 1) / testItems.length;
+        const isPassed = bootP >= itemP - 0.12;
+
+        ctx.fillStyle = isPassed ? '#22c55e' : '#64748b';
+        ctx.fillText(isPassed ? '[ ✓ ]' : '[ · ]', 460, startY + i * 44);
+
+        ctx.fillStyle = isPassed ? '#e2e8f0' : '#475569';
+        ctx.fillText(testItems[i], 520, startY + i * 44);
+      }
+
+      // Animated System Boot Progress Bar
+      const barX = 360, barY = 740, barW = w - 720, barH = 34;
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+      ctx.fillRect(barX, barY, barW, barH);
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(barX, barY, barW, barH);
+
+      const fillW = Math.max(12, Math.round(barW * Math.min(1.0, bootP)));
+      const pGrad = ctx.createLinearGradient(barX, 0, barX + fillW, 0);
+      pGrad.addColorStop(0, '#0284c7');
+      pGrad.addColorStop(1, '#22c55e');
+      ctx.fillStyle = pGrad;
+      ctx.fillRect(barX + 4, barY + 4, fillW - 8, barH - 8);
+
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = '700 20px "JetBrains Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`INITIALIZING HARDWARE SUBSYSTEMS... ${Math.round(bootP * 100)}%`, w / 2, barY + 68);
+
+      this.lcdTexture.needsUpdate = true;
+      return;
+    }
+
+    // ========================================================================
+    // Live Operational Instrument HUD (High-DPI 2048 x 1024 Canvas)
+    // ========================================================================
     const grad = ctx.createLinearGradient(0, 0, 0, h);
-    grad.addColorStop(0, '#07192f');
-    grad.addColorStop(1, '#040d1a');
+    grad.addColorStop(0, '#060f1e');
+    grad.addColorStop(1, '#030812');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, h);
 
     // Top Header Bar
-    ctx.fillStyle = '#0ea5e9';
-    ctx.fillRect(0, 0, w, 56);
-    ctx.fillStyle = '#040d1a';
-    ctx.font = '800 26px "Inter", sans-serif';
-    ctx.fillText('ERWEKA ZT 322  ·  USP <701> / EP 2.9.1 DISINTEGRATION', 28, 38);
+    ctx.fillStyle = '#0284c7';
+    ctx.fillRect(0, 0, w, 68);
 
-    ctx.fillStyle = '#040d1a';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = '800 30px "Inter", sans-serif';
+    ctx.fillText('ERWEKA ZT 322  ·  USP <701> / EP 2.9.1 TABLET DISINTEGRATION', 36, 46);
+
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.roundRect(w - 280, 14, 244, 40, 8);
+    ctx.fill();
+    ctx.fillStyle = '#38bdf8';
     ctx.font = '700 22px "JetBrains Mono", monospace';
-    ctx.fillText(`[${this.state.state}]`, w - 230, 38);
+    ctx.textAlign = 'center';
+    ctx.fillText(`STATE: ${this.state.state}`, w - 158, 41);
 
-    // Telemetry Cards
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
-    ctx.lineWidth = 2;
-
-    // Helper for drawing rounded buttons on canvas
-    const drawPill = (bx, by, bw, bh, text, bg, border, textColor = '#ffffff', font = '700 18px "Inter", sans-serif') => {
+    // Helper for drawing rounded buttons & pills on canvas
+    const drawPill = (bx, by, bw, bh, text, bg, border, textColor = '#ffffff', font = '700 22px "Inter", sans-serif') => {
       ctx.save();
       ctx.beginPath();
-      ctx.roundRect(bx, by, bw, bh, 8);
+      ctx.roundRect(bx, by, bw, bh, 10);
       ctx.fillStyle = bg;
       ctx.fill();
       ctx.strokeStyle = border;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2.5;
       ctx.stroke();
       ctx.fillStyle = textColor;
       ctx.font = font;
@@ -3283,114 +3677,137 @@ export class Disintegration3D {
       ctx.restore();
     };
 
-    // 1. Bath Temperature Card (with [-] / [+] touch pills)
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
-    ctx.fillRect(28, 72, 300, 168);
-    ctx.strokeRect(28, 72, 300, 168);
+    // ========================================================================
+    // 3 Telemetry Cards with Stacked [+] over [−] Adjustment Buttons
+    // ========================================================================
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+    ctx.lineWidth = 2.5;
+
+    // Card 1: Bath Temperature (Stacked [+] on top of [−] frees generous room for 72px digits)
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+    ctx.fillRect(36, 88, 624, 240);
+    ctx.strokeRect(36, 88, 624, 240);
+
+    ctx.textAlign = 'left';
     ctx.fillStyle = '#94a3b8';
-    ctx.font = '600 18px "Inter", sans-serif';
-    ctx.fillText('BATH TEMP (USP 37.0°C)', 44, 102);
+    ctx.font = '700 22px "Inter", sans-serif';
+    ctx.fillText('BATH TEMPERATURE (USP 37.0°C)', 56, 126);
 
     ctx.fillStyle = Math.abs(this.state.bathTempC - this.state.targetTempC) <= 0.5 ? '#22c55e' : '#f59e0b';
-    ctx.font = '700 50px "JetBrains Mono", monospace';
-    ctx.fillText(`${this.state.bathTempC.toFixed(1)}°C`, 44, 162);
+    ctx.font = '800 68px "JetBrains Mono", monospace';
+    ctx.fillText(`${this.state.bathTempC.toFixed(1)}°C`, 56, 212);
 
     ctx.fillStyle = '#64748b';
-    ctx.font = '500 16px "JetBrains Mono", monospace';
-    ctx.fillText(`SET: ${this.state.targetTempC.toFixed(1)}°C · ${this.state.heaterOn ? 'HEATER ON' : 'IDLE'}`, 44, 214);
+    ctx.font = '600 20px "JetBrains Mono", monospace';
+    ctx.fillText(`SET: ${this.state.targetTempC.toFixed(1)}°C · ${this.state.heaterOn ? 'HEATER ON (PID)' : 'IDLE'}`, 56, 290);
 
-    drawPill(234, 120, 38, 38, '−', 'rgba(30, 41, 59, 0.85)', '#38bdf8', '#38bdf8', '700 24px monospace');
-    drawPill(278, 120, 38, 38, '+', 'rgba(30, 41, 59, 0.85)', '#38bdf8', '#38bdf8', '700 24px monospace');
+    // Stacked [+] over [−] buttons on the right of Card 1
+    drawPill(540, 150, 84, 52, '+', 'rgba(30, 41, 59, 0.9)', '#38bdf8', '#38bdf8', '800 32px monospace');
+    drawPill(540, 218, 84, 52, '−', 'rgba(30, 41, 59, 0.9)', '#38bdf8', '#38bdf8', '800 32px monospace');
 
-    // 2. Stroke Rate Card (with [-] / [+] touch pills)
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
-    ctx.fillRect(356, 72, 300, 168);
-    ctx.strokeRect(356, 72, 300, 168);
+    // Card 2: Stroke Rate (Stacked [+] on top of [−])
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+    ctx.fillRect(696, 88, 624, 240);
+    ctx.strokeRect(696, 88, 624, 240);
+
     ctx.fillStyle = '#94a3b8';
-    ctx.font = '600 18px "Inter", sans-serif';
-    ctx.fillText('STROKE FREQUENCY', 372, 102);
+    ctx.font = '700 22px "Inter", sans-serif';
+    ctx.fillText('STROKE FREQUENCY', 716, 126);
 
     ctx.fillStyle = '#38bdf8';
-    ctx.font = '700 50px "JetBrains Mono", monospace';
-    ctx.fillText(`${this.state.currentCpm.toFixed(1)}`, 372, 162);
-    ctx.font = '600 22px "Inter", sans-serif';
-    ctx.fillText('CPM', 510, 162);
+    ctx.font = '800 68px "JetBrains Mono", monospace';
+    ctx.fillText(`${this.state.currentCpm.toFixed(1)}`, 716, 212);
+    ctx.font = '700 28px "Inter", sans-serif';
+    ctx.fillText('CPM', 890, 212);
 
     ctx.fillStyle = '#64748b';
-    ctx.font = '500 16px "JetBrains Mono", monospace';
-    ctx.fillText(`STROKE: 55 mm · CNT: ${this.state.strokeCount}`, 372, 214);
+    ctx.font = '600 20px "JetBrains Mono", monospace';
+    ctx.fillText(`STROKE: 55 mm · TOTAL: ${this.state.strokeCount}`, 716, 290);
 
-    drawPill(562, 120, 38, 38, '−', 'rgba(30, 41, 59, 0.85)', '#38bdf8', '#38bdf8', '700 24px monospace');
-    drawPill(606, 120, 38, 38, '+', 'rgba(30, 41, 59, 0.85)', '#38bdf8', '#38bdf8', '700 24px monospace');
+    // Stacked [+] over [−] buttons on the right of Card 2
+    drawPill(1200, 150, 84, 52, '+', 'rgba(30, 41, 59, 0.9)', '#38bdf8', '#38bdf8', '800 32px monospace');
+    drawPill(1200, 218, 84, 52, '−', 'rgba(30, 41, 59, 0.9)', '#38bdf8', '#38bdf8', '800 32px monospace');
 
-    // 3. Remaining Time Card (with [-] / [+] touch pills)
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
-    ctx.fillRect(684, 72, 312, 168);
-    ctx.strokeRect(684, 72, 312, 168);
+    // Card 3: Elapsed / Remaining Time (Stacked [+] on top of [−])
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+    ctx.fillRect(1356, 88, 656, 240);
+    ctx.strokeRect(1356, 88, 656, 240);
+
     ctx.fillStyle = '#94a3b8';
-    ctx.font = '600 18px "Inter", sans-serif';
-    ctx.fillText('ELAPSED / LIMIT TIMER', 700, 102);
+    ctx.font = '700 22px "Inter", sans-serif';
+    ctx.fillText('ELAPSED / LIMIT TIMER', 1376, 126);
 
     const rem = Math.max(0, this.state.targetDurationS - this.state.elapsedS);
     const mm = String(Math.floor(rem / 60)).padStart(2, '0');
     const ss = String(Math.floor(rem % 60)).padStart(2, '0');
     ctx.fillStyle = '#f8fafc';
-    ctx.font = '700 50px "JetBrains Mono", monospace';
-    ctx.fillText(`${mm}:${ss}`, 700, 162);
+    ctx.font = '800 68px "JetBrains Mono", monospace';
+    ctx.fillText(`${mm}:${ss}`, 1376, 212);
 
     ctx.fillStyle = '#64748b';
-    ctx.font = '500 16px "JetBrains Mono", monospace';
-    ctx.fillText(`SAMPLE: ${this.state.sampleName}`, 700, 214);
+    ctx.font = '600 20px "JetBrains Mono", monospace';
+    ctx.fillText(`SAMPLE: ${this.state.sampleName}`, 1376, 290);
 
-    drawPill(902, 120, 38, 38, '−', 'rgba(30, 41, 59, 0.85)', '#38bdf8', '#38bdf8', '700 24px monospace');
-    drawPill(946, 120, 38, 38, '+', 'rgba(30, 41, 59, 0.85)', '#38bdf8', '#38bdf8', '700 24px monospace');
+    // Stacked [+] over [−] buttons on the right of Card 3
+    drawPill(1890, 150, 84, 52, '+', 'rgba(30, 41, 59, 0.9)', '#38bdf8', '#38bdf8', '800 32px monospace');
+    drawPill(1890, 218, 84, 52, '−', 'rgba(30, 41, 59, 0.9)', '#38bdf8', '#38bdf8', '800 32px monospace');
 
+    // ========================================================================
     // Middle: 12-Tube Disintegration Matrix Bar Chart
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
-    ctx.fillRect(28, 256, w - 56, 140);
-    ctx.strokeRect(28, 256, w - 56, 140);
+    // ========================================================================
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.90)';
+    ctx.fillRect(36, 352, w - 72, 280);
+    ctx.strokeRect(36, 352, w - 72, 280);
 
     ctx.fillStyle = '#cbd5e1';
-    ctx.font = '600 17px "Inter", sans-serif';
-    ctx.fillText('BASKET A (T1–T6) & BASKET B (T7–T12) MASS INTEGRITY', 44, 280);
+    ctx.font = '700 24px "Inter", sans-serif';
+    ctx.fillText('BASKET A (T1–T6) & BASKET B (T7–T12) SAMPLE MASS INTEGRITY', 56, 392);
 
     const reactLabel = (this.state.reactionType || 'cloudy_plumes').toUpperCase().replace('_', ' ');
     ctx.fillStyle = '#38bdf8';
-    ctx.font = '600 15px "JetBrains Mono", monospace';
-    ctx.fillText(`REACTION: ${reactLabel}`, w - 380, 280);
+    ctx.font = '700 20px "JetBrains Mono", monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(`REACTION DYNAMICS: ${reactLabel}`, w - 56, 392);
 
+    const barW = 120, barH = 140, barGap = 42, startBarX = 56;
     for (let i = 0; i < 12; i++) {
-      const bx = 46 + i * 78;
-      const by = 296;
-      const bw = 60;
-      const bh = 68;
+      const bx = startBarX + i * (barW + barGap);
+      const by = 420;
 
       ctx.strokeStyle = '#334155';
-      ctx.strokeRect(bx, by, bw, bh);
+      ctx.lineWidth = 2;
+      ctx.strokeRect(bx, by, barW, barH);
 
       const frac = Math.max(0, Math.min(1, this.state.tabletSize[i] ?? 1.0));
-      const fillH = Math.round(bh * frac);
+      const fillH = Math.round(barH * frac);
       ctx.fillStyle = frac <= 0.02 ? '#22c55e' : (frac < 0.5 ? '#f59e0b' : '#38bdf8');
-      ctx.fillRect(bx + 4, by + (bh - fillH), bw - 8, fillH);
+      ctx.fillRect(bx + 4, by + (barH - fillH), barW - 8, fillH);
 
       ctx.fillStyle = '#94a3b8';
-      ctx.font = '600 14px "JetBrains Mono", monospace';
-      ctx.fillText(`T${i + 1}`, bx + 18, by + bh + 20);
+      ctx.font = '700 20px "JetBrains Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`T${i + 1}`, bx + barW / 2, by + barH + 30);
+
+      // Percentage label inside bar
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '700 16px "JetBrains Mono", monospace';
+      ctx.fillText(`${Math.round(frac * 100)}%`, bx + barW / 2, by + barH / 2);
     }
 
     // ========================================================================
     // Bottom Soft-Touch Action Buttons (Touchscreen Raycast Targets)
+    // Aligned 1:1 directly above the physical tactile button row below
     // ========================================================================
     const isRunning = this.state.state === 'RUNNING';
     const isLowered = this.state.basketLowered;
     const heaterOn = this.state.heaterOn;
 
-    drawPill(28, 412, 148, 76, isRunning ? '▶ RUNNING' : '▶ START', isRunning ? '#15803d' : '#166534', '#22c55e', '#ffffff', '800 20px "Inter", sans-serif');
-    drawPill(190, 412, 146, 76, '⏹ STOP', '#991b1b', '#ef4444', '#ffffff', '800 20px "Inter", sans-serif');
-    drawPill(350, 412, 146, 76, isLowered ? '▲ LIFT (UP)' : '▼ LOWER', isLowered ? '#0369a1' : '#0284c7', '#38bdf8', '#ffffff', '800 18px "Inter", sans-serif');
-    drawPill(510, 412, 146, 76, heaterOn ? '♨ HEAT ON' : '♨ HEAT OFF', heaterOn ? '#b45309' : '#334155', heaterOn ? '#f59e0b' : '#64748b', '#ffffff', '800 18px "Inter", sans-serif');
-    drawPill(670, 412, 166, 76, '⚗ SAMPLE', '#4338ca', '#818cf8', '#ffffff', '800 18px "Inter", sans-serif');
-    drawPill(850, 412, 146, 76, '↺ RELOAD', '#334155', '#94a3b8', '#ffffff', '800 18px "Inter", sans-serif');
+    drawPill(36, 715, 305, 160, isRunning ? '▶ RUNNING' : '▶ START', isRunning ? '#15803d' : '#166534', '#22c55e', '#ffffff', '800 26px "Inter", sans-serif');
+    drawPill(365, 715, 305, 160, '⏹ STOP', '#991b1b', '#ef4444', '#ffffff', '800 26px "Inter", sans-serif');
+    drawPill(694, 715, 305, 160, isLowered ? '▲ LIFT (UP)' : '▼ LOWER', isLowered ? '#0369a1' : '#0284c7', '#38bdf8', '#ffffff', '800 26px "Inter", sans-serif');
+    drawPill(1023, 715, 305, 160, heaterOn ? '♨ HEAT ON' : '♨ HEAT OFF', heaterOn ? '#b45309' : '#334155', heaterOn ? '#f59e0b' : '#64748b', '#ffffff', '800 26px "Inter", sans-serif');
+    drawPill(1352, 715, 325, 160, '⚗ SAMPLE', '#4338ca', '#818cf8', '#ffffff', '800 26px "Inter", sans-serif');
+    drawPill(1701, 715, 311, 160, '↺ RELOAD', '#334155', '#94a3b8', '#ffffff', '800 26px "Inter", sans-serif');
 
     // Dynamic Touch Ripples (Visual feedback for screen taps)
     if (this.touchRipples && this.touchRipples.length > 0) {
@@ -3399,7 +3816,7 @@ export class Disintegration3D {
         ctx.beginPath();
         ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
         ctx.strokeStyle = `rgba(56, 189, 248, ${Math.max(0, r.alpha)})`;
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 4;
         ctx.stroke();
         ctx.restore();
       }

@@ -342,9 +342,20 @@ async function main() {
               const t = smooth(p);
               eng.setCutaway(false);
               eng.manualLiftProgress = 0.0;
-              app.isPluggedIn = p >= 0.22;
-              app.powerSwitchOn = p >= 0.35;
-              app.state = app.hasPower ? 'STANDBY' : 'POWER_OFF';
+              app.isPluggedIn = p >= 0.20;
+              app.powerSwitchOn = p >= 0.32;
+              if (app.isPluggedIn && app.powerSwitchOn) {
+                if (p < 0.72) {
+                  app.state = 'BOOTING';
+                  app.bootProgress = Math.min(1.0, (p - 0.32) / 0.38);
+                } else {
+                  app.state = 'STANDBY';
+                  app.bootProgress = 1.0;
+                }
+              } else {
+                app.state = 'POWER_OFF';
+                app.bootProgress = 0;
+              }
               app.syncToEngine();
               setCam(
                 [lerp(-6.2, -3.8, t), lerp(3.1, 4.1, t), lerp(-6.4, -7.2, t)],

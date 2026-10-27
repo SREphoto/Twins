@@ -6,7 +6,7 @@ import { spawn } from 'child_process';
 const ROOT = process.cwd();
 const MEDIA_DIR = path.join(ROOT, 'disintegration_tester_twin', 'docs', 'media');
 const SHOWCASE_DIR = path.join(ROOT, 'docs', 'media', 'showcase');
-const ARTIFACT_DIR = '/Users/Samuel/.gemini/antigravity/brain/e391086b-14ee-4901-aa53-23a9af2b70bf';
+const ARTIFACT_DIR = '/Users/Samuel/.gemini/antigravity/brain/404ee9eb-4f25-4a92-8065-08d73fc60b5f';
 const PORT = 8782;
 const CDP_PORT = 9238;
 
@@ -157,6 +157,67 @@ const SHOTS = [
       window.app.engine.controls.update();
     `,
     wait: 1200
+  },
+  {
+    name: 'zt322_MECHANISM_ARTICULATION',
+    copyToMedia: true,
+    expr: `
+      window.app.setExplodedValue(0);
+      window.app.engine.setCutaway(true);
+      window.app.engine.enclosureShell.visible = false;
+      window.app.engine.bathGroup.visible = true;
+      window.app.engine.driveGroup.visible = true;
+      window.app.engine.driveHead.visible = true;
+      window.app.engine.camera.position.set(-2.4, 4.8, -2.4);
+      window.app.engine.controls.target.set(0.0, 4.4, 0.2);
+      window.app.engine.controls.update();
+    `,
+    wait: 1200
+  },
+  {
+    name: 'zt322_WIRING_BAY',
+    copyToMedia: true,
+    expr: `
+      window.app.setExplodedValue(0);
+      window.app.engine.setCutaway(true);
+      window.app.engine.enclosureShell.visible = false;
+      window.app.engine.bathGroup.visible = false;
+      window.app.engine.driveGroup.visible = true;
+      window.app.engine.camera.position.set(-1.9, 2.2, 0.4);
+      window.app.engine.controls.target.set(-0.5, 0.6, 1.1);
+      window.app.engine.controls.update();
+    `,
+    wait: 1200
+  },
+  {
+    name: 'zt322_CONSOLE_TOUCH',
+    copyToMedia: true,
+    expr: `
+      window.app.setExplodedValue(0);
+      window.app.engine.setCutaway(false);
+      window.app.engine.enclosureShell.visible = true;
+      window.app.engine.bathGroup.visible = true;
+      window.app.engine.camera.position.set(0.35, 1.62, -3.45);
+      window.app.engine.controls.target.set(0.35, 1.40, -2.01);
+      window.app.engine.controls.update();
+    `,
+    wait: 1200
+  },
+  {
+    name: 'zt322_STATE_ACTIVE_REACTION',
+    copyToMedia: true,
+    expr: `
+      window.app.setExplodedValue(0);
+      window.app.engine.setCutaway(false);
+      window.app.engine.enclosureShell.visible = true;
+      window.app.engine.bathGroup.visible = true;
+      window.app.selectSample('effervescent_alka');
+      window.app.startTest();
+      window.app.engine.camera.position.set(-1.8, 3.4, -3.8);
+      window.app.engine.controls.target.set(0.0, 2.8, -0.85);
+      window.app.engine.controls.update();
+    `,
+    wait: 1600
   }
 ];
 
