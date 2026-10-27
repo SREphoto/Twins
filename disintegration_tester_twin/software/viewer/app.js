@@ -22,12 +22,46 @@ const SAMPLE_PROFILES = {
     id: 'aspirin_ir',
     shortLabel: 'ASPIRIN 500mg IR',
     title: 'Aspirin 500 mg Immediate-Release',
-    monograph: 'USP <701> Uncoated Compressed Tablets · Limit 15:00 in 37.0 °C Gastric Fluid',
+    monograph: 'USP <701> Uncoated Compressed Tablets · Limit 15:00 in 37.0 °C Gastric Fluid (Cloudy Microcrystalline Plumes)',
     disintTimeSec: 210,
     limitSec: 900,
     media: '0.1 N HCl Simulated Gastric Fluid (pH 1.2)',
     targetTemp: 37.0,
-    color: '#f8fafc'
+    color: '#f8fafc',
+    reactionType: 'cloudy_plumes',
+    plumeColor: 0xf8fafc,
+    fluidTargetColor: 0xe2e8f0,
+    fluidMaxOpacity: 0.58
+  },
+  effervescent_alka: {
+    id: 'effervescent_alka',
+    shortLabel: 'ALKA-SELTZER CO2 FIZZ',
+    title: 'Effervescent Tablet (Alka-Seltzer / CO₂ Fizz & Foam)',
+    monograph: 'USP <701> Effervescent Formulation · Vigorous CO₂ Effervescence, Meniscus Foam & Micro-Bubbles',
+    disintTimeSec: 90,
+    limitSec: 300,
+    media: 'Purified Water at 37.0 °C',
+    targetTemp: 37.0,
+    color: '#fef3c7',
+    reactionType: 'effervescent_fizz',
+    plumeColor: 0xffffff,
+    fluidTargetColor: 0xf1f5f9,
+    fluidMaxOpacity: 0.35
+  },
+  riboflavin_b2: {
+    id: 'riboflavin_b2',
+    shortLabel: 'RIBOFLAVIN B2 TRACER',
+    title: 'Riboflavin (Vitamin B2) 100 mg Analytical Dye Tracer',
+    monograph: 'USP Compendial Visual Tracer · Intense Golden-Amber Fluorescent Plumes & Vortex Dispersion',
+    disintTimeSec: 240,
+    limitSec: 900,
+    media: '0.1 N HCl Gastric Fluid',
+    targetTemp: 37.0,
+    color: '#f59e0b',
+    reactionType: 'dye_dispersion',
+    plumeColor: 0xf59e0b,
+    fluidTargetColor: 0xf59e0b,
+    fluidMaxOpacity: 0.52
   },
   ibuprofen_fc: {
     id: 'ibuprofen_fc',
@@ -38,20 +72,28 @@ const SAMPLE_PROFILES = {
     limitSec: 1800,
     media: '0.1 N HCl Simulated Gastric Fluid',
     targetTemp: 37.0,
-    color: '#fb923c'
+    color: '#fb923c',
+    reactionType: 'cloudy_plumes',
+    plumeColor: 0xfb923c,
+    fluidTargetColor: 0xfed7aa,
+    fluidMaxOpacity: 0.40
   },
   enteric_pantoprazole: {
     id: 'enteric_pantoprazole',
     shortLabel: 'PANTOPRAZOLE 40mg EC',
-    title: 'Pantoprazole 40 mg Enteric-Coated',
-    monograph: 'USP <701> Delayed-Release · Stage 1 Acid (60 min intact) → Stage 2 pH 6.8 Buffer',
-    disintTimeSec: 540,
-    limitSec: 3600,
+    title: 'Pantoprazole 40 mg Enteric-Coated (Stage 2 Buffer)',
+    monograph: 'USP <701> Delayed-Release Stage 2 · Rapid Dissolution in pH 6.8 Intestinal Buffer',
+    disintTimeSec: 300,
+    limitSec: 1800,
     media: 'pH 6.8 Phosphate Buffer (Stage 2)',
     targetTemp: 37.0,
-    color: '#fde047'
+    color: '#fde047',
+    reactionType: 'cloudy_plumes',
+    plumeColor: 0xfef08a,
+    fluidTargetColor: 0xfef9c3,
+    fluidMaxOpacity: 0.42
   },
-   rapid_odt: {
+  rapid_odt: {
     id: 'rapid_odt',
     shortLabel: 'ONDANSETRON 8mg ODT',
     title: 'Ondansetron 8 mg Orally Disintegrating (ODT)',
@@ -60,7 +102,11 @@ const SAMPLE_PROFILES = {
     limitSec: 180,
     media: 'Purified Water USP at 37.0 °C',
     targetTemp: 37.0,
-    color: '#38bdf8'
+    color: '#38bdf8',
+    reactionType: 'rapid_erosion',
+    plumeColor: 0xbae6fd,
+    fluidTargetColor: 0xe0f2fe,
+    fluidMaxOpacity: 0.35
   },
   vitamin_c: {
     id: 'vitamin_c',
@@ -71,18 +117,26 @@ const SAMPLE_PROFILES = {
     limitSec: 1800,
     media: 'Purified Water USP',
     targetTemp: 37.0,
-    color: '#facc15'
+    color: '#facc15',
+    reactionType: 'cloudy_plumes',
+    plumeColor: 0xfef08a,
+    fluidTargetColor: 0xfef9c3,
+    fluidMaxOpacity: 0.45
   },
   enteric_acid: {
     id: 'enteric_acid',
     shortLabel: 'ENTERIC ASPIRIN ACID',
     title: 'Enteric-Coated Aspirin (Stage 1 Acid Resistance)',
-    monograph: 'USP <701> Delayed-Release Stage 1 · Must remain 100% intact in 0.1 N HCl',
+    monograph: 'USP <701> Delayed-Release Stage 1 · Must remain 100% intact in 0.1 N HCl (0% Dissolution)',
     disintTimeSec: 9999,
     limitSec: 3600,
     media: '0.1 N HCl (pH 1.2)',
     targetTemp: 37.0,
-    color: '#a7f3d0'
+    color: '#6ee7b7',
+    reactionType: 'acid_resistant',
+    plumeColor: 0x6ee7b7,
+    fluidTargetColor: 0xe0f2fe,
+    fluidMaxOpacity: 0.05
   }
 };
 
@@ -95,8 +149,13 @@ const PART_CATALOG = [
   { id: 'Body_EnclosureShell', label: 'Sheet-Metal Outer Enclosure Shell', group: 'Assemblies' },
   { id: 'Body_Bath', label: 'Acrylic Thermostatted Water Bath Assembly', group: 'Assemblies' },
   { id: 'Body_DriveHead', label: 'Cantilevered Dual-Station Basket Drive Head', group: 'Assemblies' },
+  { id: 'Pivot_LiftCarriage', label: 'Articulated Dual-Column Vertical Lift Carriage', group: 'Assemblies' },
+  { id: 'Body_Carriage_CantileverArm', label: 'Heavy-Duty Webbed Cantilever Drive Arm', group: 'Assemblies' },
+  { id: 'Body_Bellows_LiftSlot_Upper', label: 'Tower Splash-Proof Rubber Accordion Bellows', group: 'Assemblies' },
   { id: 'Body_KinematicDrive', label: 'Precision Harmonic Crank & Z-Lift Column', group: 'Assemblies' },
   { id: 'Body_ElectronicsBay', label: 'Internal Power, Motherboard & Telemetry Bay', group: 'Assemblies' },
+  { id: 'Body_WiringDuct_Rear', label: 'Industrial Slotted PVC Cable Raceway Duct', group: 'Assemblies' },
+  { id: 'Body_GroundHub_PE', label: 'Star Protective Earth (PE) Grounding Hub', group: 'Assemblies' },
 
   // Glass & Bath
   { id: 'Glass_BathWalls', label: 'Clear PMMA Acrylic Bath Vessel (10 mm)', group: 'Glass & Bath' },
@@ -386,6 +445,35 @@ class DisintegrationApp {
       this.syncZoomSliderFromCamera();
     };
 
+    // Hook 3D dynamic touchscreen & physical control interactions
+    this.engine.onTouchAction = (action, val) => {
+      this.sfx.touchBeep();
+      if (action === 'start') this.startTest();
+      else if (action === 'stop') this.stopTest();
+      else if (action === 'lift') this.toggleLift();
+      else if (action === 'heater') this.toggleHeater();
+      else if (action === 'power_switch') this.togglePowerSwitch();
+      else if (action === 'power_plug') this.togglePlug();
+      else if (action === 'temp_adj') this.adjustTemp(val || 0.5);
+      else if (action === 'cpm_adj') this.adjustCpm(val || 0.5);
+      else if (action === 'time_adj') this.adjustTime(val || 60);
+      else if (action === 'reload') {
+        this.resetTablets();
+        this.logEvent('Reloaded fresh tablets in all 12 tubes');
+        this.syncToEngine();
+      }
+      else if (action === 'sample') {
+        const keys = Object.keys(SAMPLE_PROFILES);
+        const currIdx = keys.indexOf(this.selectedSample.id);
+        const nextKey = keys[(currIdx + 1) % keys.length];
+        this.selectSample(nextKey);
+        const selEl = document.getElementById('selectSample');
+        if (selEl) selEl.value = nextKey;
+        this.logEvent(`Selected monograph: ${this.selectedSample.title}`);
+        this.syncToEngine();
+      }
+    };
+
     this.initPartExplorer();
     this.initBasketGrids();
     this.initEventListeners();
@@ -431,6 +519,16 @@ class DisintegrationApp {
     e.state.basketLowered = this.basketLowered;
     e.state.sampleName = this.selectedSample.shortLabel;
     e.state.tabletSize = [...this.tabletFractions];
+    e.state.reactionType = this.selectedSample.reactionType || 'cloudy_plumes';
+    e.state.plumeColor = this.selectedSample.plumeColor || 0xfef08a;
+    e.state.fluidTargetColor = this.selectedSample.fluidTargetColor || 0xfef9c3;
+    e.state.fluidMaxOpacity = this.selectedSample.fluidMaxOpacity || 0.40;
+
+    if (this.hasPower && this.oscillationActive && this.state === 'RUNNING' && this.selectedSample.reactionType === 'effervescent_fizz') {
+      this.sfx.startFizz?.();
+    } else {
+      this.sfx.stopFizz?.();
+    }
 
     e.updatePowerCord();
     e.renderLCD();
