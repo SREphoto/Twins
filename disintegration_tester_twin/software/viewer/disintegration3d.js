@@ -1107,11 +1107,11 @@ export class Disintegration3D {
 
     // ========================================================================
     // Authentic Exterior M5 Cabinet Cooling Fan Exhaust Port & Wire Finger-Guard
-    // (Precisely aligned with internal 80mm M5 axial blower at X=1.38, Y=1.12)
+    // (Precisely aligned with internal 80mm M5 axial blower at X=1.48, Y=1.15)
     // ========================================================================
     const exhaustGroup = new THREE.Group();
     exhaustGroup.name = 'Body_Chassis_FanExhaust';
-    exhaustGroup.position.set(1.38, 1.12, 2.01);
+    exhaustGroup.position.set(1.48, 1.15, 2.01);
     this.enclosureShell.add(exhaustGroup);
 
     // Recessed dark bezel housing the exhaust filter
@@ -1148,16 +1148,6 @@ export class Disintegration3D {
       b.position.set(bx, by, 0.025);
       exhaustGroup.add(b);
     }
-
-    // Industrial airflow caution silkscreen label
-    const exLabel = makeFlushSurfaceLabel(
-      'CABINET EXHAUST · M5 FAN',
-      'KEEP AIRFLOW CLEAR · 45 CFM',
-      0.78, 0.12, '#0f172a', '#e2e8f0', '#38bdf8'
-    );
-    exLabel.rotation.y = Math.PI;
-    exLabel.position.set(0, -0.52, 0.01);
-    exhaustGroup.add(exLabel);
   }
 
   setCutaway(enabled) {
@@ -1564,15 +1554,6 @@ export class Disintegration3D {
       pilotBoss.position.y = 0.23;
       liftMotorGroup.add(pilotBoss);
 
-      // Flush Spec Plate on Front Face of NEMA 17 Stator
-      const nemaSpec = makeFlushSurfaceLabel(
-        `M${side < 0 ? '2' : '3'} · NEMA 17`,
-        '1.8° STEP · 0.52 Nm',
-        0.34, 0.16, '#0f172a', '#f59e0b', '#334155'
-      );
-      nemaSpec.position.set(0, 0, -0.208);
-      liftMotorGroup.add(nemaSpec);
-
       // 3-Piece Jaw-Type Flexible Shaft Coupling with Red Polyurethane Elastomer Spider
       const couplingGroup = new THREE.Group();
       couplingGroup.name = `Pivot_Coupling_Lift_${sShort}`;
@@ -1663,19 +1644,10 @@ export class Disintegration3D {
     coilRing.position.z = 0.04;
     motorGroup.add(coilRing);
 
-    // Top-mounted 6-Pin Industrial Molex Motor Power Header + Flush Spec Plate
+    // Top-mounted 6-Pin Industrial Molex Motor Power Header
     const molexBox = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.10, 0.18), MAT_CHASSIS_DARK);
     molexBox.position.set(0, 0.36, 0.32);
     motorGroup.add(molexBox);
-
-    const m1Spec = makeFlushSurfaceLabel(
-      'M1 · 24V BLDC SERVO',
-      'PLANETARY i=45:1 · 30 CPM',
-      0.42, 0.16, '#0f172a', '#38bdf8', '#475569'
-    );
-    m1Spec.position.set(0, 0.42, 0.22);
-    m1Spec.rotation.x = -Math.PI / 4;
-    motorGroup.add(m1Spec);
 
     // S3: 1024-PPR Quadrature Optical Rotary Encoder on Rear Shaft of M1
     const encoderGroup = new THREE.Group();
@@ -1691,15 +1663,6 @@ export class Disintegration3D {
     const encCan = new THREE.Mesh(new THREE.CylinderGeometry(0.23, 0.23, 0.18, 28), MAT_316SS_BRUSHED);
     encCan.rotation.x = Math.PI / 2;
     encoderGroup.add(encCan);
-
-    const encRearLabel = makeFlushSurfaceLabel(
-      'S3 · 1024-PPR',
-      'OPTICAL ENCODER',
-      0.28, 0.14, '#0f172a', '#22c55e', '#334155'
-    );
-    encRearLabel.rotation.y = Math.PI;
-    encRearLabel.position.z = 0.095;
-    encoderGroup.add(encRearLabel);
 
     // Counterbalanced CNC Eccentric Crank Flywheel (r = 27.5 mm = 0.275 dm, Coplanar Z = -0.16)
     this.crankDisc = new THREE.Group();
@@ -2264,15 +2227,6 @@ export class Disintegration3D {
       leadZ.position.set(offset, -0.008, 0);
       mcuGroup.add(leadZ);
     }
-    const mcuLaserMark = makeFlushSurfaceLabel(
-      'U1 · STM32H743',
-      'ARM CORTEX-M7 480MHz',
-      0.29, 0.29, '#111318', '#e2e8f0', '#334155'
-    );
-    mcuLaserMark.rotation.x = -Math.PI / 2;
-    mcuLaserMark.rotation.z = Math.PI;
-    mcuLaserMark.position.y = 0.017;
-    mcuGroup.add(mcuLaserMark);
 
     // U2: Volatile System Memory (512 MB LPDDR4 SDRAM BGA/TSOP Package)
     const ramGroup = new THREE.Group();
@@ -2287,15 +2241,6 @@ export class Disintegration3D {
       rLead.position.set(p * 0.019, -0.006, 0);
       ramGroup.add(rLead);
     }
-    const ramLaserMark = makeFlushSurfaceLabel(
-      'U2 · 512MB LPDDR4',
-      'MICRON MT53E · RAM',
-      0.22, 0.14, '#111318', '#38bdf8', '#334155'
-    );
-    ramLaserMark.rotation.x = -Math.PI / 2;
-    ramLaserMark.rotation.z = Math.PI;
-    ramLaserMark.position.y = 0.014;
-    ramGroup.add(ramLaserMark);
 
     // U3: Non-Volatile Industrial eMMC / SSD Storage Module (16 GB 21 CFR Part 11 Vault)
     const ssdGroup = new THREE.Group();
@@ -2308,15 +2253,6 @@ export class Disintegration3D {
     ssdGroup.add(ssdSubstrate);
     const ssdPkg = new THREE.Mesh(new THREE.BoxGeometry(0.27, 0.028, 0.21), MAT_IC_PACKAGE);
     ssdGroup.add(ssdPkg);
-    const ssdLaserMark = makeFlushSurfaceLabel(
-      'U3 · 16GB eMMC SSD',
-      '21 CFR 11 FLASH VAULT',
-      0.25, 0.19, '#111318', '#22c55e', '#334155'
-    );
-    ssdLaserMark.rotation.x = -Math.PI / 2;
-    ssdLaserMark.rotation.z = Math.PI;
-    ssdLaserMark.position.y = 0.015;
-    ssdGroup.add(ssdLaserMark);
 
     // U4: 24-Bit Delta-Sigma Temperature ADC (ADS1256 for PT100 RTD)
     const adcGroup = new THREE.Group();
@@ -2331,15 +2267,6 @@ export class Disintegration3D {
       aLead.position.set(0, -0.006, p * 0.016);
       adcGroup.add(aLead);
     }
-    const adcLaserMark = makeFlushSurfaceLabel(
-      'U4 · ADS1256',
-      '24-BIT PT100 ADC',
-      0.18, 0.14, '#111318', '#f59e0b', '#334155'
-    );
-    adcLaserMark.rotation.x = -Math.PI / 2;
-    adcLaserMark.rotation.z = Math.PI;
-    adcLaserMark.position.y = 0.013;
-    adcGroup.add(adcLaserMark);
 
     // BT1: Real-Time Clock Backup Coin Cell Holder & CR2032 Lithium Cell
     const rtcGroup = new THREE.Group();
@@ -2371,15 +2298,6 @@ export class Disintegration3D {
     const uflJack = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.018, 16), MAT_GOLD_CONTACT);
     uflJack.position.set(0.11, 0.006, 0.06);
     wifiGroup.add(uflJack);
-    const wifiMark = makeFlushSurfaceLabel(
-      'U5 · WIFI + BLE 5.2',
-      'FCC/CE RF SHIELD CAN',
-      0.22, 0.16, '#cbd5e1', '#0f172a', '#64748b'
-    );
-    wifiMark.rotation.x = -Math.PI / 2;
-    wifiMark.rotation.z = Math.PI;
-    wifiMark.position.y = 0.016;
-    wifiGroup.add(wifiMark);
 
     // Surface-Mount Aluminum Electrolytic Capacitors, Shielded Inductors & Quartz Crystal
     for (const [cx, cz] of [[-0.74, -0.42], [-0.74, -0.24], [-0.74, -0.06], [0.08, -0.44], [0.22, -0.44]]) {
@@ -2522,16 +2440,6 @@ export class Disintegration3D {
       const dipBank = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.04, 0.02), makeMat(0xdc2626, { r: 0.4 }));
       dipBank.position.set(-0.08, -0.14, 0.112);
       drvGroup.add(dipBank);
-
-      // Flush Silkscreen Driver Specification Sticker on Front Face
-      const drvNames = ['DRV1 · M1 SERVO', 'DRV2 · M2 LIFT L', 'DRV3 · M3 LIFT R'];
-      const drvSpec = makeFlushSurfaceLabel(
-        drvNames[i],
-        '24VDC · 4.2A PEAK · 1/32 STEP',
-        0.40, 0.22, '#0f172a', '#38bdf8', '#334155'
-      );
-      drvSpec.position.set(0, 0.06, 0.114);
-      drvGroup.add(drvSpec);
     }
 
     // ========================================================================
@@ -2594,17 +2502,6 @@ export class Disintegration3D {
 
     const psuShell = new THREE.Mesh(new THREE.BoxGeometry(1.04, 0.62, 1.62), matPerfCage);
     psuGroup.add(psuShell);
-
-    // Flush Industrial Rating Label on Top of PSU Cage
-    const psuSpecLabel = makeFlushSurfaceLabel(
-      'PSU1 · LRS-150-24 SMPS',
-      'IN: 115/230VAC · OUT: 24VDC 6.5A / 5VDC',
-      0.86, 0.42, '#0f172a', '#f8fafc', '#475569'
-    );
-    psuSpecLabel.rotation.x = -Math.PI / 2;
-    psuSpecLabel.rotation.z = Math.PI;
-    psuSpecLabel.position.set(0, 0.314, -0.18);
-    psuGroup.add(psuSpecLabel);
 
     // 7-Position Barrier Terminal Strip on Front End of PSU (L, N, PE, -V, -V, +V, +V)
     const barrierBlock = new THREE.Mesh(new THREE.BoxGeometry(0.92, 0.22, 0.18), MAT_IC_PACKAGE);
@@ -2676,15 +2573,10 @@ export class Disintegration3D {
     centerBolt.position.y = 0.155;
     toroidGroup.add(centerBolt);
 
-    const toroidSpec = makeFlushSurfaceLabel(
-      'T1 · 180VA TOROID',
-      '230V / 24VAC ISOLATION',
-      0.38, 0.18, '#0f172a', '#f59e0b', '#475569'
-    );
-    toroidSpec.rotation.x = -Math.PI / 2;
-    toroidSpec.rotation.z = Math.PI;
-    toroidSpec.position.set(0, 0.16, 0.20);
-    toroidGroup.add(toroidSpec);
+    // Molded Neoprene Primary Wire Feed Bushing inside Toroid Center Port
+    const toroidFeedGland = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.045, 0.04, 16), MAT_RUBBER_CORD);
+    toroidFeedGland.position.y = 0.18;
+    toroidGroup.add(toroidFeedGland);
 
     // ========================================================================
     // 5. Solid-State Relay (SSR) on 11-Fin Extruded Heatsink + DIN Rail + PE Lug
@@ -2735,16 +2627,6 @@ export class Disintegration3D {
       boot.position.set(tx, 0.191, tz < 0 ? tz - 0.035 : tz + 0.035);
       ssrGroup.add(boot);
     }
-
-    const ssrSpec = makeFlushSurfaceLabel(
-      'SSR1 · 25A ZERO-CROSS',
-      'HEATER PID RELAY',
-      0.38, 0.18, '#0f172a', '#ef4444', '#475569'
-    );
-    ssrSpec.rotation.x = -Math.PI / 2;
-    ssrSpec.rotation.z = Math.PI;
-    ssrSpec.position.set(0, 0.196, 0);
-    ssrGroup.add(ssrSpec);
 
     // Brass Protective Earth (PE) Grounding Busbar & Star-Washer Lug
     const groundLug = new THREE.Group();
@@ -2805,16 +2687,6 @@ export class Disintegration3D {
     const clamp1 = new THREE.Mesh(new THREE.TorusGeometry(0.068, 0.012, 10, 20), MAT_316SS_ELECTROPOLISHED);
     clamp1.position.set(0, 0, -0.46);
     pumpGroup.add(clamp1);
-
-    const pumpSpec = makeFlushSurfaceLabel(
-      'M4 · 24V MAG-DRIVE PUMP',
-      '4.5 L/MIN BATH RECIRC',
-      0.36, 0.16, '#0f172a', '#38bdf8', '#475569'
-    );
-    pumpSpec.rotation.x = -Math.PI / 2;
-    pumpSpec.rotation.z = Math.PI;
-    pumpSpec.position.set(0, 0.26, 0.04);
-    pumpGroup.add(pumpSpec);
 
     // Reinforced Braided Silicone Return/Supply Fluid Hoses to Bath Floor
     const hoseSupply = makeWiringHarness(
@@ -2895,7 +2767,7 @@ export class Disintegration3D {
     // M5: 80mm Brushless Axial Cabinet Cooling Fan (Body_Fan_CabinetCooling_Blower)
     const fanGroup = new THREE.Group();
     fanGroup.name = 'Body_Fan_CabinetCooling_Blower';
-    fanGroup.position.set(1.38, 1.12, 1.96);
+    fanGroup.position.set(1.48, 1.15, 1.96);
     this.electronicsGroup.add(fanGroup);
 
     const fanFrame = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.76, 0.22), MAT_IC_PACKAGE);
@@ -2935,24 +2807,15 @@ export class Disintegration3D {
     }
 
     // Brushed Stainless Rear Data I/O Bulkhead Bezel Plate
-    const ioPlate = new THREE.Mesh(new THREE.BoxGeometry(1.52, 0.56, 0.03), MAT_316SS_BRUSHED);
+    const ioPlate = new THREE.Mesh(new THREE.BoxGeometry(1.48, 0.44, 0.03), MAT_316SS_BRUSHED);
     ioPlate.name = 'Body_Plate_RearIO';
-    ioPlate.position.set(0.28, 0.55, 2.005);
+    ioPlate.position.set(0.18, 0.48, 2.005);
     this.electronicsGroup.add(ioPlate);
-
-    const ioLegend = makeFlushSurfaceLabel(
-      'RS-232 GLP      USB-B PC      USB-A FLASH      10/100 LAN      2.4GHz ANT',
-      '21 CFR PART 11 TELEMETRY & LIMS INTERFACE BULKHEAD',
-      1.46, 0.16, '#0f172a', '#e2e8f0', '#475569'
-    );
-    ioLegend.rotation.y = Math.PI;
-    ioLegend.position.set(0.28, 0.74, 2.022);
-    this.electronicsGroup.add(ioLegend);
 
     // Port 1: RS-232 DB9 Serial Connector with Hex Jackscrews
     const rs232Group = new THREE.Group();
     rs232Group.name = 'Body_Port_RS232';
-    rs232Group.position.set(-0.28, 0.48, 2.02);
+    rs232Group.position.set(-0.38, 0.48, 2.02);
     this.electronicsGroup.add(rs232Group);
     const db9Shell = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.14, 0.08), MAT_316SS_ELECTROPOLISHED);
     rs232Group.add(db9Shell);
@@ -2968,18 +2831,18 @@ export class Disintegration3D {
     // Port 2: USB-B Device Port
     const usbB = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.14, 0.10), MAT_316SS_ELECTROPOLISHED);
     usbB.name = 'Body_Port_USB';
-    usbB.position.set(0.04, 0.48, 2.02);
+    usbB.position.set(-0.10, 0.48, 2.02);
     this.electronicsGroup.add(usbB);
 
     // Port 3: USB-A Host Port + Inserted Rugged Aluminum SanDisk GLP Audit Flash Drive
     const usbA = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.10, 0.10), MAT_316SS_ELECTROPOLISHED);
     usbA.name = 'Body_Port_USB_Host_Flash';
-    usbA.position.set(0.32, 0.48, 2.02);
+    usbA.position.set(0.16, 0.48, 2.02);
     this.electronicsGroup.add(usbA);
 
     const usbStick = new THREE.Group();
     usbStick.name = 'Body_Part_USB_Drive';
-    usbStick.position.set(0.32, 0.48, 2.16);
+    usbStick.position.set(0.16, 0.48, 2.16);
     this.electronicsGroup.add(usbStick);
     const stickBody = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.075, 0.26), MAT_ALUM_DARK_ANO);
     usbStick.add(stickBody);
@@ -2990,7 +2853,7 @@ export class Disintegration3D {
     // Port 4: Shielded RJ45 10/100Base-T Ethernet LAN Jack with Link/Act LEDs
     const rj45Group = new THREE.Group();
     rj45Group.name = 'Body_Port_RJ45_LAN';
-    rj45Group.position.set(0.60, 0.48, 2.02);
+    rj45Group.position.set(0.44, 0.48, 2.02);
     this.electronicsGroup.add(rj45Group);
     const rjShell = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.16, 0.12), MAT_316SS_ELECTROPOLISHED);
     rj45Group.add(rjShell);
@@ -3004,7 +2867,7 @@ export class Disintegration3D {
     // Port 5: Gold-Plated RP-SMA Bulkhead Jack & Articulated 2.4 GHz Wi-Fi / BLE Dipole Antenna
     const antGroup = new THREE.Group();
     antGroup.name = 'Body_Antenna_WiFi_BLE';
-    antGroup.position.set(0.88, 0.48, 2.04);
+    antGroup.position.set(0.72, 0.48, 2.04);
     this.electronicsGroup.add(antGroup);
 
     const smaNut = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.08, 6), MAT_GOLD_CONTACT);
@@ -3059,32 +2922,35 @@ export class Disintegration3D {
     this.electronicsGroup.add(ductCoverLeft);
 
     // Upright Tower Central Vertical Cable Riser Channel (Body_Tower_WireRiserChannel)
-    // Runs seamlessly from floor pan (Y=0.10) to motor deck (Y=4.40) — ZERO wires floating in thin air
+    // Runs seamlessly from floor pan (Y=0.10) to motor deck (Y=4.40) along rear-left tower column
+    // Safely offset from central BLDC motor M1 and crank disc — ZERO collision with motor body
     const ductTower = new THREE.Mesh(new THREE.BoxGeometry(0.24, 4.30, 0.18), MAT_PVC_DUCT);
     ductTower.name = 'Body_Tower_WireRiserChannel';
-    ductTower.position.set(-0.20, 2.25, 1.55);
+    ductTower.position.set(-0.75, 2.25, 1.65);
     this.electronicsGroup.add(ductTower);
 
     // Structural Aluminum Column Wire Conduits under Left & Right Lift Motors M2/M3
+    // Directly supports NEMA 17 stepper motors at X = +/- 1.22, Z = 1.08
     for (const side of [-1, 1]) {
-      const colConduit = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 2.25, 20), MAT_ALUM_DARK_ANO);
+      const colConduit = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 2.22, 20), MAT_ALUM_DARK_ANO);
       colConduit.name = `Body_Conduit_LiftMotor_${side < 0 ? 'L' : 'R'}`;
-      colConduit.position.set(side * 0.80, 0.20 + 2.25 / 2, 1.00);
+      colConduit.position.set(side * 1.22, 0.20 + 2.22 / 2, 1.08);
       this.electronicsGroup.add(colConduit);
     }
 
     // Vertical 316 Stainless Steel Feed Conduit for Immersion Heater Cable
-    // Runs seamlessly from floor duct (Y=0.20) to bath heater compression gland (Y=2.58)
-    const heaterConduit = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 2.38, 20), MAT_316SS_BRUSHED);
+    // Runs tightly along tower left corner bulkhead (X = -1.58, Z = 0.22) from floor duct (Y = 0.20) to gland height (Y = 2.58)
+    const heaterConduit = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 2.38, 20), MAT_316SS_BRUSHED);
     heaterConduit.name = 'Body_Conduit_BathHeaterFeed';
-    heaterConduit.position.set(-1.45, 0.20 + 2.38 / 2, 0.09);
+    heaterConduit.position.set(-1.58, 0.20 + 2.38 / 2, 0.22);
     this.electronicsGroup.add(heaterConduit);
 
-    // Vertical 316 Stainless Steel Feed Conduit for PT100 RTD Temperature Probe Cable
-    const pt100Conduit = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 2.38, 20), MAT_316SS_BRUSHED);
-    pt100Conduit.name = 'Body_Conduit_PT100_Feed';
-    pt100Conduit.position.set(0.0, 0.20 + 2.38 / 2, 0.09);
-    this.electronicsGroup.add(pt100Conduit);
+    // Internal Vertical Conduit for Shielded PT100 RTD Cable (Inside Tower Inner Front Wall)
+    // Encloses PT100 cable from front bulkhead entry (Y=3.61) straight down to floor duct (Y=0.20)
+    const pt100TowerDuct = new THREE.Mesh(new THREE.BoxGeometry(0.08, 3.45, 0.08), MAT_PVC_DUCT);
+    pt100TowerDuct.name = 'Body_Tower_PT100_InternalDuct';
+    pt100TowerDuct.position.set(0.00, 0.20 + 3.45 / 2, 0.24);
+    this.electronicsGroup.add(pt100TowerDuct);
 
     // Chassis Sub-Frame Grounding Stud on Left Structural Stiffener Rail
     const frameGroundLug = new THREE.Group();
@@ -3102,7 +2968,7 @@ export class Disintegration3D {
     // Rubber strain-relief exit grommet at top of tower riser conduit
     const towerGrommet = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.04, 16), MAT_RUBBER_CORD);
     towerGrommet.rotation.x = Math.PI / 2;
-    towerGrommet.position.set(-0.20, 4.25, 1.55);
+    towerGrommet.position.set(-0.75, 4.25, 1.65);
     this.electronicsGroup.add(towerGrommet);
 
     // 35mm Top-Hat DIN Rail with Modular Terminal Blocks (Body_TerminalBlock_DIN)
@@ -3154,10 +3020,10 @@ export class Disintegration3D {
     // 1. High-Voltage AC Mains Live (IEC Inlet -> Rocker Switch -> Rear Duct -> Terminal Block)
     this.electronicsGroup.add(makeWiringHarness(
       [
-        [-1.32, 0.48, 1.95],
-        [-1.32, 0.48, 2.01],
-        [-0.92, 0.48, 2.01],
-        [-0.92, 0.20, 1.95],
+        [-1.32, 0.48, 1.82],
+        [-1.12, 0.48, 1.82],
+        [-0.92, 0.48, 1.82],
+        [-0.92, 0.22, 1.82],
         [-0.92, 0.20, 1.35],
         [-0.40, 0.20, 1.35],
         [-0.40, 0.38, 1.68]
@@ -3168,8 +3034,8 @@ export class Disintegration3D {
     // 2. High-Voltage AC Mains Neutral (IEC Inlet -> Rear Duct -> Terminal Block)
     this.electronicsGroup.add(makeWiringHarness(
       [
-        [-1.24, 0.44, 1.95],
-        [-1.24, 0.20, 1.95],
+        [-1.24, 0.44, 1.82],
+        [-1.24, 0.20, 1.82],
         [-1.24, 0.20, 1.35],
         [-0.53, 0.20, 1.35],
         [-0.53, 0.38, 1.68]
@@ -3181,8 +3047,8 @@ export class Disintegration3D {
     // Branch A: IEC Inlet to Star Ground Hub
     this.electronicsGroup.add(makeWiringHarness(
       [
-        [-1.38, 0.44, 1.95],
-        [-1.38, 0.16, 1.95],
+        [-1.38, 0.44, 1.82],
+        [-1.38, 0.16, 1.82],
         [-1.38, 0.16, 1.55],
         [-0.85, 0.16, 1.55]
       ],
@@ -3209,13 +3075,13 @@ export class Disintegration3D {
       ],
       0.020, 0x16a34a, 'Body_Wire_PE_HubToSideRail'
     ));
-    // Branch D: Star Hub to Upright Tower Frame Ground Lug (via Tower Riser Conduit)
+    // Branch D: Star Hub to Upright Tower Frame Ground Lug (Inside Tower Base)
     this.electronicsGroup.add(makeWiringHarness(
       [
         [-0.85, 0.16, 1.55],
-        [-0.20, 0.16, 1.55],
-        [-0.20, 2.45, 1.55],
-        [0.0, 2.45, 1.35]
+        [-0.75, 0.16, 1.55],
+        [-0.75, 0.22, 1.65],
+        [-0.60, 0.25, 1.65]
       ],
       0.020, 0x16a34a, 'Body_Wire_PE_HubToTower'
     ));
@@ -3261,16 +3127,19 @@ export class Disintegration3D {
       0.022, 0xdc2626, 'Body_Wire_SSR_AC_Live_In'
     ));
     // Screw 2 Switched AC Out to Heater (bolted with crimp ring terminal):
+    // Routes inside left floor duct to tower left corner, rises INSIDE Body_Conduit_BathHeaterFeed, enters heater gland
     this.electronicsGroup.add(makeWiringHarness(
       [
         [-1.20, 0.635, 1.20], // Bolted under SSR1 Screw 2 with ring lug
         [-1.20, 0.20, 1.20],  // Drops straight DOWN into rear duct
         [-1.58, 0.20, 1.20],  // Enters left longitudinal duct
-        [-1.58, 0.20, 0.09],  // Runs inside duct to heater conduit base
-        [-1.45, 0.20, 0.09],  // Enters Body_Conduit_BathHeaterFeed
-        [-1.45, 2.58, 0.09]   // Rises INSIDE conduit directly to heater compression gland
+        [-1.58, 0.20, 0.22],  // Runs inside duct to tower left corner bulkhead
+        [-1.58, 0.35, 0.22],  // Enters Body_Conduit_BathHeaterFeed base
+        [-1.58, 2.45, 0.22],  // Collinear vertical rise inside conduit along tower corner
+        [-1.58, 2.58, 0.22],  // Reaches gland height
+        [-1.45, 2.58, 0.09]   // Turns into bath immersion heater compression gland
       ],
-      0.026, 0xdc2626, 'Body_Wire_Heater_HighTemp_Silicone'
+      0.024, 0xdc2626, 'Body_Wire_Heater_HighTemp_Silicone', false
     ));
 
     // 7. SSR1 DC Control PWM (Motherboard J4 Header -> Duct -> SSR1 Screws 3 & 4 Ring Terminals)
@@ -3286,17 +3155,19 @@ export class Disintegration3D {
     ));
 
     // 8. Main Stroke BLDC Servo Motor M1 Power & Hall Loom (DRV1 -> Rear Duct -> Tower Riser Conduit -> M1)
-    // Travel strictly INSIDE the enclosed Body_Tower_WireRiserChannel conduit
+    // Travel strictly INSIDE the enclosed Body_Tower_WireRiserChannel conduit along rear-left tower wall
     this.electronicsGroup.add(makeWiringHarness(
       [
         [-0.55, 0.52, 1.15], // DRV1 output connector
         [-0.55, 0.20, 1.35], // Drops into rear duct
-        [-0.20, 0.20, 1.35],
-        [-0.20, 0.20, 1.55], // Enters Tower Riser Conduit at base
-        [-0.20, 4.20, 1.55], // Rises INSIDE conduit all the way to motor deck
-        [0.0, 4.20, 0.56]    // Exits through rubber grommet into M1 motor junction box
+        [-0.75, 0.20, 1.35],
+        [-0.75, 0.20, 1.65], // Enters Tower Riser Conduit at base
+        [-0.75, 0.35, 1.65], // Collinear vertical inside conduit
+        [-0.75, 4.15, 1.65],
+        [-0.75, 4.25, 1.65], // Rises INSIDE conduit all the way to motor deck
+        [0.00, 4.56, 1.58]   // Arches smoothly into M1 motor top junction box
       ],
-      0.024, 0x8b5cf6, 'Body_Wire_Motor_BLDC_TowerLoom'
+      0.024, 0x8b5cf6, 'Body_Wire_Motor_BLDC_TowerLoom', false
     ));
 
     // 9. Dual Z-Axis Lift Stepper Motor Harnesses (DRV2/3 -> Duct -> Column Conduits -> M2/M3 Motors)
@@ -3304,21 +3175,25 @@ export class Disintegration3D {
       [
         [0.03, 0.52, 1.15],  // DRV2 output connector
         [0.03, 0.20, 1.35],  // Drops into rear duct
-        [-0.80, 0.20, 1.35], // Runs inside duct to left column base
-        [-0.80, 0.20, 1.00], // Enters Body_Conduit_LiftMotor_L at base
-        [-0.80, 2.45, 1.00]  // Rises INSIDE column conduit directly to M2 motor
+        [-1.22, 0.20, 1.35], // Runs inside duct to left column base
+        [-1.22, 0.20, 1.08], // Enters Body_Conduit_LiftMotor_L at base
+        [-1.22, 0.35, 1.08], // Collinear vertical inside column conduit
+        [-1.22, 2.35, 1.08],
+        [-1.22, 2.45, 1.08]  // Rises INSIDE column conduit directly to M2 motor
       ],
-      0.018, 0x06b6d4, 'Body_Wire_Motor_Lift_Left'
+      0.018, 0x06b6d4, 'Body_Wire_Motor_Lift_Left', false
     ));
     this.electronicsGroup.add(makeWiringHarness(
       [
-        [0.61, 0.52, 1.15], // DRV3 output connector
+        [0.61, 0.52, 1.15],  // DRV3 output connector
         [0.61, 0.20, 1.35],
-        [0.80, 0.20, 1.35], // Runs inside duct to right column base
-        [0.80, 0.20, 1.00], // Enters Body_Conduit_LiftMotor_R at base
-        [0.80, 2.45, 1.00]  // Rises INSIDE column conduit directly to M3 motor
+        [1.22, 0.20, 1.35],  // Runs inside duct to right column base
+        [1.22, 0.20, 1.08],  // Enters Body_Conduit_LiftMotor_R at base
+        [1.22, 0.35, 1.08],  // Collinear vertical inside column conduit
+        [1.22, 2.35, 1.08],
+        [1.22, 2.45, 1.08]   // Rises INSIDE column conduit directly to M3 motor
       ],
-      0.018, 0x06b6d4, 'Body_Wire_Motor_Lift_Right'
+      0.018, 0x06b6d4, 'Body_Wire_Motor_Lift_Right', false
     ));
 
     // 10. M4 Circulation Pump Motor (Motherboard J5 Connector -> Floor Duct -> M4 Terminal Box)
@@ -3337,56 +3212,66 @@ export class Disintegration3D {
       [
         [1.17, 0.38, 0.50],  // Body_Connector_J6_Fan on PCB
         [1.17, 0.20, 0.50],
-        [1.38, 0.20, 1.35],
-        [1.38, 0.85, 1.88]   // Plugs into M5 fan power header
+        [1.48, 0.20, 1.35],
+        [1.48, 0.85, 1.90]   // Plugs into M5 fan power header
       ],
       0.016, 0x64748b, 'Body_Wire_Fan_Power'
     ));
 
-    // 12. PT100 RTD Bath Temperature Sensor Shielded Cable (Probe Head -> Bulkhead Gland -> Conduit -> J3 Header)
+    // 12. PT100 RTD Bath Temperature Sensor Shielded Cable (Probe Head -> Bulkhead Gland -> Internal Tower Duct -> J3 Header)
+    // Enters front bulkhead into Body_Tower_PT100_InternalDuct and drops vertically to floor duct
+    // ZERO exposed diagonal wire behind bath, ZERO wires near M1 motor
     this.electronicsGroup.add(makeWiringHarness(
       [
         [0.00, 3.61, -0.09], // PT100 probe DIN connector head
-        [0.00, 2.58, 0.09],  // Enters Body_Conduit_PT100_Feed at top gland
-        [0.00, 0.20, 0.09],  // Drops INSIDE vertical conduit to floor
-        [-0.47, 0.20, 0.09], // Enters duct toward PCB
-        [-0.47, 0.38, 0.03]  // Plugs directly into Body_Connector_J3_PT100 (Zero IC piercing!)
+        [0.00, 3.61, 0.18],  // Enters tower interior via sealed rubber bulkhead grommet
+        [0.00, 3.61, 0.24],  // Enters internal tower vertical riser duct
+        [0.00, 3.45, 0.24],  // Collinear vertical inside duct
+        [0.00, 0.30, 0.24],
+        [0.00, 0.20, 0.24],  // Drops straight down inside duct to floor
+        [-0.47, 0.20, 0.24], // Turns into transverse floor duct
+        [-0.47, 0.20, -0.15],
+        [-0.47, 0.38, -0.22] // Plugs directly into Body_Connector_J3_PT100
       ],
-      0.016, 0x10b981, 'Body_Wire_Sensor_PT100_Shielded'
+      0.016, 0x64748b, 'Body_Wire_Sensor_PT100_Shielded', false
     ));
 
     // 13. Upper Tower Limit Microswitches & S3 Encoder (Tower -> Riser Conduit -> Rear Duct -> J7 Header)
     this.electronicsGroup.add(makeWiringHarness(
       [
-        [0, 4.20, 0.92],     // Tower limit switches & encoder
-        [-0.20, 4.20, 1.55], // Enters Tower Riser Conduit at top grommet
-        [-0.20, 0.20, 1.55], // Travels down inside enclosed conduit
-        [0.95, 0.20, 1.35],  // Runs through rear duct
+        [0.00, 4.20, 0.92],   // Tower limit switches & encoder
+        [-0.75, 4.25, 1.65],  // Enters Tower Riser Conduit at top grommet
+        [-0.75, 4.15, 1.65],  // Collinear vertical inside conduit
+        [-0.75, 0.35, 1.65],
+        [-0.75, 0.20, 1.65],  // Travels down inside enclosed conduit
+        [0.95, 0.20, 1.35],   // Runs through rear duct
         [0.95, 0.20, -0.29],
-        [0.95, 0.38, -0.29]  // Plugs into Body_Connector_J7_Sensors
+        [0.95, 0.38, -0.29]   // Plugs into Body_Connector_J7_Sensors
       ],
-      0.016, 0x22c55e, 'Body_Wire_Sensor_Encoder_Limits'
+      0.016, 0x22c55e, 'Body_Wire_Sensor_Encoder_Limits', false
     ));
 
-    // 14. Dual Laser / IR Optical Disintegration Detectors Harness (Sensors -> Floor Channel -> J7 Header)
+    // 14. Dual Laser / IR Optical Disintegration Detectors Harness (Sensors -> Side Frame Channel -> J7 Header)
+    // Routes along outer chassis frame and tower corner duct — NEVER drops in open air in front of toroid
     this.electronicsGroup.add(makeWiringHarness(
       [
         [-1.38, 2.16, -0.85],
-        [-1.58, 2.16, -0.85],
-        [-1.58, 0.20, -0.85],
-        [0.95, 0.20, -0.85],
-        [0.95, 0.38, -0.29]  // Plugs into Body_Connector_J7_Sensors
+        [-1.85, 2.16, -0.85], // Runs to left chassis side frame
+        [-1.85, 2.16, 0.22],  // Runs along outer side rail to tower corner
+        [-1.85, 0.20, 0.22],  // Drops inside corner conduit to floor duct
+        [0.95, 0.20, 0.22],   // Runs through floor raceway
+        [0.95, 0.38, -0.29]   // Plugs into Body_Connector_J7_Sensors
       ],
-      0.015, 0xf43f5e, 'Body_Wire_Sensor_OpticalLaser'
+      0.015, 0x64748b, 'Body_Wire_Sensor_OpticalLaser', false
     ));
 
     // 15. Wi-Fi / BLE RF Coax Pigtail (U5 Radio Module -> Rear Bulkhead RP-SMA Jack)
     this.electronicsGroup.add(makeWiringHarness(
       [
-        [0.95, 0.36, 0.69],
-        [0.95, 0.20, 0.69],
-        [0.88, 0.20, 1.98],
-        [0.88, 0.48, 1.98]   // RP-SMA bulkhead jack
+        [0.60, 0.04, 0.44],  // U5 module U.FL jack
+        [0.60, 0.22, 0.44],
+        [0.72, 0.22, 1.70],
+        [0.72, 0.48, 1.95]   // RP-SMA bulkhead jack (cleanly inside cabinet)
       ],
       0.012, 0xeab308, 'Body_Cable_Coax_WiFiAntenna', false
     ));
@@ -3401,6 +3286,23 @@ export class Disintegration3D {
         [0.35, 1.35, -1.96]  // Enters rear of Body_Console_Operator
       ],
       0.026, 0x94a3b8, 'Body_Cable_Ribbon_LCD'
+    ));
+
+    // 17. Toroidal Transformer AC Primary Feed Cable (AC Terminal Block -> Central Duct -> Center Port)
+    // Exits raceway on right of toroid, arches gracefully up and plunges vertically straight into center bushing
+    // Precisely matches user Image 5 specification
+    this.electronicsGroup.add(makeWiringHarness(
+      [
+        [-0.40, 0.38, 1.68],  // AC Live terminal block
+        [-0.40, 0.20, 1.35],  // Drops into transverse rear duct
+        [-0.82, 0.20, 1.35],  // Turns into central raceway between toroid and PSU
+        [-0.82, 0.20, -1.02], // Runs along floor raceway to toroid alignment
+        [-0.82, 0.24, -1.02], // Exits duct via insulated rubber boot
+        [-1.05, 0.64, -1.02], // Arches gracefully up and toward toroid center (matching user Image 5)
+        [-1.28, 0.64, -1.02], // Reaches zenith directly above center bushing
+        [-1.28, 0.55, -1.02]  // Plunges vertically straight into toroid center feed gland
+      ],
+      0.022, 0xdc2626, 'Body_Wire_AC_Toroid_Primary', false
     ));
   }
 

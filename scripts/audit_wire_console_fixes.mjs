@@ -36,7 +36,10 @@ function startServer() {
         return;
       }
       const ext = path.extname(filePath);
-      res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
+      res.writeHead(200, {
+        'Content-Type': MIME[ext] || 'application/octet-stream',
+        'Cache-Control': 'no-cache, no-store, must-revalidate'
+      });
       fs.createReadStream(filePath).pipe(res);
     });
     server.listen(PORT, '127.0.0.1', () => resolve(server));
@@ -113,7 +116,30 @@ async function run() {
 
     const shots = [
       {
-        name: 'audit_01_internals_wiring_overhaul',
+        name: 'audit_fix1_fan_antenna_rear_panel',
+        expr: `
+          (() => {
+            const app = window.app;
+            const eng = app.engine;
+            document.querySelectorAll('.panel-collapsible').forEach(el => el.style.display = 'none');
+            eng.onWindowResize();
+            eng.setCutaway(false);
+            eng.enclosureShell.visible = true;
+            app.isPluggedIn = true;
+            app.powerSwitchOn = true;
+            app.state = 'STANDBY';
+            app.syncToEngine();
+            // Rear view close-up of fan exhaust and Wi-Fi antenna
+            eng.camera.position.set(1.10, 0.85, 4.40);
+            eng.controls.target.set(1.10, 0.85, 2.00);
+            eng.controls.update();
+            eng.renderer.render(eng.scene, eng.camera);
+          })()
+        `,
+        wait: 600
+      },
+      {
+        name: 'audit_fix2_internal_no_labels',
         expr: `
           (() => {
             const app = window.app;
@@ -123,12 +149,11 @@ async function run() {
             eng.bathGroup.visible = true;
             app.isPluggedIn = true;
             app.powerSwitchOn = true;
-            app.heaterActive = true;
             app.state = 'STANDBY';
             app.syncToEngine();
-            // Angle matching user's red-circled image looking down at PSU, SSR & PCB
-            eng.camera.position.set(-2.8, 1.85, 0.4);
-            eng.controls.target.set(-0.85, 0.50, 0.25);
+            // Looking at PCB, PSU, toroid, and M1 showing all internal spec labels removed
+            eng.camera.position.set(-2.8, 2.60, 0.80);
+            eng.controls.target.set(-0.60, 0.90, 0.10);
             eng.controls.update();
             eng.renderer.render(eng.scene, eng.camera);
           })()
@@ -136,53 +161,7 @@ async function run() {
         wait: 600
       },
       {
-        name: 'audit_02_console_screen_and_buttons',
-        expr: `
-          (() => {
-            const app = window.app;
-            const eng = app.engine;
-            document.querySelectorAll('.panel-collapsible').forEach(el => el.style.display = 'none');
-            eng.onWindowResize();
-            eng.setCutaway(false);
-            eng.enclosureShell.visible = true;
-            app.isPluggedIn = true;
-            app.powerSwitchOn = true;
-            app.state = 'STANDBY';
-            app.syncToEngine();
-            // Straight on centered close-up of front console UI_LCD and physical buttons
-            eng.camera.position.set(0.35, 1.30, -4.6);
-            eng.controls.target.set(0.35, 1.25, -2.01);
-            eng.controls.update();
-            eng.renderer.render(eng.scene, eng.camera);
-          })()
-        `,
-        wait: 600
-      },
-      {
-        name: 'audit_03_boot_screen_sredesigns',
-        expr: `
-          (() => {
-            const app = window.app;
-            const eng = app.engine;
-            document.querySelectorAll('.panel-collapsible').forEach(el => el.style.display = 'none');
-            eng.onWindowResize();
-            eng.setCutaway(false);
-            eng.enclosureShell.visible = true;
-            app.isPluggedIn = true;
-            app.powerSwitchOn = true;
-            app.state = 'BOOTING';
-            app.bootProgress = 0.65;
-            app.syncToEngine();
-            eng.camera.position.set(0.35, 1.35, -4.2);
-            eng.controls.target.set(0.35, 1.30, -2.01);
-            eng.controls.update();
-            eng.renderer.render(eng.scene, eng.camera);
-          })()
-        `,
-        wait: 600
-      },
-      {
-        name: 'audit_04_exterior_fit_finish_and_fan',
+        name: 'audit_fix3_power_switch_inlet_rear',
         expr: `
           (() => {
             const app = window.app;
@@ -193,9 +172,75 @@ async function run() {
             app.powerSwitchOn = true;
             app.state = 'STANDBY';
             app.syncToEngine();
-            // 3/4 rear-side isometric showing corner rails, fan exhaust port & stainless bath rim
-            eng.camera.position.set(4.8, 3.2, 4.2);
-            eng.controls.target.set(0.2, 1.6, 0.0);
+            // Close-up of rear AC inlet and red rocker switch
+            eng.camera.position.set(-1.12, 0.48, 3.80);
+            eng.controls.target.set(-1.12, 0.48, 2.00);
+            eng.controls.update();
+            eng.renderer.render(eng.scene, eng.camera);
+          })()
+        `,
+        wait: 600
+      },
+      {
+        name: 'audit_fix4_water_bath_rear_no_green_wire',
+        expr: `
+          (() => {
+            const app = window.app;
+            const eng = app.engine;
+            eng.setCutaway(true);
+            eng.enclosureShell.visible = false;
+            eng.bathGroup.visible = true;
+            app.isPluggedIn = true;
+            app.powerSwitchOn = true;
+            app.state = 'STANDBY';
+            app.syncToEngine();
+            // Angle matching user's Image 4: looking through water bath toward tower
+            eng.camera.position.set(1.40, 3.40, -2.40);
+            eng.controls.target.set(0.00, 3.00, 0.20);
+            eng.controls.update();
+            eng.renderer.render(eng.scene, eng.camera);
+          })()
+        `,
+        wait: 600
+      },
+      {
+        name: 'audit_fix5_toroid_center_power_feed',
+        expr: `
+          (() => {
+            const app = window.app;
+            const eng = app.engine;
+            eng.setCutaway(true);
+            eng.enclosureShell.visible = false;
+            app.isPluggedIn = true;
+            app.powerSwitchOn = true;
+            app.state = 'STANDBY';
+            app.syncToEngine();
+            // Angle matching user's Image 5 looking down at toroidal transformer and center feed
+            eng.camera.position.set(-2.10, 1.35, -0.45);
+            eng.controls.target.set(-1.20, 0.45, -1.02);
+            eng.controls.update();
+            eng.renderer.render(eng.scene, eng.camera);
+            eng.controls.update();
+            eng.renderer.render(eng.scene, eng.camera);
+          })()
+        `,
+        wait: 600
+      },
+      {
+        name: 'audit_fix6_m1_motor_tower_conduit',
+        expr: `
+          (() => {
+            const app = window.app;
+            const eng = app.engine;
+            eng.setCutaway(true);
+            eng.enclosureShell.visible = false;
+            app.isPluggedIn = true;
+            app.powerSwitchOn = true;
+            app.state = 'STANDBY';
+            app.syncToEngine();
+            // Angle matching user's Image 1 looking at M1 motor and rear tower conduit
+            eng.camera.position.set(1.60, 4.60, 0.60);
+            eng.controls.target.set(0.00, 4.20, 0.80);
             eng.controls.update();
             eng.renderer.render(eng.scene, eng.camera);
           })()
