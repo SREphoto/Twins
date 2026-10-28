@@ -1,0 +1,92 @@
+[
+  {
+    "idx": 0,
+    "badge": "STAGE 0 / 10 \u00b7 OVERVIEW & OPERATION",
+    "title": "Stage 0: Instrument Overview & Working Principle",
+    "start": 0.0,
+    "end": 72.24,
+    "duration": 72.24,
+    "filename": "vo_0.mp3"
+  },
+  {
+    "idx": 1,
+    "badge": "STAGE 1 / 10 \u00b7 POWER & CONTINUITY",
+    "title": "Stage 1: Powering On & Electrical Continuity",
+    "start": 72.59,
+    "end": 91.99,
+    "duration": 19.4,
+    "filename": "vo_1.mp3"
+  },
+  {
+    "idx": 2,
+    "badge": "STAGE 2 / 10 \u00b7 LABWARE & SAMPLE PREPARATION",
+    "title": "Stage 2: Labware & Sample Preparation",
+    "start": 92.34,
+    "end": 114.74,
+    "duration": 22.4,
+    "filename": "vo_2.mp3"
+  },
+  {
+    "idx": 3,
+    "badge": "STAGE 3 / 10 \u00b7 ROTOR LOADING & SAFETY INTERLOCKS",
+    "title": "Stage 3: Rotor Loading & Safety Interlocks",
+    "start": 115.09,
+    "end": 134.21,
+    "duration": 19.12,
+    "filename": "vo_3.mp3"
+  },
+  {
+    "idx": 4,
+    "badge": "STAGE 4 / 10 \u00b7 CONSOLE SETUP & PROGRAMMING",
+    "title": "Stage 4: Console Setup & Parameter Programming",
+    "start": 134.56,
+    "end": 151.96,
+    "duration": 17.4,
+    "filename": "vo_4.mp3"
+  },
+  {
+    "idx": 5,
+    "badge": "STAGE 5 / 10 \u00b7 ACTIVE RUN & SEPARATION PHYSICS",
+    "title": "Stage 5: Active High-Speed Spin & Separation Dynamics",
+    "start": 152.31,
+    "end": 175.23,
+    "duration": 22.92,
+    "filename": "vo_5.mp3"
+  },
+  {
+    "idx": 6,
+    "badge": "STAGE 6 / 10 \u00b7 DECELERATION & GLP AUDIT EXPORT",
+    "title": "Stage 6: Deceleration, Dynamic Braking & GLP Export",
+    "start": 175.58,
+    "end": 193.82,
+    "duration": 18.24,
+    "filename": "vo_6.mp3"
+  },
+  {
+    "idx": 7,
+    "badge": "STAGE 7A / 10 \u00b7 INTERNAL POWER SUPPLY & ROUTING",
+    "title": "Stage 7A: Internal Power Supply & Electrical Routing",
+    "start": 194.17,
+    "end": 215.89,
+    "duration": 21.72,
+    "filename": "vo_7.mp3"
+  },
+  {
+    "idx": 8,
+    "badge": "STAGE 7B / 10 \u00b7 BRUSHLESS DC MOTOR & COMPRESSOR",
+    "title": "Stage 7B: High-Torque Brushless Motor & Refrigeration",
+    "start": 216.24,
+    "end": 240.28,
+    "duration": 24.04,
+    "filename": "vo_8.mp3"
+  },
+  {
+    "idx": 9,
+    "badge": "STAGE 7C / 10 \u00b7 MOTHERBOARD, MCU, WI-FI / BLE & PORTS",
+    "title": "Stage 7C: Main Controller Motherboard & Data Ports",
+    "start": 240.63,
+    "end": 263.23,
+    "duration": 22.6,
+    "filename": "vo_9.mp3"
+  }
+]

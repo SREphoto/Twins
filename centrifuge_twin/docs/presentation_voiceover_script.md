@@ -4,7 +4,7 @@
 **Model**: Micro 5424-R High-Speed Refrigerated Microcentrifuge  
 **Rotor**: FA-45-24-11 Aerosol-Tight 24-Place Fixed-Angle Rotor (Max 15,000 RPM / 21,130 ×g)  
 **Total Run Duration**: ~3.8 minutes (10 sequential chapters)  
-**Voice Profile**: Samantha / Gemini Studio Voice  
+**Voice Profile**: Gemini Flash 3.8 TTS (`voice_r6j5bn13iimw`) / Studio Engineering Cadence (185 wpm)  
 **Cadence**: Natural laboratory engineer cadence (~150 words per minute)  
 **Audio Stems**: `centrifuge_twin/docs/audio/vo_{0..9}.mp3`
 

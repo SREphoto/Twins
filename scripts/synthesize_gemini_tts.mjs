@@ -20,7 +20,8 @@ const args = process.argv.slice(2);
 
 let API_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '';
 let VOICE_ID = process.env.GEMINI_TTS_VOICE || 'voice_r6j5bn13iimw';
-let OUT_DIR = path.join(ROOT, 'disintegration_tester_twin', 'docs', 'audio');
+let TWIN_DIR = 'disintegration_tester_twin';
+let OUT_DIR = '';
 
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--api-key' && args[i + 1]) {
@@ -32,10 +33,38 @@ for (let i = 0; i < args.length; i++) {
   } else if (args[i] === '--out-dir' && args[i + 1]) {
     OUT_DIR = path.resolve(args[i + 1]);
     i++;
+  } else if (!args[i].startsWith('--')) {
+    TWIN_DIR = args[i];
   }
 }
 
-// 10 Standard Chapter Spoken Texts
+if (!OUT_DIR) {
+  OUT_DIR = path.join(ROOT, TWIN_DIR, 'docs', 'audio');
+}
+
+function loadChapters(twinDir) {
+  const scriptPath = path.join(ROOT, twinDir, 'docs', 'presentation_voiceover_script.md');
+  if (fs.existsSync(scriptPath)) {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    const sections = content.split(/\n(?=#{2,3}\s+(?:Stage|Chapter))/i);
+    const chs = [];
+    for (const sec of sections) {
+      const badgeMatch = sec.match(/\*\s*\*\*Chapter Badge\*\*:\s*`([^`]+)`/i) || sec.match(/`(STAGE[^`]+)`/i);
+      const spokenMatch = sec.match(/>\s*"([^"]+)"/s);
+      if (spokenMatch) {
+        chs.push({
+          idx: chs.length,
+          badge: badgeMatch ? badgeMatch[1].trim() : `STAGE ${chs.length}`,
+          text: spokenMatch[1].trim().replace(/\s+/g, ' ')
+        });
+      }
+    }
+    if (chs.length > 0) return chs;
+  }
+  return CHAPTERS;
+}
+
+// 10 Standard Chapter Spoken Texts (Fallback)
 const CHAPTERS = [
   {
     idx: 0,
@@ -142,18 +171,20 @@ async function main() {
     fs.mkdirSync(OUT_DIR, { recursive: true });
   }
 
+  const chapters = loadChapters(TWIN_DIR);
+
   if (!API_KEY) {
     console.log('\n⚠️  No GEMINI_API_KEY or --api-key provided.');
     console.log('   You can provide the key or drop custom audio files into:');
     console.log(`   ${OUT_DIR}/vo_{0..9}.mp3 (or .wav)`);
     console.log('\n   Chapter texts to speak:');
-    CHAPTERS.forEach(ch => {
+    chapters.forEach(ch => {
       console.log(`\n--- [${ch.badge}] (save as vo_${ch.idx}.mp3) ---\n${ch.text}`);
     });
     return;
   }
 
-  for (const ch of CHAPTERS) {
+  for (const ch of chapters) {
     await synthesizeChapter(ch);
   }
 
