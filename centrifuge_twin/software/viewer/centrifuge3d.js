@@ -34,6 +34,16 @@ function M(color, o = {}) {
   });
 }
 
+const MAT_PVC_DUCT = M(0x475569, { r: 0.5, m: 0.1 });
+const MAT_PCB_GREEN = M(0x1a5c2e, { r: 0.5, m: 0.1 });
+const MAT_ALUM_DARK_ANO = M(0x272e39, { r: 0.45, m: 0.65 });
+const MAT_316SS_BRUSHED = M(0x94a3b8, { r: 0.35, m: 0.85 });
+const MAT_316SS_ELECTROPOLISHED = M(0xc8ccd0, { r: 0.22, m: 0.92 });
+const MAT_CHROME_STEEL = M(0xe2e8f0, { r: 0.15, m: 0.95 });
+const MAT_BRASS_FITTING = M(0xd97706, { r: 0.32, m: 0.88 });
+const MAT_TOROID_WINDING = M(0xb45309, { r: 0.28, m: 0.85 });
+const MAT_RUBBER_NBR = M(0x18181b, { r: 0.75, m: 0.05 });
+
 function box(w, h, d, mat) {
   const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
   mesh.castShadow = true;
@@ -446,6 +456,83 @@ export function makeSocketHeadCapScrew(r = 0.018, len = 0.06, headR = 0.03, head
   g.add(socket);
   g.name = "Fastener_HexM4";
   return g;
+}
+
+export function makeHexSocketBolt(r = 0.022, len = 0.07, name = 'Fastener_HexM4') {
+  const g = new THREE.Group();
+  g.name = name;
+
+  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 16), MAT_CHROME_STEEL);
+  shaft.position.y = -len / 2;
+  g.add(shaft);
+
+  const headR = r * 1.55, headH = r * 1.65;
+  const head = new THREE.Mesh(new THREE.CylinderGeometry(headR, headR, headH, 20), MAT_CHROME_STEEL);
+  head.position.y = headH / 2;
+  g.add(head);
+
+  const hex = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.9, r * 0.9, headH * 0.65, 6), M(0x18181b, { r: 0.6 }));
+  hex.position.y = headH * 0.68;
+  g.add(hex);
+
+  const washer = new THREE.Mesh(new THREE.CylinderGeometry(headR * 1.22, headR * 1.22, r * 0.3, 18), MAT_316SS_BRUSHED);
+  washer.position.y = -r * 0.15;
+  g.add(washer);
+
+  return g;
+}
+
+function makeWiringHarness(points, radius, matOrColor, name, addTies = true) {
+  const vectors = points.map(p => new THREE.Vector3(p[0], p[1], p[2]));
+  const curve = new THREE.CatmullRomCurve3(vectors, false, 'catmullrom', 0.22);
+  const geo = new THREE.TubeGeometry(curve, 48, radius, 10, false);
+  const mat = typeof matOrColor === 'number' ? M(matOrColor, { r: 0.4, m: 0.12 }) : matOrColor;
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.name = name;
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+
+  if (addTies && points.length >= 4) {
+    for (const frac of [0.25, 0.55, 0.82]) {
+      const pt = curve.getPointAt(frac);
+      const tan = curve.getTangentAt(frac);
+      const tie = new THREE.Mesh(
+        new THREE.TorusGeometry(radius * 1.35, radius * 0.32, 6, 14),
+        MAT_RUBBER_NBR
+      );
+      tie.position.copy(pt);
+      tie.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), tan);
+      mesh.add(tie);
+    }
+  }
+  return mesh;
+}
+
+function createPerforatedCageMaterial() {
+  const perfCvs = document.createElement('canvas');
+  perfCvs.width = 512;
+  perfCvs.height = 512;
+  const pfCtx = perfCvs.getContext('2d');
+  pfCtx.fillStyle = '#b4bcc8';
+  pfCtx.fillRect(0, 0, 512, 512);
+  pfCtx.fillStyle = '#18202c';
+  for (let py = 24; py < 490; py += 28) {
+    for (let px = 24; px < 490; px += 28) {
+      pfCtx.beginPath();
+      pfCtx.arc(px + ((py / 28) % 2) * 14, py, 8, 0, Math.PI * 2);
+      pfCtx.fill();
+    }
+  }
+  const perfTex = new THREE.CanvasTexture(perfCvs);
+  perfTex.colorSpace = THREE.SRGBColorSpace;
+  return new THREE.MeshStandardMaterial({
+    map: perfTex,
+    roughness: 0.32,
+    metalness: 0.78,
+    transparent: true,
+    opacity: 0.92,
+    side: THREE.DoubleSide
+  });
 }
 
 /** Flexible cable along control points (world/local coords as given). */
@@ -995,6 +1082,7 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
   lid.name = "Lid_Hinge";
   const rack = new THREE.Group();
   rack.name = "Tube_Rack";
+  let rockerSwitch;
 
   // --- Full lab room (standalone twin) or host-provided desk (lab_viewer) ---
   let labInfo;
@@ -1125,11 +1213,20 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
   bulk.name = "R_Bulk";
   bodyGroup.add(bulk);
 
-  // Rear vents (surface detail only)
-  for (let i = 0; i < 5; i++) {
-    const v = box(0.9, 0.035, 0.025, dark);
-    v.position.set(0, 0.5 + i * 0.14, D / 2 + 0.01);
-    bodyGroup.add(v);
+  // ========== REAR BULKHEAD (3 ISOLATED NON-COLLIDING ZONES) ==========
+  // ZONE 1 (Right): Stamped Condenser Refrigeration Exhaust Louvers
+  const louverZ = D / 2 + 0.01;
+  const louverFrame = box(0.86, 0.68, 0.02, dark);
+  louverFrame.position.set(0.68, 0.85, louverZ - 0.005);
+  louverFrame.name = "Frame_RearLouvers";
+  bodyGroup.add(louverFrame);
+
+  for (let i = 0; i < 7; i++) {
+    const louverSlat = box(0.78, 0.032, 0.025, M(0x3a424c, { r: 0.45, m: 0.25 }));
+    louverSlat.position.set(0.68, 0.58 + i * 0.088, louverZ + 0.005);
+    louverSlat.rotation.x = -0.25;
+    louverSlat.name = "Rear_Vent_Louver";
+    bodyGroup.add(louverSlat);
   }
 
   // Side air-vent grilles — mid-to-front of each side (clear of rear R bulk)
@@ -1162,54 +1259,175 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
     }
   }
 
-  // IEC C14 mains inlet on rear panel
-  const iecX = 0.95;
-  const iecY = 0.48;
-  const iecZ = D / 2;
-  const iecHousing = box(0.34, 0.24, 0.1, dark);
-  iecHousing.position.set(iecX, iecY, iecZ + 0.02);
+  // ZONE 2 (Left Lower): Power Entry Module (IEC C14 Inlet + Fuse Drawer + Illuminated DPST Rocker)
+  const pemGroup = new THREE.Group();
+  pemGroup.name = "Assembly_PowerEntryModule";
+  pemGroup.position.set(-0.75, 0.50, D / 2 + 0.01);
+  bodyGroup.add(pemGroup);
+
+  const pemBezel = box(0.56, 0.36, 0.04, dark);
+  pemGroup.add(pemBezel);
+
+  // IEC 60320 C14 Mains Inlet Socket (Left of module)
+  const iecHousing = box(0.24, 0.18, 0.05, M(0x0a0c10, { r: 0.6 }));
+  iecHousing.position.set(-0.12, -0.04, 0.02);
   iecHousing.name = "IEC_Inlet_Housing";
-  bodyGroup.add(iecHousing);
-  const iecFace = box(0.24, 0.16, 0.03, M(0x0a0c10, { r: 0.6 }));
-  iecFace.position.set(iecX, iecY, iecZ + 0.08);
+  pemGroup.add(iecHousing);
+
+  const iecFace = box(0.20, 0.14, 0.02, M(0x05070a, { r: 0.7 }));
+  iecFace.position.set(-0.12, -0.04, 0.04);
   iecFace.name = "IEC_Inlet";
-  bodyGroup.add(iecFace);
-  // Earth pin / shutter detail
-  const iecPin = box(0.06, 0.04, 0.02, M(0xc8ccd0, { r: 0.35, m: 0.7 }));
-  iecPin.position.set(iecX, iecY - 0.02, iecZ + 0.1);
-  bodyGroup.add(iecPin);
-  // Strain-relief boot at cord exit
+  pemGroup.add(iecFace);
+
+  // 3 Brass / Silver AC pins (Line, Neutral, Ground)
+  for (const [px, py] of [[-0.05, -0.04], [0.05, -0.04], [0.0, 0.02]]) {
+    const pin = box(0.016, 0.035, 0.025, MAT_316SS_ELECTROPOLISHED);
+    pin.position.set(-0.12 + px, -0.04 + py, 0.045);
+    pemGroup.add(pin);
+  }
+
+  // Fuse Drawer above socket
+  const fuseDrawer = box(0.20, 0.06, 0.025, M(0x18181b, { r: 0.5 }));
+  fuseDrawer.position.set(-0.12, 0.10, 0.03);
+  fuseDrawer.name = "Fuse_Drawer";
+  pemGroup.add(fuseDrawer);
+
+  // Strain-relief boot at external cord junction
   const boot = cyl(0.055, 0.04, 0.12, M(0x1f2937, { r: 0.75 }), 12);
   boot.rotation.x = Math.PI / 2;
-  boot.position.set(iecX, iecY - 0.02, iecZ + 0.14);
+  boot.position.set(-0.12, -0.04, 0.09);
   boot.name = "Cord_Strain_Relief";
-  bodyGroup.add(boot);
+  pemGroup.add(boot);
 
-  // Rear I/O Communication Ports
-  const portRS = box(0.12, 0.06, 0.04, M(0x475569, { r: 0.4, m: 0.8 }));
-  portRS.position.set(-0.6, 0.48, D / 2 + 0.02);
+  // DPST Illuminated Red Mains Power Rocker Switch (Right of module)
+  const swBezel = box(0.18, 0.26, 0.03, dark);
+  swBezel.position.set(0.14, 0.0, 0.02);
+  pemGroup.add(swBezel);
+
+  rockerSwitch = new THREE.Mesh(
+    new THREE.BoxGeometry(0.14, 0.22, 0.05),
+    M(0xdc2626, { r: 0.3, e: 0xdc2626, ei: 0.9 })
+  );
+  rockerSwitch.position.set(0.14, 0.0, 0.045);
+  rockerSwitch.name = "Btn_Power_MainsRocker";
+  rockerSwitch.userData.keyId = "mains_power";
+  pemGroup.add(rockerSwitch);
+
+  // Molded I / O tactile indicators on rocker
+  const markI = box(0.015, 0.05, 0.008, M(0xffffff, { r: 0.2 }));
+  markI.position.set(0.14, 0.05, 0.072);
+  pemGroup.add(markI);
+
+  const markO = new THREE.Mesh(
+    new THREE.TorusGeometry(0.022, 0.006, 6, 16),
+    M(0xffffff, { r: 0.2 })
+  );
+  markO.position.set(0.14, -0.05, 0.072);
+  pemGroup.add(markO);
+
+  // ZONE 3 (Left Upper): Brushed Stainless Data I/O Sub-Panel Plate
+  const ioGroup = new THREE.Group();
+  ioGroup.name = "Body_Plate_RearIO";
+  ioGroup.position.set(-0.65, 0.95, D / 2 + 0.012);
+  bodyGroup.add(ioGroup);
+
+  const ioPlate = box(0.98, 0.36, 0.025, MAT_316SS_BRUSHED);
+  ioPlate.name = "Rear_IO_Faceplate";
+  ioGroup.add(ioPlate);
+
+  // 4 Corner M3 socket screws on I/O plate
+  for (const [sx, sy] of [[-0.44, -0.14], [0.44, -0.14], [-0.44, 0.14], [0.44, 0.14]]) {
+    const sc = makeHexSocketBolt(0.014, 0.03, "Fastener_HexM3_IO");
+    sc.rotation.x = Math.PI / 2;
+    sc.position.set(sx, sy, 0.015);
+    ioGroup.add(sc);
+  }
+
+  // Port 1: RS-232 DB9 Serial Connector with Hex Jackscrews
+  const portRS = new THREE.Group();
   portRS.name = "Port_RS232";
-  bodyGroup.add(portRS);
+  portRS.position.set(-0.35, 0.0, 0.02);
+  ioGroup.add(portRS);
 
-  const portUSB = box(0.08, 0.04, 0.04, M(0xc8ccd0, { r: 0.3, m: 0.85 }));
-  portUSB.position.set(-0.35, 0.48, D / 2 + 0.02);
+  const db9Shell = box(0.20, 0.12, 0.05, MAT_316SS_ELECTROPOLISHED);
+  portRS.add(db9Shell);
+  const db9Core = box(0.13, 0.06, 0.06, M(0x1d4ed8, { r: 0.4 }));
+  portRS.add(db9Core);
+  for (const jx of [-0.08, 0.08]) {
+    const js = cyl(0.014, 0.014, 0.06, MAT_316SS_ELECTROPOLISHED, 6);
+    js.rotation.x = Math.PI / 2;
+    js.position.set(jx, 0, 0.01);
+    portRS.add(js);
+  }
+
+  // Port 2: USB-B Device Communication Port
+  const portUSB = new THREE.Group();
   portUSB.name = "Port_USB";
-  bodyGroup.add(portUSB);
+  portUSB.position.set(-0.15, 0.0, 0.02);
+  ioGroup.add(portUSB);
 
-  const usbDrive = box(0.06, 0.03, 0.12, M(0x2563eb, { r: 0.4 }));
-  usbDrive.position.set(-0.35, 0.48, D / 2 + 0.09);
+  const usbBShell = box(0.12, 0.12, 0.06, MAT_316SS_ELECTROPOLISHED);
+  portUSB.add(usbBShell);
+  const usbBCore = box(0.06, 0.06, 0.07, M(0xf8fafc, { r: 0.3 }));
+  portUSB.add(usbBCore);
+
+  // Port 3: USB-A Host Port + Inserted SanDisk GLP Audit Flash Drive & Tethered Dust Cap
+  const portUSBA = new THREE.Group();
+  portUSBA.name = "Body_Port_USB_Host_Flash";
+  portUSBA.position.set(0.05, 0.0, 0.02);
+  ioGroup.add(portUSBA);
+
+  const usbAShell = box(0.14, 0.08, 0.06, MAT_316SS_ELECTROPOLISHED);
+  portUSBA.add(usbAShell);
+
+  const usbDrive = new THREE.Group();
   usbDrive.name = "USB_Drive";
-  bodyGroup.add(usbDrive);
+  usbDrive.position.set(0, 0, 0.11);
+  portUSBA.add(usbDrive);
 
-  const portRJ45 = box(0.09, 0.07, 0.04, M(0x334155, { r: 0.5, m: 0.3 }));
-  portRJ45.position.set(-0.1, 0.48, D / 2 + 0.02);
+  const driveBody = box(0.12, 0.06, 0.20, MAT_ALUM_DARK_ANO);
+  usbDrive.add(driveBody);
+  const driveLed = box(0.04, 0.015, 0.015, M(0x38bdf8, { e: 0x38bdf8, ei: 1.8 }));
+  driveLed.position.set(0, 0.025, 0.09);
+  usbDrive.add(driveLed);
+
+  const usbDustCap = box(0.08, 0.03, 0.04, M(0x18181b, { r: 0.8 }));
+  usbDustCap.position.set(0.05, -0.06, 0.04);
+  usbDustCap.name = "USB_DustCap";
+  ioGroup.add(usbDustCap);
+
+  // Port 4: Shielded RJ-45 Ethernet LAN Jack with Link/Act LEDs
+  const portRJ45 = new THREE.Group();
   portRJ45.name = "Port_RJ45";
-  bodyGroup.add(portRJ45);
+  portRJ45.position.set(0.24, 0.0, 0.02);
+  ioGroup.add(portRJ45);
 
-  const antenna = cyl(0.015, 0.015, 0.32, M(0x1e293b, { r: 0.6 }), 8);
-  antenna.position.set(W / 2 + 0.02, 1.25, D / 2 - 0.2);
-  antenna.name = "Antenna_WiFi";
-  bodyGroup.add(antenna);
+  const rjShell = box(0.15, 0.14, 0.08, MAT_316SS_ELECTROPOLISHED);
+  portRJ45.add(rjShell);
+  const linkLed = box(0.025, 0.02, 0.015, M(0x22c55e, { e: 0x22c55e, ei: 2.0 }));
+  linkLed.position.set(-0.04, 0.05, 0.045);
+  portRJ45.add(linkLed);
+  const actLed = box(0.025, 0.02, 0.015, M(0xf59e0b, { e: 0xf59e0b, ei: 2.0 }));
+  actLed.position.set(0.04, 0.05, 0.045);
+  portRJ45.add(actLed);
+
+  // Port 5: Gold SMA Connector & Articulated 2.4 GHz Wi-Fi / BLE Dipole Antenna
+  const antGroup = new THREE.Group();
+  antGroup.name = "Antenna_WiFi";
+  antGroup.position.set(0.42, 0.0, 0.02);
+  ioGroup.add(antGroup);
+
+  const smaNut = cyl(0.038, 0.038, 0.05, MAT_BRASS_FITTING, 6);
+  smaNut.rotation.x = Math.PI / 2;
+  antGroup.add(smaNut);
+
+  const knuckle = cyl(0.04, 0.04, 0.09, M(0x1e293b, { r: 0.6 }), 16);
+  knuckle.position.set(0, 0.04, 0.05);
+  antGroup.add(knuckle);
+
+  const whip = cyl(0.022, 0.035, 0.60, M(0x1e293b, { r: 0.6 }), 16);
+  whip.position.set(0, 0.36, 0.05);
+  antGroup.add(whip);
 
   // Nameplate — front lower-left (SRE designs.com)
   const badge = makeSREdesignsBadge();
@@ -1227,12 +1445,16 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
   const outX = labInfo.outlet.x;
   const outY = labInfo.outlet.y - labInfo.surfaceY; // relative to stage
   const outZ = labInfo.outlet.z;
-  const powerCord = makeCable(
+  const iecX = -0.87;
+  const iecY = 0.46;
+  const iecZ = D / 2;
+  const powerCord = makeWiringHarness(
     [
-      [iecX, iecY - 0.02, iecZ + 0.18],
-      [iecX + 0.12, 0.35, iecZ + 0.45],
-      [iecX + 0.28, 0.08, iecZ + 0.7],
-      [iecX + 0.4, 0.035, iecZ + 0.95],
+      [iecX, iecY - 0.02, iecZ + 0.14],
+      [iecX + 0.08, 0.28, iecZ + 0.35],
+      [iecX + 0.22, 0.08, iecZ + 0.58],
+      [iecX + 0.42, 0.035, iecZ + 0.80],
+      [0.2, 0.032, iecZ + 0.95],
       [outX - 0.15, 0.03, outZ - 0.55],
       [outX - 0.02, 0.035, outZ - 0.28],
       [outX, outY - 0.04, outZ - 0.12],
@@ -1240,9 +1462,9 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
     ],
     0.038,
     0x111827,
-    72
+    "Power_Cord_SJTOW",
+    false
   );
-  powerCord.name = "Power_Cord_SJTOW";
   stage.add(powerCord);
   // Molded plug into lower receptacle (faces +Z into outlet)
   const plug = box(0.1, 0.07, 0.14, M(0x0a0a0a, { r: 0.55 }));
@@ -1324,12 +1546,15 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
     // Pocket mouth on the conical face, still on a true circle in plan view
     slotG.position.set(cx, 0.2, cz);
 
-    // Tube local +Y should point along tilted radial: mix of up and outward
+    // Real-world fixed-angle rotor physics (e.g. Eppendorf FA-45-24-11):
+    // Tube local +Y (cap) tilts 45 deg INWARD toward central hub.
+    // Tube local -Y (conical tip) points DOWN and OUTWARD toward maximum radius (r_max),
+    // directing centrifugal pelleting into the bottom tip of the tube!
     const tilt = THREE.MathUtils.degToRad(tiltDeg);
     const axisDir = new THREE.Vector3(
-      Math.cos(ang) * Math.sin(tilt),
+      -Math.cos(ang) * Math.sin(tilt),
       Math.cos(tilt),
-      Math.sin(ang) * Math.sin(tilt)
+      -Math.sin(ang) * Math.sin(tilt)
     ).normalize();
     slotG.quaternion.setFromUnitVectors(up, axisDir);
 
@@ -1371,276 +1596,593 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
   }
   stage.add(rotor);
 
-  // ========== DRIVE BAY (motor, PSU, PCBs, screws) — under / behind ==========
+  // ========== DRIVE BAY (HIGH-FIDELITY ELECTROMECHANICAL ANATOMY) ==========
   const drive = new THREE.Group();
   drive.name = "Drive_Bay";
 
-  // Motor under chamber
-  const motor = cyl(0.28, 0.28, 0.45, M(0x5a6068, { r: 0.35, m: 0.7 }), 32);
-  motor.position.set(0, chFloorY - 0.35, 0);
-  motor.name = "Motor_Drive";
-  drive.add(motor);
-  const motorPlate = box(0.7, 0.05, 0.7, M(0x707880, { r: 0.3, m: 0.75 }));
-  motorPlate.position.set(0, chFloorY - 0.1, 0);
+  // 1. High-Torque 3-Phase Brushless DC Drive Motor & Elastomeric Isolation Mount
+  const motorGroup = new THREE.Group();
+  motorGroup.name = "Assembly_Motor_Drive";
+  motorGroup.position.set(0, 0, 0);
+  drive.add(motorGroup);
+
+  // Cast aluminum heavy motor mounting subplate
+  const motorPlate = box(0.76, 0.05, 0.76, MAT_ALUM_DARK_ANO);
+  motorPlate.position.set(0, 0.32, 0);
   motorPlate.name = "F02_MotorPlate";
-  drive.add(motorPlate);
-  // Motor mount screws M5
-  for (const [sx, sz] of [
-    [-0.25, -0.25],
-    [0.25, -0.25],
-    [-0.25, 0.25],
-    [0.25, 0.25],
-  ]) {
-    const sc = cyl(0.018, 0.018, 0.06, M(0xc8ccd0, { r: 0.3, m: 0.85 }), 8);
-    sc.position.set(sx, chFloorY - 0.07, sz);
-    sc.name = "Fastener_HexM4_MotorScrew";
-    drive.add(sc);
-    const head = cyl(0.03, 0.03, 0.015, M(0xc8ccd0, { r: 0.3, m: 0.85 }), 8);
-    head.position.set(sx, chFloorY - 0.04, sz);
-    drive.add(head);
+  motorGroup.add(motorPlate);
+
+  // 4 Vulcanized Neoprene Elastomeric Vibration-Isolation Dampers & M5 Clamping Bolts
+  for (let d = 0; d < 4; d++) {
+    const sx = (d % 2 === 0 ? -1 : 1) * 0.28;
+    const sz = (d < 2 ? -1 : 1) * 0.28;
+
+    const damper = cyl(0.065, 0.075, 0.08, MAT_RUBBER_NBR, 20);
+    damper.position.set(sx, 0.26, sz);
+    damper.name = `Isolator_MotorMount_0${d + 1}`;
+    motorGroup.add(damper);
+
+    const damperCore = cyl(0.025, 0.025, 0.082, MAT_316SS_BRUSHED, 12);
+    damperCore.position.set(sx, 0.26, sz);
+    motorGroup.add(damperCore);
+
+    const mBolt = makeHexSocketBolt(0.018, 0.08, `Fastener_HexM5_MotorMount_0${d + 1}`);
+    mBolt.position.set(sx, 0.35, sz);
+    motorGroup.add(mBolt);
   }
 
-  // Main control PCB
-  const mainPcb = box(0.85, 0.03, 0.55, M(0x1a5c2e, { r: 0.5, m: 0.1 }));
-  mainPcb.position.set(-0.7, 0.45, -0.2);
-  mainPcb.name = "PCB_Motherboard";
-  drive.add(mainPcb);
-  // chips on PCB (MCU, RAM, Flash Storage, Wireless RF)
-  const chipNames = ["Part_MCU_Core", "Part_RAM_Chip", "Part_SSD_Module", "WiFi_BLE_Chip"];
-  for (let i = 0; i < 4; i++) {
-    const chip = box(0.12, 0.04, 0.1, M(0x222, { r: 0.4 }));
-    chip.position.set(-0.9 + i * 0.15, 0.48, -0.2);
-    chip.name = chipNames[i];
-    drive.add(chip);
-  }
-  // PCB standoff screws
-  for (const [sx, sz] of [
-    [-1.0, -0.4],
-    [-0.4, -0.4],
-    [-1.0, 0.0],
-    [-0.4, 0.0],
-  ]) {
-    const sc = cyl(0.012, 0.012, 0.05, M(0xc8ccd0, { r: 0.3, m: 0.8 }), 6);
-    sc.position.set(sx, 0.42, sz);
-    sc.name = "Fastener_HexM4_Standoff";
-    drive.add(sc);
+  // Finned BLDC Motor Casing with 12 Radial Extruded Cooling Fins
+  const motor = cyl(0.26, 0.26, 0.48, MAT_ALUM_DARK_ANO, 32);
+  motor.position.set(0, 0.58, 0);
+  motor.name = "Motor_Drive";
+  motorGroup.add(motor);
+
+  for (let f = 0; f < 12; f++) {
+    const ang = (f * Math.PI * 2) / 12;
+    const fin = box(0.016, 0.44, 0.038, MAT_ALUM_DARK_ANO);
+    fin.position.set(Math.cos(ang) * 0.27, 0.58, Math.sin(ang) * 0.27);
+    fin.rotation.y = -ang;
+    motorGroup.add(fin);
   }
 
-  // Power supply board
-  const psu = box(0.7, 0.04, 0.45, M(0x1a5c2e, { r: 0.5, m: 0.1 }));
-  psu.position.set(0.75, 0.4, -0.15);
-  psu.name = "Assembly_PowerSupply";
-  drive.add(psu);
-  const cap1 = cyl(0.05, 0.05, 0.1, M(0x2244aa, { r: 0.4 }), 12);
-  cap1.position.set(0.65, 0.48, -0.15);
-  drive.add(cap1);
-  const heatSink = box(0.2, 0.12, 0.08, M(0x888, { r: 0.35, m: 0.6 }));
-  heatSink.position.set(0.9, 0.5, -0.15);
-  drive.add(heatSink);
+  // Laminated Electrical Steel Stator Core & Copper Windings visible through cooling slots
+  const stator = cyl(0.24, 0.24, 0.20, M(0x52525b, { r: 0.6, m: 0.5 }), 28);
+  stator.position.set(0, 0.58, 0);
+  motorGroup.add(stator);
 
-  // Auxiliary Toroidal Isolation Transformer
-  const toroid = new THREE.Mesh(
-    new THREE.TorusGeometry(0.12, 0.045, 12, 24),
-    M(0xb45309, { r: 0.35, m: 0.75 })
+  const coils = cyl(0.245, 0.245, 0.14, MAT_TOROID_WINDING, 28);
+  coils.position.set(0, 0.58, 0);
+  motorGroup.add(coils);
+
+  // Die-Cast Aluminum Upper & Lower End Bells
+  const endBellTop = cyl(0.22, 0.26, 0.06, MAT_316SS_BRUSHED, 24);
+  endBellTop.position.set(0, 0.84, 0);
+  motorGroup.add(endBellTop);
+
+  const endBellBtm = cyl(0.26, 0.22, 0.06, MAT_316SS_BRUSHED, 24);
+  endBellBtm.position.set(0, 0.35, 0);
+  motorGroup.add(endBellBtm);
+
+  // 4 Long Stainless Tie-Rods / Bolts clamping motor end bells
+  for (const [tx, tz] of [[-0.20, -0.20], [0.20, -0.20], [-0.20, 0.20], [0.20, 0.20]]) {
+    const tieRod = cyl(0.008, 0.008, 0.54, MAT_CHROME_STEEL, 8);
+    tieRod.position.set(tx, 0.58, tz);
+    tieRod.name = "Fastener_TieRod_Motor";
+    motorGroup.add(tieRod);
+    const tieNut = cyl(0.016, 0.016, 0.02, MAT_CHROME_STEEL, 6);
+    tieNut.position.set(tx, 0.87, tz);
+    motorGroup.add(tieNut);
+  }
+
+  // Precision Ground Drive Spindle Shaft & Chamber Seal Gland
+  const shaft = cyl(0.04, 0.04, 0.36, MAT_CHROME_STEEL, 16);
+  shaft.position.set(0, 0.98, 0);
+  shaft.name = "Drive_Shaft";
+  motorGroup.add(shaft);
+
+  const sealGland = cyl(0.08, 0.09, 0.04, MAT_316SS_ELECTROPOLISHED, 20);
+  sealGland.position.set(0, 1.07, 0);
+  motorGroup.add(sealGland);
+
+  // 6-Pin Molex 3-Phase Power Header on Motor Body
+  const molexHeader = box(0.08, 0.12, 0.06, M(0xf1f5f9, { r: 0.4 }));
+  molexHeader.position.set(0, 0.52, 0.28);
+  molexHeader.name = "Connector_Molex_MotorPower";
+  motorGroup.add(molexHeader);
+
+  // 5-Pin JST Optical Encoder Header on Left Side of Motor
+  const jstHeader = box(0.06, 0.10, 0.05, M(0xf8fafc, { r: 0.4 }));
+  jstHeader.position.set(-0.28, 0.52, 0);
+  jstHeader.name = "Connector_JST_MotorEncoder";
+  motorGroup.add(jstHeader);
+
+  // Precision 45-Degree Optical Tachometer Relay Mirror in Kinematic Gimbal Mount
+  const mirrorGimbal = box(0.06, 0.06, 0.04, MAT_ALUM_DARK_ANO);
+  mirrorGimbal.position.set(0.14, 0.90, 0.14);
+  motorGroup.add(mirrorGimbal);
+
+  const mirrorRelay = new THREE.Mesh(
+    new THREE.BoxGeometry(0.045, 0.045, 0.008),
+    new THREE.MeshPhysicalMaterial({ color: 0xe2e8f0, metalness: 0.96, roughness: 0.04, clearcoat: 1.0 })
   );
-  toroid.position.set(0.65, 0.48, 0.05);
-  toroid.rotation.x = Math.PI / 2;
-  toroid.name = "Part_ToroidalTransformer";
-  drive.add(toroid);
+  mirrorRelay.rotation.x = Math.PI / 4;
+  mirrorRelay.position.set(0.14, 0.90, 0.14);
+  mirrorRelay.name = "Mirror_OpticalRelay";
+  motorGroup.add(mirrorRelay);
 
-  // Fan
+  // 2. Mean Well Enclosed Switching Power Supply (Assembly_PowerSupply)
+  const psuGroup = new THREE.Group();
+  psuGroup.name = "Assembly_PowerSupply";
+  psuGroup.position.set(0.72, 0.44, -0.15);
+  drive.add(psuGroup);
+
+  // Internal FR-4 PCB
+  const psuPcb = box(0.68, 0.025, 0.98, MAT_PCB_GREEN);
+  psuPcb.position.y = -0.19;
+  psuGroup.add(psuPcb);
+
+  // Two 400V 330uF Bulk Electrolytic Filter Capacitors with Stamped X-Vent Tops
+  for (const cz of [-0.28, -0.06]) {
+    const cap = cyl(0.085, 0.085, 0.30, M(0x1e3a8a, { r: 0.35, m: 0.2 }), 20);
+    cap.position.set(-0.14, -0.04, cz);
+    psuGroup.add(cap);
+
+    const capTop = cyl(0.075, 0.075, 0.008, MAT_316SS_ELECTROPOLISHED, 16);
+    capTop.position.set(-0.14, 0.114, cz);
+    psuGroup.add(capTop);
+  }
+
+  // High-Frequency Flyback Chopper Transformer with Yellow Kapton / Mylar Tape
+  const chopperCore = box(0.22, 0.26, 0.22, M(0xeab308, { r: 0.35, m: 0.15 }));
+  chopperCore.position.set(0.12, -0.06, -0.18);
+  psuGroup.add(chopperCore);
+
+  // Extruded Aluminum MOSFET / Schottky Diode Heatsink Plate with Vertical Fins
+  const psuHs = box(0.04, 0.32, 0.70, MAT_ALUM_DARK_ANO);
+  psuHs.position.set(0.24, -0.03, 0.02);
+  psuGroup.add(psuHs);
+
+  // Perforated Sheet-Metal Honeycomb Cage
+  const matPerfCage = createPerforatedCageMaterial();
+  const psuShell = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.44, 1.02), matPerfCage);
+  psuShell.castShadow = true;
+  psuGroup.add(psuShell);
+
+  // 7-Position Barrier Terminal Strip on Rear Face of PSU (L, N, PE, -V, -V, +V, +V)
+  const barrierBlock = box(0.62, 0.15, 0.12, M(0x18181b, { r: 0.6 }));
+  barrierBlock.position.set(0, -0.11, 0.52);
+  psuGroup.add(barrierBlock);
+
+  const ferruleColors = [0x92400e, 0x2563eb, 0x16a34a, 0x18181b, 0x18181b, 0xdc2626, 0xdc2626];
+  for (let t = 0; t < 7; t++) {
+    const tx = -0.24 + t * 0.08;
+    const screw = cyl(0.022, 0.022, 0.028, MAT_316SS_ELECTROPOLISHED, 12);
+    screw.position.set(tx, -0.025, 0.52);
+    psuGroup.add(screw);
+
+    if (t < 6) {
+      const wall = box(0.008, 0.16, 0.13, M(0x18181b, { r: 0.6 }));
+      wall.position.set(tx + 0.04, -0.10, 0.52);
+      psuGroup.add(wall);
+    }
+
+    const ferrule = cyl(0.015, 0.015, 0.06, M(ferruleColors[t], { r: 0.4 }), 10);
+    ferrule.rotation.x = Math.PI / 2;
+    ferrule.position.set(tx, -0.11, 0.59);
+    psuGroup.add(ferrule);
+  }
+
+  // Orange V-ADJ Trimmer Potentiometer & Green DC-OK Status LED
+  const vAdjPot = cyl(0.018, 0.018, 0.02, M(0xf97316, { r: 0.3 }), 12);
+  vAdjPot.position.set(0.28, 0.02, 0.49);
+  psuGroup.add(vAdjPot);
+
+  const psuLed = cyl(0.014, 0.014, 0.02, M(0x22c55e, { e: 0x22c55e, ei: 2.0 }), 10);
+  psuLed.position.set(0.28, 0.07, 0.49);
+  psuGroup.add(psuLed);
+
+  // Dedicated External Cooling Fan (Fan_PSU_Cooling) Mounted on PSU Front Bracket
+  const psuFanGroup = new THREE.Group();
+  psuFanGroup.name = "Fan_PSU_Cooling";
+  psuFanGroup.position.set(0, 0, -0.56);
+  psuGroup.add(psuFanGroup);
+
+  const psuFanFrame = box(0.40, 0.40, 0.10, M(0x18181b, { r: 0.6 }));
+  psuFanGroup.add(psuFanFrame);
+
+  // 4 Corner M4 Mounting Screws
+  for (const [fx, fy] of [[-0.16, -0.16], [0.16, -0.16], [-0.16, 0.16], [0.16, 0.16]]) {
+    const fb = makeHexSocketBolt(0.012, 0.03, "Fastener_HexM4_PSUFan");
+    fb.rotation.x = Math.PI / 2;
+    fb.position.set(fx, fy, -0.05);
+    psuFanGroup.add(fb);
+  }
+
+  const psuFanHub = new THREE.Group();
+  psuFanHub.name = "Pivot_Fan_PSU_Impeller";
+  psuFanGroup.add(psuFanHub);
+
+  const fanHubCore = cyl(0.08, 0.08, 0.09, M(0x18181b, { r: 0.5 }), 16);
+  fanHubCore.rotation.x = Math.PI / 2;
+  psuFanHub.add(fanHubCore);
+
+  for (let b = 0; b < 7; b++) {
+    const ang = (b * Math.PI * 2) / 7;
+    const blade = box(0.11, 0.035, 0.01, M(0x27272a, { r: 0.5 }));
+    blade.position.set(Math.cos(ang) * 0.12, Math.sin(ang) * 0.12, 0);
+    blade.rotation.z = ang + 0.35;
+    blade.rotation.y = 0.4;
+    psuFanHub.add(blade);
+  }
+
+  // Concentric Chrome Wire Finger Guard (Fastener_FanGuard_PSU)
+  const fanGuard = new THREE.Group();
+  fanGuard.name = "Fastener_FanGuard_PSU";
+  fanGuard.position.set(0, 0, -0.06);
+  psuFanGroup.add(fanGuard);
+
+  for (const gr of [0.07, 0.12, 0.17]) {
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(gr, 0.006, 6, 24), MAT_CHROME_STEEL);
+    fanGuard.add(ring);
+  }
+  for (let a = 0; a < 4; a++) {
+    const spoke = cyl(0.005, 0.005, 0.36, MAT_CHROME_STEEL, 6);
+    spoke.rotation.z = (a * Math.PI) / 4;
+    fanGuard.add(spoke);
+  }
+
+  // 3. Toroidal Step-Down Isolation Transformer (Part_ToroidalTransformer)
+  const toroidGroup = new THREE.Group();
+  toroidGroup.name = "Part_ToroidalTransformer";
+  toroidGroup.position.set(0.72, 0.36, 0.72);
+  drive.add(toroidGroup);
+
+  // Neoprene rubber isolation pad underneath toroid
+  const neoPad = cyl(0.24, 0.24, 0.025, MAT_RUBBER_NBR, 32);
+  neoPad.position.y = -0.12;
+  toroidGroup.add(neoPad);
+
+  // Helical Enamel-Copper Wound Toroid Core
+  const toroidCore = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.075, 20, 36), MAT_TOROID_WINDING);
+  toroidCore.rotation.x = Math.PI / 2;
+  toroidGroup.add(toroidCore);
+
+  // Outer Amber Kapton/Mylar Insulation Belly Band around Toroid Perimeter
+  const kaptonBand = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.238, 0.238, 0.10, 32, 1, true),
+    M(0xf59e0b, { r: 0.25, m: 0.1, o: 0.55, side: THREE.DoubleSide })
+  );
+  toroidGroup.add(kaptonBand);
+
+  // Potted Epoxy Center Core + Dished Heavy Steel Mounting Washer + M8 Center Bolt
+  const epoxyCenter = cyl(0.09, 0.09, 0.15, M(0x18181b, { r: 0.6 }), 20);
+  toroidGroup.add(epoxyCenter);
+
+  const dishedWasher = cyl(0.16, 0.18, 0.02, MAT_316SS_BRUSHED, 24);
+  dishedWasher.position.y = 0.08;
+  toroidGroup.add(dishedWasher);
+
+  const centerBolt = makeHexSocketBolt(0.025, 0.06, "Fastener_HexM8_ToroidMount");
+  centerBolt.position.y = 0.095;
+  toroidGroup.add(centerBolt);
+
+  const toroidFeedGland = cyl(0.025, 0.03, 0.03, MAT_RUBBER_NBR, 14);
+  toroidFeedGland.position.y = 0.11;
+  toroidGroup.add(toroidFeedGland);
+
+  // 4. Hermetic Refrigeration Compressor & Condenser Pack
+  const comp = box(0.48, 0.52, 0.48, M(0x555b63, { r: 0.4, m: 0.5 }));
+  comp.position.set(0.90, 0.48, 1.25);
+  comp.name = "F09_Compressor";
+  drive.add(comp);
+
+  const compDome = cyl(0.22, 0.24, 0.08, M(0x555b63, { r: 0.4, m: 0.5 }), 20);
+  compDome.position.set(0.90, 0.78, 1.25);
+  drive.add(compDome);
+
+  // Condenser pack — aligned facing rear louvers
+  const cond = box(0.72, 0.52, 0.14, M(0x8a9199, { r: 0.35, m: 0.7 }));
+  cond.position.set(0.68, 0.85, 1.62);
+  cond.name = "F10_Condenser";
+  drive.add(cond);
+
+  // Copper refrigeration piping loops
+  const refTube1 = makeWiringHarness(
+    [[0.90, 0.68, 1.25], [0.90, 0.82, 1.40], [0.85, 0.85, 1.58]],
+    0.016, MAT_BRASS_FITTING, "Tube_Refrigerant_Discharge", false
+  );
+  drive.add(refTube1);
+
+  // Cabinet cooling convective blower fan
   const fan = cyl(0.18, 0.18, 0.08, M(0x333, { r: 0.5 }), 16);
-  fan.position.set(0.95, 0.55, 0.6);
+  fan.position.set(0.68, 0.85, 1.48);
   fan.rotation.x = Math.PI / 2;
   fan.name = "Fan_CabinetCooling_Blower";
   drive.add(fan);
 
-  // Compressor (R) — keep rear-inside so side vents stay readable
-  const comp = box(0.48, 0.55, 0.5, M(0x555b63, { r: 0.4, m: 0.5 }));
-  comp.position.set(0.85, 0.5, 1.05);
-  comp.name = "F09_Compressor";
-  drive.add(comp);
+  // 5. Digital Motherboard Controller (PCB_Motherboard)
+  const mainPcb = box(0.85, 0.03, 0.65, MAT_PCB_GREEN);
+  mainPcb.position.set(-0.75, 0.42, -0.20);
+  mainPcb.name = "PCB_Motherboard";
+  drive.add(mainPcb);
 
-  // Condenser pack — rear, not sticking past side wall
-  const cond = box(0.2, 0.55, 0.7, M(0x8a9199, { r: 0.35, m: 0.7 }));
-  cond.position.set(0.95, 0.65, 1.15);
-  cond.name = "F10_Condenser";
-  drive.add(cond);
-
-  // ---------- Internal wiring (motor / PSU / PCB / fan / compressor) ----------
-  // Live / neutral from PSU → motor
-  const wireMotorL = makeCable(
-    [
-      [0.55, 0.42, -0.15],
-      [0.35, 0.38, -0.05],
-      [0.15, chFloorY - 0.2, 0.05],
-      [0.12, chFloorY - 0.32, 0.05],
-    ],
-    0.014,
-    0xb91c1c,
-    28
-  );
-  wireMotorL.name = "W01_MotorLive";
-  drive.add(wireMotorL);
-  const wireMotorN = makeCable(
-    [
-      [0.55, 0.4, -0.2],
-      [0.3, 0.35, -0.12],
-      [0.05, chFloorY - 0.22, -0.02],
-      [-0.05, chFloorY - 0.32, -0.02],
-    ],
-    0.014,
-    0x1e3a8a,
-    28
-  );
-  wireMotorN.name = "W02_MotorNeutral";
-  drive.add(wireMotorN);
-  // PE ground (green/yellow approx)
-  const wirePE = makeCable(
-    [
-      [0.75, 0.38, -0.05],
-      [0.4, 0.28, 0.1],
-      [0.0, 0.2, 0.15],
-      [0.0, chFloorY - 0.25, 0.12],
-    ],
-    0.012,
-    0x65a30d,
-    24
-  );
-  wirePE.name = "W03_PE";
-  drive.add(wirePE);
-
-  // Control harness PCB → motor encoder / tacho
-  const wireCtrl = makeCable(
-    [
-      [-0.5, 0.48, -0.2],
-      [-0.2, 0.42, -0.1],
-      [0.0, 0.35, 0.0],
-      [0.08, chFloorY - 0.18, 0.08],
-    ],
-    0.018,
-    0x1f2937,
-    28
-  );
-  wireCtrl.name = "W04_CtrlHarness";
-  drive.add(wireCtrl);
-
-  // Ribbon-style bundle PCB → front console (goes forward under deck)
-  const wireConsole = makeCable(
-    [
-      [-0.7, 0.48, -0.2],
-      [-0.85, 0.55, -0.5],
-      [-0.9, 0.75, -0.9],
-      [-0.6, 0.9, -D / 2 + 0.15],
-      [-0.2, 0.95, -D / 2 + 0.05],
-    ],
-    0.022,
-    0x374151,
-    36
-  );
-  wireConsole.name = "W05_ConsoleHarness";
-  drive.add(wireConsole);
-
-  // Fan leads
-  const wireFan = makeCable(
-    [
-      [0.75, 0.42, -0.05],
-      [0.85, 0.48, 0.25],
-      [0.92, 0.52, 0.5],
-    ],
-    0.01,
-    0x111827,
-    16
-  );
-  wireFan.name = "W06_Fan";
-  drive.add(wireFan);
-
-  // Compressor / refrigeration control
-  const wireComp = makeCable(
-    [
-      [0.9, 0.42, -0.1],
-      [1.0, 0.5, 0.3],
-      [1.05, 0.55, 0.7],
-    ],
-    0.016,
-    0x44403c,
-    18
-  );
-  wireComp.name = "W07_Compressor";
-  drive.add(wireComp);
-
-  // Chamber temp probe (PT100 RTD sensor lead up into bowl area)
-  const wireTemp = makeCable(
-    [
-      [-0.55, 0.48, -0.15],
-      [-0.35, 0.7, 0.1],
-      [-0.2, chFloorY + 0.15, 0.35],
-      [0.15, chFloorY + 0.2, 0.45],
-    ],
-    0.008,
-    0xf59e0b,
-    22
-  );
-  wireTemp.name = "Sensor_PT100";
-  drive.add(wireTemp);
-
-  // Optical Tachometer 45-degree Relay Mirror
-  const mirrorRelay = box(0.04, 0.04, 0.01, M(0xe2e8f0, { r: 0.05, m: 0.95 }));
-  mirrorRelay.rotation.x = Math.PI / 4;
-  mirrorRelay.position.set(0.08, chFloorY - 0.18, 0.08);
-  mirrorRelay.name = "Mirror_OpticalRelay";
-  drive.add(mirrorRelay);
-
-  // Bundled loom tie wraps (visual)
-  for (const [x, y, z] of [
-    [0.25, 0.36, -0.08],
-    [-0.15, 0.4, -0.12],
-    [0.05, chFloorY - 0.22, 0.04],
-  ]) {
-    const tie = cyl(0.028, 0.028, 0.04, M(0x9ca3af, { r: 0.55 }), 8);
-    tie.rotation.z = Math.PI / 2;
-    tie.position.set(x, y, z);
-    drive.add(tie);
+  // Standoff screws for motherboard
+  for (const [sx, sz] of [[-1.12, -0.48], [-0.38, -0.48], [-1.12, 0.08], [-0.38, 0.08]]) {
+    const sc = makeHexSocketBolt(0.012, 0.05, "Fastener_HexM3_Standoff");
+    sc.position.set(sx, 0.44, sz);
+    drive.add(sc);
   }
 
+  // SMD Chips: ARM Cortex MCU, DRAM, Flash SSD, Shielded Wi-Fi/BLE module
+  const mcu = box(0.16, 0.035, 0.16, M(0x18181b, { r: 0.4 }));
+  mcu.position.set(-0.90, 0.45, -0.22);
+  mcu.name = "Part_MCU_Core";
+  drive.add(mcu);
+
+  const ram = box(0.10, 0.025, 0.14, M(0x18181b, { r: 0.4 }));
+  ram.position.set(-0.70, 0.445, -0.22);
+  ram.name = "Part_RAM_Chip";
+  drive.add(ram);
+
+  const ssd = box(0.12, 0.025, 0.14, M(0x18181b, { r: 0.4 }));
+  ssd.position.set(-0.52, 0.445, -0.22);
+  ssd.name = "Part_SSD_Module";
+  drive.add(ssd);
+
+  const wifiChip = box(0.14, 0.035, 0.16, MAT_316SS_BRUSHED);
+  wifiChip.position.set(-0.72, 0.45, 0.0);
+  wifiChip.name = "WiFi_BLE_Chip";
+  drive.add(wifiChip);
+
+  const rtcBattery = cyl(0.045, 0.045, 0.015, MAT_316SS_ELECTROPOLISHED, 16);
+  rtcBattery.position.set(-0.92, 0.445, 0.0);
+  rtcBattery.name = "Battery_RTC_CR2032";
+  drive.add(rtcBattery);
+
+  // 6. Industrial Slotted PVC Wiring Ducts (DIN EN 60204-1 / UL 508A Standards)
+  const ductRear = box(2.40, 0.12, 0.16, MAT_PVC_DUCT);
+  ductRear.position.set(0, 0.22, 1.38);
+  ductRear.name = "Body_WiringDuct_Rear";
+  drive.add(ductRear);
+
+  const ductCoverRear = box(2.42, 0.02, 0.17, MAT_PVC_DUCT);
+  ductCoverRear.position.set(0, 0.285, 1.38);
+  drive.add(ductCoverRear);
+
+  const ductLeft = box(0.16, 0.12, 2.15, MAT_PVC_DUCT);
+  ductLeft.position.set(-1.25, 0.22, 0.32);
+  ductLeft.name = "Body_WiringDuct_Left";
+  drive.add(ductLeft);
+
+  const ductCoverLeft = box(0.17, 0.02, 2.17, MAT_PVC_DUCT);
+  ductCoverLeft.position.set(-1.25, 0.285, 0.32);
+  drive.add(ductCoverLeft);
+
+  const ductCenter = box(0.70, 0.12, 0.14, MAT_PVC_DUCT);
+  ductCenter.position.set(0.05, 0.22, 0.48);
+  ductCenter.name = "Body_WiringDuct_Center";
+  drive.add(ductCenter);
+
+  // 7. Protective Earth (PE) Grounding Hub
+  const peHubGroup = new THREE.Group();
+  peHubGroup.name = "Ground_Lug_Chassis";
+  peHubGroup.position.set(-1.15, 0.20, 1.35);
+  drive.add(peHubGroup);
+
+  const peStud = cyl(0.025, 0.025, 0.08, MAT_BRASS_FITTING, 16);
+  peHubGroup.add(peStud);
+  const peNut = cyl(0.045, 0.045, 0.03, MAT_BRASS_FITTING, 6);
+  peNut.position.y = 0.03;
+  peHubGroup.add(peNut);
+
+  // 8. Fully Dressed, Color-Coded 3D Wiring Harnesses
+  // AC Mains: IEC / Rocker Module -> Duct_Rear -> PSU Terminals
+  const wireMainsL = makeWiringHarness(
+    [
+      [-0.75, 0.46, 1.66],
+      [-0.75, 0.24, 1.45],
+      [0.10, 0.24, 1.38],
+      [0.48, 0.24, 1.05],
+      [0.48, 0.28, 0.48],
+    ],
+    0.016,
+    0x92400e,
+    "W10_MainsLive"
+  );
+  drive.add(wireMainsL);
+
+  const wireMainsN = makeWiringHarness(
+    [
+      [-0.78, 0.46, 1.66],
+      [-0.78, 0.24, 1.45],
+      [0.10, 0.24, 1.38],
+      [0.54, 0.24, 1.05],
+      [0.54, 0.28, 0.48],
+    ],
+    0.016,
+    0x2563eb,
+    "W11_MainsNeutral"
+  );
+  drive.add(wireMainsN);
+
+  const wirePE = makeWiringHarness(
+    [
+      [-0.87, 0.48, 1.66],
+      [-1.15, 0.28, 1.45],
+      [-1.15, 0.20, 1.35],
+      [0.10, 0.22, 1.38],
+      [0.60, 0.28, 0.48],
+    ],
+    0.014,
+    0x16a34a,
+    "W03_PE"
+  );
+  drive.add(wirePE);
+
+  // DC 24V Power: PSU Output (+V, -V) -> Duct_Rear -> Duct_Left -> Motherboard
+  const wireMotorL = makeWiringHarness(
+    [
+      [0.92, 0.32, 0.48],
+      [0.92, 0.24, 1.38],
+      [-1.25, 0.24, 1.38],
+      [-1.25, 0.24, -0.20],
+      [-0.95, 0.42, -0.20],
+    ],
+    0.015,
+    0xdc2626,
+    "W01_MotorLive"
+  );
+  drive.add(wireMotorL);
+
+  const wireMotorN = makeWiringHarness(
+    [
+      [0.76, 0.32, 0.48],
+      [0.76, 0.24, 1.38],
+      [-1.23, 0.24, 1.38],
+      [-1.23, 0.24, -0.22],
+      [-0.95, 0.42, -0.22],
+    ],
+    0.015,
+    0x18181b,
+    "W02_MotorNeutral"
+  );
+  drive.add(wireMotorN);
+
+  // Motor 3-Phase Drive Cable: Motherboard -> Duct_Center -> Motor Molex
+  const wireMotorDrive = makeWiringHarness(
+    [
+      [-0.60, 0.42, 0.0],
+      [-0.60, 0.24, 0.48],
+      [-0.05, 0.24, 0.48],
+      [0.0, 0.48, 0.32],
+    ],
+    0.018,
+    0x334155,
+    "Harness_Motor_3Phase"
+  );
+  drive.add(wireMotorDrive);
+
+  // Motor Optical / Hall Encoder Harness: Motor JST -> Duct_Left -> Motherboard
+  const wireCtrl = makeWiringHarness(
+    [
+      [-0.28, 0.52, 0.0],
+      [-0.65, 0.24, 0.0],
+      [-1.25, 0.24, 0.0],
+      [-1.25, 0.24, -0.15],
+      [-0.85, 0.43, -0.15],
+    ],
+    0.014,
+    0x475569,
+    "W04_CtrlHarness"
+  );
+  drive.add(wireCtrl);
+
+  // Console Flat Ribbon Cable: Motherboard -> Left Wall -> Front Console
+  const wireConsole = makeWiringHarness(
+    [
+      [-0.75, 0.44, -0.32],
+      [-1.18, 0.45, -0.55],
+      [-1.18, 0.75, -1.05],
+      [-0.85, 0.90, -D / 2 + 0.18],
+      [-0.40, 0.95, -D / 2 + 0.05],
+    ],
+    0.022,
+    0x64748b,
+    "W05_ConsoleHarness"
+  );
+  drive.add(wireConsole);
+
+  // Fan leads: PSU -> PSU Fan & Condenser Fan
+  const wireFan = makeWiringHarness(
+    [
+      [0.72, 0.40, -0.35],
+      [0.72, 0.42, -0.50],
+      [0.72, 0.44, -0.62],
+    ],
+    0.010,
+    0x18181b,
+    "W06_Fan"
+  );
+  drive.add(wireFan);
+
+  // Compressor control harness: Motherboard -> Duct_Rear -> Compressor
+  const wireComp = makeWiringHarness(
+    [
+      [-0.65, 0.42, 0.05],
+      [-1.25, 0.24, 0.05],
+      [-1.25, 0.24, 1.38],
+      [0.90, 0.24, 1.38],
+      [0.90, 0.44, 1.25],
+    ],
+    0.016,
+    0x3f3f46,
+    "W07_Compressor"
+  );
+  drive.add(wireComp);
+
+  // PT100 RTD sensor lead from chamber bowl -> Duct_Left -> Motherboard ADC
+  const wireTemp = makeWiringHarness(
+    [
+      [0.15, chFloorY + 0.05, 0.45],
+      [-0.10, chFloorY - 0.05, 0.35],
+      [-1.25, 0.24, 0.35],
+      [-1.25, 0.24, -0.28],
+      [-0.75, 0.43, -0.28],
+    ],
+    0.009,
+    0xf59e0b,
+    "Sensor_PT100"
+  );
+  drive.add(wireTemp);
+
   // Imbalance sensor
-  const imb = box(0.1, 0.06, 0.08, M(0x1a5c2e, { r: 0.5 }));
-  imb.position.set(0.25, chFloorY - 0.15, 0.2);
+  const imb = box(0.10, 0.06, 0.08, MAT_PCB_GREEN);
+  imb.position.set(0.25, chFloorY - 0.15, 0.20);
   imb.name = "F11_ImbalanceSensor";
   drive.add(imb);
-  const wireImb = makeCable(
+
+  const wireImb = makeWiringHarness(
     [
-      [0.25, chFloorY - 0.12, 0.2],
-      [0.1, 0.3, 0.05],
-      [-0.4, 0.45, -0.15],
+      [0.25, chFloorY - 0.12, 0.20],
+      [0.10, 0.24, 0.20],
+      [-0.60, 0.24, -0.10],
+      [-0.60, 0.42, -0.10],
     ],
     0.009,
     0x0f766e,
-    16
+    "W09_Imbalance"
   );
-  wireImb.name = "W09_Imbalance";
   drive.add(wireImb);
 
-  // Foot screws (visible under/near feet)
-  for (const [x, z] of [
-    [-1.15, -1.4],
-    [1.15, -1.4],
-    [-1.15, 1.4],
-    [1.15, 1.4],
-  ]) {
-    const sc = cyl(0.02, 0.02, 0.08, M(0xc8ccd0, { r: 0.3, m: 0.85 }), 8);
+  // Wi-Fi U.FL micro-coax cable: Wi-Fi module -> Duct_Left -> Duct_Rear -> SMA jack
+  const wireWiFiCoax = makeWiringHarness(
+    [
+      [-0.72, 0.46, 0.0],
+      [-1.25, 0.24, 0.0],
+      [-1.25, 0.24, 1.38],
+      [-0.23, 0.24, 1.38],
+      [-0.23, 0.95, 1.66],
+    ],
+    0.007,
+    0x38bdf8,
+    "Cable_WiFi_Coax",
+    false
+  );
+  drive.add(wireWiFiCoax);
+
+  // Fasteners: Foot screws
+  for (const [x, z] of [[-1.15, -1.4], [1.15, -1.4], [-1.15, 1.4], [1.15, 1.4]]) {
+    const sc = makeHexSocketBolt(0.018, 0.06, "A08_FootScrew");
     sc.position.set(x, 0.06, z);
-    sc.name = "A08_FootScrew";
     drive.add(sc);
   }
 
   // Housing seam screws along front & rear
   for (let i = 0; i < 5; i++) {
     const x = -0.9 + i * 0.45;
-    const scF = cyl(0.012, 0.012, 0.04, M(0xc8ccd0, { r: 0.3, m: 0.8 }), 6);
+    const scF = makeHexSocketBolt(0.012, 0.035, "A09_HousingScrew");
     scF.rotation.x = Math.PI / 2;
     scF.position.set(x, 0.5, -D / 2 + 0.02);
-    scF.name = "A09_HousingScrew";
     drive.add(scF);
     const scR = scF.clone();
     scR.position.set(x, 0.5, D / 2 - 0.02);
@@ -1650,45 +2192,10 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
   // Chamber flange screws
   for (let i = 0; i < 4; i++) {
     const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
-    const sc = cyl(0.016, 0.016, 0.05, M(0xc8ccd0, { r: 0.3, m: 0.85 }), 6);
+    const sc = makeHexSocketBolt(0.015, 0.04, "C08_ChamberScrew");
     sc.position.set(Math.cos(a) * (CH_R + 0.12), DECK_Y + 0.02, Math.sin(a) * (CH_R + 0.12));
-    sc.name = "C08_ChamberScrew";
     drive.add(sc);
   }
-
-  // Drive shaft from motor into chamber
-  const shaft = cyl(0.04, 0.04, 0.35, M(0xb0b0b0, { r: 0.25, m: 0.9 }), 12);
-  shaft.position.set(0, chFloorY - 0.12, 0);
-  shaft.name = "Drive_Shaft";
-  drive.add(shaft);
-
-  // Mains AC from rear IEC inlet into PSU
-  const wireMainsL = makeCable(
-    [
-      [0.95, 0.48, D / 2 - 0.05],
-      [0.9, 0.45, 0.6],
-      [0.85, 0.42, 0.15],
-      [0.78, 0.42, -0.1],
-    ],
-    0.016,
-    0xb91c1c,
-    24
-  );
-  wireMainsL.name = "W10_MainsLive";
-  drive.add(wireMainsL);
-  const wireMainsN = makeCable(
-    [
-      [0.9, 0.45, D / 2 - 0.05],
-      [0.85, 0.42, 0.55],
-      [0.8, 0.4, 0.1],
-      [0.72, 0.4, -0.15],
-    ],
-    0.016,
-    0x1e3a8a,
-    24
-  );
-  wireMainsN.name = "W11_MainsNeutral";
-  drive.add(wireMainsN);
 
   stage.add(drive);
 
@@ -1894,6 +2401,10 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
     fx += k.w + fGap;
   }
 
+  if (rockerSwitch) {
+    buttons.set("mains_power", rockerSwitch);
+  }
+
   // LEDs left of LCD
   const ledRun = cyl(0.02, 0.02, 0.012, M(0x22ff88, { e: 0x00ff66, ei: 0.9 }), 10);
   ledRun.rotation.x = Math.PI / 2;
@@ -2005,6 +2516,7 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
     lcdMesh,
     lcdMat, // front-face material (map lives here; mesh.material is an array)
     buttons,
+    mainsRocker: rockerSwitch,
     ledRun,
     ledFault,
     consoleG,

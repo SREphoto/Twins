@@ -2644,6 +2644,9 @@ function handleKey(key) {
     case "power":
       togglePower();
       break;
+    case "mains_power":
+      window.app.powerSwitchOn = !window.app.powerSwitchOn;
+      break;
     case "start":
       pressStartStop();
       break;
@@ -4322,7 +4325,12 @@ window.app = {
   get powerSwitchOn() { return powerSwitchOn; },
   set powerSwitchOn(val) {
     powerSwitchOn = !!val;
+    if (centrifugeModel?.mainsRocker) {
+      centrifugeModel.mainsRocker.material.emissiveIntensity = powerSwitchOn ? 0.9 : 0.0;
+      centrifugeModel.mainsRocker.rotation.x = powerSwitchOn ? -0.12 : 0.12;
+    }
     if (!powerSwitchOn && c.powered) togglePower();
+    else if (powerSwitchOn && isPluggedIn && !c.powered) togglePower();
   },
   setExplodedValue: (val) => {
     if (centrifugeModel) setExplodeAmount(centrifugeModel, val);
@@ -4551,14 +4559,15 @@ window.app = {
         const t = smooth((p - 0.44) / 0.21);
         setExplodeAmount(centrifugeModel, 0);
         c.powered = true;
-        c.lid_open = true; // keep open for visible rotor kinematics
-        lidOpenAmt = 0.95;
+        c.lid_open = false; // lid firmly closed for safety during active centrifugation
+        c.lid_locked = true;
+        lidOpenAmt = 0.0;
         c.state = "RUN";
         c.rpm_actual = Math.round(lerp(2000, 15000, t));
         if (rotorSpin) rotorSpin.rotation.y = timeSec * (c.rpm_actual * 0.08);
         setCam(
-          [lerp(0.0, 1.2, t), lerp(4.8, 4.4, t), lerp(-1.8, -2.2, t)],
-          [0.0, 2.25, 0.0]
+          [lerp(0.0, 1.0, t), lerp(4.4, 4.0, t), lerp(-1.6, -1.9, t)],
+          [0.0, 2.30, 0.0]
         );
       } else if (p < 0.82) {
         // Shot 0D (47..59s): Internal Working Anatomy Reveal (outer shell hidden)
@@ -4570,8 +4579,8 @@ window.app = {
         c.rpm_actual = 14000;
         if (rotorSpin) rotorSpin.rotation.y = timeSec * 40.0;
         setCam(
-          [lerp(2.8, -2.4, t), lerp(2.4, 2.0, Math.sin(t * Math.PI)), lerp(2.2, 1.4, t)],
-          [0.1, 0.9, 0.3]
+          [lerp(2.6, -2.2, t), lerp(2.8, 2.4, Math.sin(t * Math.PI)), lerp(2.0, 1.4, t)],
+          [0.1, 1.55, 0.2]
         );
       } else {
         // Shot 0E (59..72s): Reassembly & sweeping return to heroic isometric view
@@ -4697,14 +4706,16 @@ window.app = {
           [-0.2, 1.8, -1.45]
         );
       } else {
-        // Swoop up and tilt directly into spinning rotor bowl!
-        // Lid stays open/elevated so the spinning rotor, dynamic balance, and blood separation are visible!
-        lidOpenAmt = 0.95;
-        c.lid_open = true;
+        // Active 14,000 RPM run under locked safety lid!
+        // Lid stays firmly closed & locked under motorized safety interlocks.
+        // The operator observes the spinning rotor, dynamic balance, and blood separation through the clear inspection window!
+        lidOpenAmt = 0.0;
+        c.lid_open = false;
+        c.lid_locked = true;
         const subT = (p - 0.22) / 0.78;
         setCam(
-          [lerp(-0.1, 0.9, smooth(subT)), lerp(2.4, 4.6, smooth(subT)), lerp(-3.2, -2.2, smooth(subT))],
-          [0.0, 2.25, 0.0]
+          [lerp(-0.1, 0.8, smooth(subT)), lerp(3.2, 4.3, smooth(subT)), lerp(-3.0, -1.9, smooth(subT))],
+          [0.0, 2.30, 0.0]
         );
       }
     } else if (idx === 6) {
@@ -4743,8 +4754,8 @@ window.app = {
       c.rpm_actual = 0;
       // Focus directly into rear power bay: Toroidal Transformer, Switching PSU, filter caps, heatsink, 3D cables
       setCam(
-        [lerp(2.4, 1.6, t), lerp(1.8, 1.25, t), lerp(1.2, -0.3, t)],
-        [0.72, 0.46, -0.05]
+        [lerp(2.6, 1.8, t), lerp(2.6, 2.2, t), lerp(1.5, 0.0, t)],
+        [0.72, 1.41, 0.0]
       );
     } else if (idx === 8) {
       // Stage 8: 7B Brushless DC Motor, Vibration Isolators & Hermetic Refrigeration System
@@ -4757,10 +4768,10 @@ window.app = {
       c.powered = true;
       c.state = "RUN";
       c.rpm_actual = 8000;
-      // Focus on BLDC Motor, mount plate, M5 screws, Compressor, Condenser pack & Cooling Blower Fan
+      // Focus on BLDC Motor, mount plate, vibration dampers, M5 screws, Compressor, Condenser pack & Cooling Blower Fan
       setCam(
-        [lerp(-2.2, 0.8, t), lerp(1.8, 1.45, Math.sin(t * Math.PI)), lerp(1.6, 2.3, t)],
-        [0.3, 0.65, 0.6]
+        [lerp(-2.2, 0.9, t), lerp(2.7, 2.4, Math.sin(t * Math.PI)), lerp(1.8, 2.4, t)],
+        [0.2, 1.55, 0.4]
       );
     } else if (idx === 9) {
       // Stage 9: 7C Motherboard, ARM MCU, Flash SSD, Wi-Fi/BLE & Cinematic Exploded Finale
@@ -4778,8 +4789,8 @@ window.app = {
         if (asmb.lid) asmb.lid.visible = true;
         setExplodeAmount(centrifugeModel, 0);
         setCam(
-          [lerp(-1.8, -1.3, subT), lerp(1.4, 1.0, subT), lerp(-0.8, -0.2, subT)],
-          [-0.7, 0.48, -0.2]
+          [lerp(-2.2, -1.6, subT), lerp(2.4, 2.0, subT), lerp(-1.0, -0.4, subT)],
+          [-0.75, 1.42, -0.20]
         );
       } else {
         // Shot 9B (62..100%): The Grand Exploded Assembly Finale!
