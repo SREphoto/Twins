@@ -577,6 +577,94 @@
       </div>
     </section>
 
+    <!-- Featured Narrated Video Presentation: Micro 5424-R Centrifuge -->
+    <section id="micro-5424r" class="cinema-card" style="margin-top: 2.5rem;">
+      <div class="cinema-header">
+        <div>
+          <div class="cinema-tag">Narrated Social Media Walkthrough &amp; Internal Working Anatomy (10 Chapters · 03:54 · 30 FPS · Studio Master Voiceover)</div>
+          <h1 class="cinema-title">MICRO 5424-R · High-Speed Refrigerated Centrifuge</h1>
+          <p class="cinema-sub">
+            Complete real-life operator experience with voiceover narration—covering centrifugal separation principles, electrical continuity &amp; NEMA plug setup, tube balancing, 24-place aerosol-tight rotor loading &amp; dual motorized lid latches, 15,000 RPM (21,130 ×g) run dynamics, parabolic fluid meniscus deformation, whole blood pelleting physics, dynamic electric braking &amp; GLP CSV export, and full internal electromechanical anatomy (switching power supply, toroidal transformer, 3D wiring harnesses, brushless DC drive motor, refrigeration compressor, and ARM Cortex motherboard).
+          </p>
+        </div>
+      </div>
+
+      <div class="cinema-layout">
+        <div class="video-wrap">
+          <video id="centrifugeVideoPlayer" controls playsinline preload="metadata" poster="centrifuge_twin/docs/centrifuge_poster.png">
+            <source src="centrifuge_twin/docs/CENTRIFUGE_Social_Walkthrough.mp4" type="video/mp4" />
+            Your browser does not support HTML5 video.
+          </video>
+        </div>
+
+        <div class="chapter-panel">
+          <div class="chapter-panel-title">Interactive Voiceover Chapters (Click to Seek)</div>
+
+          <button class="chapter-btn active" data-player="centrifugeVideoPlayer" data-seek="0">
+            <div class="ch-meta"><span>STAGE 0 / 10</span><span>00:00</span></div>
+            <div class="ch-name">0. Overview &amp; Centrifugal Physics</div>
+          </button>
+
+          <button class="chapter-btn" data-player="centrifugeVideoPlayer" data-seek="67">
+            <div class="ch-meta"><span>STAGE 1 / 10</span><span>01:07</span></div>
+            <div class="ch-name">1. Powering On &amp; Electrical Continuity</div>
+          </button>
+
+          <button class="chapter-btn" data-player="centrifugeVideoPlayer" data-seek="85">
+            <div class="ch-meta"><span>STAGE 2 / 10</span><span>01:25</span></div>
+            <div class="ch-name">2. Sample Tubes &amp; Weight Balancing</div>
+          </button>
+
+          <button class="chapter-btn" data-player="centrifugeVideoPlayer" data-seek="105">
+            <div class="ch-meta"><span>STAGE 3 / 10</span><span>01:45</span></div>
+            <div class="ch-name">3. Rotor Loading &amp; Dual Lid Latches</div>
+          </button>
+
+          <button class="chapter-btn" data-player="centrifugeVideoPlayer" data-seek="122">
+            <div class="ch-meta"><span>STAGE 4 / 10</span><span>02:02</span></div>
+            <div class="ch-name">4. Console Setup &amp; Parameter Programming</div>
+          </button>
+
+          <button class="chapter-btn" data-player="centrifugeVideoPlayer" data-seek="138">
+            <div class="ch-meta"><span>STAGE 5 / 10</span><span>02:18</span></div>
+            <div class="ch-name">5. 14,000 RPM Spin &amp; Pelleting Dynamics</div>
+          </button>
+
+          <button class="chapter-btn" data-player="centrifugeVideoPlayer" data-seek="161">
+            <div class="ch-meta"><span>STAGE 6 / 10</span><span>02:41</span></div>
+            <div class="ch-name">6. Deceleration, Braking &amp; GLP Export</div>
+          </button>
+
+          <button class="chapter-btn" data-player="centrifugeVideoPlayer" data-seek="177">
+            <div class="ch-meta"><span>STAGE 7A / 10</span><span>02:57</span></div>
+            <div class="ch-name">7A. Internal Power Supply &amp; Wiring Harnesses</div>
+          </button>
+
+          <button class="chapter-btn" data-player="centrifugeVideoPlayer" data-seek="196">
+            <div class="ch-meta"><span>STAGE 7B / 10</span><span>03:16</span></div>
+            <div class="ch-name">7B. Brushless DC Drive Motor &amp; Compressor</div>
+          </button>
+
+          <button class="chapter-btn" data-player="centrifugeVideoPlayer" data-seek="216">
+            <div class="ch-meta"><span>STAGE 7C / 10</span><span>03:36</span></div>
+            <div class="ch-name">7C. Controller Motherboard &amp; Data Ports</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="cinema-actions">
+        <a href="centrifuge_twin/software/viewer/index.html?tour=1" class="btn-primary">
+          🎬 Launch Live 3D Guided Tour (with Voiceover)
+        </a>
+        <a href="centrifuge_twin/software/viewer/index.html" class="btn-secondary">
+          🔬 Open Interactive 3D Digital Twin
+        </a>
+        <a href="centrifuge_twin/docs/CENTRIFUGE_Social_Walkthrough.mp4" download="CENTRIFUGE_Social_Walkthrough.mp4" class="btn-secondary">
+          ⬇ Download Social Media MP4 (46.0 MB)
+        </a>
+      </div>
+    </section>
+
     <!-- 10-Stage Visual Operator & Internal Working Anatomy Gallery -->
     <div class="section-title">
       Complete 10-Stage Visual Walkthrough &amp; Internal Working Anatomy <span>(Click any stage to inspect live in 3D)</span>
@@ -746,12 +834,19 @@
 
       chapterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-          chapterBtns.forEach(b => b.classList.remove('active'));
+          const playerId = btn.getAttribute('data-player') || 'mainVideoPlayer';
+          const targetVideo = document.getElementById(playerId) || video;
+          const container = btn.closest('.chapter-panel');
+          if (container) {
+            container.querySelectorAll('.chapter-btn').forEach(b => b.classList.remove('active'));
+          } else {
+            chapterBtns.forEach(b => b.classList.remove('active'));
+          }
           btn.classList.add('active');
           const sec = parseFloat(btn.getAttribute('data-seek') || '0');
-          if (video) {
-            video.currentTime = sec;
-            video.play().catch(() => {});
+          if (targetVideo) {
+            targetVideo.currentTime = sec;
+            targetVideo.play().catch(() => {});
           }
         });
       });

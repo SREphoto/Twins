@@ -241,6 +241,95 @@ function createLab() {
   return { tubes, rotor, rack, seq };
 }
 
+// ----------------------------------------------------------------------------
+// 10-Chapter Guided Walkthrough & Voiceover Storyboard (Stages 1–6 + 7A–7D)
+// ----------------------------------------------------------------------------
+export const TOUR_CHAPTERS = [
+  {
+    id: 'STAGE_0',
+    badge: 'STAGE 0 / 10 · OVERVIEW & OPERATION',
+    title: 'Micro 5424-R Refrigerated Centrifuge Overview',
+    voiceover: 'The Micro fifty-four twenty-four R is a precision benchtop refrigerated microcentrifuge engineered for molecular biology, biochemistry, and clinical diagnostics. Centrifugation separates complex biological mixtures by applying intense centrifugal acceleration thousands of times stronger than Earth gravity. The physical force is governed by relative centrifugal force: one point one one eight times ten to the negative five times rotor radius in centimeters times RPM squared. Spinning at fifteen thousand RPM with an eight point four centimeter radius generates over twenty-one thousand times the force of gravity. Dense particles—such as packed red blood cells, cellular organelles, or precipitated nucleic acids—migrate rapidly outward toward the bottom of each tube, while lighter liquid floats inward. The instrument features a solid aluminum aerosol-tight twenty-four place rotor, an insulated stainless steel refrigeration bowl, a high-torque brushless DC motor, a motorized dual lid latch, and an onboard compressor cooling system that maintains sample temperatures from minus ten to plus forty degrees Celsius.',
+    camPos: [4.2, 4.4, -5.4],
+    camTarget: [-0.25, 2.15, -0.1],
+  },
+  {
+    id: 'STAGE_1',
+    badge: 'STAGE 1 / 10 · POWER & CONTINUITY',
+    title: 'Powering On & Electrical Continuity',
+    voiceover: 'To power the instrument, the operator connects the heavy-duty SJTOW power cord into the bench duplex receptacle and flips the rear rocker switch. The internal power supply boots, self-test diagnostics verify the motor encoder and temperature sensors, and the console illuminates in standby mode.',
+    camPos: [2.5, 3.8, 4.5],
+    camTarget: [0.8, 1.2, 1.2],
+  },
+  {
+    id: 'STAGE_2',
+    badge: 'STAGE 2 / 10 · LABWARE & SAMPLE PREPARATION',
+    title: 'Sample Tubes, Buffer Reagents & Weight Balancing',
+    voiceover: 'The operator works from a twenty-four position rack loaded with one point five milliliter conical microcentrifuge tubes. Here we prepare whole blood, cell cultures, and buffer reagents. Balancing is essential: every sample tube must be counterbalanced by weight to within zero point one grams to avoid destructive vibration at high speeds.',
+    camPos: [-3.8, 3.8, -3.2],
+    camTarget: [-1.6, 1.8, -0.2],
+  },
+  {
+    id: 'STAGE_3',
+    badge: 'STAGE 3 / 10 · ROTOR LOADING & SAFETY INTERLOCKS',
+    title: 'Opposing Slot Loading & Motorized Dual Lid Latch',
+    voiceover: 'Tubes are loaded into diametrically opposite rotor slots—such as positions one and thirteen—maintaining dynamic balance. The aerosol-tight rotor lid is threaded down securely to contain bioaerosols, and the main lid closes until motorized dual safety interlocks latch firmly.',
+    camPos: [0.0, 5.2, -1.8],
+    camTarget: [0.0, 2.3, 0.1],
+  },
+  {
+    id: 'STAGE_4',
+    badge: 'STAGE 4 / 10 · CONSOLE SETUP & PROGRAMMING',
+    title: 'Speed, Time & Temperature Setpoint Configuration',
+    voiceover: 'On the angled control panel, the operator adjusts parameters: setting speed to fourteen thousand RPM or eighteen thousand times gravity, setting a five-minute spin duration, and selecting four degrees Celsius to protect delicate biomolecules from thermal degradation.',
+    camPos: [-0.5, 2.8, -3.8],
+    camTarget: [-0.2, 1.8, -1.5],
+  },
+  {
+    id: 'STAGE_5',
+    badge: 'STAGE 5 / 10 · ACTIVE RUN & SEPARATION PHYSICS',
+    title: '14,000 RPM Acceleration, Parabolic Meniscus & Pelleting',
+    voiceover: 'Pressing start engages the brushless DC drive motor. As speed ramps to fourteen thousand RPM, centrifugal acceleration deforms the fluid meniscus into a steep parabolic shape. Dense red blood cells pack into the bottom tip, a buffy coat of white cells forms in the middle, and clear plasma separates at the top, while active refrigeration keeps the chamber chilled at four degrees.',
+    camPos: [1.2, 4.6, -2.4],
+    camTarget: [0.0, 2.3, 0.0],
+  },
+  {
+    id: 'STAGE_6',
+    badge: 'STAGE 6 / 10 · DECELERATION & GLP AUDIT EXPORT',
+    title: 'Dynamic Braking, Lid Release & Analytical Audit Trail',
+    voiceover: 'At run completion, regenerative electric braking brings the rotor to a smooth stop without disturbing delicate pelleted layers. A chime sounds, the motorized lid unlatches automatically, and the controller saves a GLP-compliant run record and CSV audit trail to memory.',
+    camPos: [-1.8, 3.8, -3.4],
+    camTarget: [-0.3, 2.0, -0.5],
+  },
+  {
+    id: 'STAGE_7A',
+    badge: 'STAGE 7A / 10 · INTERNAL POWER SUPPLY & ROUTING',
+    title: 'Isolation Transformer, Switching PSU & 3D Harnesses',
+    voiceover: 'Inside the rear power bay, electricity enters through the fused IEC socket with line noise filtering. An isolation toroidal transformer and switching power supply board generate regulated DC voltages, while color-coded three-D wiring harnesses deliver high-voltage AC to the compressor and low-voltage power to the motherboard.',
+    camPos: [3.4, 2.8, 1.2],
+    camTarget: [0.6, 1.4, 0.2],
+  },
+  {
+    id: 'STAGE_7B',
+    badge: 'STAGE 7B / 10 · BRUSHLESS DC MOTOR & COMPRESSOR',
+    title: 'High-Torque Drive Motor, Vibration Isolators & Cooling',
+    voiceover: 'The mechanical drive features a heavy-duty three-phase brushless DC motor mounted on elastomeric vibration-isolation dampers beneath the chamber. Beside it, a hermetic refrigeration compressor, copper condenser pack, and a convective blower fan circulate refrigerant to maintain sub-zero bowl temperatures under full aerodynamic drag.',
+    camPos: [-2.6, 2.2, 1.6],
+    camTarget: [0.0, 1.2, 0.2],
+  },
+  {
+    id: 'STAGE_7C',
+    badge: 'STAGE 7C / 10 · MOTHERBOARD, MCU, WI-FI / BLE & PORTS',
+    title: '32-Bit ARM MCU, Solid-State Flash, Wi-Fi & Rear I/O',
+    voiceover: 'The multi-layer motherboard houses a thirty-two-bit ARM Cortex microprocessor, system RAM, solid-state flash memory, and an optical tachometer relay mirror. Rear bulkhead ports include RS-two-thirty-two serial, USB flash drive, Ethernet LAN, and a wireless module with external dipole antenna for automated lab data management.',
+    camPos: [-2.8, 3.2, -1.6],
+    camTarget: [-0.7, 1.5, -0.2],
+  }
+];
+
+let isPluggedIn = true;
+let powerSwitchOn = true;
+
 // ---------------------------------------------------------------------------
 // Controller
 // ---------------------------------------------------------------------------
@@ -316,12 +405,22 @@ function openLidPhysical() {
 }
 
 function togglePower() {
+  if (!isPluggedIn && !c.powered) {
+    setLabStatus("Cannot power on: NEMA power cord is unplugged from bench outlet!");
+    playFault();
+    return;
+  }
+  if (!powerSwitchOn && !c.powered) {
+    setLabStatus("Cannot power on: Rear mains switch is OFF!");
+    playFault();
+    return;
+  }
   if (c.powered && ["ACCEL", "RUN", "DECEL"].includes(c.state)) {
     // Force stop then power off
     c.state = "DECEL";
     c.short_held = false;
   }
-  c.powered = !c.powered;
+  c.powered = !c.powered && isPluggedIn && powerSwitchOn;
   if (!c.powered) {
     c.rpm_actual = 0;
     c.error = null;
@@ -2784,6 +2883,9 @@ let autoRotateOn = false;
 let explorerPartId = null;
 let orbitControls = null;
 let viewCamera = null;
+let scene3D = null;
+let renderer3D = null;
+let resizeViewportFn = null;
 
 function init3D() {
   const host = document.getElementById("viewport3d");
@@ -2793,6 +2895,7 @@ function init3D() {
   const w = host.clientWidth || 640;
   const h = host.clientHeight || 480;
   const scene = new THREE.Scene();
+  scene3D = scene;
   // Interior lab: cool walls, fog softens far walls in the taller room
   scene.background = new THREE.Color(0xd0d8e0);
   scene.fog = new THREE.Fog(0xd0d8e0, 32, 70);
@@ -2806,6 +2909,7 @@ function init3D() {
   viewCamera = camera;
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer3D = renderer;
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.setSize(w, h);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -3270,6 +3374,7 @@ function init3D() {
   // Collapsible right panels — only change panel width; stage flex-grows.
   // ResizeObserver (below) updates camera aspect so the centrifuge never skews.
   function resizeViewport() {
+    resizeViewportFn = resizeViewport;
     if (!host || !camera || !renderer) return;
     const nw = Math.max(1, host.clientWidth || 1);
     const nh = Math.max(1, host.clientHeight || 1);
@@ -4182,3 +4287,344 @@ setTimeout(() => {
 setLabStatus(
   "Choose sample → click rack tubes in 3D to load rotor → grab lid closed → start/stop. Fluids update after the run."
 );
+
+// ---------------------------------------------------------------------------
+// Gold Standard 10-Chapter Guided Tour & Video Mastering API (window.app)
+// ---------------------------------------------------------------------------
+window.app = {
+  engine: {
+    get camera() { return viewCamera; },
+    get controls() { return orbitControls; },
+    get scene() { return scene3D; },
+    get renderer() { return renderer3D; },
+    get model() { return centrifugeModel; },
+    onWindowResize: () => { if (resizeViewportFn) resizeViewportFn(); },
+    setCutaway: (cut) => { if (centrifugeModel) setWireframe(centrifugeModel, cut); },
+    setExploded: (amt) => { if (centrifugeModel) setExplodeAmount(centrifugeModel, amt); },
+    render: () => {
+      if (renderer3D && scene3D && viewCamera) {
+        renderer3D.render(scene3D, viewCamera);
+      }
+    }
+  },
+  state: c,
+  get isPluggedIn() { return isPluggedIn; },
+  set isPluggedIn(val) {
+    isPluggedIn = !!val;
+    const btnPlug = document.getElementById("btnPowerPlug");
+    if (btnPlug) {
+      btnPlug.textContent = isPluggedIn ? "⚡ CORD PLUGGED IN" : "🔌 CORD UNPLUGGED";
+      btnPlug.classList.toggle("run", isPluggedIn);
+      btnPlug.classList.toggle("fault", !isPluggedIn);
+    }
+    if (!isPluggedIn && c.powered) togglePower();
+  },
+  get powerSwitchOn() { return powerSwitchOn; },
+  set powerSwitchOn(val) {
+    powerSwitchOn = !!val;
+    if (!powerSwitchOn && c.powered) togglePower();
+  },
+  setExplodedValue: (val) => {
+    if (centrifugeModel) setExplodeAmount(centrifugeModel, val);
+    const slider = document.getElementById("slider-explode");
+    if (slider) slider.value = val;
+  },
+  setPanelsHidden: (hidden) => {
+    document.querySelectorAll(".panel-collapsible").forEach((el) => {
+      el.style.display = hidden ? "none" : "";
+      el.classList.toggle("is-collapsed", hidden);
+    });
+    if (resizeViewportFn) resizeViewportFn();
+  },
+  splitIntoCaptionChunks(text, maxWords = 14) {
+    const words = text.split(/\s+/).filter(Boolean);
+    const chunks = [];
+    let cur = [];
+    for (const w of words) {
+      cur.push(w);
+      const isPunct = /[.!?;:]$/.test(w);
+      if (cur.length >= maxWords || (cur.length >= 7 && isPunct)) {
+        chunks.push(cur.join(' '));
+        cur = [];
+      }
+    }
+    if (cur.length > 0) chunks.push(cur.join(' '));
+    return chunks.length ? chunks : [text];
+  },
+  updateTourCaptionForProgress(idx, progress = 0) {
+    const ch = TOUR_CHAPTERS[idx];
+    if (!ch) return;
+    const capEl = document.getElementById('tourCaption');
+    if (!capEl) return;
+    const chunks = this.splitIntoCaptionChunks(ch.voiceover, 13);
+    const totalChars = chunks.reduce((acc, cur) => acc + cur.length, 0) || 1;
+    const targetChar = Math.max(0, Math.min(0.999, progress)) * totalChars;
+    let accum = 0;
+    let chosen = chunks[0];
+    for (const cur of chunks) {
+      accum += cur.length;
+      if (targetChar <= accum) {
+        chosen = cur;
+        break;
+      }
+    }
+    capEl.textContent = chosen;
+  },
+  applyTourChapter(idx, progress = 0) {
+    const ch = TOUR_CHAPTERS[idx];
+    if (!ch) return null;
+    const overlay = document.getElementById('tourOverlay');
+    const badgeEl = document.getElementById('tourBadge');
+    const titleEl = document.getElementById('tourTitle');
+    if (overlay) overlay.classList.remove('hidden');
+    if (badgeEl) badgeEl.textContent = ch.badge;
+    if (titleEl) titleEl.textContent = ch.title;
+    this.updateTourCaptionForProgress(idx, progress);
+    if (ch.setup) ch.setup(this);
+    if (ch.camPos && ch.camTarget && viewCamera && orbitControls) {
+      viewCamera.position.set(ch.camPos[0], ch.camPos[1], ch.camPos[2]);
+      orbitControls.target.set(ch.camTarget[0], ch.camTarget[1], ch.camTarget[2]);
+      orbitControls.update();
+    }
+    return ch;
+  },
+  tourActive: false,
+  tourIndex: 0,
+  tourTimer: null,
+  currentTourAudio: null,
+  startGuidedTour() {
+    this.tourActive = true;
+    this.tourIndex = 0;
+    this.setPanelsHidden(true);
+    const btn = document.getElementById('btnGuidedTour');
+    if (btn) {
+      btn.textContent = '⏹ Stop Tour';
+      btn.classList.add('active');
+    }
+    this.runTourStep();
+  },
+  stopGuidedTour() {
+    this.tourActive = false;
+    if (this.tourTimer) clearTimeout(this.tourTimer);
+    if (this.currentTourAudio) {
+      this.currentTourAudio.pause();
+      this.currentTourAudio = null;
+    }
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    document.getElementById('tourOverlay')?.classList.add('hidden');
+    const btn = document.getElementById('btnGuidedTour');
+    if (btn) {
+      btn.textContent = '🎬 Guided Tour';
+      btn.classList.remove('active');
+    }
+    this.setPanelsHidden(false);
+    setExplodeAmount(centrifugeModel, 0.0);
+    setWireframe(centrifugeModel, false);
+    if (viewCamera && orbitControls) {
+      viewCamera.position.set(4.0, 4.35, -5.2);
+      orbitControls.target.set(-0.25, 2.15, -0.1);
+      orbitControls.update();
+    }
+  },
+  toggleGuidedTour() {
+    if (this.tourActive) this.stopGuidedTour();
+    else this.startGuidedTour();
+  },
+  runTourStep() {
+    if (!this.tourActive) return;
+    if (this.tourIndex >= TOUR_CHAPTERS.length) {
+      this.stopGuidedTour();
+      return;
+    }
+    const ch = this.applyTourChapter(this.tourIndex, 0);
+    const advance = () => {
+      if (!this.tourActive) return;
+      this.tourIndex++;
+      this.tourTimer = setTimeout(() => this.runTourStep(), 800);
+    };
+    const audioUrl = `../../docs/audio/vo_${this.tourIndex}.mp3`;
+    if (this.currentTourAudio) {
+      this.currentTourAudio.pause();
+      this.currentTourAudio = null;
+    }
+    const audio = new Audio(audioUrl);
+    this.currentTourAudio = audio;
+    audio.ontimeupdate = () => {
+      if (audio.duration > 0) {
+        this.updateTourCaptionForProgress(this.tourIndex, audio.currentTime / audio.duration);
+      }
+    };
+    audio.onended = advance;
+    audio.onerror = () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(ch.voiceover);
+        utter.rate = 1.02;
+        utter.onend = advance;
+        utter.onerror = advance;
+        window.speechSynthesis.speak(utter);
+      } else {
+        setTimeout(advance, 8000);
+      }
+    };
+    audio.play().catch(() => {
+      audio.onerror();
+    });
+  },
+  stepTourFrame(idx, p, timeSec) {
+    if (!centrifugeModel || !viewCamera || !orbitControls) return;
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const smooth = (t) => t * t * (3 - 2 * t);
+    const setCam = (pos, tgt) => {
+      viewCamera.position.set(pos[0], pos[1], pos[2]);
+      orbitControls.target.set(tgt[0], tgt[1], tgt[2]);
+      orbitControls.update();
+    };
+
+    if (idx === 0) {
+      setExplodeAmount(centrifugeModel, 0);
+      setWireframe(centrifugeModel, false);
+      c.powered = true;
+      c.lid_open = true;
+      lidOpenAmt = 1.0;
+      if (p < 0.25) {
+        const t = smooth(p / 0.25);
+        const ang = lerp(-2.35, -0.75, t);
+        const rad = lerp(8.2, 6.8, Math.sin(t * Math.PI));
+        setCam([Math.cos(ang) * rad, lerp(4.8, 4.0, t), Math.sin(ang) * rad], [-0.25, 2.15, -0.1]);
+      } else if (p < 0.50) {
+        const t = smooth((p - 0.25) / 0.25);
+        setCam([lerp(-3.8, -1.8, t), lerp(4.4, 3.6, Math.sin(t * Math.PI)), lerp(-3.8, -3.2, t)], [-0.6, 2.1, -0.2]);
+      } else if (p < 0.70) {
+        const t = smooth((p - 0.50) / 0.20);
+        setCam([lerp(-1.2, 0.0, t), lerp(5.2, 4.8, t), lerp(-1.8, -1.2, t)], [0.0, 2.2, 0.0]);
+        if (rotorSpin) rotorSpin.rotation.y = timeSec * 6.0;
+      } else if (p < 0.85) {
+        const t = smooth((p - 0.70) / 0.15);
+        setCam([lerp(-0.8, -0.3, t), lerp(2.8, 2.4, t), lerp(-4.0, -3.4, t)], [-0.2, 1.8, -1.5]);
+      } else {
+        const t = smooth((p - 0.85) / 0.15);
+        setCam([lerp(-0.3, 4.2, t), lerp(2.4, 4.4, t), lerp(-3.4, -5.4, t)], [-0.25, 2.15, -0.1]);
+      }
+    } else if (idx === 1) {
+      const t = smooth(p);
+      setExplodeAmount(centrifugeModel, 0);
+      isPluggedIn = p >= 0.22;
+      powerSwitchOn = p >= 0.35;
+      c.powered = isPluggedIn && powerSwitchOn;
+      setCam(
+        [lerp(3.2, 2.2, t), lerp(3.6, 2.8, t), lerp(4.8, 3.8, t)],
+        [lerp(0.8, 0.5, t), lerp(1.2, 1.0, t), lerp(1.2, 0.8, t)]
+      );
+    } else if (idx === 2) {
+      const t = smooth(p);
+      setExplodeAmount(centrifugeModel, 0);
+      c.powered = true;
+      c.lid_open = true;
+      lidOpenAmt = 1.0;
+      setCam(
+        [lerp(-4.2, -2.8, t), lerp(4.0, 3.4, Math.sin(t * Math.PI)), lerp(-3.8, -2.8, t)],
+        [-1.6, 1.8, -0.2]
+      );
+    } else if (idx === 3) {
+      const t = smooth(p);
+      setExplodeAmount(centrifugeModel, 0);
+      c.powered = true;
+      lidOpenAmt = 1.0 - smooth(Math.min(1.0, Math.max(0, (p - 0.25) / 0.65)));
+      c.lid_open = lidOpenAmt > 0.05;
+      c.lid_locked = lidOpenAmt <= 0.05;
+      setCam(
+        [lerp(-1.0, 0.0, t), lerp(5.4, 4.8, t), lerp(-2.2, -1.6, t)],
+        [0.0, 2.3, 0.0]
+      );
+    } else if (idx === 4) {
+      const t = smooth(p);
+      setExplodeAmount(centrifugeModel, 0);
+      c.powered = true;
+      c.rpm_set = Math.round(lerp(10000, 14000, t));
+      c.temp_set_c = 4;
+      c.time_set_s = 300;
+      setCam(
+        [lerp(-0.8, -0.2, t), lerp(2.9, 2.5, t), lerp(-4.2, -3.5, t)],
+        [-0.2, 1.8, -1.5]
+      );
+    } else if (idx === 5) {
+      const t = smooth(p);
+      setExplodeAmount(centrifugeModel, 0);
+      c.powered = true;
+      c.lid_open = false;
+      c.lid_locked = true;
+      lidOpenAmt = 0;
+      c.state = "RUN";
+      c.rpm_actual = Math.round(lerp(1000, 14000, Math.min(1, p * 1.4)));
+      if (rotorSpin) rotorSpin.rotation.y = timeSec * (c.rpm_actual * 0.08);
+      setCam(
+        [lerp(0.8, 1.4, t), lerp(4.4, 4.2, Math.sin(t * Math.PI)), lerp(-2.6, -2.1, t)],
+        [0.0, 2.3, 0.0]
+      );
+    } else if (idx === 6) {
+      const t = smooth(p);
+      setExplodeAmount(centrifugeModel, 0);
+      c.powered = true;
+      c.rpm_actual = Math.round(lerp(14000, 0, Math.min(1, p * 1.3)));
+      if (rotorSpin && c.rpm_actual > 0) rotorSpin.rotation.y = timeSec * (c.rpm_actual * 0.08);
+      if (c.rpm_actual <= 0) {
+        c.state = "COMPLETE";
+        lidOpenAmt = smooth(Math.min(1.0, Math.max(0, (p - 0.45) * 2.2)));
+        c.lid_open = lidOpenAmt > 0.05;
+        c.lid_locked = false;
+      }
+      setCam(
+        [lerp(-2.2, -1.4, t), lerp(3.8, 3.4, t), lerp(-3.6, -2.8, t)],
+        [-0.3, 2.0, -0.5]
+      );
+    } else if (idx === 7) {
+      const t = smooth(p);
+      setExplodeAmount(centrifugeModel, 0.75);
+      setCam(
+        [lerp(3.6, 2.8, t), lerp(2.8, 2.2, t), lerp(1.6, 0.8, t)],
+        [0.6, 1.4, 0.2]
+      );
+    } else if (idx === 8) {
+      const t = smooth(p);
+      setExplodeAmount(centrifugeModel, 0.75);
+      setCam(
+        [lerp(-2.8, -1.8, t), lerp(2.2, 1.8, t), lerp(1.8, 1.2, t)],
+        [0.0, 1.2, 0.2]
+      );
+    } else if (idx === 9) {
+      const t = smooth(p);
+      if (p <= 0.70) {
+        const subT = smooth(p / 0.70);
+        setExplodeAmount(centrifugeModel, 0.75);
+        setCam(
+          [lerp(-3.0, -2.2, subT), lerp(3.2, 2.6, subT), lerp(-1.8, -1.2, subT)],
+          [-0.7, 1.5, -0.2]
+        );
+      } else {
+        const subT = smooth((p - 0.70) / 0.30);
+        setExplodeAmount(centrifugeModel, lerp(0.75, 0.0, subT));
+        setCam(
+          [lerp(-2.2, 4.2, subT), lerp(2.6, 4.4, subT), lerp(-1.2, -5.4, subT)],
+          [-0.25, 2.15, -0.1]
+        );
+      }
+    }
+
+    if (lidHinge) {
+      lidHinge.rotation.x = -lidOpenAmt * THREE.MathUtils.degToRad(72);
+    }
+    if (renderer3D && scene3D && viewCamera) {
+      renderer3D.render(scene3D, viewCamera);
+    }
+  }
+};
+
+// Wire topbar controls
+document.getElementById("btnGuidedTour")?.addEventListener("click", () => {
+  window.app.toggleGuidedTour();
+});
+
+document.getElementById("btnPowerPlug")?.addEventListener("click", () => {
+  window.app.isPluggedIn = !window.app.isPluggedIn;
+});

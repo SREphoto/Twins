@@ -98,7 +98,7 @@ function addDuplexOutlet(parent, x, y, z) {
   for (const dy of [0.05, -0.05]) {
     const face = box(0.095, 0.072, 0.012, matBody);
     face.position.set(x, y + dy, z - 0.028);
-    face.name = "Lab_Outlet_Receptacle";
+    face.name = "Power_Receptacle_Duplex";
     parent.add(face);
     // Vertical slots
     for (const sx of [-0.02, 0.02]) {
@@ -434,6 +434,20 @@ function cyl(rt, rb, h, mat, seg = 40) {
   return mesh;
 }
 
+export function makeSocketHeadCapScrew(r = 0.018, len = 0.06, headR = 0.03, headH = 0.015) {
+  const g = new THREE.Group();
+  const sc = cyl(r, r, len, M(0xc8ccd0, { r: 0.3, m: 0.85 }), 8);
+  g.add(sc);
+  const head = cyl(headR, headR, headH, M(0xc8ccd0, { r: 0.3, m: 0.85 }), 8);
+  head.position.y = len / 2 + headH / 2;
+  g.add(head);
+  const socket = cyl(headR * 0.55, headR * 0.55, headH * 0.6, M(0x222, { r: 0.8 }), 6);
+  socket.position.y = len / 2 + headH * 0.8;
+  g.add(socket);
+  g.name = "Fastener_HexM4";
+  return g;
+}
+
 /** Flexible cable along control points (world/local coords as given). */
 function makeCable(pts, radius, color, tubularSegments = 48) {
   const curve = new THREE.CatmullRomCurve3(pts.map(([x, y, z]) => new THREE.Vector3(x, y, z)));
@@ -453,7 +467,7 @@ function makeCable(pts, radius, color, tubularSegments = 48) {
  */
 function makeSREdesignsBadge() {
   const g = new THREE.Group();
-  g.name = "SREdesigns_Badge";
+  g.name = "Badge_SREdesigns";
 
   const plateW = 0.98;
   const plateH = 0.28;
@@ -970,7 +984,7 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
   root.name = "Centrifuge_Root";
 
   const bodyGroup = new THREE.Group();
-  bodyGroup.name = "Body_Assembly";
+  bodyGroup.name = "Body_Chassis";
   const consoleG = new THREE.Group();
   consoleG.name = "Console_Assembly";
   const chamberG = new THREE.Group();
@@ -1013,6 +1027,7 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
   const dark = M(0x2a313a, { r: 0.4, m: 0.15 });
 
   // Feet
+  let footIdx = 0;
   for (const [x, z] of [
     [-1.15, -1.4],
     [1.15, -1.4],
@@ -1021,6 +1036,7 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
   ]) {
     const f = cyl(0.11, 0.12, 0.07, M(0x111, { r: 0.9 }), 16);
     f.position.set(x, 0.035, z);
+    f.name = `Foot_Leveling_${++footIdx}`;
     bodyGroup.add(f);
   }
 
@@ -1169,6 +1185,32 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
   boot.name = "Cord_Strain_Relief";
   bodyGroup.add(boot);
 
+  // Rear I/O Communication Ports
+  const portRS = box(0.12, 0.06, 0.04, M(0x475569, { r: 0.4, m: 0.8 }));
+  portRS.position.set(-0.6, 0.48, D / 2 + 0.02);
+  portRS.name = "Port_RS232";
+  bodyGroup.add(portRS);
+
+  const portUSB = box(0.08, 0.04, 0.04, M(0xc8ccd0, { r: 0.3, m: 0.85 }));
+  portUSB.position.set(-0.35, 0.48, D / 2 + 0.02);
+  portUSB.name = "Port_USB";
+  bodyGroup.add(portUSB);
+
+  const usbDrive = box(0.06, 0.03, 0.12, M(0x2563eb, { r: 0.4 }));
+  usbDrive.position.set(-0.35, 0.48, D / 2 + 0.09);
+  usbDrive.name = "USB_Drive";
+  bodyGroup.add(usbDrive);
+
+  const portRJ45 = box(0.09, 0.07, 0.04, M(0x334155, { r: 0.5, m: 0.3 }));
+  portRJ45.position.set(-0.1, 0.48, D / 2 + 0.02);
+  portRJ45.name = "Port_RJ45";
+  bodyGroup.add(portRJ45);
+
+  const antenna = cyl(0.015, 0.015, 0.32, M(0x1e293b, { r: 0.6 }), 8);
+  antenna.position.set(W / 2 + 0.02, 1.25, D / 2 - 0.2);
+  antenna.name = "Antenna_WiFi";
+  bodyGroup.add(antenna);
+
   // Nameplate — front lower-left (SRE designs.com)
   const badge = makeSREdesignsBadge();
   badge.position.set(-W / 2 + 0.58, 0.38, -D / 2 - 0.02);
@@ -1200,12 +1242,12 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
     0x111827,
     72
   );
-  powerCord.name = "Power_Cord";
+  powerCord.name = "Power_Cord_SJTOW";
   stage.add(powerCord);
   // Molded plug into lower receptacle (faces +Z into outlet)
   const plug = box(0.1, 0.07, 0.14, M(0x0a0a0a, { r: 0.55 }));
   plug.position.set(outX, outY - 0.05, outZ - 0.08);
-  plug.name = "Power_Plug";
+  plug.name = "Power_Plug_NEMA";
   stage.add(plug);
   for (const ox of [-0.022, 0.022]) {
     const prong = box(0.016, 0.012, 0.055, M(0xc8ccd0, { r: 0.3, m: 0.85 }));
@@ -1336,7 +1378,7 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
   // Motor under chamber
   const motor = cyl(0.28, 0.28, 0.45, M(0x5a6068, { r: 0.35, m: 0.7 }), 32);
   motor.position.set(0, chFloorY - 0.35, 0);
-  motor.name = "F01_Motor";
+  motor.name = "Motor_Drive";
   drive.add(motor);
   const motorPlate = box(0.7, 0.05, 0.7, M(0x707880, { r: 0.3, m: 0.75 }));
   motorPlate.position.set(0, chFloorY - 0.1, 0);
@@ -1351,7 +1393,7 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
   ]) {
     const sc = cyl(0.018, 0.018, 0.06, M(0xc8ccd0, { r: 0.3, m: 0.85 }), 8);
     sc.position.set(sx, chFloorY - 0.07, sz);
-    sc.name = "F03_MotorScrew";
+    sc.name = "Fastener_HexM4_MotorScrew";
     drive.add(sc);
     const head = cyl(0.03, 0.03, 0.015, M(0xc8ccd0, { r: 0.3, m: 0.85 }), 8);
     head.position.set(sx, chFloorY - 0.04, sz);
@@ -1361,12 +1403,14 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
   // Main control PCB
   const mainPcb = box(0.85, 0.03, 0.55, M(0x1a5c2e, { r: 0.5, m: 0.1 }));
   mainPcb.position.set(-0.7, 0.45, -0.2);
-  mainPcb.name = "F04_MainPCB";
+  mainPcb.name = "PCB_Motherboard";
   drive.add(mainPcb);
-  // chips on PCB
+  // chips on PCB (MCU, RAM, Flash Storage, Wireless RF)
+  const chipNames = ["Part_MCU_Core", "Part_RAM_Chip", "Part_SSD_Module", "WiFi_BLE_Chip"];
   for (let i = 0; i < 4; i++) {
     const chip = box(0.12, 0.04, 0.1, M(0x222, { r: 0.4 }));
     chip.position.set(-0.9 + i * 0.15, 0.48, -0.2);
+    chip.name = chipNames[i];
     drive.add(chip);
   }
   // PCB standoff screws
@@ -1378,13 +1422,14 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
   ]) {
     const sc = cyl(0.012, 0.012, 0.05, M(0xc8ccd0, { r: 0.3, m: 0.8 }), 6);
     sc.position.set(sx, 0.42, sz);
+    sc.name = "Fastener_HexM4_Standoff";
     drive.add(sc);
   }
 
   // Power supply board
   const psu = box(0.7, 0.04, 0.45, M(0x1a5c2e, { r: 0.5, m: 0.1 }));
   psu.position.set(0.75, 0.4, -0.15);
-  psu.name = "F05_PowerPCB";
+  psu.name = "Assembly_PowerSupply";
   drive.add(psu);
   const cap1 = cyl(0.05, 0.05, 0.1, M(0x2244aa, { r: 0.4 }), 12);
   cap1.position.set(0.65, 0.48, -0.15);
@@ -1393,11 +1438,21 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
   heatSink.position.set(0.9, 0.5, -0.15);
   drive.add(heatSink);
 
+  // Auxiliary Toroidal Isolation Transformer
+  const toroid = new THREE.Mesh(
+    new THREE.TorusGeometry(0.12, 0.045, 12, 24),
+    M(0xb45309, { r: 0.35, m: 0.75 })
+  );
+  toroid.position.set(0.65, 0.48, 0.05);
+  toroid.rotation.x = Math.PI / 2;
+  toroid.name = "Part_ToroidalTransformer";
+  drive.add(toroid);
+
   // Fan
   const fan = cyl(0.18, 0.18, 0.08, M(0x333, { r: 0.5 }), 16);
   fan.position.set(0.95, 0.55, 0.6);
   fan.rotation.x = Math.PI / 2;
-  fan.name = "F08_Fan";
+  fan.name = "Fan_CabinetCooling_Blower";
   drive.add(fan);
 
   // Compressor (R) — keep rear-inside so side vents stay readable
@@ -1514,7 +1569,7 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
   wireComp.name = "W07_Compressor";
   drive.add(wireComp);
 
-  // Chamber temp probe (thin sensor lead up into bowl area)
+  // Chamber temp probe (PT100 RTD sensor lead up into bowl area)
   const wireTemp = makeCable(
     [
       [-0.55, 0.48, -0.15],
@@ -1526,8 +1581,15 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
     0xf59e0b,
     22
   );
-  wireTemp.name = "W08_TempProbe";
+  wireTemp.name = "Sensor_PT100";
   drive.add(wireTemp);
+
+  // Optical Tachometer 45-degree Relay Mirror
+  const mirrorRelay = box(0.04, 0.04, 0.01, M(0xe2e8f0, { r: 0.05, m: 0.95 }));
+  mirrorRelay.rotation.x = Math.PI / 4;
+  mirrorRelay.position.set(0.08, chFloorY - 0.18, 0.08);
+  mirrorRelay.name = "Mirror_OpticalRelay";
+  drive.add(mirrorRelay);
 
   // Bundled loom tie wraps (visual)
   for (const [x, y, z] of [
@@ -1737,7 +1799,7 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
   // --- LCD (simple plane facing user) ---
   if (lcdTexture) {
     lcdTexture.colorSpace = THREE.SRGBColorSpace;
-    lcdTexture.flipY = true;
+    lcdTexture.flipY = false;
     lcdTexture.needsUpdate = true;
   }
   const lcdMat = new THREE.MeshBasicMaterial({
@@ -1750,11 +1812,17 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
   const lcdH = 0.42;
   const lcdX = -0.55;
   const lcdY = -0.32;
+  const lcdGeo = new THREE.PlaneGeometry(lcdW, lcdH);
+  const uv = lcdGeo.attributes.uv;
+  for (let i = 0; i < uv.count; i++) {
+    uv.setY(i, 1.0 - uv.getY(i));
+  }
+  uv.needsUpdate = true;
   // Plane defaults to +Z normal → rotate 180° so it faces −Z (user)
-  const lcdMesh = new THREE.Mesh(new THREE.PlaneGeometry(lcdW, lcdH), lcdMat);
+  const lcdMesh = new THREE.Mesh(lcdGeo, lcdMat);
   lcdMesh.rotation.y = Math.PI;
   lcdMesh.position.set(lcdX, lcdY, faceZ - 0.02);
-  lcdMesh.name = "E03_LCD";
+  lcdMesh.name = "UI_LCD";
   consoleG.add(lcdMesh);
 
   // Cyan bezel around LCD (behind the screen plane)
@@ -1790,7 +1858,7 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
     const key = makeKey(label, size.w, size.h, kd, bg, face);
     key.rotation.y = Math.PI; // textured +Z → −Z (user)
     key.position.set(x, y, keyZ);
-    key.name = `btn_${id}`;
+    key.name = `Btn_${id}`;
     key.userData.keyId = id;
     consoleG.add(key);
     buttons.set(id, key);

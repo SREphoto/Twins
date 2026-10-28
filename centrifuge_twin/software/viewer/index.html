@@ -55,7 +55,10 @@
         </div>
       </div>
 
-      <div class="topbar-right">
+      <div class="topbar-right" style="display:flex; align-items:center; gap:0.65rem;">
+        <button type="button" class="pill" id="btnGuidedTour" style="cursor:pointer;" title="Launch 10-Stage Narrated Guided Tour">🎬 GUIDED TOUR</button>
+        <button type="button" class="pill run" id="btnPowerPlug" style="cursor:pointer;" title="Plug / Unplug NEMA 5-15P Mains Cord">⚡ CORD PLUGGED IN</button>
+
         <div class="view-chooser" role="group" aria-label="Visual view style">
           <span class="view-chooser-label">VIEW:</span>
           <div class="view-chooser-group">
@@ -247,6 +250,18 @@
         <div id="showcase-banner" class="showcase-banner" hidden>
           <span id="showcase-banner-text">Full showcase</span>
         </div>
+
+        <!-- Broadcast Cinema Lower-Third Voiceover & Chapter Overlay -->
+        <div id="tourOverlay" class="tour-overlay hidden">
+          <div class="tour-header">
+            <span id="tourBadge" class="tour-badge">STAGE 1 / 10</span>
+            <span id="tourTitle" class="tour-title">Powering On &amp; Electrical Continuity</span>
+          </div>
+          <p id="tourCaption" class="tour-caption">
+            Welcome to the SREdesigns Digital Twin of the Micro 5424-R Centrifuge.
+          </p>
+        </div>
+
         <p id="viewport-status" class="viewport-caption">Loading model…</p>
         <div class="stage-hint">Drag to orbit · Zoom / Light sliders · scroll to zoom · rack left · click keys</div>
       </section>

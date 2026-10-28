@@ -233,6 +233,11 @@ async function main() {
               app.updateTourCaptionForProgress(idx, p);
             }
 
+            if (app.stepTourFrame) {
+              app.stepTourFrame(idx, p, timeSec);
+              return;
+            }
+
             // Hide side panels by default; only show specific panel briefly when directly referenced
             let showInstrumentPanel = false;
             let showLabPanel = false;
