@@ -1292,6 +1292,7 @@ export class KarlFischer3D {
   // Animation Loop & Real-Time Physical Simulation
   // ----------------------------------------------------------------------------
   animate() {
+    if (this.isDestroyed || this.options?.headless || this.options?.skipLoop) return;
     requestAnimationFrame(this.animate);
 
     // Smooth Exploded View Interpolation

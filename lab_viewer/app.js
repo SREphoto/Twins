@@ -29,9 +29,13 @@ class GrandLabApp {
     // Active Machine context for sidebar
     this.activeMachineId = "dissolution_tester";
 
+    window.__labApp = this;
+    window.THREE = THREE;
+
     this._initThree();
     this._initModules();
     this._initUI();
+    this._onZoneOrModeChange("Grand Overview · Architectural Complex", "overview");
     this._initRaycasting();
     this._startLoop();
   }
@@ -150,17 +154,90 @@ class GrandLabApp {
       e.target.value = "";
     });
 
+    // Floating Bottom Navigation Dock
+    this.navPills = document.querySelectorAll(".nav-pill");
+    this.navPills.forEach((pill) => {
+      pill.addEventListener("click", () => {
+        const dest = pill.getAttribute("data-nav");
+        this._handleNavDockClick(dest);
+        labAudio.playButtonClick();
+      });
+    });
+
     // Help controls modal alert
     document.getElementById("btn-help-controls").addEventListener("click", () => {
       alert(
         "Grand Laboratory Navigation Controls:\n\n" +
-        "• Walk: W, A, S, D or Arrow keys\n" +
-        "• Sprint: Hold Shift while walking\n" +
-        "• Look Around: Move mouse (click viewport to lock pointer)\n" +
-        "• Click-to-Glide: Click any machine from distance to glide into operator seat\n" +
-        "• Step Back: Press ESC or click floor to return to walk mode\n" +
-        "• Assistant Sidebar: Press Tab to collapse/expand"
+        "• Overview Mode: Left-click drag to orbit/rotate, right-click to pan, scroll wheel to zoom.\n" +
+        "• Walk Mode: W, A, S, D or Arrow keys, click viewport to lock pointer.\n" +
+        "• Sprint: Hold Shift while walking.\n" +
+        "• Click-to-Glide: Click any machine from across the room to inspect it up close.\n" +
+        "• Escape / Overview Pill: Return to Grand Overview at any time.\n" +
+        "• Assistant Sidebar: Press Tab to collapse/expand."
       );
+    });
+  }
+
+  _handleNavDockClick(dest) {
+    this._setActiveNavPill(dest);
+
+    if (dest === "overview") {
+      this.player.glideToOverview();
+    } else if (dest === "analytical") {
+      this.player.glideToStation(
+        new THREE.Vector3(-6.0, 1.65, -1.8),
+        new THREE.Vector3(-10.2, 1.15, -4.0),
+        "Zone 1: Main Analytical & QC Hall (UV-Vis & FTIR)"
+      );
+    } else if (dest === "pharma") {
+      this.player.glideToStation(
+        new THREE.Vector3(1.8, 1.65, -1.8),
+        new THREE.Vector3(-2.5, 1.2, -4.0),
+        "Zone 1: Pharmaceutical Testing Suite (Dissolution & Disintegration)"
+      );
+    } else if (dest === "synthesis") {
+      this.player.glideToStation(
+        new THREE.Vector3(-10.0, 1.65, 3.5),
+        new THREE.Vector3(-11.5, 1.35, 8.0),
+        "Zone 2: Synthesis & Reaction Bay (Fume Hoods & Rotovap)"
+      );
+    } else if (dest === "sampleprep") {
+      this.player.glideToStation(
+        new THREE.Vector3(0.5, 1.65, 3.5),
+        new THREE.Vector3(-1.0, 1.25, 7.5),
+        "Zone 3: Sample Prep & Lyophilization (Centrifuge & Freeze Dryer)"
+      );
+    } else if (dest === "office") {
+      this.player.glideToStation(
+        new THREE.Vector3(10.2, 1.45, 5.2),
+        new THREE.Vector3(12.2, 1.05, 6.8),
+        "Zone 9: User's Private Executive Office (LIMS Studio)"
+      );
+    } else if (dest === "conference") {
+      this.player.glideToStation(
+        new THREE.Vector3(9.8, 1.45, 1.2),
+        new THREE.Vector3(12.0, 1.05, 2.5),
+        "Zone 10: Executive Conference Room (85\" Display)"
+      );
+    } else if (dest === "airlock") {
+      this.player.glideToStation(
+        new THREE.Vector3(13.0, 1.65, -11.0),
+        new THREE.Vector3(13.0, 1.5, -6.5),
+        "Zone 8: Thermal Air-Lock Vestibule"
+      );
+    } else if (dest === "walk") {
+      this.player.enterWalkMode();
+    }
+  }
+
+  _setActiveNavPill(dest) {
+    if (!this.navPills) return;
+    this.navPills.forEach((p) => {
+      if (p.getAttribute("data-nav") === dest) {
+        p.classList.add("active");
+      } else {
+        p.classList.remove("active");
+      }
     });
   }
 
@@ -169,8 +246,29 @@ class GrandLabApp {
       this.hudZonePill.textContent = zoneName;
     }
 
-    // Dynamic Context Switching in Assistant Sidebar
-    if (zoneName.includes("User's Private Executive Office")) {
+    // Dynamic Context Switching in Assistant Sidebar & Navigation Dock
+    if (mode === "overview" || zoneName.includes("Grand Overview")) {
+      this._setActiveNavPill("overview");
+      this.sidebarBadge.textContent = "OVERVIEW";
+      this.telemetryStationName.textContent = "Grand Complex Overview";
+      this.tStatus.textContent = "17 TWINS READY";
+      this.tParam1.textContent = "Casework Online";
+      this.tTemp.textContent = "21.0 °C";
+      this.tTimer.textContent = "Continuous";
+      this.sopTitle.textContent = "Grand Chemistry & Pharma Complex";
+      this.advisorText.textContent = "Grand Architectural Overview: Explore all 17 digital instrument twins, executive conference suite, and private LIMS office. Use the bottom navigation dock or click any machine to inspect up close.";
+    } else if (mode === "walk") {
+      this._setActiveNavPill("walk");
+      this.sidebarBadge.textContent = "WALK MODE";
+      this.telemetryStationName.textContent = zoneName;
+      this.tStatus.textContent = "NAVIGATING";
+      this.tParam1.textContent = "Eye-Level 1.65m";
+      this.tTemp.textContent = "21.0 °C";
+      this.tTimer.textContent = "WASD Active";
+      this.sopTitle.textContent = "Laboratory Floor Walk";
+      this.advisorText.textContent = "Walk freely using W, A, S, D or Arrow keys. Hold Shift to sprint. Click anywhere on a machine to focus, or press ESC to return to Grand Overview.";
+    } else if (zoneName.includes("User's Private Executive Office")) {
+      this._setActiveNavPill("office");
       this.sidebarBadge.textContent = "OFFICE & LIMS";
       this.telemetryStationName.textContent = "Executive LIMS Studio";
       this.tStatus.textContent = "READY";
@@ -180,6 +278,7 @@ class GrandLabApp {
       this.sopTitle.textContent = "Post-Run Review & Calculations";
       this.advisorText.textContent = "You are in your private office. Use the desktop terminal to review FTIR spectra, dissolution profiles, or conduct stoichiometric and dilution calculations.";
     } else if (zoneName.includes("Executive Conference Room")) {
+      this._setActiveNavPill("conference");
       this.sidebarBadge.textContent = "CONFERENCE";
       this.telemetryStationName.textContent = "Presentation Display (85\")";
       this.tStatus.textContent = "BROADCAST";
@@ -197,7 +296,8 @@ class GrandLabApp {
       this.tTimer.textContent = "Cascade OK";
       this.sopTitle.textContent = "Safety & Gowning Protocol";
       this.advisorText.textContent = "Thermal Air-Lock Vestibule: Dual double-door buffer preventing drafts and temperature swings from destabilizing balances and dissolution baths.";
-    } else if (zoneName.includes("Synthesis & Reaction")) {
+    } else if (zoneName.includes("Synthesis & Reaction") || zoneName.includes("Fume Hood")) {
+      this._setActiveNavPill("synthesis");
       this.sidebarBadge.textContent = "SYNTHESIS";
       this.telemetryStationName.textContent = "Ducted Fume Hood Bay";
       this.tStatus.textContent = "ACTIVE";
@@ -206,6 +306,20 @@ class GrandLabApp {
       this.tTimer.textContent = "Purging";
       this.sopTitle.textContent = "Organic Synthesis Protocol";
       this.advisorText.textContent = "Synthesis Bay: Fume hoods active with Buchi Rotovap, Parr high-pressure reactor, and Bunsen burners with adjustable air collars.";
+    } else if (zoneName.includes("Sample Prep") || zoneName.includes("Centrifuge") || zoneName.includes("Freeze Dryer")) {
+      this._setActiveNavPill("sampleprep");
+      this.sidebarBadge.textContent = "SAMPLE PREP";
+      this.telemetryStationName.textContent = "Sample Prep & Cold Suite";
+      this.tStatus.textContent = "STANDBY";
+      this.tParam1.textContent = "-84.0 °C Condenser";
+      this.tTemp.textContent = "21.0 °C";
+      this.tTimer.textContent = "Ready";
+      this.sopTitle.textContent = "Lyophilization & Centrifugation";
+      this.advisorText.textContent = "Sample Prep Suite: Centrifuge fractions, sonicate samples, and lyophilize heat-labile pharmaceutical compounds in the -84°C freeze dryer.";
+    } else if (zoneName.includes("Dissolution") || zoneName.includes("Disintegration") || zoneName.includes("Karl Fischer")) {
+      this._setActiveNavPill("pharma");
+    } else if (zoneName.includes("Analytical") || zoneName.includes("Spectrophotometer") || zoneName.includes("FTIR") || zoneName.includes("Balance")) {
+      this._setActiveNavPill("analytical");
     } else {
       this.sidebarBadge.textContent = "LAB HALL";
     }
@@ -213,8 +327,16 @@ class GrandLabApp {
 
   _initRaycasting() {
     this.raycaster = new THREE.Raycaster();
-    this.centerMouse = new THREE.Vector2(0, 0); // Center of viewport
+    this.centerMouse = new THREE.Vector2(0, 0); // Center of viewport (used during pointer lock)
+    this.mousePos = new THREE.Vector2(-1000, -1000); // Screen cursor (used during orbit/overview)
     this.hoveredObject = null;
+
+    // Track cursor for hover raycasting in overview mode
+    this.renderer.domElement.addEventListener("pointermove", (e) => {
+      const rect = this.renderer.domElement.getBoundingClientRect();
+      this.mousePos.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      this.mousePos.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    });
 
     // Viewport Click Handler
     this.renderer.domElement.addEventListener("click", (e) => {
@@ -270,10 +392,10 @@ class GrandLabApp {
   }
 
   _jumpToPresetLocation(val) {
-    if (val === "user_office") {
-      this.player.glideToStation(new THREE.Vector3(12.0, 1.25, 6.0), new THREE.Vector3(12.0, 1.05, 6.75), "Zone 9: User's Private Executive Office");
+    if (val === "user_office" || val === "office") {
+      this._handleNavDockClick("office");
     } else if (val === "conference") {
-      this.player.glideToStation(new THREE.Vector3(12.0, 1.25, 0.8), new THREE.Vector3(12.0, 1.2, 2.25), "Zone 10: Executive Conference Room");
+      this._handleNavDockClick("conference");
     } else if (val === "airlock") {
       this.player.glideToStation(new THREE.Vector3(13.0, 1.65, -7.0), new THREE.Vector3(13.0, 1.65, -4.0), "Zone 8: Thermal Air-Lock Vestibule");
     } else {
@@ -288,7 +410,8 @@ class GrandLabApp {
   }
 
   _updateRaycasting() {
-    this.raycaster.setFromCamera(this.centerMouse, this.camera);
+    const coords = (this.player && this.player.isPointerLocked) ? this.centerMouse : this.mousePos;
+    this.raycaster.setFromCamera(coords, this.camera);
 
     // Objects to test: interactive utilities + clickable instrument dock hitboxes
     const targets = [

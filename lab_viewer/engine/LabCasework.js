@@ -86,9 +86,8 @@ export class LabCasework {
       sashGlass: new THREE.MeshPhysicalMaterial({
         color: 0xffffff,
         transparent: true,
-        opacity: 0.45,
+        opacity: 0.35,
         roughness: 0.08,
-        transmission: 0.88,
         ior: 1.5,
         name: "Mat_Sash_Acrylic"
       }),
@@ -124,8 +123,8 @@ export class LabCasework {
     // 5. Synthesis & Reaction Wet Bench (Zone 2): X: -10.0, Z: 5.0, Length: 6.0m, Depth: 1.5m
     this._createDoubleSidedBench(-10.0, 5.0, 6.0, 1.5, "Synthesis_Prep_Bench");
 
-    // 6. Chemical Storage Vault Shelving (Zone 5): X: 6.0, Z: 5.0, Length: 5.0m, Depth: 0.7m
-    this._createStorageRacks(6.0, 5.0, 5.0, 0.7);
+    // 6. Chemical Storage Vault Shelving (Zone 5): North Wall X: 4.5, Z: 8.4, Length: 4.0m, Depth: 0.7m
+    this._createStorageRacks(4.5, 8.4, 4.0, 0.7);
   }
 
   _createDoubleSidedBench(cx, cz, length, depth, name) {
@@ -215,8 +214,9 @@ export class LabCasework {
   }
 
   // --- Ducted Chemical Fume Hoods ---
+  // --- Ducted Chemical Fume Hoods ---
   _buildFumeHoods() {
-    // 2x 6-Ft Labconco Protector Premier Fume Hoods along Northwest wall (Z = 8.3)
+    // 2x 6-Ft Labconco Protector Premier Fume Hoods along Northwest wall (Z = 8.1)
     const hoodXPositions = [-13.5, -9.5];
 
     hoodXPositions.forEach((hx, idx) => {
@@ -226,10 +226,11 @@ export class LabCasework {
 
       const hoodW = 1.83; // 6 feet
       const hoodD = 0.95;
-      const hoodH = 2.4;
+      const hoodH = 2.45;
       const baseH = 0.87;
+      const cavityH = hoodH - baseH;
 
-      // Base Cabinet
+      // Base Cabinet with twin chemical-resistant doors
       const baseCab = new THREE.Mesh(
         new THREE.BoxGeometry(hoodW, baseH, hoodD),
         this.materials.fumeHoodSteel
@@ -237,45 +238,128 @@ export class LabCasework {
       baseCab.position.y = baseH / 2;
       hood.add(baseCab);
 
-      // Chemical Work Surface (Epoxy with dished basin)
+      // Base cabinet stainless handles
+      [-0.45, 0.45].forEach((bx) => {
+        const handle = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.008, 0.008, 0.22, 12),
+          this.materials.cabinetHandle
+        );
+        handle.rotation.z = Math.PI / 2;
+        handle.position.set(bx, baseH * 0.7, -hoodD / 2 - 0.01);
+        hood.add(handle);
+      });
+
+      // Chemical Work Surface (Epoxy with dished basin rim)
       const workDeck = new THREE.Mesh(
         new THREE.BoxGeometry(hoodW + 0.02, 0.03, hoodD + 0.02),
         this.materials.epoxyTop
       );
       workDeck.position.y = baseH + 0.015;
+      workDeck.receiveShadow = true;
       hood.add(workDeck);
 
-      // Upper Fume Enclosure
-      const upperH = hoodH - baseH;
-      const upperShell = new THREE.Mesh(
-        new THREE.BoxGeometry(hoodW, upperH, hoodD),
+      // --- Upper Open Fume Enclosure Structure ---
+      const headerH = 0.38; // Top canopy header with bypass air grill
+      const sideWallT = 0.06;
+      const innerW = hoodW - sideWallT * 2;
+      const openH = cavityH - headerH;
+
+      // 1. Top Bypass Canopy Header
+      const header = new THREE.Mesh(
+        new THREE.BoxGeometry(hoodW, headerH, hoodD),
         this.materials.fumeHoodSteel
       );
-      upperShell.position.set(0, baseH + upperH / 2, 0);
-      hood.add(upperShell);
+      header.position.set(0, hoodH - headerH / 2, 0);
+      hood.add(header);
 
-      // Inner Cavity Liner (Cutout representation)
-      const innerLiner = new THREE.Mesh(
-        new THREE.BoxGeometry(hoodW - 0.16, upperH - 0.25, hoodD - 0.15),
+      // Bypass air slot louvers on header front
+      for (let l = 0; l < 4; l++) {
+        const louver = new THREE.Mesh(
+          new THREE.BoxGeometry(hoodW * 0.75, 0.015, 0.01),
+          this.materials.fumeHoodLining
+        );
+        louver.position.set(0, hoodH - 0.28 + l * 0.05, -hoodD / 2 - 0.005);
+        hood.add(louver);
+      }
+
+      // Exhaust Duct Collar on Top
+      const duct = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.18, 0.18, 0.45, 20),
+        new THREE.MeshStandardMaterial({ color: 0x5a626f, roughness: 0.35, metalness: 0.7 })
+      );
+      duct.position.set(0, hoodH + 0.225, 0);
+      hood.add(duct);
+
+      // 2. Left and Right Aerodynamic Airfoil Side Stiles
+      [-hoodW / 2 + sideWallT / 2, hoodW / 2 - sideWallT / 2].forEach((sx) => {
+        const sideWall = new THREE.Mesh(
+          new THREE.BoxGeometry(sideWallT, openH, hoodD),
+          this.materials.fumeHoodSteel
+        );
+        sideWall.position.set(sx, baseH + openH / 2, 0);
+        hood.add(sideWall);
+
+        // Aerodynamic corner post in front
+        const post = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.04, 0.04, openH, 16),
+          this.materials.fumeHoodSteel
+        );
+        post.position.set(sx > 0 ? sx - 0.01 : sx + 0.01, baseH + openH / 2, -hoodD / 2 + 0.04);
+        hood.add(post);
+      });
+
+      // 3. Rear Acid-Resistant Baffle Wall
+      const rearBaffle = new THREE.Mesh(
+        new THREE.BoxGeometry(innerW, openH, 0.04),
         this.materials.fumeHoodLining
       );
-      innerLiner.position.set(0, baseH + upperH / 2 - 0.05, 0.05);
-      hood.add(innerLiner);
+      rearBaffle.position.set(0, baseH + openH / 2, hoodD / 2 - 0.03);
+      hood.add(rearBaffle);
 
-      // Sliding Acrylic Sash
-      const sashW = hoodW - 0.18;
-      const sashH = 0.75;
+      // Baffle exhaust suction slots
+      [0.2, 0.7, 1.2].forEach((by) => {
+        const slot = new THREE.Mesh(
+          new THREE.BoxGeometry(innerW * 0.85, 0.03, 0.02),
+          new THREE.MeshBasicMaterial({ color: 0x111317 })
+        );
+        slot.position.set(0, baseH + by, hoodD / 2 - 0.01);
+        hood.add(slot);
+      });
+
+      // 4. White Molded Seamless Interior Lining Side Panels
+      [-innerW / 2 + 0.01, innerW / 2 - 0.01].forEach((lx) => {
+        const liner = new THREE.Mesh(
+          new THREE.BoxGeometry(0.015, openH - 0.04, hoodD - 0.12),
+          this.materials.fumeHoodLining
+        );
+        liner.position.set(lx, baseH + openH / 2, 0.02);
+        hood.add(liner);
+      });
+
+      // 5. Sliding Acrylic / Tempered Glass Sash (Raised halfway for clear view)
+      const sashW = innerW + 0.04;
+      const sashH = 0.65;
       const sash = new THREE.Mesh(
-        new THREE.BoxGeometry(sashW, sashH, 0.02),
+        new THREE.BoxGeometry(sashW, sashH, 0.015),
         this.materials.sashGlass
       );
-      sash.position.set(0, baseH + 0.45, -hoodD / 2 + 0.05);
+      // Raised position: bottom of sash is 0.42m above work deck (420mm opening)
+      sash.position.set(0, baseH + 0.42 + sashH / 2, -hoodD / 2 + 0.04);
       hood.add(sash);
       this.fumeHoodSashes.push(sash);
 
-      // Interior Vapor-Proof LED Downlight
-      const hoodLight = new THREE.PointLight(0xf0f6ff, 0.9, 4.0);
-      hoodLight.position.set(0, hoodH - 0.2, 0);
+      // Brushed Aluminum Full-Width Sash Handle Grip
+      const sashHandle = new THREE.Mesh(
+        new THREE.BoxGeometry(sashW + 0.02, 0.03, 0.03),
+        this.materials.cabinetHandle
+      );
+      sashHandle.position.set(0, baseH + 0.42, -hoodD / 2 + 0.04);
+      hood.add(sashHandle);
+
+      // 6. High-Lumen Vapor-Proof LED Downlight Inside Cavity
+      const hoodLight = new THREE.PointLight(0xf4f9ff, 1.4, 5.0, 1.1);
+      hoodLight.position.set(0, hoodH - headerH - 0.1, 0.05);
+      hoodLight.castShadow = true;
       hood.add(hoodLight);
 
       this.root.add(hood);
@@ -373,7 +457,7 @@ export class LabCasework {
       const screenGeo = new THREE.BoxGeometry(0.68, 0.42, 0.03);
       const screenHousing = new THREE.Mesh(screenGeo, this.materials.cabinetBody);
       screenHousing.position.set(mx, 0.26, -0.03);
-      screenHousing.rotation.y = i === 0 ? 0.12 : -0.12;
+      screenHousing.rotation.y = Math.PI + (i === 0 ? -0.14 : 0.14);
       monitorGroup.add(screenHousing);
 
       // Display face with canvas graphics
@@ -429,9 +513,8 @@ export class LabCasework {
         new THREE.PlaneGeometry(0.66, 0.40),
         new THREE.MeshBasicMaterial({ map: monTex })
       );
-      screenFace.position.set(mx, 0.26, -0.01);
-      screenFace.rotation.y = i === 0 ? 0.12 : -0.12;
-      monitorGroup.add(screenFace);
+      screenFace.position.set(0, 0, 0.016);
+      screenHousing.add(screenFace);
     });
 
     // Sleek chiclet keyboard & optical mouse
@@ -547,6 +630,7 @@ export class LabCasework {
       new THREE.BoxGeometry(1.95, 1.15, 0.05),
       this.materials.cabinetBody
     );
+    tvHousing.rotation.y = Math.PI; // Face south towards conference table
     tvGroup.add(tvHousing);
 
     // Presentation Canvas Display
@@ -580,8 +664,8 @@ export class LabCasework {
       new THREE.PlaneGeometry(1.90, 1.10),
       new THREE.MeshBasicMaterial({ map: tvTex })
     );
-    tvScreen.position.z = 0.03;
-    tvGroup.add(tvScreen);
+    tvScreen.position.set(0, 0, 0.026);
+    tvHousing.add(tvScreen);
 
     conf.add(tvGroup);
 
@@ -696,12 +780,12 @@ export class LabCasework {
       this.root.add(station);
     });
 
-    // Justrite Yellow 60-Gallon Flammable Storage Cabinet in Storage Vault (Zone 5)
+    // Justrite Yellow 60-Gallon Flammable Storage Cabinet in Storage Vault (Zone 5, North Wall)
     const flamCab = new THREE.Mesh(
       new THREE.BoxGeometry(1.1, 1.65, 0.86),
       this.materials.safetyYellow
     );
-    flamCab.position.set(8.5, 0.825, 6.0);
+    flamCab.position.set(1.5, 0.825, 8.3);
     flamCab.name = "Justrite_Flammable_Cabinet";
     this.root.add(flamCab);
     this.colliders.push(new THREE.Box3().setFromObject(flamCab));

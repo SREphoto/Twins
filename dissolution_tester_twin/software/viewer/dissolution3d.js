@@ -2394,6 +2394,7 @@ export class Dissolution3D {
   }
 
   animate() {
+    if (this.isDestroyed || this.options?.headless || this.options?.skipLoop) return;
     requestAnimationFrame(this.animate);
 
     // 1. Exploded View Smooth Interpolation

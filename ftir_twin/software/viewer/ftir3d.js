@@ -4257,6 +4257,7 @@ export class FTIR3D {
   }
 
   animate(time = 0) {
+    if (this.isDestroyed || this.options?.headless || this.options?.skipLoop) return;
     requestAnimationFrame(this.animate.bind(this));
     const now = performance.now();
 

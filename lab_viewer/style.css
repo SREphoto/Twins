@@ -495,3 +495,70 @@ body, html {
 .thermal-btn:hover {
   background: #27272a;
 }
+
+/* --- Sleek Floating Bottom Navigation Dock --- */
+.hud-nav-dock {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(10, 14, 20, 0.88);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(45, 55, 72, 0.85);
+  border-radius: 30px;
+  padding: 6px 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 212, 232, 0.12);
+  z-index: 50;
+  transition: all 0.3s ease;
+}
+
+.nav-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid transparent;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.nav-pill:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.nav-pill.active {
+  background: rgba(0, 212, 232, 0.15);
+  color: var(--cyan);
+  border-color: var(--border-focus);
+  box-shadow: 0 0 12px var(--cyan-glow);
+}
+
+.nav-pill-walk {
+  background: rgba(61, 214, 140, 0.1);
+  border-color: rgba(61, 214, 140, 0.3);
+  color: var(--green);
+}
+
+.nav-pill-walk:hover {
+  background: rgba(61, 214, 140, 0.2);
+  border-color: var(--green);
+}
+
+.nav-pill-walk.active {
+  background: var(--green);
+  color: #000;
+  font-weight: 600;
+  border-color: var(--green);
+}

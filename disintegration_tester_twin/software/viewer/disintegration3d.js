@@ -3781,6 +3781,7 @@ export class Disintegration3D {
   // Real-Time 60 FPS USP <701> Sinusoidal Kinematics, Articulation & Reactions
   // --------------------------------------------------------------------------
   animate() {
+    if (this.isDestroyed || this.options?.headless || this.options?.skipLoop) return;
     requestAnimationFrame(() => this.animate());
 
     const dt = Math.min(0.05, this.clock.getDelta());

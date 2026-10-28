@@ -44,7 +44,6 @@ export class LabUtilities {
         opacity: 0.65,
         roughness: 0.05,
         metalness: 0.05,
-        transmission: 0.95,
         ior: 1.333,
         name: "Mat_Flowing_Water"
       }),
@@ -78,7 +77,6 @@ export class LabUtilities {
         opacity: 0.35,
         roughness: 0.08,
         metalness: 0.05,
-        transmission: 0.92,
         ior: 1.47,
         name: "Mat_Pyrex_Glass"
       }),
@@ -88,7 +86,6 @@ export class LabUtilities {
         opacity: 0.65,
         roughness: 0.12,
         metalness: 0.08,
-        transmission: 0.75,
         ior: 1.52,
         name: "Mat_Amber_Reagent_Glass"
       }),
@@ -97,7 +94,6 @@ export class LabUtilities {
         transparent: true,
         opacity: 0.7,
         roughness: 0.05,
-        transmission: 0.92,
         ior: 1.333,
         name: "Mat_Fluid_Clear"
       }),
@@ -106,7 +102,6 @@ export class LabUtilities {
         transparent: true,
         opacity: 0.85,
         roughness: 0.08,
-        transmission: 0.85,
         ior: 1.335,
         name: "Mat_Fluid_Pink_Indicator"
       })
@@ -371,7 +366,7 @@ export class LabUtilities {
     // Amber or clear glass body
     const body = new THREE.Mesh(
       new THREE.CylinderGeometry(0.042, 0.042, 0.14, 16),
-      new THREE.MeshPhysicalMaterial({ color: glassColor, transparent: true, opacity: 0.75, roughness: 0.1, transmission: 0.7 })
+      new THREE.MeshPhysicalMaterial({ color: glassColor, transparent: true, opacity: 0.75, roughness: 0.1 })
     );
     body.position.y = 0.07;
     group.add(body);

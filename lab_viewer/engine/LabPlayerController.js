@@ -2,6 +2,7 @@
  * LabPlayerController.js — Hybrid FPS & Click-to-Glide Camera Kinematics Engine
  * 
  * Features:
+ * - Architectural Overview & Station Inspection via OrbitControls (mouse drag orbit, wheel zoom)
  * - Free First-Person Navigation (WASD + mouse look / Pointer Lock) at eye-level Y = 1.65m
  * - AABB boundary collision against benches, walls, office desks, and fume hoods
  * - Dynamic footstep audio based on surface (terrazzo vs. carpet)
@@ -10,6 +11,7 @@
  * - Interactive raycasting on handles, burners, beakers, printers, and USB sticks
  */
 import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { labAudio } from "./LabSFXMixer.js";
 
 export class LabPlayerController {
@@ -19,21 +21,29 @@ export class LabPlayerController {
     this.colliders = colliders;
     this.onZoneChange = onZoneChange;
 
-    // Player State
-    this.mode = "walk"; // "walk" or "station_focus"
-    this.position = new THREE.Vector3(13.0, 1.65, -7.0); // Spawn in Entrance Airlock
+    // OrbitControls for Architectural Overview & Machine Inspection
+    this.orbitControls = new OrbitControls(this.camera, this.domElement);
+    this.orbitControls.enableDamping = true;
+    this.orbitControls.dampingFactor = 0.08;
+    this.orbitControls.maxPolarAngle = Math.PI / 2 - 0.02; // Prevent clipping through floor
+    this.orbitControls.minDistance = 1.0;
+    this.orbitControls.maxDistance = 45.0;
+
+    // Default Overview Pose (High Angle Isometric Sightline across Grand Lab)
+    this.mode = "overview"; // "overview", "station_focus", or "walk"
+    this.position = new THREE.Vector3(7.2, 3.4, -7.2);
     this.camera.position.copy(this.position);
-    this.cameraTarget = new THREE.Vector3(13.0, 1.65, -4.0); // Looking forward into lab
+    this.cameraTarget = new THREE.Vector3(-6.0, 1.1, 0.5);
+    this.orbitControls.target.copy(this.cameraTarget);
+    this.camera.lookAt(this.cameraTarget);
 
-    // Rotation
+    // First-Person Walk Kinematics
     this.pitch = 0;
-    this.yaw = Math.PI; // Looking North (-Z into room)
+    this.yaw = Math.PI;
     this.isPointerLocked = false;
-
-    // Movement keys
     this.keys = { forward: false, backward: false, left: false, right: false, sprint: false };
     this.velocity = new THREE.Vector3();
-    this.speed = 2.6; // m/s
+    this.speed = 2.8; // m/s
     this.sprintMultiplier = 1.6;
 
     // Camera Glide Lerp State
@@ -43,11 +53,11 @@ export class LabPlayerController {
     this.lerpStartTarget = new THREE.Vector3();
     this.lerpEndTarget = new THREE.Vector3();
     this.lerpProgress = 0;
-    this.lerpDuration = 1.2; // seconds
+    this.lerpDuration = 1.1; // seconds
 
     // Audio & Footsteps
     this.stepTimer = 0;
-    this.currentZone = "Zone 8: Thermal Air-Lock Vestibule";
+    this.currentZone = "Grand Overview · Architectural Complex";
 
     // Raycasting for interactive 3D objects
     this.raycaster = new THREE.Raycaster();
@@ -59,9 +69,17 @@ export class LabPlayerController {
   _setupEventListeners() {
     // Keyboard Listeners
     window.addEventListener("keydown", (e) => {
-      if (this.mode === "station_focus" && e.code === "Escape") {
-        this.stepBackToWalk();
-        return;
+      if (e.code === "Escape") {
+        if (this.mode === "walk" || this.mode === "station_focus") {
+          this.glideToOverview();
+          return;
+        }
+      }
+
+      // If user presses movement keys, enter walk mode if currently in overview
+      const isMoveKey = ["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.code);
+      if (isMoveKey && this.mode !== "walk" && !this.isLerping) {
+        this.enterWalkMode();
       }
 
       switch (e.code) {
@@ -113,7 +131,7 @@ export class LabPlayerController {
       }
     });
 
-    // Pointer Lock & Mouse Look
+    // Pointer Lock & Mouse Look (Only during Walk Mode)
     this.domElement.addEventListener("click", () => {
       if (this.mode === "walk" && !this.isPointerLocked) {
         this.domElement.requestPointerLock?.();
@@ -135,8 +153,9 @@ export class LabPlayerController {
   }
 
   // Glide Camera to a Station Pose
-  glideToStation(targetPos, lookAtTarget, stationName = "Focused Station") {
-    this.mode = "station_focus";
+  glideToStation(targetPos, lookAtTarget, stationName = "Focused Station", mode = "station_focus") {
+    this.mode = mode;
+    this.orbitControls.enabled = false;
     if (document.pointerLockElement) {
       document.exitPointerLock?.();
     }
@@ -150,27 +169,57 @@ export class LabPlayerController {
     this.lerpEndTarget.copy(lookAtTarget);
 
     this.currentZone = stationName;
-    if (this.onZoneChange) this.onZoneChange(stationName, "station_focus");
+    if (this.onZoneChange) this.onZoneChange(stationName, mode);
   }
 
-  // Smoothly step back into Walk Mode
-  stepBackToWalk() {
-    this.mode = "walk";
-    this.isLerping = true;
-    this.lerpProgress = 0;
+  // Glide to Grand Overview
+  glideToOverview() {
+    this.glideToStation(
+      new THREE.Vector3(7.2, 3.4, -7.2),
+      new THREE.Vector3(-6.0, 1.1, 0.5),
+      "Grand Overview · Architectural Complex",
+      "overview"
+    );
+  }
 
-    // Step back 1.2m along look vector
+  // Instant Teleport / Precise Pose Setting (used by automated QA & Viewport Evaluators)
+  setCameraPose(pos, target, mode = "station_focus") {
+    this.mode = mode;
+    this.isLerping = false;
+    this.camera.position.copy(pos);
+    this.cameraTarget.copy(target);
+    this.orbitControls.target.copy(target);
+    this.camera.lookAt(target);
+    this.orbitControls.update();
+  }
+
+  // Transition to First-Person Walk Mode
+  enterWalkMode(pos = null, target = null) {
+    const startPos = pos || (this.camera.position.y > 2.2
+      ? new THREE.Vector3(4.0, 1.65, -3.0)
+      : new THREE.Vector3(this.camera.position.x, 1.65, this.camera.position.z));
+    const lookTarget = target || new THREE.Vector3(-2.0, 1.65, -3.0);
+
+    this.glideToStation(startPos, lookTarget, this._detectZone(startPos.x, startPos.z), "walk");
+  }
+
+  // Smoothly step back from station focus
+  stepBackToWalk() {
+    if (this.camera.position.y > 2.2) {
+      this.glideToOverview();
+      return;
+    }
+
     const dir = new THREE.Vector3().subVectors(this.cameraTarget, this.camera.position).normalize();
-    const returnPos = new THREE.Vector3().copy(this.camera.position).sub(dir.clone().multiplyScalar(1.2));
+    const returnPos = new THREE.Vector3().copy(this.camera.position).sub(dir.clone().multiplyScalar(1.5));
     returnPos.y = 1.65; // Return to eye level
 
-    this.lerpStartPos.copy(this.camera.position);
-    this.lerpEndPos.copy(returnPos);
-
-    this.lerpStartTarget.copy(this.cameraTarget);
-    this.lerpEndTarget.copy(returnPos.clone().add(dir.multiplyScalar(3.0)));
-
-    if (this.onZoneChange) this.onZoneChange(this._detectZone(returnPos.x, returnPos.z), "walk");
+    this.glideToStation(
+      returnPos,
+      returnPos.clone().add(dir.multiplyScalar(3.0)),
+      this._detectZone(returnPos.x, returnPos.z),
+      "walk"
+    );
   }
 
   update(delta) {
@@ -182,6 +231,16 @@ export class LabPlayerController {
         this.camera.position.copy(this.lerpEndPos);
         this.cameraTarget.copy(this.lerpEndTarget);
         this.camera.lookAt(this.cameraTarget);
+
+        if (this.mode !== "walk") {
+          this.orbitControls.target.copy(this.cameraTarget);
+          this.orbitControls.enabled = true;
+        } else {
+          // Initialize yaw and pitch from look vector
+          const dir = new THREE.Vector3().subVectors(this.cameraTarget, this.camera.position).normalize();
+          this.yaw = Math.atan2(-dir.x, -dir.z);
+          this.pitch = Math.asin(Math.max(-0.95, Math.min(0.95, dir.y)));
+        }
       } else {
         // Cubic Hermite easing
         const t = this.lerpProgress;
@@ -196,6 +255,9 @@ export class LabPlayerController {
 
     if (this.mode === "walk") {
       this._updateWalkMovement(delta);
+    } else {
+      this.orbitControls.update();
+      this.cameraTarget.copy(this.orbitControls.target);
     }
   }
 

@@ -1093,6 +1093,7 @@ export class FreezeDryer3D {
   }
 
   animate() {
+    if (this.isDestroyed || this.options?.headless || this.options?.skipLoop) return;
     requestAnimationFrame(this.animate);
     this.updatePhysics(0.016);
     this.renderer.render(this.scene, this.camera);
