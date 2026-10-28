@@ -219,11 +219,23 @@ class GrandLabApp {
         new THREE.Vector3(12.0, 1.05, 2.5),
         "Zone 10: Executive Conference Room (85\" Display)"
       );
+    } else if (dest === "restroom") {
+      this.player.glideToStation(
+        new THREE.Vector3(13.8, 1.55, -2.25),
+        new THREE.Vector3(10.5, 1.30, -2.25),
+        "Zone 7: ADA Accessible Restroom Suite"
+      );
     } else if (dest === "airlock") {
       this.player.glideToStation(
         new THREE.Vector3(13.0, 1.65, -11.0),
         new THREE.Vector3(13.0, 1.5, -6.5),
         "Zone 8: Thermal Air-Lock Vestibule"
+      );
+    } else if (dest === "exterior") {
+      this.player.glideToStation(
+        new THREE.Vector3(10.0, 4.5, -28.0),
+        new THREE.Vector3(12.5, 1.8, -9.0),
+        "Exterior Campus: Parking Lot & Landscaping"
       );
     } else if (dest === "walk") {
       this.player.enterWalkMode();
@@ -287,6 +299,26 @@ class GrandLabApp {
       this.tTimer.textContent = "Meeting Active";
       this.sopTitle.textContent = "Lab Review & Briefing";
       this.advisorText.textContent = "Executive Conference Room: Present lab data, review student findings, or project live analytical spectra onto the 85\" display.";
+    } else if (zoneName.includes("Restroom Suite") || zoneName.includes("ADA Accessible Restroom")) {
+      this._setActiveNavPill("restroom");
+      this.sidebarBadge.textContent = "RESTROOM";
+      this.telemetryStationName.textContent = "ADA Restroom Suite";
+      this.tStatus.textContent = "ACCESSIBLE";
+      this.tParam1.textContent = "Touchless Fixtures";
+      this.tTemp.textContent = "21.0 °C";
+      this.tTimer.textContent = "Active";
+      this.sopTitle.textContent = "Sanitary & ADA Compliance";
+      this.advisorText.textContent = "ADA Compliant All-Gender Restroom Suite with non-slip porcelain tile, commercial wall-hung toilet with Sloan flushometer valve, floating quartz vanity, and touchless Dyson hand dryer.";
+    } else if (zoneName.includes("Exterior Campus") || zoneName.includes("Parking Lot")) {
+      this._setActiveNavPill("exterior");
+      this.sidebarBadge.textContent = "CAMPUS";
+      this.telemetryStationName.textContent = "Biomedical Campus Grounds";
+      this.tStatus.textContent = "ONLINE";
+      this.tParam1.textContent = "EV Charging 32A";
+      this.tTemp.textContent = "18.5 °C";
+      this.tTimer.textContent = "Daylight LED";
+      this.sopTitle.textContent = "Facility Site & Parking";
+      this.advisorText.textContent = "Exterior campus grounds featuring asphalt parking lot, dedicated ADA van accessible stall, commercial dual-port EV charging station, concrete curbs, pedestrian promenade, boxwood shrubs, and birch tree planters.";
     } else if (zoneName.includes("Thermal Air-Lock")) {
       this.sidebarBadge.textContent = "AIRLOCK";
       this.telemetryStationName.textContent = "Entrance HVAC Buffer";
@@ -396,6 +428,10 @@ class GrandLabApp {
       this._handleNavDockClick("office");
     } else if (val === "conference") {
       this._handleNavDockClick("conference");
+    } else if (val === "restroom") {
+      this._handleNavDockClick("restroom");
+    } else if (val === "exterior") {
+      this._handleNavDockClick("exterior");
     } else if (val === "airlock") {
       this.player.glideToStation(new THREE.Vector3(13.0, 1.65, -7.0), new THREE.Vector3(13.0, 1.65, -4.0), "Zone 8: Thermal Air-Lock Vestibule");
     } else {

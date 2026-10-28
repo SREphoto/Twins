@@ -1967,13 +1967,13 @@ export function createCentrifugeModel(lcdTexture, opts = {}) {
   const restPositions = {};
   for (const k of Object.keys(assemblies)) restPositions[k] = assemblies[k].position.clone();
   const explodeOffsets = {
-    body: new THREE.Vector3(0, -0.15, 0.15),
-    console: new THREE.Vector3(0, 0.05, -1.1),
-    chamber: new THREE.Vector3(0, 0.35, 0),
-    rotor: new THREE.Vector3(0, 1.15, 0),
-    lid: new THREE.Vector3(0, 1.5, 0.4),
-    rack: new THREE.Vector3(-0.85, 0.05, 0),
-    drive: new THREE.Vector3(0, -0.9, 0.2),
+    body: new THREE.Vector3(0, 1.35, 0),
+    console: new THREE.Vector3(0, 0.05, -0.9),
+    chamber: new THREE.Vector3(0, 1.85, 0),
+    rotor: new THREE.Vector3(0, 2.35, 0),
+    lid: new THREE.Vector3(0, 2.85, 0.3),
+    rack: new THREE.Vector3(-0.95, 0.05, 0),
+    drive: new THREE.Vector3(0, 0.0, 0),
   };
 
   const lidMeshes = [];

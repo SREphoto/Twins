@@ -30,6 +30,7 @@ export class LabEnvironment3D {
     this._buildStructuralPillars();
     this._buildCeilingAndLighting();
     this._buildBiophilicWall();
+    this._buildExteriorCampusSite();
 
     this.scene.add(this.root);
   }
@@ -142,6 +143,77 @@ export class LabEnvironment3D {
       emissiveIntensity: 1.1,
       roughness: 0.2,
       name: "Mat_LED_Emitter"
+    });
+
+    // Exterior Campus & Parking Materials
+    this.materials.asphalt = new THREE.MeshStandardMaterial({
+      color: 0x181c22,
+      roughness: 0.88,
+      metalness: 0.05,
+      name: "Mat_Parking_Asphalt"
+    });
+
+    this.materials.parkingStripe = new THREE.MeshStandardMaterial({
+      color: 0xf8fafc,
+      roughness: 0.35,
+      metalness: 0.0,
+      name: "Mat_Reflective_Stripe"
+    });
+
+    this.materials.adaBlue = new THREE.MeshStandardMaterial({
+      color: 0x0284c7,
+      roughness: 0.45,
+      metalness: 0.0,
+      name: "Mat_ADA_Blue"
+    });
+
+    this.materials.adaYellow = new THREE.MeshStandardMaterial({
+      color: 0xfacc15,
+      roughness: 0.4,
+      metalness: 0.0,
+      name: "Mat_ADA_Yellow"
+    });
+
+    this.materials.grassTurf = new THREE.MeshStandardMaterial({
+      color: 0x244f2a,
+      roughness: 0.95,
+      metalness: 0.0,
+      name: "Mat_Lawn_Turf"
+    });
+
+    this.materials.mulchBed = new THREE.MeshStandardMaterial({
+      color: 0x26190e,
+      roughness: 0.9,
+      metalness: 0.0,
+      name: "Mat_Dark_Mulch"
+    });
+
+    this.materials.boxwoodGreen = new THREE.MeshStandardMaterial({
+      color: 0x184420,
+      roughness: 0.78,
+      metalness: 0.02,
+      name: "Mat_Boxwood_Foliage"
+    });
+
+    this.materials.concreteCurb = new THREE.MeshStandardMaterial({
+      color: 0x64748b,
+      roughness: 0.75,
+      metalness: 0.1,
+      name: "Mat_Concrete_Curb"
+    });
+
+    this.materials.treeTrunk = new THREE.MeshStandardMaterial({
+      color: 0x524338,
+      roughness: 0.85,
+      metalness: 0.0,
+      name: "Mat_Birch_Bark"
+    });
+
+    this.materials.treeLeaves = new THREE.MeshStandardMaterial({
+      color: 0x2e6d3e,
+      roughness: 0.72,
+      metalness: 0.02,
+      name: "Mat_Tree_Canopy"
     });
   }
 
@@ -265,14 +337,42 @@ export class LabEnvironment3D {
     // Glass wall dividing User Office / Conference from Central Corridor (Z = 0.5, X: 8.0 to 16.0)
     this._buildGlassPartitionWall(12.0, 0.5, 8.0, H, "X");
 
-    // Partition separating Restroom (X: 12.0 to 16.0, Z: -4.5 to 0.0)
-    const restroomWall = new THREE.Mesh(
-      new THREE.BoxGeometry(wallT, H, 4.5),
+    // Partition separating Restroom (X: 8.0 to 11.60, Z: -4.55 to 0.0) from Entrance Corridor (X: 11.60 to 16.0)
+    // South wall segment (Z: -4.55 to -2.85, width = 1.70m, center = -3.70m)
+    const restroomSouthWall = new THREE.Mesh(
+      new THREE.BoxGeometry(wallT, H, 1.70),
       this.materials.charcoalConcrete
     );
-    restroomWall.position.set(12.0, H / 2, -2.25);
-    this.root.add(restroomWall);
-    this.colliders.push(new THREE.Box3().setFromObject(restroomWall));
+    restroomSouthWall.position.set(11.60, H / 2, -3.70);
+    this.root.add(restroomSouthWall);
+    this.colliders.push(new THREE.Box3().setFromObject(restroomSouthWall));
+
+    // North wall segment (Z: -1.65 to 0.0, width = 1.65m, center = -0.825m)
+    const restroomNorthWall = new THREE.Mesh(
+      new THREE.BoxGeometry(wallT, H, 1.65),
+      this.materials.charcoalConcrete
+    );
+    restroomNorthWall.position.set(11.60, H / 2, -0.825);
+    this.root.add(restroomNorthWall);
+    this.colliders.push(new THREE.Box3().setFromObject(restroomNorthWall));
+
+    // Header segment above doorway (Z: -2.85 to -1.65, width = 1.20m, height = 1.40m, center Y = 3.10m)
+    const restroomHeader = new THREE.Mesh(
+      new THREE.BoxGeometry(wallT, 1.40, 1.20),
+      this.materials.charcoalConcrete
+    );
+    restroomHeader.position.set(11.60, 3.10, -2.25);
+    this.root.add(restroomHeader);
+    this.colliders.push(new THREE.Box3().setFromObject(restroomHeader));
+
+    // North dividing wall of Restroom Suite (Z = 0.0, X: 8.0 to 11.60, width = 3.60m, center X = 9.80)
+    const restroomDividingNorthWall = new THREE.Mesh(
+      new THREE.BoxGeometry(3.60, H, wallT),
+      this.materials.wallDrywall
+    );
+    restroomDividingNorthWall.position.set(9.80, H / 2, 0.0);
+    this.root.add(restroomDividingNorthWall);
+    this.colliders.push(new THREE.Box3().setFromObject(restroomDividingNorthWall));
 
     // Synthesis Bay Architectural Low Glass Partition with Bronze Cap Rail (X = -5.0, Z: 1.0 to 9.0)
     this._buildGlassPartitionWall(-5.0, 5.0, 8.0, 1.15, "Z");
@@ -699,7 +799,11 @@ export class LabEnvironment3D {
       // User's Private Executive Office (Zone 9)
       { x: 12.0, z: 6.75, len: 3.2, sx: 3.8, sz: 2.0 },
       // Thermal Airlock Vestibule (Zone 8)
-      { x: 13.0, z: -6.75, len: 2.8, sx: 3.2, sz: 1.8 }
+      { x: 13.0, z: -6.75, len: 2.8, sx: 3.2, sz: 1.8 },
+      // ADA Restroom Suite (Zone 7)
+      { x: 9.8, z: -2.25, len: 2.8, sx: 3.4, sz: 1.8 },
+      // Entrance Corridor & Gallery
+      { x: 13.8, z: -2.25, len: 3.2, sx: 3.6, sz: 1.8 }
     ];
 
     benchLinearLights.forEach((cfg, idx) => {
@@ -749,5 +853,410 @@ export class LabEnvironment3D {
     mossWallGroup.add(moss);
 
     this.root.add(mossWallGroup);
+  }
+
+  // --- Exterior Campus, Parking Lot & Landscaping Architecture ---
+  _buildExteriorCampusSite() {
+    const siteGroup = new THREE.Group();
+    siteGroup.name = "Exterior_Campus_Site_Root";
+
+    // 1. Manicured Green Turf Lawn Ground Base (X: -36.0 to 36.0, Z: -9.0 to -36.0)
+    const lawnGeo = new THREE.PlaneGeometry(72.0, 27.0);
+    const lawn = new THREE.Mesh(lawnGeo, this.materials.grassTurf);
+    lawn.rotation.x = -Math.PI / 2;
+    lawn.position.set(0, -0.05, -22.5);
+    lawn.receiveShadow = true;
+    siteGroup.add(lawn);
+
+    // 2. Heavy-Duty Asphalt Parking Lot Slab (X: -24.0 to 24.0, Z: -13.5 to -31.5, size 48m x 18m)
+    const asphaltGeo = new THREE.BoxGeometry(48.0, 0.04, 18.0);
+    const asphalt = new THREE.Mesh(asphaltGeo, this.materials.asphalt);
+    asphalt.position.set(0, -0.02, -22.5);
+    asphalt.receiveShadow = true;
+    siteGroup.add(asphalt);
+
+    // 3. Precast Concrete Curbs Framing Parking Envelope
+    // North Curb Left Segment (X: -24.0 to 11.2)
+    const curbN1 = new THREE.Mesh(
+      new THREE.BoxGeometry(35.2, 0.15, 0.16),
+      this.materials.concreteCurb
+    );
+    curbN1.position.set(-6.4, 0.075, -13.5);
+    siteGroup.add(curbN1);
+
+    // North Curb Right Segment (X: 14.8 to 24.0)
+    const curbN2 = new THREE.Mesh(
+      new THREE.BoxGeometry(9.2, 0.15, 0.16),
+      this.materials.concreteCurb
+    );
+    curbN2.position.set(19.4, 0.075, -13.5);
+    siteGroup.add(curbN2);
+
+    // South Curb (X: -24.0 to 24.0 at Z = -31.5)
+    const curbS = new THREE.Mesh(
+      new THREE.BoxGeometry(48.0, 0.15, 0.16),
+      this.materials.concreteCurb
+    );
+    curbS.position.set(0, 0.075, -31.5);
+    siteGroup.add(curbS);
+
+    // West & East Curbs
+    [-24.0, 24.0].forEach(cx => {
+      const curbSide = new THREE.Mesh(
+        new THREE.BoxGeometry(0.16, 0.15, 18.0),
+        this.materials.concreteCurb
+      );
+      curbSide.position.set(cx, 0.075, -22.5);
+      siteGroup.add(curbSide);
+    });
+
+    // 4. White Reflective Thermoplastic Parking Stalls & Concrete Wheel Stops
+    // North Row Stalls (X: -21.0 to 5.4, Z: -19.0 to -13.8, depth 5.2m)
+    const stallWidth = 2.8;
+    const stallDepth = 5.2;
+    for (let i = 0; i < 9; i++) {
+      const sx = -20.0 + i * stallWidth;
+      // White stall divider stripe
+      const stripe = new THREE.Mesh(
+        new THREE.BoxGeometry(0.12, 0.005, stallDepth),
+        this.materials.parkingStripe
+      );
+      stripe.position.set(sx - stallWidth / 2, 0.003, -16.4);
+      siteGroup.add(stripe);
+
+      // Concrete Wheel Stop at head of stall
+      const wheelStop = new THREE.Mesh(
+        new THREE.BoxGeometry(1.8, 0.12, 0.15),
+        this.materials.concreteCurb
+      );
+      wheelStop.position.set(sx, 0.06, -14.2);
+      siteGroup.add(wheelStop);
+
+      // Yellow hazard end caps on wheel stop
+      [-0.85, 0.85].forEach(ex => {
+        const cap = new THREE.Mesh(
+          new THREE.BoxGeometry(0.10, 0.125, 0.155),
+          this.materials.adaYellow
+        );
+        cap.position.set(sx + ex, 0.06, -14.2);
+        siteGroup.add(cap);
+      });
+    }
+
+    // Right end stripe for last regular stall
+    const regularEndStripe = new THREE.Mesh(
+      new THREE.BoxGeometry(0.12, 0.005, stallDepth),
+      this.materials.parkingStripe
+    );
+    regularEndStripe.position.set(-20.0 + 8.5 * stallWidth, 0.003, -16.4);
+    siteGroup.add(regularEndStripe);
+
+    // 5. Dedicated ADA Accessible Van Parking Stall with Blue Box & Stencil (X = 6.6, Z: -16.4)
+    const adaStallBox = new THREE.Mesh(
+      new THREE.BoxGeometry(3.6, 0.006, stallDepth),
+      this.materials.adaBlue
+    );
+    adaStallBox.position.set(6.6, 0.003, -16.4);
+    siteGroup.add(adaStallBox);
+
+    // Universal Wheelchair Pictogram Stencil Texture
+    const adaCanvas = document.createElement("canvas");
+    adaCanvas.width = 256;
+    adaCanvas.height = 256;
+    const adaCtx = adaCanvas.getContext("2d");
+    adaCtx.fillStyle = "#0284c7";
+    adaCtx.fillRect(0, 0, 256, 256);
+    adaCtx.strokeStyle = "#ffffff";
+    adaCtx.fillStyle = "#ffffff";
+    adaCtx.lineWidth = 14;
+    adaCtx.lineCap = "round";
+    // Stylized Wheelchair icon
+    adaCtx.beginPath();
+    adaCtx.arc(128, 70, 20, 0, Math.PI * 2); // Head
+    adaCtx.fill();
+    adaCtx.beginPath();
+    adaCtx.arc(120, 160, 48, 0, Math.PI * 1.5, true); // Wheel
+    adaCtx.stroke();
+    adaCtx.beginPath();
+    adaCtx.moveTo(128, 96);
+    adaCtx.lineTo(128, 150);
+    adaCtx.lineTo(165, 150);
+    adaCtx.lineTo(185, 195);
+    adaCtx.stroke();
+    adaCtx.beginPath();
+    adaCtx.moveTo(128, 120);
+    adaCtx.lineTo(160, 120);
+    adaCtx.stroke();
+
+    const adaTex = new THREE.CanvasTexture(adaCanvas);
+    const adaStencil = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.6, 1.6),
+      new THREE.MeshBasicMaterial({ map: adaTex, transparent: true })
+    );
+    adaStencil.rotation.x = -Math.PI / 2;
+    adaStencil.position.set(6.6, 0.008, -16.4);
+    siteGroup.add(adaStencil);
+
+    // Wheel stop for ADA stall
+    const adaWheelStop = new THREE.Mesh(
+      new THREE.BoxGeometry(2.0, 0.12, 0.15),
+      this.materials.concreteCurb
+    );
+    adaWheelStop.position.set(6.6, 0.06, -14.2);
+    siteGroup.add(adaWheelStop);
+
+    // Cross-Hatched Yellow Loading Access Aisle (X: 8.4 to 10.4)
+    const hatchCanvas = document.createElement("canvas");
+    hatchCanvas.width = 256;
+    hatchCanvas.height = 512;
+    const hCtx = hatchCanvas.getContext("2d");
+    hCtx.fillStyle = "#181c22";
+    hCtx.fillRect(0, 0, 256, 512);
+    hCtx.strokeStyle = "#facc15";
+    hCtx.lineWidth = 10;
+    for (let y = -256; y < 768; y += 48) {
+      hCtx.beginPath();
+      hCtx.moveTo(0, y);
+      hCtx.lineTo(256, y + 256);
+      hCtx.stroke();
+    }
+    const hatchTex = new THREE.CanvasTexture(hatchCanvas);
+    const hatchAisle = new THREE.Mesh(
+      new THREE.PlaneGeometry(2.0, stallDepth),
+      new THREE.MeshBasicMaterial({ map: hatchTex })
+    );
+    hatchAisle.rotation.x = -Math.PI / 2;
+    hatchAisle.position.set(9.4, 0.004, -16.4);
+    siteGroup.add(hatchAisle);
+
+    // 6. Commercial Dual-Port EV Fast Charging Pedestal at Head of Stalls (X = 4.4, Z = -13.8)
+    const evPedestal = new THREE.Group();
+    evPedestal.position.set(4.4, 0, -13.8);
+
+    const evBase = new THREE.Mesh(
+      new THREE.BoxGeometry(0.42, 0.10, 0.32),
+      this.materials.concreteCurb
+    );
+    evBase.position.y = 0.05;
+    evPedestal.add(evBase);
+
+    const evBody = new THREE.Mesh(
+      new THREE.BoxGeometry(0.32, 1.40, 0.22),
+      new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3, metalness: 0.85 })
+    );
+    evBody.position.y = 0.75;
+    evPedestal.add(evBody);
+
+    // Dual Glowing Status Halos (Cyan Standby)
+    [-0.08, 0.08].forEach(hx => {
+      const halo = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.045, 0.045, 0.02, 16),
+        new THREE.MeshBasicMaterial({ color: 0x00d4e8 })
+      );
+      halo.rotation.x = Math.PI / 2;
+      halo.position.set(hx, 1.25, 0.115);
+      evPedestal.add(halo);
+
+      // Holstered J1772 / NACS charging handle
+      const plug = new THREE.Mesh(
+        new THREE.BoxGeometry(0.06, 0.12, 0.08),
+        this.materials.cabinetBody
+      );
+      plug.position.set(hx, 0.95, 0.12);
+      evPedestal.add(plug);
+    });
+
+    siteGroup.add(evPedestal);
+
+    // 7. Broad Concrete Pedestrian Promenade Walkway (X = 13.0, Z: -13.5 to -9.0, width 3.6m)
+    const walkGeo = new THREE.BoxGeometry(3.6, 0.05, 4.5);
+    const walkway = new THREE.Mesh(walkGeo, this.materials.concreteCurb);
+    walkway.position.set(13.0, 0.025, -11.25);
+    walkway.receiveShadow = true;
+    siteGroup.add(walkway);
+
+    // Expansion joint divider lines along walkway
+    for (let jz = -13.0; jz <= -9.5; jz += 1.2) {
+      const joint = new THREE.Mesh(
+        new THREE.BoxGeometry(3.58, 0.005, 0.015),
+        this.materials.cabinetBody
+      );
+      joint.position.set(13.0, 0.052, jz);
+      siteGroup.add(joint);
+    }
+
+    // 8. Landscape Mulch Beds Flanking Promenade & Building Front
+    // West Mulch Bed (X: -18.0 to 8.5, Z: -13.4 to -9.1)
+    const westMulch = new THREE.Mesh(
+      new THREE.BoxGeometry(26.5, 0.06, 4.2),
+      this.materials.mulchBed
+    );
+    westMulch.position.set(-4.75, 0.01, -11.25);
+    westMulch.receiveShadow = true;
+    siteGroup.add(westMulch);
+
+    // East Mulch Bed (X: 17.5 to 24.0, Z: -13.4 to -9.1)
+    const eastMulch = new THREE.Mesh(
+      new THREE.BoxGeometry(6.5, 0.06, 4.2),
+      this.materials.mulchBed
+    );
+    eastMulch.position.set(20.75, 0.01, -11.25);
+    eastMulch.receiveShadow = true;
+    siteGroup.add(eastMulch);
+
+    // 9. Sculpted Evergreen Boxwood Globes (8 Shrub Spheres)
+    const boxwoodCoords = [
+      [-16.0, -11.5], [-12.0, -11.0], [-8.0, -11.5], [-4.0, -11.0],
+      [0.0, -11.5], [4.0, -11.0], [18.5, -11.5], [22.0, -11.0]
+    ];
+    boxwoodCoords.forEach(([bx, bz]) => {
+      const boxwood = new THREE.Mesh(
+        new THREE.DodecahedronGeometry(0.38, 2),
+        this.materials.boxwoodGreen
+      );
+      boxwood.position.set(bx, 0.40, bz);
+      boxwood.castShadow = true;
+      siteGroup.add(boxwood);
+    });
+
+    // 10. Clipped Formal Privet Foundation Hedges (4 Hedge Blocks)
+    const hedgeCoords = [
+      [-14.0, -9.6, 5.0], [-5.0, -9.6, 6.0], [3.0, -9.6, 5.0], [20.0, -9.6, 4.5]
+    ];
+    hedgeCoords.forEach(([hx, hz, hw]) => {
+      const hedge = new THREE.Mesh(
+        new THREE.BoxGeometry(hw, 0.85, 0.55),
+        this.materials.boxwoodGreen
+      );
+      hedge.position.set(hx, 0.425, hz);
+      hedge.castShadow = true;
+      siteGroup.add(hedge);
+    });
+
+    // 11. Modern Monolithic Square Tree Planters with Architectural Birch Trees Flanking Entrance
+    [10.2, 15.8].forEach((tx) => {
+      const planter = new THREE.Mesh(
+        new THREE.BoxGeometry(1.6, 0.65, 1.6),
+        this.materials.concreteCurb
+      );
+      planter.position.set(tx, 0.325, -11.25);
+      siteGroup.add(planter);
+
+      const pSoil = new THREE.Mesh(
+        new THREE.BoxGeometry(1.4, 0.05, 1.4),
+        this.materials.mulchBed
+      );
+      pSoil.position.set(tx, 0.63, -11.25);
+      siteGroup.add(pSoil);
+
+      // Procedural Branching Birch Tree Trunk
+      const trunk = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.06, 0.09, 2.6, 12),
+        this.materials.treeTrunk
+      );
+      trunk.position.set(tx, 1.9, -11.25);
+      trunk.castShadow = true;
+      siteGroup.add(trunk);
+
+      // Layered Canopy Foliage Clusters
+      [
+        { y: 2.8, r: 0.65, zOff: 0.0 },
+        { y: 3.3, r: 0.55, zOff: 0.15 },
+        { y: 3.6, r: 0.45, zOff: -0.1 }
+      ].forEach((layer) => {
+        const leaves = new THREE.Mesh(
+          new THREE.DodecahedronGeometry(layer.r, 2),
+          this.materials.treeLeaves
+        );
+        leaves.position.set(tx + (layer.zOff * 0.8), layer.y, -11.25 + layer.zOff);
+        leaves.castShadow = true;
+        siteGroup.add(leaves);
+      });
+    });
+
+    // 12. Commercial Parking Lot LED Cobra-Head Light Poles (6.5m Height)
+    [-10.0, 14.0].forEach((lx) => {
+      const pole = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.09, 0.14, 6.5, 16),
+        new THREE.MeshStandardMaterial({ color: 0x1e242d, roughness: 0.3, metalness: 0.85 })
+      );
+      pole.position.set(lx, 3.25, -22.5);
+      pole.castShadow = true;
+      siteGroup.add(pole);
+
+      // Dual forward-throw LED shoebox luminaires
+      [-0.45, 0.45].forEach((az) => {
+        const lum = new THREE.Mesh(
+          new THREE.BoxGeometry(0.35, 0.12, 0.80),
+          this.materials.cabinetBody
+        );
+        lum.position.set(lx, 6.45, -22.5 + az);
+        siteGroup.add(lum);
+
+        const led = new THREE.Mesh(
+          new THREE.BoxGeometry(0.28, 0.02, 0.70),
+          this.materials.ledLightPanel
+        );
+        led.position.set(lx, 6.38, -22.5 + az);
+        siteGroup.add(led);
+      });
+
+      // Exterior Area Light
+      const siteLight = new THREE.PointLight(0xfffaed, 1.2, 18.0, 1.2);
+      siteLight.position.set(lx, 6.3, -22.5);
+      siteGroup.add(siteLight);
+    });
+
+    // 13. Modern Architectural Monument Campus Sign on Lawn (X = 6.0, Z = -11.2)
+    const signGroup = new THREE.Group();
+    signGroup.position.set(6.0, 0, -11.2);
+
+    const signPlinth = new THREE.Mesh(
+      new THREE.BoxGeometry(2.4, 0.25, 0.5),
+      this.materials.charcoalConcrete
+    );
+    signPlinth.position.y = 0.125;
+    signGroup.add(signPlinth);
+
+    const signPlaque = new THREE.Mesh(
+      new THREE.BoxGeometry(2.2, 0.85, 0.08),
+      new THREE.MeshStandardMaterial({ color: 0x141820, roughness: 0.25, metalness: 0.85 })
+    );
+    signPlaque.position.set(0, 0.675, 0);
+    signGroup.add(signPlaque);
+
+    const monCanvas = document.createElement("canvas");
+    monCanvas.width = 512;
+    monCanvas.height = 192;
+    const mCtx = monCanvas.getContext("2d");
+    mCtx.fillStyle = "#141820";
+    mCtx.fillRect(0, 0, 512, 192);
+    mCtx.strokeStyle = "#00d4e8";
+    mCtx.lineWidth = 6;
+    mCtx.strokeRect(8, 8, 496, 176);
+    mCtx.fillStyle = "#00d4e8";
+    mCtx.font = "bold 28px sans-serif";
+    mCtx.textAlign = "center";
+    mCtx.fillText("SRE DESIGNS BIOTECH", 256, 55);
+    mCtx.fillStyle = "#f8fafc";
+    mCtx.font = "bold 20px sans-serif";
+    mCtx.fillText("PHARMACEUTICAL RESEARCH CAMPUS", 256, 95);
+    mCtx.fillStyle = "#fbbf24";
+    mCtx.font = "16px monospace";
+    mCtx.fillText("BUILDING 4 · MAIN ANALYTICAL SUITE", 256, 140);
+
+    const monTex = new THREE.CanvasTexture(monCanvas);
+    const monMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(2.15, 0.80),
+      new THREE.MeshBasicMaterial({ map: monTex })
+    );
+    monMesh.rotation.y = Math.PI; // Facing South toward parking
+    monMesh.position.set(0, 0.675, -0.042);
+    signGroup.add(monMesh);
+
+    siteGroup.add(signGroup);
+
+    this.root.add(siteGroup);
+    this.colliders.push(new THREE.Box3().setFromObject(asphalt));
   }
 }

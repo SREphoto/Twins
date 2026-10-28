@@ -57,7 +57,7 @@ if (!CUSTOM_AUDIO_DIR) {
 
 const defaultOutName = TWIN_DIR === 'disintegration_tester_twin'
   ? 'ERWEKA_ZT322_Social_Walkthrough.mp4'
-  : `${TWIN_DIR.toUpperCase()}_Social_Walkthrough.mp4`;
+  : (TWIN_DIR === 'centrifuge_twin' ? 'CENTRIFUGE_Social_Walkthrough.mp4' : `${TWIN_DIR.toUpperCase()}_Social_Walkthrough.mp4`);
 const OUT_MP4 = path.join(ROOT, TWIN_DIR, 'docs', defaultOutName);
 const PORT = 8772;
 const CDP_PORT = 9229;
@@ -528,33 +528,36 @@ async function main() {
       });
       await sleep(150);
 
-      // High-density cinematic frame capture (original fast 2-minute pipeline)
-      const numFrames = ch.idx === 0 ? 140 : Math.max(36, Math.round(durSec * 2.8));
+      // High-density frame capture (30 FPS, fast JPEG 80) for silky-smooth 30p 3D motion
+      const TARGET_FPS = 30;
+      const numFrames = Math.ceil(durSec * TARGET_FPS);
       const frameDir = path.join(tmpDir, `frames_${ch.idx}`);
       fs.mkdirSync(frameDir);
 
-      console.log(`  📸 Capturing ${numFrames} cinematic motion frames for [${ch.badge}]...`);
+      console.log(`  📸 Capturing ${numFrames} frames at 30 FPS for [${ch.badge}]...`);
       for (let f = 0; f < numFrames; f++) {
         const p = f / Math.max(1, numFrames - 1);
-        const timeSec = (f / Math.max(1, numFrames - 1)) * durSec;
+        const timeSec = f / TARGET_FPS;
         await send('Runtime.evaluate', {
           expression: `window.__stepTourFrame(${ch.idx}, ${p}, ${timeSec});`
         });
-        const shot = await send('Page.captureScreenshot', { format: 'jpeg', quality: 90 });
+        const shot = await send('Page.captureScreenshot', { format: 'jpeg', quality: 80 });
         const framePath = path.join(frameDir, `f_${String(f).padStart(5, '0')}.jpg`);
         fs.writeFileSync(framePath, Buffer.from(shot.data, 'base64'));
+        if (f % 150 === 0 || f === numFrames - 1) {
+          process.stdout.write(`    ... frame ${f + 1}/${numFrames} (${Math.round(((f + 1) / numFrames) * 100)}%)\n`);
+        }
       }
 
       // Encode chapter segment MP4 matching voiceover duration into full 30 FPS stream
-      const fps = (numFrames / durSec).toFixed(4);
       const segPath = path.join(tmpDir, `seg_${ch.idx}.mp4`);
       execFileSync('/usr/local/bin/ffmpeg', [
         '-y',
         '-f', 'image2',
-        '-framerate', String(fps),
+        '-framerate', String(TARGET_FPS),
         '-i', path.join(frameDir, 'f_%05d.jpg'),
         '-i', audioPath,
-        '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2,fps=30',
+        '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2',
         '-c:v', 'libx264',
         '-preset', 'veryfast',
         '-crf', '22',

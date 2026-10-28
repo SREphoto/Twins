@@ -4481,139 +4481,339 @@ window.app = {
       orbitControls.update();
     };
 
+    // Helper: populate balanced sample tubes in rotor
+    const ensureRotorTubes = (separated = false) => {
+      if (!c.lab || !c.lab.tubes["T001"]) return;
+      c.lab.tubes["T001"].material_id = "whole_blood";
+      c.lab.tubes["T001"].location = "ROTOR";
+      c.lab.tubes["T001"].slot = 0;
+      c.lab.tubes["T001"].separated = separated;
+      c.lab.rotor[0] = "T001";
+
+      if (c.lab.tubes["T002"]) {
+        c.lab.tubes["T002"].material_id = "whole_blood";
+        c.lab.tubes["T002"].location = "ROTOR";
+        c.lab.tubes["T002"].slot = 12; // diametrically opposite in 24-slot rotor
+        c.lab.tubes["T002"].separated = separated;
+        c.lab.rotor[12] = "T002";
+      }
+      syncLabTubes(centrifugeModel, c.lab, matOf, layersOf);
+    };
+
+    const asmb = centrifugeModel.assemblies;
+    // Default assembly visibilities & rest positions
+    if (asmb.body) asmb.body.visible = true;
+    if (asmb.chamber) {
+      asmb.chamber.visible = true;
+      asmb.chamber.position.copy(centrifugeModel.restPositions.chamber);
+    }
+    if (asmb.drive) asmb.drive.visible = true;
+    if (asmb.rotor) asmb.rotor.visible = true;
+    if (asmb.lid) asmb.lid.visible = true;
+    if (asmb.console) asmb.console.visible = true;
+    if (asmb.rack) asmb.rack.visible = true;
+
+    // Reset button press depressions
+    const btnStart = centrifugeModel.buttons?.get("start");
+    if (btnStart) btnStart.position.z = -0.035;
+
     if (idx === 0) {
-      setExplodeAmount(centrifugeModel, 0);
-      setWireframe(centrifugeModel, false);
-      c.powered = true;
-      c.lid_open = true;
-      lidOpenAmt = 1.0;
-      if (p < 0.25) {
-        const t = smooth(p / 0.25);
-        const ang = lerp(-2.35, -0.75, t);
-        const rad = lerp(8.2, 6.8, Math.sin(t * Math.PI));
-        setCam([Math.cos(ang) * rad, lerp(4.8, 4.0, t), Math.sin(ang) * rad], [-0.25, 2.15, -0.1]);
-      } else if (p < 0.50) {
-        const t = smooth((p - 0.25) / 0.25);
-        setCam([lerp(-3.8, -1.8, t), lerp(4.4, 3.6, Math.sin(t * Math.PI)), lerp(-3.8, -3.2, t)], [-0.6, 2.1, -0.2]);
-      } else if (p < 0.70) {
-        const t = smooth((p - 0.50) / 0.20);
-        setCam([lerp(-1.2, 0.0, t), lerp(5.2, 4.8, t), lerp(-1.8, -1.2, t)], [0.0, 2.2, 0.0]);
-        if (rotorSpin) rotorSpin.rotation.y = timeSec * 6.0;
-      } else if (p < 0.85) {
-        const t = smooth((p - 0.70) / 0.15);
-        setCam([lerp(-0.8, -0.3, t), lerp(2.8, 2.4, t), lerp(-4.0, -3.4, t)], [-0.2, 1.8, -1.5]);
+      // Chapter 0: 72s Overview & Working Principle
+      // 5 dynamic shots: Orbit -> Rotor & Bowl -> Active Run & Separation -> Internal Anatomy -> Reassembly
+      ensureRotorTubes(p >= 0.55);
+      if (p < 0.22) {
+        // Shot 0A (0..16s): 180-degree sweeping orbit around full instrument
+        const t = smooth(p / 0.22);
+        setExplodeAmount(centrifugeModel, 0);
+        c.powered = true;
+        c.lid_open = true;
+        lidOpenAmt = 1.0;
+        c.state = "STANDBY";
+        c.rpm_actual = 0;
+        const ang = lerp(-2.4, -0.6, t);
+        const rad = lerp(8.0, 6.6, Math.sin(t * Math.PI));
+        setCam([Math.cos(ang) * rad, lerp(4.6, 3.8, t), Math.sin(ang) * rad], [-0.25, 2.15, -0.1]);
+      } else if (p < 0.44) {
+        // Shot 0B (16..32s): Push-in to 24-place fixed-angle aluminum rotor & chamber bowl
+        const t = smooth((p - 0.22) / 0.22);
+        setExplodeAmount(centrifugeModel, 0);
+        c.powered = true;
+        c.lid_open = true;
+        lidOpenAmt = 1.0;
+        c.state = "STANDBY";
+        if (rotorSpin) rotorSpin.rotation.y = timeSec * 5.0;
+        setCam(
+          [lerp(-3.4, 0.0, t), lerp(4.2, 4.8, t), lerp(-3.0, -1.8, t)],
+          [0.0, 2.2, 0.0]
+        );
+      } else if (p < 0.65) {
+        // Shot 0C (32..47s): Active 15,000 RPM run & live centrifugal separation
+        const t = smooth((p - 0.44) / 0.21);
+        setExplodeAmount(centrifugeModel, 0);
+        c.powered = true;
+        c.lid_open = true; // keep open for visible rotor kinematics
+        lidOpenAmt = 0.95;
+        c.state = "RUN";
+        c.rpm_actual = Math.round(lerp(2000, 15000, t));
+        if (rotorSpin) rotorSpin.rotation.y = timeSec * (c.rpm_actual * 0.08);
+        setCam(
+          [lerp(0.0, 1.2, t), lerp(4.8, 4.4, t), lerp(-1.8, -2.2, t)],
+          [0.0, 2.25, 0.0]
+        );
+      } else if (p < 0.82) {
+        // Shot 0D (47..59s): Internal Working Anatomy Reveal (outer shell hidden)
+        const t = smooth((p - 0.65) / 0.17);
+        if (asmb.body) asmb.body.visible = false;
+        if (asmb.chamber) asmb.chamber.position.y = lerp(centrifugeModel.restPositions.chamber.y, centrifugeModel.restPositions.chamber.y + 1.2, smooth(Math.min(1, t * 2)));
+        c.powered = true;
+        c.state = "RUN";
+        c.rpm_actual = 14000;
+        if (rotorSpin) rotorSpin.rotation.y = timeSec * 40.0;
+        setCam(
+          [lerp(2.8, -2.4, t), lerp(2.4, 2.0, Math.sin(t * Math.PI)), lerp(2.2, 1.4, t)],
+          [0.1, 0.9, 0.3]
+        );
       } else {
-        const t = smooth((p - 0.85) / 0.15);
-        setCam([lerp(-0.3, 4.2, t), lerp(2.4, 4.4, t), lerp(-3.4, -5.4, t)], [-0.25, 2.15, -0.1]);
+        // Shot 0E (59..72s): Reassembly & sweeping return to heroic isometric view
+        const t = smooth((p - 0.82) / 0.18);
+        if (asmb.chamber) asmb.chamber.position.copy(centrifugeModel.restPositions.chamber);
+        setExplodeAmount(centrifugeModel, 0);
+        c.powered = true;
+        c.lid_open = true;
+        lidOpenAmt = 1.0;
+        c.state = "STANDBY";
+        c.rpm_actual = 0;
+        setCam(
+          [lerp(-2.4, 4.2, t), lerp(2.0, 4.4, t), lerp(1.4, -5.4, t)],
+          [-0.25, 2.15, -0.1]
+        );
       }
     } else if (idx === 1) {
+      // Stage 1: Powering On & Electrical Continuity (unplugged -> plug in -> power switch ON -> boot standby)
       const t = smooth(p);
       setExplodeAmount(centrifugeModel, 0);
-      isPluggedIn = p >= 0.22;
-      powerSwitchOn = p >= 0.35;
+      isPluggedIn = p >= 0.28;
+      powerSwitchOn = p >= 0.52;
       c.powered = isPluggedIn && powerSwitchOn;
-      setCam(
-        [lerp(3.2, 2.2, t), lerp(3.6, 2.8, t), lerp(4.8, 3.8, t)],
-        [lerp(0.8, 0.5, t), lerp(1.2, 1.0, t), lerp(1.2, 0.8, t)]
-      );
+      c.state = c.powered ? "STANDBY" : "OFF";
+      c.rpm_actual = 0;
+      lidOpenAmt = 1.0;
+      c.lid_open = true;
+      if (p < 0.52) {
+        // Tight on duplex receptacle & plug
+        setCam(
+          [lerp(3.6, 2.6, t / 0.52), lerp(3.2, 2.5, t / 0.52), lerp(4.4, 3.8, t / 0.52)],
+          [0.9, 1.0, 1.1]
+        );
+      } else {
+        // Sweep to front console illuminating into active standby
+        const subT = (p - 0.52) / 0.48;
+        setCam(
+          [lerp(2.6, -0.4, smooth(subT)), lerp(2.5, 2.8, smooth(subT)), lerp(3.8, -3.8, smooth(subT))],
+          [-0.2, 1.8, -1.4]
+        );
+      }
     } else if (idx === 2) {
+      // Stage 2: Consumables & Labware Prep (24-tube rack, conical tubes, blood balancing)
       const t = smooth(p);
       setExplodeAmount(centrifugeModel, 0);
       c.powered = true;
       c.lid_open = true;
       lidOpenAmt = 1.0;
+      c.state = "STANDBY";
+      c.rpm_actual = 0;
+      ensureRotorTubes(false);
       setCam(
-        [lerp(-4.2, -2.8, t), lerp(4.0, 3.4, Math.sin(t * Math.PI)), lerp(-3.8, -2.8, t)],
-        [-1.6, 1.8, -0.2]
+        [lerp(-3.8, -2.4, t), lerp(3.4, 2.8, Math.sin(t * Math.PI)), lerp(-3.4, -2.2, t)],
+        [-1.4, 1.4, -0.3]
       );
     } else if (idx === 3) {
+      // Stage 3: Rotor Loading & Safety Interlocks (opposing slot placement & motorized lid latch)
       const t = smooth(p);
       setExplodeAmount(centrifugeModel, 0);
       c.powered = true;
-      lidOpenAmt = 1.0 - smooth(Math.min(1.0, Math.max(0, (p - 0.25) / 0.65)));
-      c.lid_open = lidOpenAmt > 0.05;
-      c.lid_locked = lidOpenAmt <= 0.05;
-      setCam(
-        [lerp(-1.0, 0.0, t), lerp(5.4, 4.8, t), lerp(-2.2, -1.6, t)],
-        [0.0, 2.3, 0.0]
-      );
+      ensureRotorTubes(false);
+      if (p < 0.45) {
+        // Angle into rotor bowl showing opposing slots 0 and 12
+        lidOpenAmt = 1.0;
+        c.lid_open = true;
+        c.lid_locked = false;
+        setCam(
+          [lerp(-1.6, 0.0, t / 0.45), lerp(4.8, 5.2, t / 0.45), lerp(-2.8, -1.6, t / 0.45)],
+          [0.0, 2.2, 0.0]
+        );
+      } else {
+        // Motorized lid closure and dual safety interlocks engagement
+        const subT = (p - 0.45) / 0.55;
+        lidOpenAmt = 1.0 - smooth(subT);
+        c.lid_open = lidOpenAmt > 0.05;
+        c.lid_locked = lidOpenAmt <= 0.05;
+        setCam(
+          [lerp(0.0, 0.8, smooth(subT)), lerp(5.2, 4.4, smooth(subT)), lerp(-1.6, -2.4, smooth(subT))],
+          [0.0, 2.2, -0.2]
+        );
+      }
     } else if (idx === 4) {
-      const t = smooth(p);
-      setExplodeAmount(centrifugeModel, 0);
-      c.powered = true;
-      c.rpm_set = Math.round(lerp(10000, 14000, t));
-      c.temp_set_c = 4;
-      c.time_set_s = 300;
-      setCam(
-        [lerp(-0.8, -0.2, t), lerp(2.9, 2.5, t), lerp(-4.2, -3.5, t)],
-        [-0.2, 1.8, -1.5]
-      );
-    } else if (idx === 5) {
+      // Stage 4: Console Setup & Parameter Programming (speed to 14,000 RPM, 4 C, 5 min)
       const t = smooth(p);
       setExplodeAmount(centrifugeModel, 0);
       c.powered = true;
       c.lid_open = false;
       c.lid_locked = true;
       lidOpenAmt = 0;
-      c.state = "RUN";
-      c.rpm_actual = Math.round(lerp(1000, 14000, Math.min(1, p * 1.4)));
-      if (rotorSpin) rotorSpin.rotation.y = timeSec * (c.rpm_actual * 0.08);
+      c.state = "STANDBY";
+      c.rpm_set = Math.round(lerp(12000, 14000, t));
+      c.temp_set_c = 4;
+      c.time_set_s = 300;
       setCam(
-        [lerp(0.8, 1.4, t), lerp(4.4, 4.2, Math.sin(t * Math.PI)), lerp(-2.6, -2.1, t)],
-        [0.0, 2.3, 0.0]
+        [lerp(-0.7, -0.2, t), lerp(2.8, 2.5, t), lerp(-3.9, -3.4, t)],
+        [-0.2, 1.8, -1.45]
       );
-    } else if (idx === 6) {
+    } else if (idx === 5) {
+      // Stage 5: Active 14,000 RPM Centrifugation Run & Live Separation Physics!
       const t = smooth(p);
       setExplodeAmount(centrifugeModel, 0);
       c.powered = true;
-      c.rpm_actual = Math.round(lerp(14000, 0, Math.min(1, p * 1.3)));
-      if (rotorSpin && c.rpm_actual > 0) rotorSpin.rotation.y = timeSec * (c.rpm_actual * 0.08);
-      if (c.rpm_actual <= 0) {
-        c.state = "COMPLETE";
-        lidOpenAmt = smooth(Math.min(1.0, Math.max(0, (p - 0.45) * 2.2)));
-        c.lid_open = lidOpenAmt > 0.05;
-        c.lid_locked = false;
+      c.state = "RUN";
+      ensureRotorTubes(p >= 0.50);
+
+      // Start button depression in first 18%
+      if (btnStart && p <= 0.18) {
+        btnStart.position.z = -0.015;
       }
-      setCam(
-        [lerp(-2.2, -1.4, t), lerp(3.8, 3.4, t), lerp(-3.6, -2.8, t)],
-        [-0.3, 2.0, -0.5]
-      );
-    } else if (idx === 7) {
-      const t = smooth(p);
-      setExplodeAmount(centrifugeModel, 0.75);
-      setCam(
-        [lerp(3.6, 2.8, t), lerp(2.8, 2.2, t), lerp(1.6, 0.8, t)],
-        [0.6, 1.4, 0.2]
-      );
-    } else if (idx === 8) {
-      const t = smooth(p);
-      setExplodeAmount(centrifugeModel, 0.75);
-      setCam(
-        [lerp(-2.8, -1.8, t), lerp(2.2, 1.8, t), lerp(1.8, 1.2, t)],
-        [0.0, 1.2, 0.2]
-      );
-    } else if (idx === 9) {
-      const t = smooth(p);
-      if (p <= 0.70) {
-        const subT = smooth(p / 0.70);
-        setExplodeAmount(centrifugeModel, 0.75);
+
+      // Live speed acceleration
+      c.rpm_actual = Math.round(lerp(1000, 14000, Math.min(1, p * 1.4)));
+      c.time_elapsed_s = Math.round(lerp(0, 52, p));
+      if (rotorSpin) rotorSpin.rotation.y = timeSec * (c.rpm_actual * 0.08);
+
+      if (p < 0.22) {
+        // Close-up on console as START is pressed & RPM counts up on LCD
+        lidOpenAmt = 0;
+        c.lid_open = false;
+        c.lid_locked = true;
         setCam(
-          [lerp(-3.0, -2.2, subT), lerp(3.2, 2.6, subT), lerp(-1.8, -1.2, subT)],
-          [-0.7, 1.5, -0.2]
+          [lerp(-0.3, -0.1, t / 0.22), lerp(2.5, 2.4, t / 0.22), lerp(-3.5, -3.2, t / 0.22)],
+          [-0.2, 1.8, -1.45]
         );
       } else {
-        const subT = smooth((p - 0.70) / 0.30);
-        setExplodeAmount(centrifugeModel, lerp(0.75, 0.0, subT));
+        // Swoop up and tilt directly into spinning rotor bowl!
+        // Lid stays open/elevated so the spinning rotor, dynamic balance, and blood separation are visible!
+        lidOpenAmt = 0.95;
+        c.lid_open = true;
+        const subT = (p - 0.22) / 0.78;
         setCam(
-          [lerp(-2.2, 4.2, subT), lerp(2.6, 4.4, subT), lerp(-1.2, -5.4, subT)],
-          [-0.25, 2.15, -0.1]
+          [lerp(-0.1, 0.9, smooth(subT)), lerp(2.4, 4.6, smooth(subT)), lerp(-3.2, -2.2, smooth(subT))],
+          [0.0, 2.25, 0.0]
+        );
+      }
+    } else if (idx === 6) {
+      // Stage 6: Deceleration, Dynamic Electric Braking & Stratified Pellet Examination
+      const t = smooth(p);
+      setExplodeAmount(centrifugeModel, 0);
+      c.powered = true;
+      ensureRotorTubes(true); // separated blood tubes
+      c.rpm_actual = Math.round(lerp(14000, 0, Math.min(1, p * 1.35)));
+      if (rotorSpin && c.rpm_actual > 0) rotorSpin.rotation.y = timeSec * (c.rpm_actual * 0.08);
+
+      if (c.rpm_actual <= 0) {
+        c.state = "COMPLETE";
+        lidOpenAmt = smooth(Math.min(1.0, Math.max(0, (p - 0.40) * 2.2)));
+        c.lid_open = lidOpenAmt > 0.05;
+        c.lid_locked = false;
+      } else {
+        c.state = "DECEL";
+        lidOpenAmt = 0;
+        c.lid_open = false;
+        c.lid_locked = true;
+      }
+
+      setCam(
+        [lerp(-2.2, 0.0, t), lerp(3.8, 4.8, t), lerp(-3.4, -1.8, t)],
+        [0.0, 2.2, 0.0]
+      );
+    } else if (idx === 7) {
+      // Stage 7A: Internal Power Supply, Toroidal Transformer & Wiring Harness Routing
+      const t = smooth(p);
+      setExplodeAmount(centrifugeModel, 0);
+      if (asmb.body) asmb.body.visible = false; // HIDE OUTER CASING SO POWER BAY IS 100% EXPOSED!
+      if (asmb.chamber) asmb.chamber.visible = true;
+      c.powered = true;
+      c.state = "STANDBY";
+      c.rpm_actual = 0;
+      // Focus directly into rear power bay: Toroidal Transformer, Switching PSU, filter caps, heatsink, 3D cables
+      setCam(
+        [lerp(2.4, 1.6, t), lerp(1.8, 1.25, t), lerp(1.2, -0.3, t)],
+        [0.72, 0.46, -0.05]
+      );
+    } else if (idx === 8) {
+      // Stage 8: 7B Brushless DC Motor, Vibration Isolators & Hermetic Refrigeration System
+      const t = smooth(p);
+      setExplodeAmount(centrifugeModel, 0);
+      if (asmb.body) asmb.body.visible = false; // HIDE OUTER CASING!
+      if (asmb.chamber) asmb.chamber.visible = false; // HIDE BOWL SO MOTOR UNDER IT IS 100% UNCOVERED!
+      if (asmb.rotor) asmb.rotor.visible = false;
+      if (asmb.lid) asmb.lid.visible = false;
+      c.powered = true;
+      c.state = "RUN";
+      c.rpm_actual = 8000;
+      // Focus on BLDC Motor, mount plate, M5 screws, Compressor, Condenser pack & Cooling Blower Fan
+      setCam(
+        [lerp(-2.2, 0.8, t), lerp(1.8, 1.45, Math.sin(t * Math.PI)), lerp(1.6, 2.3, t)],
+        [0.3, 0.65, 0.6]
+      );
+    } else if (idx === 9) {
+      // Stage 9: 7C Motherboard, ARM MCU, Flash SSD, Wi-Fi/BLE & Cinematic Exploded Finale
+      const t = smooth(p);
+      c.powered = true;
+      c.state = "STANDBY";
+      c.rpm_actual = 0;
+
+      if (p <= 0.62) {
+        // Shot 9A (0..62%): Macro focus on Motherboard, ARM MCU, RAM, SSD, Wi-Fi antenna & rear ports
+        const subT = smooth(p / 0.62);
+        if (asmb.body) asmb.body.visible = false; // HIDE OUTER CASING!
+        if (asmb.chamber) asmb.chamber.visible = true;
+        if (asmb.rotor) asmb.rotor.visible = true;
+        if (asmb.lid) asmb.lid.visible = true;
+        setExplodeAmount(centrifugeModel, 0);
+        setCam(
+          [lerp(-1.8, -1.3, subT), lerp(1.4, 1.0, subT), lerp(-0.8, -0.2, subT)],
+          [-0.7, 0.48, -0.2]
+        );
+      } else {
+        // Shot 9B (62..100%): The Grand Exploded Assembly Finale!
+        const subT = (p - 0.62) / 0.38;
+        if (asmb.body) asmb.body.visible = true;
+        if (asmb.chamber) asmb.chamber.visible = true;
+        if (asmb.rotor) asmb.rotor.visible = true;
+        if (asmb.lid) asmb.lid.visible = true;
+        const explodeAmt = Math.sin(subT * Math.PI) * 0.95;
+        setExplodeAmount(centrifugeModel, explodeAmt);
+        setCam(
+          [lerp(-2.4, 4.4, smooth(subT)), lerp(2.8, 4.2, smooth(subT)), lerp(-2.4, -5.2, smooth(subT))],
+          [-0.2, 2.0, -0.1]
         );
       }
     }
 
+    // Always update physical lid hinge angle
     if (lidHinge) {
       lidHinge.rotation.x = -lidOpenAmt * THREE.MathUtils.degToRad(72);
     }
+
+    // Always update RUN and FAULT status LEDs
+    if (ledRunMesh?.material) {
+      ledRunMesh.material.emissiveIntensity = ["ACCEL", "RUN", "DECEL"].includes(c.state) ? 1.2 : 0.05;
+    }
+
+    // Always update dynamic high-DPI LCD CanvasTexture on every frame
+    drawLcd(snap());
+    if (lcdTexture) {
+      lcdTexture.needsUpdate = true;
+    }
+
+    // Always render updated frame to 3D viewport
     if (renderer3D && scene3D && viewCamera) {
       renderer3D.render(scene3D, viewCamera);
     }

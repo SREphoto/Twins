@@ -405,34 +405,150 @@ export class LabCasework {
     office.add(pedestal);
 
     // 2. Executive Ergonomic Leather Swivel Chair (Facing Desk)
-    const chairGroup = new THREE.Group();
+    const chairGroup = this._createExecutiveSwivelChair(true);
     chairGroup.position.set(0, 0, -0.65);
-
-    // Chair base & chrome casters
-    const basePole = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.03, 0.03, 0.38, 12),
-      this.materials.cabinetHandle
-    );
-    basePole.position.y = 0.19;
-    chairGroup.add(basePole);
-
-    // Leather seat cushion
-    const seat = new THREE.Mesh(
-      new THREE.BoxGeometry(0.55, 0.08, 0.52),
-      this.materials.leatherBlack
-    );
-    seat.position.y = 0.42;
-    chairGroup.add(seat);
-
-    // High ergonomic backrest
-    const backrest = new THREE.Mesh(
-      new THREE.BoxGeometry(0.52, 0.65, 0.06),
-      this.materials.leatherBlack
-    );
-    backrest.position.set(0, 0.76, -0.24);
-    chairGroup.add(backrest);
-
     office.add(chairGroup);
+
+    // 2B. Executive Desk Supplies & Learning Workflow Artifacts
+    const suppliesGroup = new THREE.Group();
+    suppliesGroup.position.set(0, deskH, 0);
+
+    // Large leather desk blotter pad with gold perimeter stitch
+    const blotter = new THREE.Mesh(
+      new THREE.BoxGeometry(0.95, 0.008, 0.58),
+      new THREE.MeshStandardMaterial({ color: 0x181c24, roughness: 0.6, metalness: 0.1 })
+    );
+    blotter.position.set(0, 0.004, 0.02);
+    suppliesGroup.add(blotter);
+
+    // Bound Hardcover Lab Research Notebook
+    const notebookGroup = new THREE.Group();
+    notebookGroup.position.set(-0.65, 0.015, 0.12);
+    notebookGroup.rotation.y = 0.18;
+
+    const nbCover = new THREE.Mesh(
+      new THREE.BoxGeometry(0.22, 0.022, 0.28),
+      new THREE.MeshStandardMaterial({ color: 0x0f2942, roughness: 0.5 })
+    );
+    notebookGroup.add(nbCover);
+
+    const nbCanvas = document.createElement("canvas");
+    nbCanvas.width = 256;
+    nbCanvas.height = 256;
+    const nbCtx = nbCanvas.getContext("2d");
+    nbCtx.fillStyle = "#0f2942";
+    nbCtx.fillRect(0, 0, 256, 256);
+    nbCtx.strokeStyle = "#d4af37";
+    nbCtx.lineWidth = 6;
+    nbCtx.strokeRect(10, 10, 236, 236);
+    nbCtx.fillStyle = "#d4af37";
+    nbCtx.font = "bold 18px serif";
+    nbCtx.textAlign = "center";
+    nbCtx.fillText("LAB NOTEBOOK NO. 4", 128, 60);
+    nbCtx.font = "14px sans-serif";
+    nbCtx.fillStyle = "#e2e8f0";
+    nbCtx.fillText("PHARMACEUTICAL DEV", 128, 100);
+    nbCtx.fillText("SRE DESIGNS BIOTECH", 128, 130);
+    nbCtx.fillStyle = "#38bdf8";
+    nbCtx.font = "bold 13px monospace";
+    nbCtx.fillText("GLP COMPLIANT", 128, 180);
+
+    const nbTex = new THREE.CanvasTexture(nbCanvas);
+    const nbLabel = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.20, 0.20),
+      new THREE.MeshBasicMaterial({ map: nbTex })
+    );
+    nbLabel.rotation.x = -Math.PI / 2;
+    nbLabel.position.y = 0.012;
+    notebookGroup.add(nbLabel);
+    suppliesGroup.add(notebookGroup);
+
+    // Machined Aluminum Pen Cup with Writing Instruments
+    const penHolder = new THREE.Group();
+    penHolder.position.set(-0.85, 0, 0.32);
+    const cup = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.04, 0.04, 0.11, 16),
+      new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.2, metalness: 0.85 })
+    );
+    cup.position.y = 0.055;
+    penHolder.add(cup);
+
+    // Pens & Highlighters inside cup
+    const penMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.3 });
+    const hlMat = new THREE.MeshStandardMaterial({ color: 0xeab308, roughness: 0.4 });
+    [-0.015, 0.012].forEach((px, idx) => {
+      const pen = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.14, 8), idx === 0 ? penMat : hlMat);
+      pen.position.set(px, 0.08, idx === 0 ? -0.01 : 0.01);
+      pen.rotation.z = idx === 0 ? 0.15 : -0.12;
+      penHolder.add(pen);
+    });
+    suppliesGroup.add(penHolder);
+
+    // Ceramic Coffee Mug (SRE DESIGNS LABS)
+    const mugGroup = new THREE.Group();
+    mugGroup.position.set(0.68, 0, 0.25);
+    const mugBody = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.042, 0.038, 0.095, 16),
+      new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.2 })
+    );
+    mugBody.position.y = 0.0475;
+    mugGroup.add(mugBody);
+
+    const coffeeFluid = new THREE.Mesh(
+      new THREE.CircleGeometry(0.037, 16),
+      new THREE.MeshStandardMaterial({ color: 0x27170e, roughness: 0.15 })
+    );
+    coffeeFluid.rotation.x = -Math.PI / 2;
+    coffeeFluid.position.y = 0.088;
+    mugGroup.add(coffeeFluid);
+
+    const mugHandle = new THREE.Mesh(
+      new THREE.TorusGeometry(0.024, 0.006, 8, 16, Math.PI * 1.2),
+      new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.2 })
+    );
+    mugHandle.position.set(0.046, 0.048, 0);
+    mugHandle.rotation.z = -Math.PI / 2;
+    mugGroup.add(mugHandle);
+    suppliesGroup.add(mugGroup);
+
+    // Scientific Graphing / Statistical Calculator
+    const calc = new THREE.Mesh(
+      new THREE.BoxGeometry(0.11, 0.015, 0.18),
+      new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4, metalness: 0.3 })
+    );
+    calc.position.set(-0.62, 0.008, -0.18);
+    calc.rotation.y = -0.1;
+    suppliesGroup.add(calc);
+
+    // Stacked Acrylic Document In/Out Trays with Review Dossiers
+    const docTray = new THREE.Group();
+    docTray.position.set(0.82, 0, -0.15);
+    for (let t = 0; t < 2; t++) {
+      const trayBase = new THREE.Mesh(
+        new THREE.BoxGeometry(0.25, 0.04, 0.34),
+        new THREE.MeshStandardMaterial({ color: 0x94a3b8, transparent: true, opacity: 0.45, roughness: 0.1 })
+      );
+      trayBase.position.y = 0.02 + t * 0.055;
+      docTray.add(trayBase);
+
+      const paper = new THREE.Mesh(
+        new THREE.BoxGeometry(0.22, 0.015, 0.30),
+        new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.85 })
+      );
+      paper.position.y = 0.015 + t * 0.055;
+      docTray.add(paper);
+    }
+    suppliesGroup.add(docTray);
+
+    // Fluorescent Sticky Note Pad
+    const postIt = new THREE.Mesh(
+      new THREE.BoxGeometry(0.076, 0.01, 0.076),
+      new THREE.MeshStandardMaterial({ color: 0xfacc15, roughness: 0.7 })
+    );
+    postIt.position.set(-0.35, 0.006, 0.24);
+    suppliesGroup.add(postIt);
+
+    office.add(suppliesGroup);
 
     // 3. Dual Curved Workstation Monitors (LIMS Post-Run Results Studio)
     const monitorGroup = new THREE.Group();
@@ -622,7 +738,102 @@ export class LabCasework {
     chairW.rotation.y = Math.PI / 2;
     conf.add(chairW);
 
-    // 3. Wall-Mounted 85" 4K Smart Presentation Display
+    // 3. Conference Table Accessories (Executive Blotters, Water Carafes & Tumblers)
+    for (let c = 0; c < 4; c++) {
+      const x = -1.5 + c * 1.0;
+      // North & South seat leather blotters & silver pens
+      [-0.45, 0.45].forEach(bz => {
+        const bl = new THREE.Mesh(
+          new THREE.BoxGeometry(0.52, 0.005, 0.36),
+          new THREE.MeshStandardMaterial({ color: 0x181c24, roughness: 0.6 })
+        );
+        bl.position.set(x, tableH + 0.003, bz);
+        conf.add(bl);
+
+        const pen = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.003, 0.003, 0.14, 8),
+          this.materials.cabinetHandle
+        );
+        pen.rotation.z = Math.PI / 2;
+        pen.position.set(x + 0.18, tableH + 0.008, bz);
+        conf.add(pen);
+      });
+    }
+    // Head & Foot blotters
+    [-1.75, 1.75].forEach(bx => {
+      const bl = new THREE.Mesh(
+        new THREE.BoxGeometry(0.36, 0.005, 0.52),
+        new THREE.MeshStandardMaterial({ color: 0x181c24, roughness: 0.6 })
+      );
+      bl.position.set(bx, tableH + 0.003, 0);
+      conf.add(bl);
+
+      const pen = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.003, 0.003, 0.14, 8),
+        this.materials.cabinetHandle
+      );
+      pen.rotation.x = Math.PI / 2;
+      pen.position.set(bx, tableH + 0.008, 0.18);
+      conf.add(pen);
+    });
+
+    // 2 Crystal-Clear Glass Water Carafes & Tumblers along table centerline
+    [-0.7, 0.7].forEach(cx => {
+      const carafe = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.04, 0.065, 0.22, 16),
+        new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.45, roughness: 0.1 })
+      );
+      carafe.position.set(cx, tableH + 0.11, 0);
+      conf.add(carafe);
+
+      [-0.12, 0.12].forEach(tz => {
+        const tumbler = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.032, 0.028, 0.09, 16),
+          new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.45, roughness: 0.1 })
+        );
+        tumbler.position.set(cx, tableH + 0.045, tz);
+        conf.add(tumbler);
+      });
+    });
+
+    // 4. Magnetic Glass Dry-Erase Whiteboard on West Wall (X = -2.15, Z = 0)
+    const wbGroup = new THREE.Group();
+    wbGroup.position.set(-2.15, 1.85, 0);
+    wbGroup.rotation.y = Math.PI / 2;
+
+    const wbBoard = new THREE.Mesh(
+      new THREE.BoxGeometry(2.4, 1.2, 0.015),
+      new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.15, metalness: 0.05 })
+    );
+    wbGroup.add(wbBoard);
+
+    const wbTray = new THREE.Mesh(
+      new THREE.BoxGeometry(2.4, 0.02, 0.08),
+      this.materials.cabinetHandle
+    );
+    wbTray.position.set(0, -0.61, 0.04);
+    wbGroup.add(wbTray);
+
+    // Markers & Felt Eraser
+    const mColors = [0x0f172a, 0x0284c7, 0xdc2626, 0x16a34a];
+    mColors.forEach((mc, i) => {
+      const m = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.007, 0.007, 0.12, 8),
+        new THREE.MeshStandardMaterial({ color: mc, roughness: 0.3 })
+      );
+      m.rotation.z = Math.PI / 2;
+      m.position.set(-0.6 + i * 0.14, -0.59, 0.04);
+      wbGroup.add(m);
+    });
+    const eraser = new THREE.Mesh(
+      new THREE.BoxGeometry(0.14, 0.035, 0.05),
+      new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.8 })
+    );
+    eraser.position.set(0.6, -0.59, 0.04);
+    wbGroup.add(eraser);
+    conf.add(wbGroup);
+
+    // 5. Wall-Mounted 85" 4K Smart Presentation Display
     const tvGroup = new THREE.Group();
     tvGroup.position.set(0, 1.9, 2.15); // Mounted on north dividing wall
 
@@ -673,109 +884,620 @@ export class LabCasework {
     this.colliders.push(new THREE.Box3().setFromObject(conf));
   }
 
-  _createChairMesh() {
+  // --- High-Fidelity 5-Star Caster Ergonomic Swivel Chair ---
+  _createExecutiveSwivelChair(isExecutive = false) {
     const chair = new THREE.Group();
-    const basePole = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.025, 0.025, 0.38, 12),
+
+    // 1. Five-Star Spider Base & Rolling Casters
+    const baseHub = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.045, 0.045, 0.05, 16),
       this.materials.cabinetHandle
     );
-    basePole.position.y = 0.19;
-    chair.add(basePole);
+    baseHub.position.y = 0.075;
+    chair.add(baseHub);
+
+    for (let i = 0; i < 5; i++) {
+      const angle = (i * 2 * Math.PI) / 5;
+      const prongGroup = new THREE.Group();
+      prongGroup.rotation.y = angle;
+
+      // Arched chrome prong arm
+      const arm = new THREE.Mesh(
+        new THREE.BoxGeometry(0.035, 0.025, 0.28),
+        this.materials.cabinetHandle
+      );
+      arm.position.set(0, 0.065, 0.14);
+      arm.rotation.x = -0.12; // Arched downward toward floor
+      prongGroup.add(arm);
+
+      // Caster hood & dual rolling nylon wheels
+      const casterHood = new THREE.Mesh(
+        new THREE.BoxGeometry(0.038, 0.025, 0.038),
+        this.materials.cabinetBody
+      );
+      casterHood.position.set(0, 0.035, 0.275);
+      prongGroup.add(casterHood);
+
+      const wheelGeo = new THREE.CylinderGeometry(0.022, 0.022, 0.028, 12);
+      const wheel = new THREE.Mesh(wheelGeo, this.materials.cabinetBody);
+      wheel.rotation.z = Math.PI / 2;
+      wheel.position.set(0, 0.022, 0.275);
+      prongGroup.add(wheel);
+
+      chair.add(prongGroup);
+    }
+
+    // 2. Pneumatic Telescoping Cylinder
+    const lowerPillar = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.028, 0.032, 0.12, 16),
+      this.materials.cabinetBody
+    );
+    lowerPillar.position.y = 0.14;
+    chair.add(lowerPillar);
+
+    const upperPiston = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.018, 0.018, 0.18, 16),
+      this.materials.cabinetHandle
+    );
+    upperPiston.position.y = 0.27;
+    chair.add(upperPiston);
+
+    // 3. Steel Synchro-Tilt Mechanism Chassis & Pneumatic Paddle Lever
+    const mechBox = new THREE.Mesh(
+      new THREE.BoxGeometry(0.24, 0.05, 0.22),
+      this.materials.cabinetBody
+    );
+    mechBox.position.y = 0.36;
+    chair.add(mechBox);
+
+    const tiltKnob = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.025, 0.025, 0.05, 12),
+      this.materials.cabinetBody
+    );
+    tiltKnob.position.set(0, 0.32, 0.06);
+    chair.add(tiltKnob);
+
+    const lever = new THREE.Mesh(
+      new THREE.BoxGeometry(0.14, 0.012, 0.025),
+      this.materials.cabinetHandle
+    );
+    lever.position.set(0.14, 0.36, -0.02);
+    chair.add(lever);
+
+    // 4. Contoured Waterfall Seat Cushion
+    const seatW = isExecutive ? 0.54 : 0.48;
+    const seatD = isExecutive ? 0.50 : 0.46;
+    const seatH = isExecutive ? 0.08 : 0.065;
 
     const seat = new THREE.Mesh(
-      new THREE.BoxGeometry(0.48, 0.06, 0.46),
+      new THREE.BoxGeometry(seatW, seatH, seatD),
       this.materials.leatherBlack
     );
-    seat.position.y = 0.41;
+    seat.position.set(0, 0.41 + seatH / 2, 0.02);
     chair.add(seat);
 
+    // 5. Heavy-Duty J-Bar Spine Support
+    const spine = new THREE.Mesh(
+      new THREE.BoxGeometry(0.06, 0.36, 0.03),
+      this.materials.cabinetHandle
+    );
+    spine.position.set(0, 0.55, -seatD / 2 + 0.01);
+    spine.rotation.x = 0.1;
+    chair.add(spine);
+
+    // 6. Ergonomic High Backrest with Lumbar Contour
+    const backH = isExecutive ? 0.62 : 0.54;
+    const backW = isExecutive ? 0.50 : 0.46;
     const backrest = new THREE.Mesh(
-      new THREE.BoxGeometry(0.46, 0.55, 0.05),
+      new THREE.BoxGeometry(backW, backH, 0.06),
       this.materials.leatherBlack
     );
-    backrest.position.set(0, 0.72, -0.21);
+    backrest.position.set(0, 0.45 + backH / 2, -seatD / 2 - 0.02);
+    backrest.rotation.x = -0.08; // Comfortable natural recline
     chair.add(backrest);
+
+    // Lower Lumbar Contour Cushion
+    const lumbar = new THREE.Mesh(
+      new THREE.BoxGeometry(backW * 0.85, 0.14, 0.04),
+      this.materials.leatherBlack
+    );
+    lumbar.position.set(0, 0.58, -seatD / 2 + 0.01);
+    chair.add(lumbar);
+
+    // 7. Cantilevered Ergonomic Armrests with Polyurethane Pads
+    [-seatW / 2 - 0.02, seatW / 2 + 0.02].forEach(ax => {
+      const upright = new THREE.Mesh(
+        new THREE.BoxGeometry(0.03, 0.24, 0.035),
+        this.materials.cabinetHandle
+      );
+      upright.position.set(ax, 0.52, -0.02);
+      chair.add(upright);
+
+      const pad = new THREE.Mesh(
+        new THREE.BoxGeometry(0.075, 0.03, 0.24),
+        this.materials.cabinetBody
+      );
+      pad.position.set(ax, 0.64, 0.02);
+      chair.add(pad);
+    });
+
+    // 8. Executive Headrest (for Executive version)
+    if (isExecutive) {
+      [-0.06, 0.06].forEach(hx => {
+        const post = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.008, 0.008, 0.14, 12),
+          this.materials.cabinetHandle
+        );
+        post.position.set(hx, 1.05, -seatD / 2 - 0.06);
+        chair.add(post);
+      });
+
+      const headrest = new THREE.Mesh(
+        new THREE.BoxGeometry(0.28, 0.15, 0.07),
+        this.materials.leatherBlack
+      );
+      headrest.position.set(0, 1.10, -seatD / 2 - 0.05);
+      chair.add(headrest);
+    }
 
     return chair;
   }
 
-  // --- Restroom Fixtures (Zone 7) ---
-  _buildRestroomFixtures() {
-    const restroom = new THREE.Group();
-    restroom.position.set(14.0, 0, -2.25);
-    restroom.name = "Restroom_Fixtures";
-
-    // Floating quartz vanity sink
-    const vanity = new THREE.Mesh(
-      new THREE.BoxGeometry(1.2, 0.18, 0.6),
-      this.materials.epoxyTop
-    );
-    vanity.position.set(0, 0.85, 0.8);
-    restroom.add(vanity);
-
-    // Chrome faucet
-    const faucet = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.015, 0.015, 0.22, 12),
-      this.materials.chromeFaucet
-    );
-    faucet.position.set(0, 0.98, 0.85);
-    restroom.add(faucet);
-
-    // Backlit LED Halo Wall Mirror
-    const mirror = new THREE.Mesh(
-      new THREE.BoxGeometry(0.9, 1.2, 0.03),
-      new THREE.MeshStandardMaterial({ color: 0x98a0a8, roughness: 0.1, metalness: 0.9 })
-    );
-    mirror.position.set(0, 1.7, 1.08);
-    restroom.add(mirror);
-
-    // Wall-hung ceramic toilet
-    const toilet = new THREE.Mesh(
-      new THREE.BoxGeometry(0.42, 0.42, 0.62),
-      new THREE.MeshStandardMaterial({ color: 0xf5f7fa, roughness: 0.25 })
-    );
-    toilet.position.set(0, 0.35, -1.0);
-    restroom.add(toilet);
-
-    this.root.add(restroom);
+  _createChairMesh() {
+    return this._createExecutiveSwivelChair(false);
   }
 
-  // --- Safety Equipment Core ---
+  // --- Complete ADA Restroom (Zone 7: X = 8.0 to 11.60, Z = -4.55 to 0.0) ---
+  _buildRestroomFixtures() {
+    const restroom = new THREE.Group();
+    restroom.position.set(9.80, 0, -2.25);
+    restroom.name = "Restroom_Fixtures";
+
+    // 1. Non-Slip Charcoal Porcelain Floor Slab (X: 8.0 to 11.60, Z: -4.55 to 0.0)
+    const floorSlab = new THREE.Mesh(
+      new THREE.BoxGeometry(3.55, 0.01, 4.45),
+      new THREE.MeshStandardMaterial({ color: 0x181b22, roughness: 0.75, metalness: 0.1 })
+    );
+    floorSlab.position.set(0, 0.005, 0);
+    restroom.add(floorSlab);
+
+    // Recessed stainless steel floor drain grate
+    const drainGrate = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.08, 0.08, 0.012, 16),
+      this.materials.cabinetHandle
+    );
+    drainGrate.position.set(0, 0.011, 0);
+    restroom.add(drainGrate);
+
+    // Dedicated Ceiling Downlight
+    const rLight = new THREE.PointLight(0xfff8ed, 1.2, 8.0, 1.2);
+    rLight.position.set(0, 3.2, 0);
+    restroom.add(rLight);
+
+    // 2. White Subway Tile Wainscoting Accent Wall along North wall (Z = +2.22)
+    const tileAccent = new THREE.Mesh(
+      new THREE.BoxGeometry(3.55, 2.2, 0.02),
+      new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.2, metalness: 0.05 })
+    );
+    tileAccent.position.set(0, 1.1, 2.22);
+    restroom.add(tileAccent);
+
+    // 3. Floating Dark Quartz Vanity with Under-Mount Porcelain Basin along North Wall
+    const vanityGroup = new THREE.Group();
+    vanityGroup.position.set(0, 0, 1.85);
+
+    const vanityTop = new THREE.Mesh(
+      new THREE.BoxGeometry(1.6, 0.14, 0.62),
+      this.materials.epoxyTop
+    );
+    vanityTop.position.set(0, 0.83, 0);
+    vanityGroup.add(vanityTop);
+
+    // Under-mount porcelain sink basin
+    const basin = new THREE.Mesh(
+      new THREE.BoxGeometry(0.55, 0.22, 0.38),
+      new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.15 })
+    );
+    basin.position.set(0, 0.72, 0);
+    vanityGroup.add(basin);
+
+    // Chrome Touchless Gooseneck Sensor Faucet
+    const faucetCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0, 0, 0.12),
+      new THREE.Vector3(0, 0.22, 0.12),
+      new THREE.Vector3(0, 0.28, 0.06),
+      new THREE.Vector3(0, 0.24, 0)
+    ]);
+    const faucetGeo = new THREE.TubeGeometry(faucetCurve, 16, 0.012, 12, false);
+    const faucet = new THREE.Mesh(faucetGeo, this.materials.chromeFaucet);
+    faucet.position.set(0, 0.90, 0);
+    vanityGroup.add(faucet);
+
+    // Chrome P-trap plumbing under vanity
+    const pTrap = new THREE.Mesh(
+      new THREE.TorusGeometry(0.05, 0.015, 8, 16, Math.PI),
+      this.materials.cabinetHandle
+    );
+    pTrap.rotation.x = Math.PI / 2;
+    pTrap.position.set(0, 0.50, 0);
+    vanityGroup.add(pTrap);
+
+    // Backlit LED Halo Wall Vanity Mirror on North Wall
+    const mirrorGroup = new THREE.Group();
+    mirrorGroup.position.set(0, 1.72, 0.36);
+
+    const mirrorBack = new THREE.Mesh(
+      new THREE.BoxGeometry(1.22, 0.97, 0.03),
+      new THREE.MeshBasicMaterial({ color: 0xfef08a }) // Warm 3000K halo rim
+    );
+    mirrorGroup.add(mirrorBack);
+
+    const mirrorGlass = new THREE.Mesh(
+      new THREE.BoxGeometry(1.18, 0.93, 0.02),
+      new THREE.MeshStandardMaterial({ color: 0xa0a8b4, roughness: 0.08, metalness: 0.92 })
+    );
+    mirrorGlass.position.z = -0.015;
+    mirrorGroup.add(mirrorGlass);
+    vanityGroup.add(mirrorGroup);
+
+    // Touchless Soap Dispenser
+    const soapDisp = new THREE.Mesh(
+      new THREE.BoxGeometry(0.11, 0.24, 0.09),
+      this.materials.cabinetHandle
+    );
+    soapDisp.position.set(0.65, 1.18, 0.32);
+    vanityGroup.add(soapDisp);
+
+    restroom.add(vanityGroup);
+
+    // 4. Vitreous China Wall-Hung Commercial Toilet on West Wall (facing East +X)
+    const toiletGroup = new THREE.Group();
+    toiletGroup.position.set(-1.45, 0, -0.80);
+    toiletGroup.rotation.y = Math.PI / 2; // Face East into restroom
+
+    // Elongated porcelain bowl
+    const bowl = new THREE.Mesh(
+      new THREE.BoxGeometry(0.38, 0.40, 0.62),
+      new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.15 })
+    );
+    bowl.position.set(0, 0.38, 0.15);
+    toiletGroup.add(bowl);
+
+    // Open-front commercial seat
+    const seat = new THREE.Mesh(
+      new THREE.BoxGeometry(0.36, 0.03, 0.48),
+      this.materials.cabinetBody
+    );
+    seat.position.set(0, 0.41, 0.18);
+    toiletGroup.add(seat);
+
+    // Sloan Royal Chrome Flushometer Valve with ADA vacuum breaker
+    const flushRiser = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.018, 0.018, 0.55, 12),
+      this.materials.chromeFaucet
+    );
+    flushRiser.position.set(0, 0.68, -0.12);
+    toiletGroup.add(flushRiser);
+
+    const flushBody = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.045, 0.045, 0.09, 16),
+      this.materials.chromeFaucet
+    );
+    flushBody.position.set(0, 0.88, -0.12);
+    toiletGroup.add(flushBody);
+
+    const flushLever = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.007, 0.007, 0.12, 8),
+      this.materials.chromeFaucet
+    );
+    flushLever.rotation.z = Math.PI / 2;
+    flushLever.position.set(0.08, 0.88, -0.12);
+    toiletGroup.add(flushLever);
+
+    // ADA Stainless Steel Grab Bars
+    // Side Wall 42" Horizontal Grab Bar
+    const sideBar = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.016, 0.016, 1.06, 12),
+      this.materials.cabinetHandle
+    );
+    sideBar.rotation.x = Math.PI / 2;
+    sideBar.position.set(0.55, 0.86, 0.2);
+    toiletGroup.add(sideBar);
+
+    // Rear Wall 36" Horizontal Grab Bar
+    const rearBar = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.016, 0.016, 0.92, 12),
+      this.materials.cabinetHandle
+    );
+    rearBar.rotation.z = Math.PI / 2;
+    rearBar.position.set(0, 0.86, -0.25);
+    toiletGroup.add(rearBar);
+
+    restroom.add(toiletGroup);
+
+    // 5. Dyson-Style Touchless High-Speed Hand Dryer on East Wall
+    const dryer = new THREE.Mesh(
+      new THREE.BoxGeometry(0.28, 0.65, 0.18),
+      new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.25, metalness: 0.75 })
+    );
+    dryer.position.set(1.68, 1.15, 0.85);
+    dryer.rotation.y = -Math.PI / 2; // Face West into room
+    restroom.add(dryer);
+
+    // 6. Stainless Jumbo Toilet Paper Dispenser
+    const tpDisp = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.18, 0.18, 0.12, 16),
+      this.materials.cabinetHandle
+    );
+    tpDisp.rotation.x = Math.PI / 2;
+    tpDisp.position.set(-1.72, 0.65, -0.35);
+    restroom.add(tpDisp);
+
+    // 7. Restroom Entrance Door & ADA Tactile Sign on East Wall (X = +1.77 relative to group = 11.57 absolute)
+    const doorGroup = new THREE.Group();
+    doorGroup.position.set(1.77, 0, 0); // At X = 11.57 in world space
+
+    // Hollow Architectural Bronze Door Frame (Header + Two Side Jambs)
+    const frameMat = this.materials.cabinetBody;
+    const header = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 1.18), frameMat);
+    header.position.set(0, 2.36, 0);
+    doorGroup.add(header);
+
+    const leftJamb = new THREE.Mesh(new THREE.BoxGeometry(0.08, 2.40, 0.08), frameMat);
+    leftJamb.position.set(0, 1.20, -0.55);
+    doorGroup.add(leftJamb);
+
+    const rightJamb = new THREE.Mesh(new THREE.BoxGeometry(0.08, 2.40, 0.08), frameMat);
+    rightJamb.position.set(0, 1.20, 0.55);
+    doorGroup.add(rightJamb);
+
+    // American Walnut Door Leaf (Swung open into restroom by 50° for welcoming view)
+    const doorLeafGroup = new THREE.Group();
+    doorLeafGroup.position.set(0, 0, -0.51); // Hinge pivot
+    doorLeafGroup.rotation.y = -0.85; // Open into restroom
+
+    const leaf = new THREE.Mesh(
+      new THREE.BoxGeometry(0.045, 2.32, 0.98),
+      this.materials.walnutDesk
+    );
+    leaf.position.set(0, 1.16, 0.49);
+    doorLeafGroup.add(leaf);
+
+    // Matte Black Commercial Lever Handle
+    const leverIn = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.008, 0.008, 0.12, 12),
+      this.materials.cabinetBody
+    );
+    leverIn.rotation.x = Math.PI / 2;
+    leverIn.position.set(0.03, 1.05, 0.88);
+    doorLeafGroup.add(leverIn);
+
+    // Satin Stainless Kick Plate
+    const kickPlate = new THREE.Mesh(
+      new THREE.BoxGeometry(0.048, 0.24, 0.98),
+      this.materials.cabinetHandle
+    );
+    kickPlate.position.set(0, 0.12, 0.49);
+    doorLeafGroup.add(kickPlate);
+
+    doorGroup.add(doorLeafGroup);
+
+    // ADA Braille / Pictogram Plaque on Exterior Corridor Jamb facing East (+X into corridor)
+    const adaSignBox = new THREE.Mesh(
+      new THREE.BoxGeometry(0.02, 0.24, 0.18),
+      new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.3 })
+    );
+    adaSignBox.position.set(0.06, 1.5, 0.65);
+    doorGroup.add(adaSignBox);
+
+    const adaCanvas = document.createElement("canvas");
+    adaCanvas.width = 128;
+    adaCanvas.height = 160;
+    const adaCtx = adaCanvas.getContext("2d");
+    adaCtx.fillStyle = "#0284c7";
+    adaCtx.fillRect(0, 0, 128, 160);
+    adaCtx.fillStyle = "#ffffff";
+    adaCtx.font = "bold 15px sans-serif";
+    adaCtx.textAlign = "center";
+    adaCtx.fillText("RESTROOM", 64, 40);
+    adaCtx.fillText("ALL-GENDER", 64, 70);
+    adaCtx.font = "12px monospace";
+    adaCtx.fillText("♿ ADA", 64, 110);
+    adaCtx.fillText("• • • • •", 64, 135);
+
+    const adaTex = new THREE.CanvasTexture(adaCanvas);
+    const adaMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.18, 0.24),
+      new THREE.MeshBasicMaterial({ map: adaTex })
+    );
+    adaMesh.rotation.y = Math.PI / 2; // Face East into entrance corridor
+    adaMesh.position.set(0.075, 1.5, 0.65);
+    doorGroup.add(adaMesh);
+
+    // Exterior Architectural Brass Sconce Light above ADA Sign
+    const sconceArm = new THREE.Mesh(
+      new THREE.BoxGeometry(0.06, 0.02, 0.04),
+      this.materials.cabinetHandle
+    );
+    sconceArm.position.set(0.06, 1.78, 0.65);
+    doorGroup.add(sconceArm);
+
+    const sconceLight = new THREE.PointLight(0xfff1db, 0.85, 3.5);
+    sconceLight.position.set(0.12, 1.78, 0.65);
+    doorGroup.add(sconceLight);
+
+    restroom.add(doorGroup);
+
+    this.root.add(restroom);
+    this.colliders.push(new THREE.Box3().setFromObject(restroom));
+  }
+
+  // --- Relocated ANSI Z358.1 Safety Showers (Clamped to Concrete Structural Columns) ---
   _buildSafetyCore() {
-    // 2x ANSI Z358.1 Emergency Deluge Shower & Eyewash Stations
-    const showerPositions = [
-      [-5.0, -1.1],
-      [4.0, -1.1]
+    // Station 1: Clamped to Concrete Structural Pillar 1 (X = -2.0, Z = 0.35, facing North +Z)
+    // Station 2: Clamped to Concrete Structural Pillar 3 (X = -6.0, Z = 5.65, facing South -Z)
+    const stations = [
+      { x: -2.0, z: 0.35, rotY: 0, id: "Safety_Shower_Column_1" },
+      { x: -6.0, z: 5.65, rotY: Math.PI, id: "Safety_Shower_Column_2" }
     ];
 
-    showerPositions.forEach(([sx, sz], i) => {
+    stations.forEach((st) => {
       const station = new THREE.Group();
-      station.position.set(sx, 0, sz);
-      station.name = `Safety_Shower_Eyewash_${i + 1}`;
+      station.position.set(st.x, 0, st.z);
+      station.rotation.y = st.rotY;
+      station.name = st.id;
 
-      // Chrome main riser pipe
-      const pipe = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.025, 0.025, 2.5, 12),
-        this.materials.chromeFaucet
+      // 1. ANSI Z358.1 High-Contrast Yellow/Black Diagonal Hazard Floor Perimeter (1.0m x 1.0m)
+      const hazardCanvas = document.createElement("canvas");
+      hazardCanvas.width = 256;
+      hazardCanvas.height = 256;
+      const hCtx = hazardCanvas.getContext("2d");
+      hCtx.fillStyle = "#facc15";
+      hCtx.fillRect(0, 0, 256, 256);
+      hCtx.fillStyle = "#0f172a";
+      for (let d = -256; d < 512; d += 36) {
+        hCtx.beginPath();
+        hCtx.moveTo(d, 0);
+        hCtx.lineTo(d + 18, 0);
+        hCtx.lineTo(d - 18 + 256, 256);
+        hCtx.lineTo(d - 36 + 256, 256);
+        hCtx.fill();
+      }
+      hCtx.strokeStyle = "#dc2626";
+      hCtx.lineWidth = 10;
+      hCtx.strokeRect(5, 5, 246, 246);
+
+      const hazardTex = new THREE.CanvasTexture(hazardCanvas);
+      const floorMat = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.0, 1.0),
+        new THREE.MeshBasicMaterial({ map: hazardTex })
       );
-      pipe.position.y = 1.25;
-      station.add(pipe);
+      floorMat.rotation.x = -Math.PI / 2;
+      floorMat.position.set(0, 0.003, 0.50);
+      station.add(floorMat);
 
-      // Yellow deluge shower head
-      const showerHead = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.18, 0.08, 0.12, 16),
-        this.materials.safetyYellow
-      );
-      showerHead.position.set(0, 2.45, 0.35);
-      station.add(showerHead);
-
-      // Eyewash stainless steel bowl
-      const eyeBowl = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.18, 0.12, 0.1, 16),
+      // Stainless steel flush floor drain grate
+      const drainGrate = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.16, 0.16, 0.008, 16),
         this.materials.cabinetHandle
       );
-      eyeBowl.position.set(0, 1.05, 0.25);
+      drainGrate.position.set(0, 0.006, 0.50);
+      station.add(drainGrate);
+
+      // 2. Heavy 1-1/4" Schedule 40 Water Supply Riser Pipe clamped to pillar face
+      const riserPipe = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.024, 0.024, 2.55, 16),
+        this.materials.chromeFaucet
+      );
+      riserPipe.position.set(0, 1.275, 0.06);
+      station.add(riserPipe);
+
+      // Heavy stanchion mounting brackets clamped to column with 4 hex bolts
+      [0.6, 1.4, 2.2].forEach(by => {
+        const bracket = new THREE.Mesh(
+          new THREE.BoxGeometry(0.12, 0.04, 0.08),
+          this.materials.cabinetBody
+        );
+        bracket.position.set(0, by, 0.03);
+        station.add(bracket);
+      });
+
+      // 3. Overhead Horizontal Deluge Arm extending 0.60m into safety zone
+      const delugeArm = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.02, 0.02, 0.55, 12),
+        this.materials.chromeFaucet
+      );
+      delugeArm.rotation.x = Math.PI / 2;
+      delugeArm.position.set(0, 2.50, 0.32);
+      station.add(delugeArm);
+
+      // Spin-Cast High-Visibility Yellow Deluge Showerhead at Y = 2.45m
+      const showerHead = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.24, 0.08, 0.14, 24),
+        this.materials.safetyYellow
+      );
+      showerHead.position.set(0, 2.45, 0.55);
+      station.add(showerHead);
+
+      // Stainless Steel Triangular Pull Rod Actuator hanging to Y = 1.65m
+      const pullRod = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.005, 0.005, 0.80, 8),
+        this.materials.cabinetHandle
+      );
+      pullRod.position.set(0.12, 2.05, 0.52);
+      station.add(pullRod);
+
+      const pullTriangle = new THREE.Mesh(
+        new THREE.TorusGeometry(0.05, 0.006, 6, 3),
+        this.materials.safetyYellow
+      );
+      pullTriangle.position.set(0.12, 1.65, 0.52);
+      station.add(pullTriangle);
+
+      // 4. Stainless Eyewash Assembly at Y = 1.05m
+      const eyewashArm = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.016, 0.016, 0.35, 12),
+        this.materials.chromeFaucet
+      );
+      eyewashArm.rotation.x = Math.PI / 2;
+      eyewashArm.position.set(0, 1.05, 0.22);
+      station.add(eyewashArm);
+
+      const eyeBowl = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.17, 0.11, 0.10, 24),
+        this.materials.cabinetHandle
+      );
+      eyeBowl.position.set(0, 1.05, 0.40);
       station.add(eyeBowl);
+
+      // Dual aerated spray nozzles with yellow dust caps
+      [-0.045, 0.045].forEach(nx => {
+        const nozzle = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.012, 0.012, 0.04, 8),
+          this.materials.safetyYellow
+        );
+        nozzle.position.set(nx, 1.10, 0.40);
+        station.add(nozzle);
+      });
+
+      // Push Flag Handle (PUSH TO OPERATE)
+      const pushFlag = new THREE.Mesh(
+        new THREE.BoxGeometry(0.012, 0.08, 0.14),
+        this.materials.safetyYellow
+      );
+      pushFlag.position.set(0.18, 1.08, 0.40);
+      station.add(pushFlag);
+
+      // 5. High-Visibility Green/White ANSI Emergency Sign on Column at Y = 2.85m
+      const signMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(0.35, 0.22, 0.015),
+        new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.3 })
+      );
+      signMesh.position.set(0, 2.85, 0.02);
+      station.add(signMesh);
+
+      const sCanvas = document.createElement("canvas");
+      sCanvas.width = 256;
+      sCanvas.height = 160;
+      const sCtx = sCanvas.getContext("2d");
+      sCtx.fillStyle = "#15803d";
+      sCtx.fillRect(0, 0, 256, 160);
+      sCtx.fillStyle = "#ffffff";
+      sCtx.font = "bold 22px sans-serif";
+      sCtx.textAlign = "center";
+      sCtx.fillText("EMERGENCY", 128, 40);
+      sCtx.font = "18px sans-serif";
+      sCtx.fillText("SHOWER & EYEWASH", 128, 75);
+      sCtx.font = "14px monospace";
+      sCtx.fillText("KEEP CLEAR AT ALL TIMES", 128, 125);
+
+      const sTex = new THREE.CanvasTexture(sCanvas);
+      const sPlane = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.34, 0.21),
+        new THREE.MeshBasicMaterial({ map: sTex })
+      );
+      sPlane.position.set(0, 2.85, 0.03);
+      station.add(sPlane);
 
       this.root.add(station);
     });

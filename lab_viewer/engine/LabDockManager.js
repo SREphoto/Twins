@@ -60,8 +60,8 @@ export class LabDockManager {
       tag: "Shimadzu UV-2600i Dual-Beam",
       zone: "Zone 1: Main Analytical & Pharmaceutical QC Hall",
       pos: new THREE.Vector3(-12.2, BENCH_Y, -4.0),
-      rotY: 0,
-      scale: 0.10,
+      rotY: Math.PI, // Rotated 180° so operator console & sample lid face South aisle (+Z)
+      scale: 0.085,
       camConsole: { pos: new THREE.Vector3(-12.2, 1.25, -3.2), look: new THREE.Vector3(-12.2, 1.05, -4.0) },
       builder: () => createSpectrophotometerModel({ includeLab: false })
     });
@@ -73,8 +73,8 @@ export class LabDockManager {
       tag: "Thermo Nicolet iS50 Diamond ATR",
       zone: "Zone 1: Main Analytical & Pharmaceutical QC Hall",
       pos: new THREE.Vector3(-10.2, BENCH_Y, -4.0),
-      rotY: 0,
-      scale: 0.12,
+      rotY: Math.PI, // Rotated 180° so diamond ATR deck & touchscreen face South aisle (+Z)
+      scale: 0.09,
       camConsole: { pos: new THREE.Vector3(-10.2, 1.25, -3.2), look: new THREE.Vector3(-10.2, 1.05, -4.0) },
       builder: () => {
         const container = createMockContainer();
@@ -96,7 +96,7 @@ export class LabDockManager {
       zone: "Zone 1: Main Analytical & Pharmaceutical QC Hall",
       pos: new THREE.Vector3(-8.2, BENCH_Y, -4.0),
       rotY: 0,
-      scale: 0.12,
+      scale: 0.09,
       camConsole: { pos: new THREE.Vector3(-8.2, 1.25, -3.2), look: new THREE.Vector3(-8.2, 1.05, -4.0) },
       builder: () => {
         const container = createMockContainer();
@@ -143,8 +143,8 @@ export class LabDockManager {
       tag: "ERWEKA ZT 322 Dual Basket Apparatus",
       zone: "Zone 1: Main Analytical & Pharmaceutical QC Hall",
       pos: new THREE.Vector3(-2.0, BENCH_Y, -4.0),
-      rotY: 0,
-      scale: 0.10,
+      rotY: Math.PI, // Rotated 180° so water bath, beakers & keypad face South aisle (+Z)
+      scale: 0.085,
       camConsole: { pos: new THREE.Vector3(-2.0, 1.35, -3.0), look: new THREE.Vector3(-2.0, 1.15, -4.0) },
       builder: () => {
         const container = createMockContainer();
@@ -171,7 +171,7 @@ export class LabDockManager {
       tag: "0.1 mg Precision with Draft Shield",
       zone: "Zone 1: Main Analytical & Pharmaceutical QC Hall",
       pos: new THREE.Vector3(0.0, 0.00, -4.0), // Base is at Y=9.0 in decimeter scale -> 9.0*0.1=0.90m
-      rotY: 0,
+      rotY: Math.PI, // Rotated 180° so touchscreen & draft shield doors face South aisle (+Z)
       scale: 0.10,
       camConsole: { pos: new THREE.Vector3(0.0, 1.25, -3.2), look: new THREE.Vector3(0.0, 1.05, -4.0) },
       builder: () => createBalanceModel()
@@ -188,7 +188,7 @@ export class LabDockManager {
       tag: "MICRO 5424-R Refrigerated",
       zone: "Zone 3: Sample Prep & Lyophilization Suite",
       pos: new THREE.Vector3(-2.2, BENCH_Y, 4.4),
-      rotY: Math.PI,
+      rotY: 0, // Native front is -Z, facing South aisle (-Z)
       scale: 0.10,
       camConsole: { pos: new THREE.Vector3(-2.2, 1.30, 3.5), look: new THREE.Vector3(-2.2, 1.05, 4.4) },
       builder: () => createCentrifugeModel(null, { includeLab: false })
@@ -201,8 +201,8 @@ export class LabDockManager {
       tag: "Labconco FreeZone 4.5L Cascade",
       zone: "Zone 3: Sample Prep & Lyophilization Suite",
       pos: new THREE.Vector3(-0.5, BENCH_Y, 4.4),
-      rotY: Math.PI,
-      scale: 0.11,
+      rotY: Math.PI, // Native front is +Z, rotated 180° to face South aisle (-Z)
+      scale: 0.08,
       camConsole: { pos: new THREE.Vector3(-0.5, 1.35, 3.5), look: new THREE.Vector3(-0.5, 1.15, 4.4) },
       builder: () => {
         const container = createMockContainer();
@@ -223,7 +223,7 @@ export class LabDockManager {
       tag: "Piezo Acoustic Cavitation Bath",
       zone: "Zone 3: Sample Prep & Lyophilization Suite",
       pos: new THREE.Vector3(1.0, BENCH_Y, 4.4),
-      rotY: Math.PI,
+      rotY: 0, // Native front is -Z, facing South aisle (-Z)
       scale: 0.10,
       camConsole: { pos: new THREE.Vector3(1.0, 1.25, 3.5), look: new THREE.Vector3(1.0, 1.05, 4.4) },
       builder: () => createUltrasonicCleanerModel(null, { includeLab: false })
@@ -261,7 +261,7 @@ export class LabDockManager {
       zone: "Zone 2: Synthesis & Reaction Bay",
       pos: new THREE.Vector3(-13.5, BENCH_Y, 8.05),
       rotY: 0,
-      scale: 0.10,
+      scale: 0.08,
       camConsole: { pos: new THREE.Vector3(-13.5, 1.35, 7.1), look: new THREE.Vector3(-13.5, 1.15, 8.05) },
       builder: () => createRotovapModel()
     });
@@ -274,7 +274,7 @@ export class LabDockManager {
       zone: "Zone 2: Synthesis & Reaction Bay",
       pos: new THREE.Vector3(-12.8, BENCH_Y, 8.05),
       rotY: 0,
-      scale: 0.10,
+      scale: 0.085,
       camConsole: { pos: new THREE.Vector3(-12.8, 1.25, 7.1), look: new THREE.Vector3(-12.8, 1.05, 8.05) },
       builder: () => createVacuumPumpModel()
     });
@@ -287,7 +287,7 @@ export class LabDockManager {
       zone: "Zone 2: Synthesis & Reaction Bay",
       pos: new THREE.Vector3(-9.8, BENCH_Y, 8.05),
       rotY: 0,
-      scale: 0.10,
+      scale: 0.09,
       camConsole: { pos: new THREE.Vector3(-9.8, 1.25, 7.1), look: new THREE.Vector3(-9.8, 1.05, 8.05) },
       builder: () => createHotplateModel()
     });
@@ -300,7 +300,7 @@ export class LabDockManager {
       zone: "Zone 2: Synthesis & Reaction Bay",
       pos: new THREE.Vector3(-9.1, BENCH_Y, 8.05),
       rotY: 0,
-      scale: 0.10,
+      scale: 0.08,
       camConsole: { pos: new THREE.Vector3(-9.1, 1.35, 7.1), look: new THREE.Vector3(-9.1, 1.15, 8.05) },
       builder: (group) => buildReactor3D({ scene: group, includeLab: false })
     });
@@ -316,8 +316,8 @@ export class LabDockManager {
       tag: "9L 1200°C High-Temp Ceramic Fibre",
       zone: "Zone 1: Main Analytical & Pharmaceutical QC Hall",
       pos: new THREE.Vector3(-13.0, BENCH_Y, -8.2),
-      rotY: 0,
-      scale: 0.10,
+      rotY: Math.PI, // Rotated 180° so vertical lift door & Eurotherm PID face North aisle (+Z)
+      scale: 0.08,
       camConsole: { pos: new THREE.Vector3(-13.0, 1.35, -7.2), look: new THREE.Vector3(-13.0, 1.15, -8.2) },
       builder: () => createMuffleFurnaceModel({ includeLab: false })
     });
@@ -350,7 +350,7 @@ export class LabDockManager {
       tag: "Precision Benchtop Meter with ATC",
       zone: "Zone 1: Main Analytical & Pharmaceutical QC Hall",
       pos: new THREE.Vector3(-7.0, BENCH_Y, -8.2),
-      rotY: 0,
+      rotY: Math.PI, // Rotated 180° so sloped touchscreen & electrode arm face North aisle (+Z)
       scale: 0.10,
       camConsole: { pos: new THREE.Vector3(-7.0, 1.25, -7.2), look: new THREE.Vector3(-7.0, 1.05, -8.2) },
       builder: () => createPHMeterModel({ includeLab: false })
