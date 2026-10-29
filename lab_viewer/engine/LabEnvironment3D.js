@@ -811,6 +811,57 @@ export class LabEnvironment3D {
     this._buildGlassPartitionWall(-5.0, 5.0, 8.0, 1.15, "Z");
   }
 
+  // Architectural Glass Partition Wall with Bronze Frame & Base Shoe
+  _buildGlassPartitionWall(cx, cz, length, height, orientation = "Z") {
+    const group = new THREE.Group();
+    group.name = `Glass_Partition_${orientation}_${cx}_${cz}`;
+
+    const isZ = orientation === "Z";
+    const glassThickness = 0.04;
+    const mullionSize = 0.08;
+
+    // Glass pane geometry
+    const glassGeo = isZ
+      ? new THREE.BoxGeometry(glassThickness, height, length)
+      : new THREE.BoxGeometry(length, height, glassThickness);
+    const glassMesh = new THREE.Mesh(glassGeo, this.materials.glass);
+    glassMesh.position.set(0, height / 2, 0);
+    group.add(glassMesh);
+
+    // Top bronze cap rail / mullion
+    const topCapGeo = isZ
+      ? new THREE.BoxGeometry(mullionSize, 0.05, length)
+      : new THREE.BoxGeometry(length, 0.05, mullionSize);
+    const topCap = new THREE.Mesh(topCapGeo, this.materials.bronzeMullion);
+    topCap.position.set(0, height, 0);
+    group.add(topCap);
+
+    // Base bronze channel shoe
+    const baseShoeGeo = isZ
+      ? new THREE.BoxGeometry(mullionSize, 0.06, length)
+      : new THREE.BoxGeometry(length, 0.06, mullionSize);
+    const baseShoe = new THREE.Mesh(baseShoeGeo, this.materials.bronzeMullion);
+    baseShoe.position.set(0, 0.03, 0);
+    group.add(baseShoe);
+
+    // Vertical end mullion posts
+    const postGeo = new THREE.BoxGeometry(mullionSize, height, mullionSize);
+    const halfL = length / 2;
+    [-halfL, halfL].forEach((offset) => {
+      const post = new THREE.Mesh(postGeo, this.materials.bronzeMullion);
+      if (isZ) {
+        post.position.set(0, height / 2, offset);
+      } else {
+        post.position.set(offset, height / 2, 0);
+      }
+      group.add(post);
+    });
+
+    group.position.set(cx, 0, cz);
+    this.root.add(group);
+    this.colliders.push(new THREE.Box3().setFromObject(group));
+  }
+
   _buildThermalAirlock() {
     const H = 3.8;
     const wallT = 0.15;
