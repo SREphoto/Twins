@@ -505,6 +505,10 @@ body, html {
   display: flex;
   align-items: center;
   gap: 8px;
+  max-width: 95vw;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex-wrap: nowrap;
   background: rgba(10, 14, 20, 0.88);
   backdrop-filter: blur(16px);
   border: 1px solid rgba(45, 55, 72, 0.85);
@@ -515,10 +519,15 @@ body, html {
   transition: all 0.3s ease;
 }
 
+.hud-nav-dock::-webkit-scrollbar {
+  display: none;
+}
+
 .nav-pill {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-shrink: 0;
   background: transparent;
   color: var(--muted);
   border: 1px solid transparent;

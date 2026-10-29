@@ -175,8 +175,8 @@ export class LabPlayerController {
   // Glide to Grand Overview
   glideToOverview() {
     this.glideToStation(
-      new THREE.Vector3(7.2, 3.4, -7.2),
-      new THREE.Vector3(-6.0, 1.1, 0.5),
+      new THREE.Vector3(14.0, 15.0, -22.0),
+      new THREE.Vector3(14.0, 1.5, 0.0),
       "Grand Overview · Architectural Complex",
       "overview"
     );
@@ -325,10 +325,18 @@ export class LabPlayerController {
   }
 
   _detectZone(x, z) {
-    if (x > 8.0 && z > 4.5) return "Zone 9: User's Private Executive Office";
-    if (x > 8.0 && z > 0 && z <= 4.5) return "Zone 10: Executive Conference Room";
-    if (x > 8.0 && z <= 0 && z > -4.5) return "Zone 7: Restroom & Sanitation Suite";
-    if (x > 8.0 && z <= -4.5) return "Zone 8: Thermal Air-Lock Vestibule & Entrance";
+    if (z < -9.5) return "Exterior Campus: Parking Lot & Landscaping";
+    if (x >= 38.0 && x <= 44.0 && z >= -8.0 && z <= 8.0) return "Zone 14: Women's Locker Room, Changing Suite & Showers";
+    if (x >= 16.0 && x <= 27.0 && z > 1.5) return "Zone 10: Grand Boardroom & Conference Suite";
+    if (x > 27.0 && x <= 33.5 && z > 1.5) return "Zone 11: Staff Break Room & Kitchenette";
+    if (x > 33.5 && x < 38.0 && z > 1.5) return "Zone 12: Executive Restroom & Sanitation";
+    if (x >= 16.0 && x < 38.0 && z >= -1.5 && z <= 1.5) return "Central Circulation Spine & Gallery Hallway";
+    if (x >= 16.0 && x < 21.5 && z < -1.5) return "Zone 9: User's Private Executive Office";
+    if (x >= 21.5 && x < 25.0 && z < -1.5) return "Faculty Suite: Guest Office";
+    if (x >= 25.0 && x < 28.5 && z < -1.5) return "Faculty Suite: Administration Office";
+    if (x >= 28.5 && x < 32.0 && z < -1.5) return "Faculty Suite: Instructor's Office";
+    if (x >= 32.0 && x < 38.0 && z < -1.5) return "Zone 13: Men's Locker Room & Showers";
+    if (x >= 8.0 && x < 16.0) return "Zone 6: Grand Entrance Atrium & Waiting Lounge";
     if (x <= 8.0 && x > 2.0 && z > 1.0) return "Zone 5: Chemical & Reagent Storage Vault";
     if (x <= 8.0 && x > 2.0 && z <= 1.0) return "Zone 4: Controlled Atmosphere & Glove Box Bay";
     if (x <= 2.0 && x > -5.0 && z > 1.0) return "Zone 3: Sample Prep & Lyophilization Suite";

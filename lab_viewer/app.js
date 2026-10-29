@@ -183,6 +183,12 @@ class GrandLabApp {
 
     if (dest === "overview") {
       this.player.glideToOverview();
+    } else if (dest === "reception") {
+      this.player.glideToStation(
+        new THREE.Vector3(12.0, 1.65, -6.5),
+        new THREE.Vector3(12.0, 1.25, 1.2),
+        "Zone 6: Grand Entrance Atrium & Waiting Lounge"
+      );
     } else if (dest === "analytical") {
       this.player.glideToStation(
         new THREE.Vector3(-6.0, 1.65, -1.8),
@@ -209,32 +215,50 @@ class GrandLabApp {
       );
     } else if (dest === "office") {
       this.player.glideToStation(
-        new THREE.Vector3(10.2, 1.45, 5.2),
-        new THREE.Vector3(12.2, 1.05, 6.8),
+        new THREE.Vector3(17.5, 1.65, -3.2),
+        new THREE.Vector3(18.75, 1.15, -5.5),
         "Zone 9: User's Private Executive Office (LIMS Studio)"
       );
     } else if (dest === "conference") {
       this.player.glideToStation(
-        new THREE.Vector3(9.8, 1.45, 1.2),
-        new THREE.Vector3(12.0, 1.05, 2.5),
-        "Zone 10: Executive Conference Room (85\" Display)"
+        new THREE.Vector3(18.5, 1.65, 3.2),
+        new THREE.Vector3(22.0, 1.15, 5.5),
+        "Zone 10: Grand Boardroom & Conference Suite"
+      );
+    } else if (dest === "facultysuite") {
+      this.player.glideToStation(
+        new THREE.Vector3(26.75, 1.65, -2.5),
+        new THREE.Vector3(26.75, 1.15, -5.5),
+        "Faculty Suite: Guest, Admin & Instructor Offices"
+      );
+    } else if (dest === "breakroom") {
+      this.player.glideToStation(
+        new THREE.Vector3(28.5, 1.65, 3.2),
+        new THREE.Vector3(30.5, 1.15, 5.5),
+        "Zone 11: Staff Break Room & Kitchenette"
+      );
+    } else if (dest === "menslockers") {
+      this.player.glideToStation(
+        new THREE.Vector3(33.5, 1.65, -3.2),
+        new THREE.Vector3(35.5, 1.15, -5.5),
+        "Zone 13: Men's Locker Room & Showers"
+      );
+    } else if (dest === "womenslockers") {
+      this.player.glideToStation(
+        new THREE.Vector3(39.0, 1.65, 0.0),
+        new THREE.Vector3(42.0, 1.15, 0.0),
+        "Zone 14: Women's Locker Room, Changing Suite & Showers"
       );
     } else if (dest === "restroom") {
       this.player.glideToStation(
-        new THREE.Vector3(13.8, 1.55, -2.25),
-        new THREE.Vector3(10.5, 1.30, -2.25),
-        "Zone 7: ADA Accessible Restroom Suite"
-      );
-    } else if (dest === "airlock") {
-      this.player.glideToStation(
-        new THREE.Vector3(13.0, 1.65, -11.0),
-        new THREE.Vector3(13.0, 1.5, -6.5),
-        "Zone 8: Thermal Air-Lock Vestibule"
+        new THREE.Vector3(34.8, 1.65, 3.2),
+        new THREE.Vector3(35.8, 1.15, 5.5),
+        "Zone 12: Executive Restroom & Sanitation"
       );
     } else if (dest === "exterior") {
       this.player.glideToStation(
-        new THREE.Vector3(10.0, 4.5, -28.0),
-        new THREE.Vector3(12.5, 1.8, -9.0),
+        new THREE.Vector3(13.0, 4.5, -28.0),
+        new THREE.Vector3(13.0, 1.8, -9.0),
         "Exterior Campus: Parking Lot & Landscaping"
       );
     } else if (dest === "walk") {
@@ -279,36 +303,86 @@ class GrandLabApp {
       this.tTimer.textContent = "WASD Active";
       this.sopTitle.textContent = "Laboratory Floor Walk";
       this.advisorText.textContent = "Walk freely using W, A, S, D or Arrow keys. Hold Shift to sprint. Click anywhere on a machine to focus, or press ESC to return to Grand Overview.";
+    } else if (zoneName.includes("Grand Entrance") || zoneName.includes("Waiting Lounge")) {
+      this._setActiveNavPill("reception");
+      this.sidebarBadge.textContent = "RECEPTION";
+      this.telemetryStationName.textContent = "Grand Entrance Atrium";
+      this.tStatus.textContent = "ONLINE";
+      this.tParam1.textContent = "Guest Check-In";
+      this.tTemp.textContent = "21.5 °C";
+      this.tTimer.textContent = "Atrium Live";
+      this.sopTitle.textContent = "Visitor Reception & Security";
+      this.advisorText.textContent = "Grand Entrance Atrium: Fluted travertine desk with guest check-in terminal, emerald velvet lounge, kinetic brass DNA double-helix sculpture, and living moss partition wall.";
     } else if (zoneName.includes("User's Private Executive Office")) {
       this._setActiveNavPill("office");
       this.sidebarBadge.textContent = "OFFICE & LIMS";
       this.telemetryStationName.textContent = "Executive LIMS Studio";
       this.tStatus.textContent = "READY";
-      this.tParam1.textContent = "Dual 4K Monitor";
+      this.tParam1.textContent = "Dual 4K Curved";
       this.tTemp.textContent = "21.0 °C";
       this.tTimer.textContent = "Continuous";
       this.sopTitle.textContent = "Post-Run Review & Calculations";
-      this.advisorText.textContent = "You are in your private office. Use the desktop terminal to review FTIR spectra, dissolution profiles, or conduct stoichiometric and dilution calculations.";
-    } else if (zoneName.includes("Executive Conference Room")) {
+      this.advisorText.textContent = "Doubled Executive Office: American walnut cantilever desk with Nero Marquina waterfall edge, dual 32\" curved displays, acoustic slat wall, executive credenza, espresso bar, and private collaboration lounge.";
+    } else if (zoneName.includes("Grand Boardroom") || zoneName.includes("Conference Suite")) {
       this._setActiveNavPill("conference");
-      this.sidebarBadge.textContent = "CONFERENCE";
-      this.telemetryStationName.textContent = "Presentation Display (85\")";
+      this.sidebarBadge.textContent = "BOARDROOM";
+      this.telemetryStationName.textContent = "Grand Conference Suite";
       this.tStatus.textContent = "BROADCAST";
-      this.tParam1.textContent = "Cohort Active";
+      this.tParam1.textContent = "16-Seat Table";
       this.tTemp.textContent = "21.0 °C";
-      this.tTimer.textContent = "Meeting Active";
-      this.sopTitle.textContent = "Lab Review & Briefing";
-      this.advisorText.textContent = "Executive Conference Room: Present lab data, review student findings, or project live analytical spectra onto the 85\" display.";
-    } else if (zoneName.includes("Restroom Suite") || zoneName.includes("ADA Accessible Restroom")) {
+      this.tTimer.textContent = "110\" Laser Wall";
+      this.sopTitle.textContent = "Lab Briefing & Presentation";
+      this.advisorText.textContent = "Doubled Grand Boardroom: 16 ergonomic conference chairs, marble boat-shaped boardroom table with pop-up power raceways, presenter stage and fluted podium, and 110\" laser video wall.";
+    } else if (zoneName.includes("Faculty Suite")) {
+      this._setActiveNavPill("facultysuite");
+      this.sidebarBadge.textContent = "FACULTY";
+      this.telemetryStationName.textContent = "Faculty & Admin Suite";
+      this.tStatus.textContent = "ACTIVE";
+      this.tParam1.textContent = "3 Offices";
+      this.tTemp.textContent = "21.0 °C";
+      this.tTimer.textContent = "Academic";
+      this.sopTitle.textContent = "Faculty Mentorship & Administration";
+      this.advisorText.textContent = "Faculty Suite: Private offices for Guest Researchers, Administration (with commercial multifunction printer and lateral file archives), and the Instructor's Office.";
+    } else if (zoneName.includes("Break Room")) {
+      this._setActiveNavPill("breakroom");
+      this.sidebarBadge.textContent = "BREAK ROOM";
+      this.telemetryStationName.textContent = "Staff Lounge & Kitchenette";
+      this.tStatus.textContent = "AMENITIES";
+      this.tParam1.textContent = "Espresso & Café";
+      this.tTemp.textContent = "21.0 °C";
+      this.tTimer.textContent = "Break Active";
+      this.sopTitle.textContent = "Staff Amenities & Dining";
+      this.advisorText.textContent = "Staff Break Room: Full kitchenette with quartz waterfall island, commercial dual-group espresso station, microwave ovens, French door refrigerator, snack and beverage vending machines, and café seating.";
+    } else if (zoneName.includes("Men's Locker Room")) {
+      this._setActiveNavPill("menslockers");
+      this.sidebarBadge.textContent = "LOCKERS (M)";
+      this.telemetryStationName.textContent = "Men's Locker & Showers";
+      this.tStatus.textContent = "SANITIZED";
+      this.tParam1.textContent = "24 Steel Lockers";
+      this.tTemp.textContent = "22.5 °C";
+      this.tTimer.textContent = "Showers Active";
+      this.sopTitle.textContent = "Sanitary & Gowning Facility";
+      this.advisorText.textContent = "Men's Locker Room: 24 ventilated steel lockers with digital PIN locks, solid oak butcher dressing benches, 3 private rainfall shower stalls, and double grooming vanity.";
+    } else if (zoneName.includes("Women's Locker Room")) {
+      this._setActiveNavPill("womenslockers");
+      this.sidebarBadge.textContent = "LOCKERS (W)";
+      this.telemetryStationName.textContent = "Women's Changing Suite";
+      this.tStatus.textContent = "SANITIZED";
+      this.tParam1.textContent = "32 Gold Lockers";
+      this.tTemp.textContent = "22.5 °C";
+      this.tTimer.textContent = "Showers Active";
+      this.sopTitle.textContent = "Sanitary & Gowning Facility";
+      this.advisorText.textContent = "Women's Changing Suite: 32 champagne gold lockers, velvet circular lounge ottoman, 4-station illuminated Hollywood vanity bar with Dyson hair dryers, and 4 private rainfall shower suites.";
+    } else if (zoneName.includes("Executive Restroom") || zoneName.includes("Restroom & Sanitation")) {
       this._setActiveNavPill("restroom");
       this.sidebarBadge.textContent = "RESTROOM";
-      this.telemetryStationName.textContent = "ADA Restroom Suite";
+      this.telemetryStationName.textContent = "Executive Restroom";
       this.tStatus.textContent = "ACCESSIBLE";
       this.tParam1.textContent = "Touchless Fixtures";
       this.tTemp.textContent = "21.0 °C";
       this.tTimer.textContent = "Active";
       this.sopTitle.textContent = "Sanitary & ADA Compliance";
-      this.advisorText.textContent = "ADA Compliant All-Gender Restroom Suite with non-slip porcelain tile, commercial wall-hung toilet with Sloan flushometer valve, floating quartz vanity, and touchless Dyson hand dryer.";
+      this.advisorText.textContent = "Executive Restroom: Floating quartz double vanity with backlit defogger mirrors, automatic sensor faucets, private full-height stalls with commercial wall-hung toilets, and Dyson Airblade dryers.";
     } else if (zoneName.includes("Exterior Campus") || zoneName.includes("Parking Lot")) {
       this._setActiveNavPill("exterior");
       this.sidebarBadge.textContent = "CAMPUS";
@@ -424,16 +498,24 @@ class GrandLabApp {
   }
 
   _jumpToPresetLocation(val) {
-    if (val === "user_office" || val === "office") {
+    if (val === "reception") {
+      this._handleNavDockClick("reception");
+    } else if (val === "user_office" || val === "office") {
       this._handleNavDockClick("office");
     } else if (val === "conference") {
       this._handleNavDockClick("conference");
+    } else if (val === "facultysuite") {
+      this._handleNavDockClick("facultysuite");
+    } else if (val === "breakroom") {
+      this._handleNavDockClick("breakroom");
+    } else if (val === "menslockers") {
+      this._handleNavDockClick("menslockers");
+    } else if (val === "womenslockers") {
+      this._handleNavDockClick("womenslockers");
     } else if (val === "restroom") {
       this._handleNavDockClick("restroom");
     } else if (val === "exterior") {
       this._handleNavDockClick("exterior");
-    } else if (val === "airlock") {
-      this.player.glideToStation(new THREE.Vector3(13.0, 1.65, -7.0), new THREE.Vector3(13.0, 1.65, -4.0), "Zone 8: Thermal Air-Lock Vestibule");
     } else {
       const dock = this.dockManager.getDockById(val);
       if (dock) {

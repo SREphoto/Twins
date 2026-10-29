@@ -281,13 +281,66 @@ export class LabEnvironment3D {
       metalness: 0.02,
       name: "Mat_Tree_Canopy"
     });
+
+    // Executive Suite, Locker Room & Wellness Materials
+    this.materials.porcelainMarble = new THREE.MeshStandardMaterial({
+      color: 0xf5f6f8,
+      roughness: 0.18,
+      metalness: 0.08,
+      name: "Mat_Statuario_Porcelain_Marble"
+    });
+
+    this.materials.slateLockerTile = new THREE.MeshStandardMaterial({
+      color: 0x1a1e24,
+      roughness: 0.45,
+      metalness: 0.12,
+      name: "Mat_Slate_Locker_Tile"
+    });
+
+    this.materials.breakroomTile = new THREE.MeshStandardMaterial({
+      color: 0x2e3440,
+      roughness: 0.38,
+      metalness: 0.10,
+      name: "Mat_Terrazzo_Breakroom_Tile"
+    });
+
+    this.materials.woodOakPlank = new THREE.MeshStandardMaterial({
+      color: 0x3d2b1f,
+      roughness: 0.52,
+      metalness: 0.04,
+      name: "Mat_Smoked_Oak_Plank"
+    });
+
+    this.materials.showerFrostedGlass = new THREE.MeshPhysicalMaterial({
+      color: 0xe2e8f0,
+      transparent: true,
+      opacity: 0.65,
+      roughness: 0.45,
+      metalness: 0.05,
+      ior: 1.48,
+      name: "Mat_Frosted_Shower_Glass"
+    });
+
+    this.materials.matteBlackTrim = new THREE.MeshStandardMaterial({
+      color: 0x121418,
+      roughness: 0.35,
+      metalness: 0.65,
+      name: "Mat_Architectural_Matte_Black"
+    });
+
+    this.materials.goldBrassAccent = new THREE.MeshStandardMaterial({
+      color: 0xd4af37,
+      roughness: 0.25,
+      metalness: 0.88,
+      name: "Mat_Luxury_Brushed_Gold"
+    });
   }
 
   _buildFloorsWithGrid() {
-    const W = 32.0;
-    const D = 18.0;
+    const H = 3.8;
+    const D = 19.0;
 
-    // 1. Main Lab Floor (Terrazzo) - West & Central areas (X: -16 to 8)
+    // 1. Main Analytical & Chemical Lab Floor (Terrazzo) - West & Central areas (X: -16 to 8, Z: -9.5 to 9.5)
     const labFloorGeo = new THREE.PlaneGeometry(24.0, D);
     const labFloor = new THREE.Mesh(labFloorGeo, this.materials.terrazzo);
     labFloor.rotation.x = -Math.PI / 2;
@@ -295,7 +348,7 @@ export class LabEnvironment3D {
     labFloor.receiveShadow = true;
     this.root.add(labFloor);
 
-    // Architectural expansion divider grid strips every 3 meters
+    // Architectural expansion divider grid strips every 3 meters in lab
     for (let x = -16.0; x <= 8.0; x += 3.0) {
       const stripX = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.003, D), this.materials.gridStrip);
       stripX.position.set(x, 0.0015, 0);
@@ -307,42 +360,150 @@ export class LabEnvironment3D {
       this.root.add(stripZ);
     }
 
-    // 2. Executive Office & Conference Suite Floor (Woven Slate Carpet) - East Wing (X: 8 to 16, Z: 0 to 9)
-    const officeFloorGeo = new THREE.PlaneGeometry(8.0, 9.0);
-    const officeFloor = new THREE.Mesh(officeFloorGeo, this.materials.carpet);
-    officeFloor.rotation.x = -Math.PI / 2;
-    officeFloor.position.set(12.0, 0.003, 4.5);
-    officeFloor.receiveShadow = true;
-    this.root.add(officeFloor);
+    // 2. Grand Entrance Pavilion, Waiting Lounge & Reception Floor (Polished Graphite Porcelain & Terrazzo Inlay)
+    // (X: 8.0 to 16.0, Z: -9.5 to 9.5, size 8m x 19m = 152 m^2)
+    const entranceFloorGeo = new THREE.PlaneGeometry(8.0, D);
+    const entranceFloor = new THREE.Mesh(entranceFloorGeo, this.materials.porcelainTile);
+    entranceFloor.rotation.x = -Math.PI / 2;
+    entranceFloor.position.set(12.0, 0.002, 0);
+    entranceFloor.receiveShadow = true;
+    this.root.add(entranceFloor);
 
-    // 3. Thermal Airlock & Restroom Floor (Graphite Porcelain) - East Wing (X: 8 to 16, Z: -9 to 0)
-    const tileFloorGeo = new THREE.PlaneGeometry(8.0, 9.0);
-    const tileFloor = new THREE.Mesh(tileFloorGeo, this.materials.porcelainTile);
-    tileFloor.rotation.x = -Math.PI / 2;
-    tileFloor.position.set(12.0, 0.003, -4.5);
-    tileFloor.receiveShadow = true;
-    this.root.add(tileFloor);
+    // Architectural Terrazzo Inlay Medallion in Waiting Lounge (X: 9.5 to 14.5, Z: 1.0 to 8.0)
+    const loungeInlay = new THREE.Mesh(
+      new THREE.PlaneGeometry(5.0, 7.0),
+      this.materials.terrazzo
+    );
+    loungeInlay.rotation.x = -Math.PI / 2;
+    loungeInlay.position.set(12.0, 0.0025, 4.5);
+    loungeInlay.receiveShadow = true;
+    this.root.add(loungeInlay);
+
+    // 3. Central Circulation Spine Hallway Floor (Polished Terrazzo with Brass Expansion Strips)
+    // (X: 16.0 to 38.0, Z: -1.5 to 1.5, length 22m, width 3.0m)
+    const hallwayFloorGeo = new THREE.PlaneGeometry(22.0, 3.0);
+    const hallwayFloor = new THREE.Mesh(hallwayFloorGeo, this.materials.terrazzo);
+    hallwayFloor.rotation.x = -Math.PI / 2;
+    hallwayFloor.position.set(27.0, 0.002, 0);
+    hallwayFloor.receiveShadow = true;
+    this.root.add(hallwayFloor);
+
+    for (let hx = 16.0; hx <= 38.0; hx += 2.0) {
+      const hStrip = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.003, 3.0), this.materials.gridStrip);
+      hStrip.position.set(hx, 0.0025, 0);
+      this.root.add(hStrip);
+    }
+
+    // 4. North Wing Rooms (Left side of Hallway, Z: 1.5 to 9.5, depth 8.0m)
+    // 4A. Grand Executive Conference Room (Luxury Woven Slate Carpet with Acoustic Underlay)
+    // (X: 16.0 to 27.0, Z: 1.5 to 9.5, size 11m x 8m = 88 m^2 - over double original size!)
+    const confFloor = new THREE.Mesh(
+      new THREE.PlaneGeometry(11.0, 8.0),
+      this.materials.carpet
+    );
+    confFloor.rotation.x = -Math.PI / 2;
+    confFloor.position.set(21.5, 0.003, 5.5);
+    confFloor.receiveShadow = true;
+    this.root.add(confFloor);
+
+    // 4B. Staff Break Room & Kitchenette (Modern Terrazzo Porcelain Tile)
+    // (X: 27.0 to 33.5, Z: 1.5 to 9.5, size 6.5m x 8m = 52 m^2)
+    const breakFloor = new THREE.Mesh(
+      new THREE.PlaneGeometry(6.5, 8.0),
+      this.materials.breakroomTile
+    );
+    breakFloor.rotation.x = -Math.PI / 2;
+    breakFloor.position.set(30.25, 0.003, 5.5);
+    breakFloor.receiveShadow = true;
+    this.root.add(breakFloor);
+
+    // 4C. Executive Restroom Suite (Graphite Porcelain Tile with Floor Drains)
+    // (X: 33.5 to 38.0, Z: 1.5 to 9.5, size 4.5m x 8m = 36 m^2)
+    const restroomFloor = new THREE.Mesh(
+      new THREE.PlaneGeometry(4.5, 8.0),
+      this.materials.porcelainTile
+    );
+    restroomFloor.rotation.x = -Math.PI / 2;
+    restroomFloor.position.set(35.75, 0.003, 5.5);
+    restroomFloor.receiveShadow = true;
+    this.root.add(restroomFloor);
+
+    // 5. South Wing Rooms (Right side of Hallway, Z: -9.5 to -1.5, depth 8.0m)
+    // 5A. User's Private Executive Suite (Smoked Oak Herringbone Parquet)
+    // (X: 16.0 to 21.5, Z: -9.5 to -1.5, size 5.5m x 8m = 44 m^2 - double original size!)
+    const userOfficeFloor = new THREE.Mesh(
+      new THREE.PlaneGeometry(5.5, 8.0),
+      this.materials.woodOakPlank
+    );
+    userOfficeFloor.rotation.x = -Math.PI / 2;
+    userOfficeFloor.position.set(18.75, 0.003, -5.5);
+    userOfficeFloor.receiveShadow = true;
+    this.root.add(userOfficeFloor);
+
+    // 5B. Faculty & Staff Offices Suite: Guest Office, Admin Office, Instructor's Office (Woven Charcoal Carpet)
+    // (X: 21.5 to 32.0, Z: -9.5 to -1.5, size 10.5m x 8m = 84 m^2)
+    const officesFloor = new THREE.Mesh(
+      new THREE.PlaneGeometry(10.5, 8.0),
+      this.materials.carpet
+    );
+    officesFloor.rotation.x = -Math.PI / 2;
+    officesFloor.position.set(26.75, 0.003, -5.5);
+    officesFloor.receiveShadow = true;
+    this.root.add(officesFloor);
+
+    // 5C. Men's Large Locker Room, Changing Room & Showers (Charcoal Slate Tile)
+    // (X: 32.0 to 38.0, Z: -9.5 to -1.5, size 6.0m x 8m = 48 m^2)
+    const mensLockerFloor = new THREE.Mesh(
+      new THREE.PlaneGeometry(6.0, 8.0),
+      this.materials.slateLockerTile
+    );
+    mensLockerFloor.rotation.x = -Math.PI / 2;
+    mensLockerFloor.position.set(35.0, 0.003, -5.5);
+    mensLockerFloor.receiveShadow = true;
+    this.root.add(mensLockerFloor);
+
+    // 6. Women's Locker Room, Changing Room & Luxury Showers (Straight ahead at end of Hallway)
+    // (X: 38.0 to 44.0, Z: -8.0 to 8.0, size 6.0m x 16m = 96 m^2)
+    const womensLockerFloor = new THREE.Mesh(
+      new THREE.PlaneGeometry(6.0, 16.0),
+      this.materials.porcelainMarble
+    );
+    womensLockerFloor.rotation.x = -Math.PI / 2;
+    womensLockerFloor.position.set(41.0, 0.003, 0);
+    womensLockerFloor.receiveShadow = true;
+    this.root.add(womensLockerFloor);
   }
 
   _buildPerimeterWalls() {
     const H = 3.8;
     const wallT = 0.2;
-    const W = 32.0;
-    const D = 18.0;
 
     const walls = [
-      // North Wall (Z = +9.0)
-      { x: 0, y: H / 2, z: D / 2, sx: W, sy: H, sz: wallT, mat: this.materials.wallDrywall },
-      // South Wall Left Segment (X: -16.0 to 11.95, width = 27.95, center = -2.025)
-      { x: -2.025, y: H / 2, z: -D / 2, sx: 27.95, sy: H, sz: wallT, mat: this.materials.wallDrywall },
-      // South Wall Right Segment (X: 14.05 to 16.0, width = 1.95, center = 15.025)
-      { x: 15.025, y: H / 2, z: -D / 2, sx: 1.95, sy: H, sz: wallT, mat: this.materials.wallDrywall },
-      // South Wall Entrance Header Lintel (X: 11.95 to 14.05, width = 2.1, height = 1.35, center Y = 3.125)
-      { x: 13.0, y: 3.125, z: -D / 2, sx: 2.1, sy: 1.35, sz: wallT, mat: this.materials.wallDrywall, isHeader: true },
-      // West Wall (X = -16.0)
-      { x: -W / 2, y: H / 2, z: 0, sx: wallT, sy: H, sz: D, mat: this.materials.charcoalConcrete },
-      // East Wall (X = +16.0)
-      { x: W / 2, y: H / 2, z: 0, sx: wallT, sy: H, sz: D, mat: this.materials.wallDrywall }
+      // 1. Main North Perimeter Wall (X: -16.0 to 38.0 at Z = +9.5, width 54.0m)
+      { x: 11.0, y: H / 2, z: 9.5, sx: 54.0, sy: H, sz: wallT, mat: this.materials.wallDrywall },
+      // North Jog at X = 38.0 (from Z = 9.5 to Z = 8.0, length 1.5m)
+      { x: 38.0, y: H / 2, z: 8.75, sx: wallT, sy: H, sz: 1.5, mat: this.materials.wallDrywall },
+      // Women's Locker Room North Wall (X: 38.0 to 44.0 at Z = +8.0, width 6.0m)
+      { x: 41.0, y: H / 2, z: 8.0, sx: 6.0, sy: H, sz: wallT, mat: this.materials.wallDrywall },
+
+      // 2. Far East Perimeter Wall - Women's Locker Room (at X = +44.0, Z: -8.0 to +8.0, width 16.0m)
+      { x: 44.0, y: H / 2, z: 0.0, sx: wallT, sy: H, sz: 16.0, mat: this.materials.wallDrywall },
+
+      // 3. Women's Locker Room South Wall (X: 38.0 to 44.0 at Z = -8.0, width 6.0m)
+      { x: 41.0, y: H / 2, z: -8.0, sx: 6.0, sy: H, sz: wallT, mat: this.materials.wallDrywall },
+      // South Jog at X = 38.0 (from Z = -8.0 to Z = -9.5, length 1.5m)
+      { x: 38.0, y: H / 2, z: -8.75, sx: wallT, sy: H, sz: 1.5, mat: this.materials.wallDrywall },
+
+      // 4. Main South Perimeter Wall
+      // South Wall Left Segment (X: -16.0 to 11.95, width 27.95m, center = -2.025)
+      { x: -2.025, y: H / 2, z: -9.5, sx: 27.95, sy: H, sz: wallT, mat: this.materials.wallDrywall },
+      // South Wall Right Segment (X: 14.05 to 38.0, width 23.95m, center = 26.025)
+      { x: 26.025, y: H / 2, z: -9.5, sx: 23.95, sy: H, sz: wallT, mat: this.materials.wallDrywall },
+      // South Wall Entrance Header Lintel (X: 11.95 to 14.05, width 2.1m, height 1.35m, center Y = 3.125)
+      { x: 13.0, y: 3.125, z: -9.5, sx: 2.1, sy: 1.35, sz: wallT, mat: this.materials.wallDrywall, isHeader: true },
+
+      // 5. Far West Wall - Chemical Lab (at X = -16.0, Z: -9.5 to +9.5, width 19.0m)
+      { x: -16.0, y: H / 2, z: 0.0, sx: wallT, sy: H, sz: 19.0, mat: this.materials.charcoalConcrete }
     ];
 
     walls.forEach((w, idx) => {
@@ -373,132 +534,281 @@ export class LabEnvironment3D {
     const H = 3.8;
     const wallT = 0.15;
 
-    // East Wing Glass Partition Wall looking into User's Office (X = 8.0, Z: 1.0 to 9.0)
-    this._buildGlassPartitionWall(8.0, 5.0, 8.0, H, "Z");
+    // --- 1. Dividing Wall Between Lab and Grand Entrance Pavilion (X = 8.0) ---
+    // North glass partition looking from Entrance into Analytical QC Lab (Z: 1.0 to 9.5, length 8.5m)
+    this._buildGlassPartitionWall(8.0, 5.25, 8.5, H, "Z");
 
-    // Solid dividing wall between Office wing and Airlock (X = 8.0, Z: -9.0 to 0.0)
-    const airlockSpineWall = new THREE.Mesh(
-      new THREE.BoxGeometry(wallT, H, 9.0),
+    // Solid drywall backing along South corner for Living Wall installation (Z: -9.5 to -7.1, width 2.4m)
+    const southCornerSpine = new THREE.Mesh(
+      new THREE.BoxGeometry(wallT, H, 2.4),
       this.materials.wallDrywall
     );
-    airlockSpineWall.position.set(8.0, H / 2, -4.5);
-    this.root.add(airlockSpineWall);
-    this.colliders.push(new THREE.Box3().setFromObject(airlockSpineWall));
+    southCornerSpine.position.set(8.0, H / 2, -8.3);
+    this.root.add(southCornerSpine);
+    this.colliders.push(new THREE.Box3().setFromObject(southCornerSpine));
 
-    // Dividing wall between Conference Room and User's Office (Z = 4.5, X: 8.0 to 16.0)
-    const confDividingWall = new THREE.Mesh(
-      new THREE.BoxGeometry(8.0, H, wallT),
+    // Solid drywall spine wall backing living bio-wall (Z: -7.1 to -1.9, length 5.2m)
+    const biowallSpine = new THREE.Mesh(
+      new THREE.BoxGeometry(wallT, H, 5.2),
       this.materials.wallDrywall
     );
-    confDividingWall.position.set(12.0, H / 2, 4.5);
-    this.root.add(confDividingWall);
-    this.colliders.push(new THREE.Box3().setFromObject(confDividingWall));
+    biowallSpine.position.set(8.0, H / 2, -4.5);
+    this.root.add(biowallSpine);
+    this.colliders.push(new THREE.Box3().setFromObject(biowallSpine));
 
-    // Acoustic Walnut Slat feature wall in Conference Room (North side of Z = 4.5 wall)
-    this._buildWoodSlatPanel(12.0, H / 2, 4.4, 7.6, H * 0.95, false);
+    // Glass Double-Door Entryway from Reception into Central Lab Aisle (Z: -1.9 to 1.0, center -0.45, width 2.9m)
+    this._buildDoubleDoorAssembly(8.0, 0, -0.45, "LAB_RECEPTION_PORTAL", true);
 
-    // Acoustic Walnut Slat feature wall in User's Office (East perimeter wall X = 15.88, Z: 5.0 to 8.5)
-    this._buildWoodSlatPanel(15.88, H / 2, 6.75, 4.0, H * 0.95, true);
-
-    // Glass wall dividing User Office / Conference from Central Corridor (Z = 0.5, X: 8.0 to 16.0)
-    this._buildGlassPartitionWall(12.0, 0.5, 8.0, H, "X");
-
-    // Partition separating Restroom (X: 8.0 to 11.60, Z: -4.55 to 0.0) from Entrance Corridor (X: 11.60 to 16.0)
-    // South wall segment (Z: -4.55 to -2.85, width = 1.70m, center = -3.70m)
-    const restroomSouthWall = new THREE.Mesh(
-      new THREE.BoxGeometry(wallT, H, 1.70),
-      this.materials.charcoalConcrete
-    );
-    restroomSouthWall.position.set(11.60, H / 2, -3.70);
-    this.root.add(restroomSouthWall);
-    this.colliders.push(new THREE.Box3().setFromObject(restroomSouthWall));
-
-    // North wall segment (Z: -1.65 to 0.0, width = 1.65m, center = -0.825m)
-    const restroomNorthWall = new THREE.Mesh(
-      new THREE.BoxGeometry(wallT, H, 1.65),
-      this.materials.charcoalConcrete
-    );
-    restroomNorthWall.position.set(11.60, H / 2, -0.825);
-    this.root.add(restroomNorthWall);
-    this.colliders.push(new THREE.Box3().setFromObject(restroomNorthWall));
-
-    // Header segment above doorway (Z: -2.85 to -1.65, width = 1.20m, height = 1.40m, center Y = 3.10m)
-    const restroomHeader = new THREE.Mesh(
-      new THREE.BoxGeometry(wallT, 1.40, 1.20),
-      this.materials.charcoalConcrete
-    );
-    restroomHeader.position.set(11.60, 3.10, -2.25);
-    this.root.add(restroomHeader);
-    this.colliders.push(new THREE.Box3().setFromObject(restroomHeader));
-
-    // North dividing wall of Restroom Suite (Z = 0.0, X: 8.0 to 11.60, width = 3.60m, center X = 9.80)
-    const restroomDividingNorthWall = new THREE.Mesh(
-      new THREE.BoxGeometry(3.60, H, wallT),
+    // --- 2. Dividing Wall Between Grand Entrance and Office/Conference Wing (X = 16.0) ---
+    // North Wall: Separates Reception from Grand Conference Room (Z: 1.5 to 9.5, length 8.0m, center Z = 5.5)
+    const confWestWall = new THREE.Mesh(
+      new THREE.BoxGeometry(wallT, H, 8.0),
       this.materials.wallDrywall
     );
-    restroomDividingNorthWall.position.set(9.80, H / 2, 0.0);
-    this.root.add(restroomDividingNorthWall);
-    this.colliders.push(new THREE.Box3().setFromObject(restroomDividingNorthWall));
+    confWestWall.position.set(16.0, H / 2, 5.5);
+    this.root.add(confWestWall);
+    this.colliders.push(new THREE.Box3().setFromObject(confWestWall));
+
+    // South Wall: Separates Reception from User's Executive Office (Z: -9.5 to -1.5, length 8.0m, center Z = -5.5)
+    const officeWestWall = new THREE.Mesh(
+      new THREE.BoxGeometry(wallT, H, 8.0),
+      this.materials.wallDrywall
+    );
+    officeWestWall.position.set(16.0, H / 2, -5.5);
+    this.root.add(officeWestWall);
+    this.colliders.push(new THREE.Box3().setFromObject(officeWestWall));
+
+    // Architectural Bronze Portal Beam over Central Hallway Entry (X: 16.0, Z: -1.5 to 1.5, center Z = 0)
+    const portalBeam = new THREE.Mesh(
+      new THREE.BoxGeometry(0.35, 0.45, 3.2),
+      this.materials.bronzeMullion
+    );
+    portalBeam.position.set(16.0, 3.55, 0);
+    this.root.add(portalBeam);
+
+    // Illuminated "EXECUTIVE & WELLNESS WING" Header Sign above Portal
+    const wingSignCanvas = document.createElement("canvas");
+    wingSignCanvas.width = 512;
+    wingSignCanvas.height = 96;
+    const wCtx = wingSignCanvas.getContext("2d");
+    wCtx.fillStyle = "#12161f";
+    wCtx.fillRect(0, 0, 512, 96);
+    wCtx.fillStyle = "#00d4e8";
+    wCtx.font = "bold 24px monospace";
+    wCtx.textAlign = "center";
+    wCtx.fillText("EXECUTIVE & WELLNESS WING", 256, 42);
+    wCtx.fillStyle = "#94a3b8";
+    wCtx.font = "16px sans-serif";
+    wCtx.fillText("CONFERENCE · OFFICES · BREAK ROOM · LOCKERS", 256, 74);
+    const wingSignTex = new THREE.CanvasTexture(wingSignCanvas);
+    const wingSign = new THREE.Mesh(
+      new THREE.PlaneGeometry(2.8, 0.45),
+      new THREE.MeshBasicMaterial({ map: wingSignTex, side: THREE.DoubleSide })
+    );
+    wingSign.position.set(15.82, 3.55, 0);
+    wingSign.rotation.y = -Math.PI / 2;
+    this.root.add(wingSign);
+
+    // --- 3. Central Hallway North Wall (Z = 1.5, X: 16.0 to 38.0, length 22.0m) ---
+    // A. Conference Room Wall Segments (X: 16.0 to 27.0): Door at X = 21.5 (width 2.2m)
+    const confWallA = new THREE.Mesh(new THREE.BoxGeometry(4.4, H, wallT), this.materials.wallDrywall);
+    confWallA.position.set(18.2, H / 2, 1.5);
+    this.root.add(confWallA);
+    this.colliders.push(new THREE.Box3().setFromObject(confWallA));
+
+    const confDoorHeader = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.4, wallT), this.materials.wallDrywall);
+    confDoorHeader.position.set(21.5, 3.1, 1.5);
+    this.root.add(confDoorHeader);
+
+    const confWallB = new THREE.Mesh(new THREE.BoxGeometry(4.4, H, wallT), this.materials.wallDrywall);
+    confWallB.position.set(24.8, H / 2, 1.5);
+    this.root.add(confWallB);
+    this.colliders.push(new THREE.Box3().setFromObject(confWallB));
+
+    // Double Frosted Glass Doors into Grand Conference Room at X = 21.5, Z = 1.5
+    this._buildDoubleDoorAssembly(21.5, 0, 1.5, "CONF_HALLWAY_DOOR", false);
+
+    // B. Break Room Wall Segments (X: 27.0 to 33.5): Door at X = 30.25 (width 1.5m)
+    const breakWallA = new THREE.Mesh(new THREE.BoxGeometry(2.5, H, wallT), this.materials.wallDrywall);
+    breakWallA.position.set(28.25, H / 2, 1.5);
+    this.root.add(breakWallA);
+    this.colliders.push(new THREE.Box3().setFromObject(breakWallA));
+
+    const breakDoorHeader = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.4, wallT), this.materials.wallDrywall);
+    breakDoorHeader.position.set(30.25, 3.1, 1.5);
+    this.root.add(breakDoorHeader);
+
+    const breakWallB = new THREE.Mesh(new THREE.BoxGeometry(2.5, H, wallT), this.materials.wallDrywall);
+    breakWallB.position.set(32.25, H / 2, 1.5);
+    this.root.add(breakWallB);
+    this.colliders.push(new THREE.Box3().setFromObject(breakWallB));
+
+    this._buildSingleDoorAssembly(30.25, 0, 1.5, "BREAKROOM_DOOR");
+
+    // C. Executive Restroom Suite Wall Segments (X: 33.5 to 38.0): Door at X = 35.75 (width 1.2m)
+    const rrWallA = new THREE.Mesh(new THREE.BoxGeometry(1.65, H, wallT), this.materials.wallDrywall);
+    rrWallA.position.set(34.325, H / 2, 1.5);
+    this.root.add(rrWallA);
+    this.colliders.push(new THREE.Box3().setFromObject(rrWallA));
+
+    const rrDoorHeader = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.4, wallT), this.materials.wallDrywall);
+    rrDoorHeader.position.set(35.75, 3.1, 1.5);
+    this.root.add(rrDoorHeader);
+
+    const rrWallB = new THREE.Mesh(new THREE.BoxGeometry(1.65, H, wallT), this.materials.wallDrywall);
+    rrWallB.position.set(37.175, H / 2, 1.5);
+    this.root.add(rrWallB);
+    this.colliders.push(new THREE.Box3().setFromObject(rrWallB));
+
+    this._buildSingleDoorAssembly(35.75, 0, 1.5, "RESTROOM_HALLWAY_DOOR");
+
+    // --- 4. Central Hallway South Wall (Z = -1.5, X: 16.0 to 38.0, length 22.0m) ---
+    // A. User's Executive Office (X: 16.0 to 21.5): Door at X = 18.75 (width 1.5m)
+    const userOffWallA = new THREE.Mesh(new THREE.BoxGeometry(2.0, H, wallT), this.materials.wallDrywall);
+    userOffWallA.position.set(17.0, H / 2, -1.5);
+    this.root.add(userOffWallA);
+    this.colliders.push(new THREE.Box3().setFromObject(userOffWallA));
+
+    const userOffHeader = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.4, wallT), this.materials.wallDrywall);
+    userOffHeader.position.set(18.75, 3.1, -1.5);
+    this.root.add(userOffHeader);
+
+    const userOffWallB = new THREE.Mesh(new THREE.BoxGeometry(2.0, H, wallT), this.materials.wallDrywall);
+    userOffWallB.position.set(20.5, H / 2, -1.5);
+    this.root.add(userOffWallB);
+    this.colliders.push(new THREE.Box3().setFromObject(userOffWallB));
+
+    this._buildSingleDoorAssembly(18.75, 0, -1.5, "USER_OFFICE_DOOR");
+
+    // B. Guest Office (X: 21.5 to 25.0): Door at X = 23.25 (width 1.2m)
+    const guestWallA = new THREE.Mesh(new THREE.BoxGeometry(1.15, H, wallT), this.materials.wallDrywall);
+    guestWallA.position.set(22.075, H / 2, -1.5);
+    this.root.add(guestWallA);
+    this.colliders.push(new THREE.Box3().setFromObject(guestWallA));
+
+    const guestHeader = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.4, wallT), this.materials.wallDrywall);
+    guestHeader.position.set(23.25, 3.1, -1.5);
+    this.root.add(guestHeader);
+
+    const guestWallB = new THREE.Mesh(new THREE.BoxGeometry(1.15, H, wallT), this.materials.wallDrywall);
+    guestWallB.position.set(24.425, H / 2, -1.5);
+    this.root.add(guestWallB);
+    this.colliders.push(new THREE.Box3().setFromObject(guestWallB));
+
+    this._buildSingleDoorAssembly(23.25, 0, -1.5, "GUEST_OFFICE_DOOR");
+
+    // C. Admin Office (X: 25.0 to 28.5): Door at X = 26.75 (width 1.2m)
+    const adminWallA = new THREE.Mesh(new THREE.BoxGeometry(1.15, H, wallT), this.materials.wallDrywall);
+    adminWallA.position.set(25.575, H / 2, -1.5);
+    this.root.add(adminWallA);
+    this.colliders.push(new THREE.Box3().setFromObject(adminWallA));
+
+    const adminHeader = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.4, wallT), this.materials.wallDrywall);
+    adminHeader.position.set(26.75, 3.1, -1.5);
+    this.root.add(adminHeader);
+
+    const adminWallB = new THREE.Mesh(new THREE.BoxGeometry(1.15, H, wallT), this.materials.wallDrywall);
+    adminWallB.position.set(27.925, H / 2, -1.5);
+    this.root.add(adminWallB);
+    this.colliders.push(new THREE.Box3().setFromObject(adminWallB));
+
+    this._buildSingleDoorAssembly(26.75, 0, -1.5, "ADMIN_OFFICE_DOOR");
+
+    // D. Instructor's Office (X: 28.5 to 32.0): Door at X = 30.25 (width 1.2m)
+    const instWallA = new THREE.Mesh(new THREE.BoxGeometry(1.15, H, wallT), this.materials.wallDrywall);
+    instWallA.position.set(29.075, H / 2, -1.5);
+    this.root.add(instWallA);
+    this.colliders.push(new THREE.Box3().setFromObject(instWallA));
+
+    const instHeader = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.4, wallT), this.materials.wallDrywall);
+    instHeader.position.set(30.25, 3.1, -1.5);
+    this.root.add(instHeader);
+
+    const instWallB = new THREE.Mesh(new THREE.BoxGeometry(1.15, H, wallT), this.materials.wallDrywall);
+    instWallB.position.set(31.425, H / 2, -1.5);
+    this.root.add(instWallB);
+    this.colliders.push(new THREE.Box3().setFromObject(instWallB));
+
+    this._buildSingleDoorAssembly(30.25, 0, -1.5, "INSTRUCTOR_OFFICE_DOOR");
+
+    // E. Men's Locker Room (X: 32.0 to 38.0): Door at X = 35.0 (width 1.5m)
+    const mensLockerWallA = new THREE.Mesh(new THREE.BoxGeometry(2.25, H, wallT), this.materials.wallDrywall);
+    mensLockerWallA.position.set(33.125, H / 2, -1.5);
+    this.root.add(mensLockerWallA);
+    this.colliders.push(new THREE.Box3().setFromObject(mensLockerWallA));
+
+    const mensLockerHeader = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.4, wallT), this.materials.wallDrywall);
+    mensLockerHeader.position.set(35.0, 3.1, -1.5);
+    this.root.add(mensLockerHeader);
+
+    const mensLockerWallB = new THREE.Mesh(new THREE.BoxGeometry(2.25, H, wallT), this.materials.wallDrywall);
+    mensLockerWallB.position.set(36.875, H / 2, -1.5);
+    this.root.add(mensLockerWallB);
+    this.colliders.push(new THREE.Box3().setFromObject(mensLockerWallB));
+
+    this._buildSingleDoorAssembly(35.0, 0, -1.5, "MENS_LOCKER_DOOR");
+
+    // --- 5. Transverse Room Dividing Walls ---
+    // North Side dividing walls (Z: 1.5 to 9.5, length 8.0m, center Z = 5.5):
+    // Wall between Conference Room and Break Room at X = 27.0
+    const confBreakDividingWall = new THREE.Mesh(new THREE.BoxGeometry(wallT, H, 8.0), this.materials.wallDrywall);
+    confBreakDividingWall.position.set(27.0, H / 2, 5.5);
+    this.root.add(confBreakDividingWall);
+    this.colliders.push(new THREE.Box3().setFromObject(confBreakDividingWall));
+
+    // Wall between Break Room and Restroom Suite at X = 33.5
+    const breakRrDividingWall = new THREE.Mesh(new THREE.BoxGeometry(wallT, H, 8.0), this.materials.wallDrywall);
+    breakRrDividingWall.position.set(33.5, H / 2, 5.5);
+    this.root.add(breakRrDividingWall);
+    this.colliders.push(new THREE.Box3().setFromObject(breakRrDividingWall));
+
+    // East End Wall of Restroom Suite at X = 38.0 (Z: 1.5 to 9.5)
+    const rrEastWall = new THREE.Mesh(new THREE.BoxGeometry(wallT, H, 8.0), this.materials.wallDrywall);
+    rrEastWall.position.set(38.0, H / 2, 5.5);
+    this.root.add(rrEastWall);
+    this.colliders.push(new THREE.Box3().setFromObject(rrEastWall));
+
+    // South Side dividing walls (Z: -9.5 to -1.5, length 8.0m, center Z = -5.5):
+    // Wall between User's Office and Guest Office at X = 21.5
+    const userGuestWall = new THREE.Mesh(new THREE.BoxGeometry(wallT, H, 8.0), this.materials.wallDrywall);
+    userGuestWall.position.set(21.5, H / 2, -5.5);
+    this.root.add(userGuestWall);
+    this.colliders.push(new THREE.Box3().setFromObject(userGuestWall));
+
+    // Wall between Guest Office and Admin Office at X = 25.0
+    const guestAdminWall = new THREE.Mesh(new THREE.BoxGeometry(wallT, H, 8.0), this.materials.wallDrywall);
+    guestAdminWall.position.set(25.0, H / 2, -5.5);
+    this.root.add(guestAdminWall);
+    this.colliders.push(new THREE.Box3().setFromObject(guestAdminWall));
+
+    // Wall between Admin Office and Instructor's Office at X = 28.5
+    const adminInstWall = new THREE.Mesh(new THREE.BoxGeometry(wallT, H, 8.0), this.materials.wallDrywall);
+    adminInstWall.position.set(28.5, H / 2, -5.5);
+    this.root.add(adminInstWall);
+    this.colliders.push(new THREE.Box3().setFromObject(adminInstWall));
+
+    // Wall between Instructor's Office and Men's Locker Room at X = 32.0
+    const instMensWall = new THREE.Mesh(new THREE.BoxGeometry(wallT, H, 8.0), this.materials.wallDrywall);
+    instMensWall.position.set(32.0, H / 2, -5.5);
+    this.root.add(instMensWall);
+    this.colliders.push(new THREE.Box3().setFromObject(instMensWall));
+
+    // East End Wall of Men's Locker Room at X = 38.0 (Z: -9.5 to -1.5)
+    const mensEastWall = new THREE.Mesh(new THREE.BoxGeometry(wallT, H, 8.0), this.materials.wallDrywall);
+    mensEastWall.position.set(38.0, H / 2, -5.5);
+    this.root.add(mensEastWall);
+    this.colliders.push(new THREE.Box3().setFromObject(mensEastWall));
+
+    // --- 6. Far East Hallway Portal into Women's Locker Room (X = 38.0, Z: -1.5 to 1.5) ---
+    const womensPortalHeader = new THREE.Mesh(new THREE.BoxGeometry(wallT, 1.4, 3.0), this.materials.wallDrywall);
+    womensPortalHeader.position.set(38.0, 3.1, 0);
+    this.root.add(womensPortalHeader);
+
+    // Double Doors into Women's Locker Room
+    this._buildDoubleDoorAssembly(38.0, 0, 0, "WOMENS_LOCKER_PORTAL", true);
 
     // Synthesis Bay Architectural Low Glass Partition with Bronze Cap Rail (X = -5.0, Z: 1.0 to 9.0)
     this._buildGlassPartitionWall(-5.0, 5.0, 8.0, 1.15, "Z");
-  }
-
-  _buildWoodSlatPanel(cx, cy, cz, width, height, rotateY = false) {
-    const group = new THREE.Group();
-    group.position.set(cx, cy, cz);
-    if (rotateY) group.rotation.y = Math.PI / 2;
-
-    const backGeo = new THREE.PlaneGeometry(width, height);
-    const backing = new THREE.Mesh(backGeo, this.materials.woodSlatBacking);
-    group.add(backing);
-
-    const slatW = 0.045;
-    const slatD = 0.022;
-    const slatGap = 0.035;
-    const numSlats = Math.floor(width / (slatW + slatGap));
-    const startX = -((numSlats - 1) * (slatW + slatGap)) / 2;
-
-    const slatGeo = new THREE.BoxGeometry(slatW, height, slatD);
-    for (let i = 0; i < numSlats; i++) {
-      const slat = new THREE.Mesh(slatGeo, this.materials.woodSlat);
-      slat.position.set(startX + i * (slatW + slatGap), 0, slatD / 2);
-      slat.castShadow = true;
-      group.add(slat);
-    }
-
-    this.root.add(group);
-  }
-
-  _buildGlassPartitionWall(cx, cz, length, height, axis = "X") {
-    const group = new THREE.Group();
-    group.position.set(cx, height / 2, cz);
-    if (axis === "Z") group.rotation.y = Math.PI / 2;
-
-    const runnerGeo = new THREE.BoxGeometry(length, 0.08, 0.08);
-    const bottomRunner = new THREE.Mesh(runnerGeo, this.materials.bronzeMullion);
-    bottomRunner.position.y = -height / 2 + 0.04;
-    group.add(bottomRunner);
-
-    const topRunner = new THREE.Mesh(runnerGeo, this.materials.bronzeMullion);
-    topRunner.position.y = height / 2 - 0.04;
-    group.add(topRunner);
-
-    const glassGeo = new THREE.BoxGeometry(length - 0.04, height - 0.16, 0.015);
-    const glass = new THREE.Mesh(glassGeo, this.materials.glass);
-    group.add(glass);
-
-    const numPanels = Math.max(2, Math.round(length / 2.0));
-    const postGeo = new THREE.BoxGeometry(0.06, height, 0.08);
-    for (let i = 0; i <= numPanels; i++) {
-      const x = -length / 2 + (i * length) / numPanels;
-      const post = new THREE.Mesh(postGeo, this.materials.bronzeMullion);
-      post.position.x = x;
-      group.add(post);
-    }
-
-    this.root.add(group);
-    this.colliders.push(new THREE.Box3().setFromObject(group));
   }
 
   _buildThermalAirlock() {
@@ -506,18 +816,18 @@ export class LabEnvironment3D {
     const wallT = 0.15;
 
     // --- 1. Exterior Entrance Plaza, Canopy & Signage ---
-    // Concrete plaza walkway slab outside double doors (Z: -9.0 to -13.5, X: 11.0 to 15.0)
+    // Concrete plaza walkway slab outside double doors (Z: -9.5 to -14.0, X: 11.0 to 15.0)
     const plazaGeo = new THREE.BoxGeometry(4.0, 0.05, 4.5);
     const plazaMat = new THREE.MeshStandardMaterial({ color: 0x22262d, roughness: 0.85, metalness: 0.1 });
     const plaza = new THREE.Mesh(plazaGeo, plazaMat);
-    plaza.position.set(13.0, -0.025, -11.25);
+    plaza.position.set(13.0, -0.025, -11.75);
     plaza.receiveShadow = true;
     this.root.add(plaza);
 
-    // Architectural Bronze Entrance Canopy / Overhang (X: 11.2 to 14.8, Z: -9.0 to -10.4)
+    // Architectural Bronze Entrance Canopy / Overhang (X: 11.2 to 14.8, Z: -9.5 to -10.9)
     const canopyGeo = new THREE.BoxGeometry(3.6, 0.12, 1.4);
     const canopy = new THREE.Mesh(canopyGeo, this.materials.bronzeMullion);
-    canopy.position.set(13.0, 2.75, -9.7);
+    canopy.position.set(13.0, 2.75, -10.2);
     canopy.castShadow = true;
     this.root.add(canopy);
 
@@ -526,7 +836,7 @@ export class LabEnvironment3D {
       new THREE.BoxGeometry(2.4, 0.32, 0.03),
       new THREE.MeshStandardMaterial({ color: 0x141820, roughness: 0.3, metalness: 0.8 })
     );
-    signBox.position.set(13.0, 3.0, -9.12);
+    signBox.position.set(13.0, 3.0, -9.62);
     this.root.add(signBox);
 
     const signCanvas = document.createElement("canvas");
@@ -538,16 +848,16 @@ export class LabEnvironment3D {
     sCtx.fillStyle = "#00d4e8";
     sCtx.font = "bold 26px sans-serif";
     sCtx.textAlign = "center";
-    sCtx.fillText("SRE DESIGNS · BIOMEDICAL RESEARCH", 256, 38);
+    sCtx.fillText("CHEMMATE BIOTECHNOLOGY", 256, 38);
     sCtx.fillStyle = "#fbbf24";
     sCtx.font = "600 18px monospace";
-    sCtx.fillText("MAIN FACILITY AIRLOCK ENTRANCE", 256, 64);
+    sCtx.fillText("MAIN FACILITY RECEPTION ENTRANCE", 256, 64);
     const signTex = new THREE.CanvasTexture(signCanvas);
     const signMesh = new THREE.Mesh(
       new THREE.PlaneGeometry(2.36, 0.30),
       new THREE.MeshBasicMaterial({ map: signTex, side: THREE.DoubleSide })
     );
-    signMesh.position.set(13.0, 3.0, -9.14);
+    signMesh.position.set(13.0, 3.0, -9.64);
     signMesh.rotation.y = Math.PI;
     this.root.add(signMesh);
 
@@ -557,68 +867,36 @@ export class LabEnvironment3D {
         new THREE.CylinderGeometry(0.08, 0.08, 0.9, 16),
         new THREE.MeshStandardMaterial({ color: 0x1f242c, roughness: 0.3, metalness: 0.8 })
       );
-      bPost.position.set(13.0 + xOff, 0.45, -11.5);
+      bPost.position.set(13.0 + xOff, 0.45, -12.0);
       this.root.add(bPost);
 
       const bRing = new THREE.Mesh(
         new THREE.CylinderGeometry(0.085, 0.085, 0.05, 16),
         new THREE.MeshBasicMaterial({ color: 0x00d4e8 })
       );
-      bRing.position.set(13.0 + xOff, 0.82, -11.5);
+      bRing.position.set(13.0 + xOff, 0.82, -12.0);
       this.root.add(bRing);
     });
 
-    // --- 2. Exterior Double Door Assembly (Z = -9.0) ---
-    this._buildDoubleDoorAssembly(13.0, 0, -9.0, "EXTERIOR_AIRLOCK");
+    // --- 2. Exterior Double Door Assembly (Z = -9.5) ---
+    this._buildDoubleDoorAssembly(13.0, 0, -9.5, "EXTERIOR_AIRLOCK", false);
 
-    // --- 3. Interior Airlock Partition Wall (Z = -4.55) ---
-    // Flanking Left Wall (X: 8.0 to 11.95, width 3.95, center 9.975)
-    const intLeftWall = new THREE.Mesh(
-      new THREE.BoxGeometry(3.95, H, wallT),
-      this.materials.wallDrywall
-    );
-    intLeftWall.position.set(9.975, H / 2, -4.55);
-    this.root.add(intLeftWall);
-    this.colliders.push(new THREE.Box3().setFromObject(intLeftWall));
-
-    // Flanking Right Wall (X: 14.05 to 16.0, width 1.95, center 15.025)
-    const intRightWall = new THREE.Mesh(
-      new THREE.BoxGeometry(1.95, H, wallT),
-      this.materials.wallDrywall
-    );
-    intRightWall.position.set(15.025, H / 2, -4.55);
-    this.root.add(intRightWall);
-    this.colliders.push(new THREE.Box3().setFromObject(intRightWall));
-
-    // Header Lintel above Interior Door (X: 13.0, Y: 3.125, Z: -4.55, width: 2.1, height: 1.35)
-    const intHeader = new THREE.Mesh(
-      new THREE.BoxGeometry(2.1, 1.35, wallT),
-      this.materials.wallDrywall
-    );
-    intHeader.position.set(13.0, 3.125, -4.55);
-    this.root.add(intHeader);
-    this.colliders.push(new THREE.Box3().setFromObject(intHeader));
-
-    // Interior Double Door Assembly (Z = -4.55)
-    this._buildDoubleDoorAssembly(13.0, 0, -4.55, "INTERIOR_AIRLOCK");
-
-    // --- 4. Airlock Vestibule Interior Elements (Z: -9.0 to -4.55, X: 8.0 to 16.0) ---
-    // Sticky Blue Decontamination Floor Mat
-    const matGeo = new THREE.PlaneGeometry(1.6, 2.2);
+    // --- 3. Grand Entrance Vestibule Walk-Off Floor Mat ---
+    const matGeo = new THREE.PlaneGeometry(2.4, 2.4);
     const mat = new THREE.Mesh(
       matGeo,
-      new THREE.MeshStandardMaterial({ color: 0x1870a0, roughness: 0.25, metalness: 0.1 })
+      new THREE.MeshStandardMaterial({ color: 0x1870a0, roughness: 0.35, metalness: 0.1 })
     );
     mat.rotation.x = -Math.PI / 2;
-    mat.position.set(13.0, 0.005, -6.75);
+    mat.position.set(13.0, 0.005, -7.8);
     this.root.add(mat);
 
-    // Magnehelic Differential Pressure / Temperature Screen (flush on West wall at X = 8.12, Z = -6.75)
+    // Facility Environmental Monitoring Screen on Entry Column
     const panelBox = new THREE.Mesh(
       new THREE.BoxGeometry(0.04, 0.36, 0.24),
       new THREE.MeshStandardMaterial({ color: 0x1f242c, roughness: 0.3, metalness: 0.7 })
     );
-    panelBox.position.set(8.10, 1.6, -6.75);
+    panelBox.position.set(8.12, 1.6, -1.8);
     this.root.add(panelBox);
 
     const screenCanvas = document.createElement("canvas");
@@ -629,59 +907,40 @@ export class LabEnvironment3D {
     ctx.fillRect(0, 0, 256, 384);
     ctx.fillStyle = "#00d4e8";
     ctx.font = "bold 22px monospace";
-    ctx.fillText("AIRLOCK STATUS", 20, 40);
+    ctx.fillText("FACILITY STATUS", 20, 40);
     ctx.fillStyle = "#3dd68c";
     ctx.font = "bold 40px monospace";
-    ctx.fillText("+0.03\"", 20, 105);
+    ctx.fillText("OPTIMAL", 20, 105);
     ctx.font = "16px monospace";
     ctx.fillStyle = "#94a3b8";
-    ctx.fillText("DIFF PRESSURE (w.g.)", 20, 135);
+    ctx.fillText("HVAC STATUS: 100%", 20, 135);
     ctx.fillStyle = "#f1f5f9";
     ctx.font = "bold 34px monospace";
-    ctx.fillText("21.0 °C", 20, 200);
+    ctx.fillText("21.5 °C", 20, 200);
     ctx.fillStyle = "#94a3b8";
     ctx.font = "16px monospace";
-    ctx.fillText("AIRLOCK TEMPERATURE", 20, 230);
+    ctx.fillText("FACILITY TEMPERATURE", 20, 230);
     ctx.fillStyle = "#3dd68c";
     ctx.font = "bold 20px monospace";
-    ctx.fillText("PRESSURE SEAL: PASS", 20, 290);
+    ctx.fillText("AIR QUALITY: ISO 7", 20, 290);
     ctx.fillStyle = "#fbbf24";
     ctx.font = "16px monospace";
-    ctx.fillText("INTERLOCK: ACTIVE", 20, 335);
+    ctx.fillText("CAMPUS SECURE", 20, 335);
 
     const screenTex = new THREE.CanvasTexture(screenCanvas);
     const screenMesh = new THREE.Mesh(
       new THREE.PlaneGeometry(0.24, 0.36),
       new THREE.MeshBasicMaterial({ map: screenTex, side: THREE.DoubleSide })
     );
-    screenMesh.position.set(8.125, 1.6, -6.75);
+    screenMesh.position.set(8.145, 1.6, -1.8);
     screenMesh.rotation.y = Math.PI / 2;
     this.root.add(screenMesh);
-
-    // Gowning Bench & Boot Change Boundary along East Wall (X = 15.2, Z = -6.75)
-    const benchGroup = new THREE.Group();
-    benchGroup.position.set(15.2, 0.22, -6.75);
-    const benchTop = new THREE.Mesh(
-      new THREE.BoxGeometry(0.5, 0.05, 2.4),
-      new THREE.MeshStandardMaterial({ color: 0x333b45, roughness: 0.3, metalness: 0.6 })
-    );
-    benchGroup.add(benchTop);
-
-    [-1.0, 1.0].forEach(zLeg => {
-      const leg = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.02, 0.02, 0.44, 16),
-        new THREE.MeshStandardMaterial({ color: 0xd8dde4, roughness: 0.2, metalness: 0.85 })
-      );
-      leg.position.set(0, -0.22, zLeg);
-      benchGroup.add(leg);
-    });
-    this.root.add(benchGroup);
-    this.colliders.push(new THREE.Box3().setFromObject(benchGroup));
   }
 
-  _buildDoubleDoorAssembly(cx, cy, cz, id) {
+  _buildDoubleDoorAssembly(cx, cy, cz, id, rotateY = false) {
     const group = new THREE.Group();
     group.position.set(cx, cy, cz);
+    if (rotateY) group.rotation.y = Math.PI / 2;
     group.name = `Double_Door_${id}`;
 
     const doorH = 2.4;
@@ -799,6 +1058,60 @@ export class LabEnvironment3D {
     this.root.add(group);
   }
 
+  _buildSingleDoorAssembly(cx, cy, cz, id, rotateY = false) {
+    const group = new THREE.Group();
+    group.position.set(cx, cy, cz);
+    if (rotateY) group.rotation.y = Math.PI / 2;
+    group.name = `Single_Door_${id}`;
+
+    const doorW = 1.1;
+    const doorH = 2.4;
+    const jambMat = this.materials.bronzeMullion;
+    const glassMat = this.materials.glass;
+    const handleMat = new THREE.MeshStandardMaterial({ color: 0xe0e6ed, roughness: 0.2, metalness: 0.9 });
+
+    // Perimeter Frame
+    const header = new THREE.Mesh(new THREE.BoxGeometry(doorW, 0.08, 0.12), jambMat);
+    header.position.set(0, doorH + 0.04, 0);
+    group.add(header);
+
+    [-doorW / 2 + 0.04, doorW / 2 - 0.04].forEach(jx => {
+      const jamb = new THREE.Mesh(new THREE.BoxGeometry(0.08, doorH, 0.12), jambMat);
+      jamb.position.set(jx, doorH / 2, 0);
+      group.add(jamb);
+    });
+
+    const threshold = new THREE.Mesh(
+      new THREE.BoxGeometry(doorW, 0.015, 0.14),
+      new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.4, metalness: 0.8 })
+    );
+    threshold.position.set(0, 0.0075, 0);
+    group.add(threshold);
+
+    // Door Leaf
+    const leafGroup = new THREE.Group();
+    const leafW = doorW - 0.08;
+    const outerFrame = new THREE.Mesh(new THREE.BoxGeometry(leafW, doorH - 0.02, 0.04), jambMat);
+    outerFrame.position.set(0, (doorH - 0.02) / 2 + 0.01, 0);
+    leafGroup.add(outerFrame);
+
+    // Vision Glass Panel
+    const vision = new THREE.Mesh(new THREE.BoxGeometry(leafW - 0.22, doorH - 0.40, 0.015), glassMat);
+    vision.position.set(0, (doorH - 0.40) / 2 + 0.20, 0);
+    leafGroup.add(vision);
+
+    // Handle
+    const handleGeo = new THREE.CylinderGeometry(0.014, 0.014, 0.5, 16);
+    [-0.035, 0.035].forEach(zOff => {
+      const h = new THREE.Mesh(handleGeo, handleMat);
+      h.position.set(leafW / 2 - 0.12, 1.05, zOff);
+      leafGroup.add(h);
+    });
+
+    group.add(leafGroup);
+    this.root.add(group);
+  }
+
   _buildStructuralPillars() {
     const pillarPositions = [
       [-10.0, 0.0],
@@ -822,17 +1135,17 @@ export class LabEnvironment3D {
 
   _buildCeilingAndLighting() {
     const H = 3.8;
-    const W = 32.0;
-    const D = 18.0;
+    const W = 62.0;
+    const D = 20.0;
 
     const ceilingGeo = new THREE.PlaneGeometry(W, D);
     const ceiling = new THREE.Mesh(ceilingGeo, this.materials.ceilingDark);
     ceiling.rotation.x = Math.PI / 2;
-    ceiling.position.set(0, H, 0);
+    ceiling.position.set(14.0, H, 0);
     this.root.add(ceiling);
 
     // Warm Ambient Base
-    const ambientLight = new THREE.AmbientLight(0xfff7ed, 0.55);
+    const ambientLight = new THREE.AmbientLight(0xfff7ed, 0.65);
     this.scene.add(ambientLight);
 
     // Primary High-Contrast Warm Key Light (3500K)
@@ -845,31 +1158,53 @@ export class LabEnvironment3D {
     this.scene.add(keyLight);
 
     // Cool Secondary Fill Light (6500K)
-    const fillLight = new THREE.DirectionalLight(0xdbeafe, 0.85);
-    fillLight.position.set(12.0, 10.0, 10.0);
+    const fillLight = new THREE.DirectionalLight(0xdbeafe, 0.95);
+    fillLight.position.set(24.0, 12.0, 12.0);
     this.scene.add(fillLight);
 
     // Exterior Entrance Plaza Canopy Downlight
     const extLight = new THREE.PointLight(0xfff5ea, 1.4, 10);
-    extLight.position.set(13.0, 2.7, -9.8);
+    extLight.position.set(13.0, 2.7, -10.5);
     this.scene.add(extLight);
 
-    // Suspended Acoustic Ceiling Clouds & Linear LED Luminaires above Workbench Islands & Executive Suites
+    // Suspended Acoustic Ceiling Clouds & Linear LED Luminaires
     const benchLinearLights = [
+      // 1. Analytical & Pharmaceutical QC Lab Islands
       { x: -10.0, z: -4.0, len: 6.8, sx: 7.2, sz: 2.2 },
       { x: -2.0, z: -4.0, len: 6.8, sx: 7.2, sz: 2.2 },
       { x: -10.0, z: 5.0, len: 6.0, sx: 6.4, sz: 2.2 },
       { x: -0.5, z: 5.0, len: 6.0, sx: 6.4, sz: 2.2 },
-      // Executive Conference Room (Zone 10)
-      { x: 12.0, z: 2.25, len: 4.2, sx: 4.8, sz: 2.0 },
-      // User's Private Executive Office (Zone 9)
-      { x: 12.0, z: 6.75, len: 3.2, sx: 3.8, sz: 2.0 },
-      // Thermal Airlock Vestibule (Zone 8)
-      { x: 13.0, z: -6.75, len: 2.8, sx: 3.2, sz: 1.8 },
-      // ADA Restroom Suite (Zone 7)
-      { x: 9.8, z: -2.25, len: 2.8, sx: 3.4, sz: 1.8 },
-      // Entrance Corridor & Gallery
-      { x: 13.8, z: -2.25, len: 3.2, sx: 3.6, sz: 1.8 }
+
+      // 2. Grand Entrance Pavilion, Reception & Waiting Gallery
+      { x: 12.0, z: -3.2, len: 4.5, sx: 5.2, sz: 2.4 }, // Reception desk luminaire
+      { x: 12.0, z: 4.5, len: 4.8, sx: 5.5, sz: 3.2 },  // Waiting lounge chandelier cloud
+
+      // 3. Central Circulation Spine Hallway Continuous Run
+      { x: 21.0, z: 0.0, len: 9.0, sx: 9.6, sz: 1.4 },
+      { x: 31.0, z: 0.0, len: 9.0, sx: 9.6, sz: 1.4 },
+
+      // 4. North Wing
+      // 4A. Grand Conference Room (Zone 10) - Dual Linear Fixtures
+      { x: 19.5, z: 5.5, len: 5.5, sx: 6.0, sz: 2.2 },
+      { x: 24.5, z: 5.5, len: 5.5, sx: 6.0, sz: 2.2 },
+      // 4B. Staff Break Room & Kitchenette
+      { x: 30.25, z: 5.5, len: 4.8, sx: 5.4, sz: 2.6 },
+      // 4C. Executive Restroom Suite
+      { x: 35.75, z: 5.5, len: 3.6, sx: 4.0, sz: 2.2 },
+
+      // 5. South Wing
+      // 5A. User's Private Executive Suite (Zone 9)
+      { x: 18.75, z: -5.5, len: 4.5, sx: 5.0, sz: 2.4 },
+      // 5B. Faculty & Administration Offices
+      { x: 23.25, z: -5.5, len: 2.8, sx: 3.2, sz: 1.8 }, // Guest Office
+      { x: 26.75, z: -5.5, len: 2.8, sx: 3.2, sz: 1.8 }, // Admin Office
+      { x: 30.25, z: -5.5, len: 2.8, sx: 3.2, sz: 1.8 }, // Instructor's Office
+      // 5C. Men's Locker Room & Showers
+      { x: 35.0, z: -5.5, len: 4.5, sx: 5.0, sz: 2.4 },
+
+      // 6. Women's Locker Room, Changing Room & Luxury Showers
+      { x: 41.0, z: -3.5, len: 4.5, sx: 5.2, sz: 2.4 },
+      { x: 41.0, z: 3.5, len: 4.5, sx: 5.2, sz: 2.4 }
     ];
 
     benchLinearLights.forEach((cfg, idx) => {
@@ -1272,18 +1607,18 @@ export class LabEnvironment3D {
     const siteGroup = new THREE.Group();
     siteGroup.name = "Exterior_Campus_Site_Root";
 
-    // 1. Manicured Green Turf Lawn Ground Base (X: -36.0 to 36.0, Z: -9.0 to -36.0)
-    const lawnGeo = new THREE.PlaneGeometry(72.0, 27.0);
+    // 1. Manicured Green Turf Lawn Ground Base (X: -36.0 to 64.0, Z: -9.5 to -40.0)
+    const lawnGeo = new THREE.PlaneGeometry(100.0, 32.0);
     const lawn = new THREE.Mesh(lawnGeo, this.materials.grassTurf);
     lawn.rotation.x = -Math.PI / 2;
-    lawn.position.set(0, -0.05, -22.5);
+    lawn.position.set(14.0, -0.05, -25.0);
     lawn.receiveShadow = true;
     siteGroup.add(lawn);
 
-    // 2. Heavy-Duty Asphalt Parking Lot Slab (X: -24.0 to 24.0, Z: -13.5 to -31.5, size 48m x 18m)
-    const asphaltGeo = new THREE.BoxGeometry(48.0, 0.04, 18.0);
+    // 2. Heavy-Duty Asphalt Parking Lot Slab (X: -24.0 to 52.0, Z: -14.0 to -34.0, size 76m x 20m)
+    const asphaltGeo = new THREE.BoxGeometry(76.0, 0.04, 20.0);
     const asphalt = new THREE.Mesh(asphaltGeo, this.materials.asphalt);
-    asphalt.position.set(0, -0.02, -22.5);
+    asphalt.position.set(14.0, -0.02, -24.0);
     asphalt.receiveShadow = true;
     siteGroup.add(asphalt);
 
@@ -1293,85 +1628,100 @@ export class LabEnvironment3D {
       new THREE.BoxGeometry(35.2, 0.15, 0.16),
       this.materials.concreteCurb
     );
-    curbN1.position.set(-6.4, 0.075, -13.5);
+    curbN1.position.set(-6.4, 0.075, -14.0);
     siteGroup.add(curbN1);
 
-    // North Curb Right Segment (X: 14.8 to 24.0)
+    // North Curb Right Segment (X: 14.8 to 52.0, length 37.2m)
     const curbN2 = new THREE.Mesh(
-      new THREE.BoxGeometry(9.2, 0.15, 0.16),
+      new THREE.BoxGeometry(37.2, 0.15, 0.16),
       this.materials.concreteCurb
     );
-    curbN2.position.set(19.4, 0.075, -13.5);
+    curbN2.position.set(33.4, 0.075, -14.0);
     siteGroup.add(curbN2);
 
-    // South Curb (X: -24.0 to 24.0 at Z = -31.5)
+    // South Curb (X: -24.0 to 52.0 at Z = -34.0, length 76.0m)
     const curbS = new THREE.Mesh(
-      new THREE.BoxGeometry(48.0, 0.15, 0.16),
+      new THREE.BoxGeometry(76.0, 0.15, 0.16),
       this.materials.concreteCurb
     );
-    curbS.position.set(0, 0.075, -31.5);
+    curbS.position.set(14.0, 0.075, -34.0);
     siteGroup.add(curbS);
 
-    // West & East Curbs
-    [-24.0, 24.0].forEach(cx => {
+    // West & East Perimeter Curbs
+    [-24.0, 52.0].forEach(cx => {
       const curbSide = new THREE.Mesh(
-        new THREE.BoxGeometry(0.16, 0.15, 18.0),
+        new THREE.BoxGeometry(0.16, 0.15, 20.0),
         this.materials.concreteCurb
       );
-      curbSide.position.set(cx, 0.075, -22.5);
+      curbSide.position.set(cx, 0.075, -24.0);
       siteGroup.add(curbSide);
     });
 
     // 4. White Reflective Thermoplastic Parking Stalls & Concrete Wheel Stops
-    // North Row Stalls (X: -21.0 to 5.4, Z: -19.0 to -13.8, depth 5.2m)
     const stallWidth = 2.8;
     const stallDepth = 5.2;
+    // West Row (X: -20.0 to 5.2)
     for (let i = 0; i < 9; i++) {
       const sx = -20.0 + i * stallWidth;
-      // White stall divider stripe
       const stripe = new THREE.Mesh(
         new THREE.BoxGeometry(0.12, 0.005, stallDepth),
         this.materials.parkingStripe
       );
-      stripe.position.set(sx - stallWidth / 2, 0.003, -16.4);
+      stripe.position.set(sx - stallWidth / 2, 0.003, -16.8);
       siteGroup.add(stripe);
 
-      // Concrete Wheel Stop at head of stall
       const wheelStop = new THREE.Mesh(
         new THREE.BoxGeometry(1.8, 0.12, 0.15),
         this.materials.concreteCurb
       );
-      wheelStop.position.set(sx, 0.06, -14.2);
+      wheelStop.position.set(sx, 0.06, -14.6);
       siteGroup.add(wheelStop);
 
-      // Yellow hazard end caps on wheel stop
       [-0.85, 0.85].forEach(ex => {
         const cap = new THREE.Mesh(
           new THREE.BoxGeometry(0.10, 0.125, 0.155),
           this.materials.adaYellow
         );
-        cap.position.set(sx + ex, 0.06, -14.2);
+        cap.position.set(sx + ex, 0.06, -14.6);
         siteGroup.add(cap);
       });
     }
 
-    // Right end stripe for last regular stall
-    const regularEndStripe = new THREE.Mesh(
-      new THREE.BoxGeometry(0.12, 0.005, stallDepth),
-      this.materials.parkingStripe
-    );
-    regularEndStripe.position.set(-20.0 + 8.5 * stallWidth, 0.003, -16.4);
-    siteGroup.add(regularEndStripe);
+    // East Row Stalls (X: 18.0 to 48.0)
+    for (let i = 0; i < 11; i++) {
+      const sx = 18.0 + i * stallWidth;
+      const stripe = new THREE.Mesh(
+        new THREE.BoxGeometry(0.12, 0.005, stallDepth),
+        this.materials.parkingStripe
+      );
+      stripe.position.set(sx - stallWidth / 2, 0.003, -16.8);
+      siteGroup.add(stripe);
 
-    // 5. Dedicated ADA Accessible Van Parking Stall with Blue Box & Stencil (X = 6.6, Z: -16.4)
+      const wheelStop = new THREE.Mesh(
+        new THREE.BoxGeometry(1.8, 0.12, 0.15),
+        this.materials.concreteCurb
+      );
+      wheelStop.position.set(sx, 0.06, -14.6);
+      siteGroup.add(wheelStop);
+
+      [-0.85, 0.85].forEach(ex => {
+        const cap = new THREE.Mesh(
+          new THREE.BoxGeometry(0.10, 0.125, 0.155),
+          this.materials.adaYellow
+        );
+        cap.position.set(sx + ex, 0.06, -14.6);
+        siteGroup.add(cap);
+      });
+    }
+
+    // 5. Dedicated ADA Accessible Van Parking Stall with Blue Box & Stencil (X = 6.6, Z: -16.8)
     const adaStallBox = new THREE.Mesh(
       new THREE.BoxGeometry(3.6, 0.006, stallDepth),
       this.materials.adaBlue
     );
-    adaStallBox.position.set(6.6, 0.003, -16.4);
+    adaStallBox.position.set(6.6, 0.003, -16.8);
     siteGroup.add(adaStallBox);
 
-    // Universal Wheelchair Pictogram Stencil Texture
     const adaCanvas = document.createElement("canvas");
     adaCanvas.width = 256;
     adaCanvas.height = 256;
@@ -1382,12 +1732,11 @@ export class LabEnvironment3D {
     adaCtx.fillStyle = "#ffffff";
     adaCtx.lineWidth = 14;
     adaCtx.lineCap = "round";
-    // Stylized Wheelchair icon
     adaCtx.beginPath();
-    adaCtx.arc(128, 70, 20, 0, Math.PI * 2); // Head
+    adaCtx.arc(128, 70, 20, 0, Math.PI * 2);
     adaCtx.fill();
     adaCtx.beginPath();
-    adaCtx.arc(120, 160, 48, 0, Math.PI * 1.5, true); // Wheel
+    adaCtx.arc(120, 160, 48, 0, Math.PI * 1.5, true);
     adaCtx.stroke();
     adaCtx.beginPath();
     adaCtx.moveTo(128, 96);
@@ -1406,15 +1755,14 @@ export class LabEnvironment3D {
       new THREE.MeshBasicMaterial({ map: adaTex, transparent: true })
     );
     adaStencil.rotation.x = -Math.PI / 2;
-    adaStencil.position.set(6.6, 0.008, -16.4);
+    adaStencil.position.set(6.6, 0.008, -16.8);
     siteGroup.add(adaStencil);
 
-    // Wheel stop for ADA stall
     const adaWheelStop = new THREE.Mesh(
       new THREE.BoxGeometry(2.0, 0.12, 0.15),
       this.materials.concreteCurb
     );
-    adaWheelStop.position.set(6.6, 0.06, -14.2);
+    adaWheelStop.position.set(6.6, 0.06, -14.6);
     siteGroup.add(adaWheelStop);
 
     // Cross-Hatched Yellow Loading Access Aisle (X: 8.4 to 10.4)
@@ -1438,57 +1786,56 @@ export class LabEnvironment3D {
       new THREE.MeshBasicMaterial({ map: hatchTex })
     );
     hatchAisle.rotation.x = -Math.PI / 2;
-    hatchAisle.position.set(9.4, 0.004, -16.4);
+    hatchAisle.position.set(9.4, 0.004, -16.8);
     siteGroup.add(hatchAisle);
 
-    // 6. Commercial Dual-Port EV Fast Charging Pedestal at Head of Stalls (X = 4.4, Z = -13.8)
-    const evPedestal = new THREE.Group();
-    evPedestal.position.set(4.4, 0, -13.8);
+    // 6. Commercial Dual-Port EV Fast Charging Pedestals
+    [4.4, 32.0].forEach(evX => {
+      const evPedestal = new THREE.Group();
+      evPedestal.position.set(evX, 0, -14.2);
 
-    const evBase = new THREE.Mesh(
-      new THREE.BoxGeometry(0.42, 0.10, 0.32),
-      this.materials.concreteCurb
-    );
-    evBase.position.y = 0.05;
-    evPedestal.add(evBase);
-
-    const evBody = new THREE.Mesh(
-      new THREE.BoxGeometry(0.32, 1.40, 0.22),
-      new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3, metalness: 0.85 })
-    );
-    evBody.position.y = 0.75;
-    evPedestal.add(evBody);
-
-    // Dual Glowing Status Halos (Cyan Standby)
-    [-0.08, 0.08].forEach(hx => {
-      const halo = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.045, 0.045, 0.02, 16),
-        new THREE.MeshBasicMaterial({ color: 0x00d4e8 })
+      const evBase = new THREE.Mesh(
+        new THREE.BoxGeometry(0.42, 0.10, 0.32),
+        this.materials.concreteCurb
       );
-      halo.rotation.x = Math.PI / 2;
-      halo.position.set(hx, 1.25, 0.115);
-      evPedestal.add(halo);
+      evBase.position.y = 0.05;
+      evPedestal.add(evBase);
 
-      // Holstered J1772 / NACS charging handle
-      const plug = new THREE.Mesh(
-        new THREE.BoxGeometry(0.06, 0.12, 0.08),
-        this.materials.cabinetBody
+      const evBody = new THREE.Mesh(
+        new THREE.BoxGeometry(0.32, 1.40, 0.22),
+        new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3, metalness: 0.85 })
       );
-      plug.position.set(hx, 0.95, 0.12);
-      evPedestal.add(plug);
+      evBody.position.y = 0.75;
+      evPedestal.add(evBody);
+
+      [-0.08, 0.08].forEach(hx => {
+        const halo = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.045, 0.045, 0.02, 16),
+          new THREE.MeshBasicMaterial({ color: 0x00d4e8 })
+        );
+        halo.rotation.x = Math.PI / 2;
+        halo.position.set(hx, 1.25, 0.115);
+        evPedestal.add(halo);
+
+        const plug = new THREE.Mesh(
+          new THREE.BoxGeometry(0.06, 0.12, 0.08),
+          this.materials.cabinetBody
+        );
+        plug.position.set(hx, 0.95, 0.12);
+        evPedestal.add(plug);
+      });
+
+      siteGroup.add(evPedestal);
     });
 
-    siteGroup.add(evPedestal);
-
-    // 7. Broad Concrete Pedestrian Promenade Walkway (X = 13.0, Z: -13.5 to -9.0, width 3.6m)
+    // 7. Broad Concrete Pedestrian Promenade Walkway (X = 13.0, Z: -14.0 to -9.5, width 3.6m)
     const walkGeo = new THREE.BoxGeometry(3.6, 0.05, 4.5);
     const walkway = new THREE.Mesh(walkGeo, this.materials.concreteCurb);
-    walkway.position.set(13.0, 0.025, -11.25);
+    walkway.position.set(13.0, 0.025, -11.75);
     walkway.receiveShadow = true;
     siteGroup.add(walkway);
 
-    // Expansion joint divider lines along walkway
-    for (let jz = -13.0; jz <= -9.5; jz += 1.2) {
+    for (let jz = -13.5; jz <= -10.0; jz += 1.2) {
       const joint = new THREE.Mesh(
         new THREE.BoxGeometry(3.58, 0.005, 0.015),
         this.materials.cabinetBody
@@ -1498,28 +1845,29 @@ export class LabEnvironment3D {
     }
 
     // 8. Landscape Mulch Beds Flanking Promenade & Building Front
-    // West Mulch Bed (X: -18.0 to 8.5, Z: -13.4 to -9.1)
+    // West Mulch Bed (X: -18.0 to 8.5, Z: -13.9 to -9.6)
     const westMulch = new THREE.Mesh(
       new THREE.BoxGeometry(26.5, 0.06, 4.2),
       this.materials.mulchBed
     );
-    westMulch.position.set(-4.75, 0.01, -11.25);
+    westMulch.position.set(-4.75, 0.01, -11.75);
     westMulch.receiveShadow = true;
     siteGroup.add(westMulch);
 
-    // East Mulch Bed (X: 17.5 to 24.0, Z: -13.4 to -9.1)
+    // East Mulch Bed (X: 17.5 to 44.0, Z: -13.9 to -9.6, length 26.5m)
     const eastMulch = new THREE.Mesh(
-      new THREE.BoxGeometry(6.5, 0.06, 4.2),
+      new THREE.BoxGeometry(26.5, 0.06, 4.2),
       this.materials.mulchBed
     );
-    eastMulch.position.set(20.75, 0.01, -11.25);
+    eastMulch.position.set(30.75, 0.01, -11.75);
     eastMulch.receiveShadow = true;
     siteGroup.add(eastMulch);
 
-    // 9. Sculpted Evergreen Boxwood Globes (8 Shrub Spheres)
+    // 9. Sculpted Evergreen Boxwood Globes (14 Shrub Spheres)
     const boxwoodCoords = [
       [-16.0, -11.5], [-12.0, -11.0], [-8.0, -11.5], [-4.0, -11.0],
-      [0.0, -11.5], [4.0, -11.0], [18.5, -11.5], [22.0, -11.0]
+      [0.0, -11.5], [4.0, -11.0], [18.5, -11.5], [22.0, -11.0],
+      [26.0, -11.5], [30.0, -11.0], [34.0, -11.5], [38.0, -11.0], [42.0, -11.5]
     ];
     boxwoodCoords.forEach(([bx, bz]) => {
       const boxwood = new THREE.Mesh(
@@ -1531,9 +1879,10 @@ export class LabEnvironment3D {
       siteGroup.add(boxwood);
     });
 
-    // 10. Clipped Formal Privet Foundation Hedges (4 Hedge Blocks)
+    // 10. Clipped Formal Privet Foundation Hedges
     const hedgeCoords = [
-      [-14.0, -9.6, 5.0], [-5.0, -9.6, 6.0], [3.0, -9.6, 5.0], [20.0, -9.6, 4.5]
+      [-14.0, -9.8, 5.0], [-5.0, -9.8, 6.0], [3.0, -9.8, 5.0],
+      [20.0, -9.8, 4.5], [28.0, -9.8, 5.5], [36.0, -9.8, 5.5]
     ];
     hedgeCoords.forEach(([hx, hz, hw]) => {
       const hedge = new THREE.Mesh(
@@ -1545,32 +1894,30 @@ export class LabEnvironment3D {
       siteGroup.add(hedge);
     });
 
-    // 11. Modern Monolithic Square Tree Planters with Architectural Birch Trees Flanking Entrance
-    [10.2, 15.8].forEach((tx) => {
+    // 11. Modern Monolithic Square Tree Planters with Birch Trees
+    [10.2, 15.8, 24.0, 36.0].forEach((tx) => {
       const planter = new THREE.Mesh(
         new THREE.BoxGeometry(1.6, 0.65, 1.6),
         this.materials.concreteCurb
       );
-      planter.position.set(tx, 0.325, -11.25);
+      planter.position.set(tx, 0.325, -11.75);
       siteGroup.add(planter);
 
       const pSoil = new THREE.Mesh(
         new THREE.BoxGeometry(1.4, 0.05, 1.4),
         this.materials.mulchBed
       );
-      pSoil.position.set(tx, 0.63, -11.25);
+      pSoil.position.set(tx, 0.63, -11.75);
       siteGroup.add(pSoil);
 
-      // Procedural Branching Birch Tree Trunk
       const trunk = new THREE.Mesh(
         new THREE.CylinderGeometry(0.06, 0.09, 2.6, 12),
         this.materials.treeTrunk
       );
-      trunk.position.set(tx, 1.9, -11.25);
+      trunk.position.set(tx, 1.9, -11.75);
       trunk.castShadow = true;
       siteGroup.add(trunk);
 
-      // Layered Canopy Foliage Clusters
       [
         { y: 2.8, r: 0.65, zOff: 0.0 },
         { y: 3.3, r: 0.55, zOff: 0.15 },
@@ -1580,19 +1927,95 @@ export class LabEnvironment3D {
           new THREE.DodecahedronGeometry(layer.r, 2),
           this.materials.treeLeaves
         );
-        leaves.position.set(tx + (layer.zOff * 0.8), layer.y, -11.25 + layer.zOff);
+        leaves.position.set(tx + (layer.zOff * 0.8), layer.y, -11.75 + layer.zOff);
         leaves.castShadow = true;
         siteGroup.add(leaves);
       });
     });
 
     // 12. Commercial Parking Lot LED Cobra-Head Light Poles (6.5m Height)
-    [-10.0, 14.0].forEach((lx) => {
+    [-10.0, 14.0, 38.0].forEach((lx) => {
       const pole = new THREE.Mesh(
         new THREE.CylinderGeometry(0.09, 0.14, 6.5, 16),
         new THREE.MeshStandardMaterial({ color: 0x1e242d, roughness: 0.3, metalness: 0.85 })
       );
-      pole.position.set(lx, 3.25, -22.5);
+      pole.position.set(lx, 3.25, -24.0);
+      pole.castShadow = true;
+      siteGroup.add(pole);
+
+      [-0.45, 0.45].forEach((az) => {
+        const lum = new THREE.Mesh(
+          new THREE.BoxGeometry(0.35, 0.12, 0.80),
+          this.materials.cabinetBody
+        );
+        lum.position.set(lx, 6.45, -24.0 + az);
+        siteGroup.add(lum);
+
+        const led = new THREE.Mesh(
+          new THREE.BoxGeometry(0.28, 0.02, 0.70),
+          this.materials.ledLightPanel
+        );
+        led.position.set(lx, 6.38, -24.0 + az);
+        siteGroup.add(led);
+      });
+
+      const siteLight = new THREE.PointLight(0xfffaed, 1.2, 22.0, 1.2);
+      siteLight.position.set(lx, 6.3, -24.0);
+      siteGroup.add(siteLight);
+    });
+
+    // 13. Modern Architectural Monument Campus Sign on Lawn (X = 6.0, Z = -11.7)
+    const signGroup = new THREE.Group();
+    signGroup.position.set(6.0, 0, -11.7);
+
+    const signPlinth = new THREE.Mesh(
+      new THREE.BoxGeometry(2.4, 0.25, 0.5),
+      this.materials.charcoalConcrete
+    );
+    signPlinth.position.y = 0.125;
+    signGroup.add(signPlinth);
+
+    const signPlaque = new THREE.Mesh(
+      new THREE.BoxGeometry(2.2, 0.85, 0.08),
+      new THREE.MeshStandardMaterial({ color: 0x141820, roughness: 0.25, metalness: 0.85 })
+    );
+    signPlaque.position.set(0, 0.675, 0);
+    signGroup.add(signPlaque);
+
+    const monCanvas = document.createElement("canvas");
+    monCanvas.width = 512;
+    monCanvas.height = 192;
+    const mCtx = monCanvas.getContext("2d");
+    mCtx.fillStyle = "#141820";
+    mCtx.fillRect(0, 0, 512, 192);
+    mCtx.strokeStyle = "#00d4e8";
+    mCtx.lineWidth = 6;
+    mCtx.strokeRect(8, 8, 496, 176);
+    mCtx.fillStyle = "#00d4e8";
+    mCtx.font = "bold 28px sans-serif";
+    mCtx.textAlign = "center";
+    mCtx.fillText("CHEMMATE BIOTECH", 256, 55);
+    mCtx.fillStyle = "#f8fafc";
+    mCtx.font = "bold 20px sans-serif";
+    mCtx.fillText("PHARMACEUTICAL RESEARCH CAMPUS", 256, 95);
+    mCtx.fillStyle = "#fbbf24";
+    mCtx.font = "16px monospace";
+    mCtx.fillText("MAIN FACILITY & RESEARCH PAVILIONS", 256, 140);
+
+    const monTex = new THREE.CanvasTexture(monCanvas);
+    const monMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(2.15, 0.80),
+      new THREE.MeshBasicMaterial({ map: monTex })
+    );
+    monMesh.rotation.y = Math.PI;
+    monMesh.position.set(0, 0.675, -0.042);
+    signGroup.add(monMesh);
+
+    siteGroup.add(signGroup);
+
+    this.root.add(siteGroup);
+    this.colliders.push(new THREE.Box3().setFromObject(asphalt));
+  }
       pole.castShadow = true;
       siteGroup.add(pole);
 

@@ -29,14 +29,18 @@
       </div>
 
       <div class="header-center">
-        <div id="hud-zone-pill" class="hud-zone-pill">Zone 8: Thermal Air-Lock Vestibule</div>
+        <div id="hud-zone-pill" class="hud-zone-pill">Zone 6: Grand Entrance Atrium & Waiting Lounge</div>
         <select id="quick-travel-select" class="quick-travel-select" aria-label="Jump to Station">
           <option value="">⚡ Quick Station Jump...</option>
+          <option value="reception">Zone 6: Grand Entrance Atrium & Waiting Lounge</option>
           <option value="user_office">Zone 9: User's Private Executive Office</option>
-          <option value="conference">Zone 10: Executive Conference Room</option>
-          <option value="restroom">Zone 7: ADA Accessible Restroom Suite</option>
-          <option value="exterior">Exterior: Campus Parking & Landscaping</option>
-          <option value="airlock">Zone 8: Thermal Air-Lock Vestibule</option>
+          <option value="conference">Zone 10: Grand Boardroom & Conference Suite</option>
+          <option value="facultysuite">Faculty Suite: Guest, Admin & Instructor Offices</option>
+          <option value="breakroom">Zone 11: Staff Break Room & Kitchenette</option>
+          <option value="menslockers">Zone 13: Men's Locker Room & Showers</option>
+          <option value="womenslockers">Zone 14: Women's Locker Room & Showers</option>
+          <option value="restroom">Zone 12: Executive Restroom & Sanitation</option>
+          <option value="exterior">Exterior: Campus Grounds & Parking</option>
           <option value="dissolution">Zone 1: Agilent 708-DS Dissolution Tester</option>
           <option value="spectrophotometer">Zone 1: Shimadzu UV-2600i Spectrophotometer</option>
           <option value="ftir">Zone 1: Nicolet iS50 FTIR ATR Spectrometer</option>
@@ -79,6 +83,10 @@
           <span class="nav-icon">🌐</span>
           <span class="nav-label">Overview</span>
         </button>
+        <button class="nav-pill" data-nav="reception" title="Grand Entrance Atrium, Reception & Waiting Lounge">
+          <span class="nav-icon">🏛️</span>
+          <span class="nav-label">Reception</span>
+        </button>
         <button class="nav-pill" data-nav="analytical" title="Spectrophotometer, FTIR, Analytical Balance">
           <span class="nav-icon">🔬</span>
           <span class="nav-label">Analytical QC</span>
@@ -89,31 +97,43 @@
         </button>
         <button class="nav-pill" data-nav="synthesis" title="Ducted Fume Hoods, Rotovap, Reactor, Hotplate">
           <span class="nav-icon">🧪</span>
-          <span class="nav-label">Synthesis & Hoods</span>
+          <span class="nav-label">Synthesis</span>
         </button>
         <button class="nav-pill" data-nav="sampleprep" title="Centrifuge, Freeze Dryer, Ultrasonic Cleaner">
           <span class="nav-icon">❄️</span>
           <span class="nav-label">Sample Prep</span>
         </button>
-        <button class="nav-pill" data-nav="office" title="Private Office, LIMS Desk, Dual 4K Displays">
+        <button class="nav-pill" data-nav="office" title="Doubled Executive Office, LIMS Desk, Dual 4K Curved Displays">
           <span class="nav-icon">💼</span>
           <span class="nav-label">User's Office</span>
         </button>
-        <button class="nav-pill" data-nav="conference" title="10-Person Executive Briefing Suite">
+        <button class="nav-pill" data-nav="conference" title="Doubled Grand Boardroom with 16 Chairs & 110 Laser Wall">
           <span class="nav-icon">👥</span>
-          <span class="nav-label">Conference</span>
+          <span class="nav-label">Boardroom</span>
         </button>
-        <button class="nav-pill" data-nav="restroom" title="ADA Accessible Restroom Suite">
+        <button class="nav-pill" data-nav="facultysuite" title="Faculty Suite: Guest, Admin & Instructor Offices">
+          <span class="nav-icon">📑</span>
+          <span class="nav-label">Faculty Offices</span>
+        </button>
+        <button class="nav-pill" data-nav="breakroom" title="Staff Break Room, Full Kitchenette & Café Seating">
+          <span class="nav-icon">☕</span>
+          <span class="nav-label">Break Room</span>
+        </button>
+        <button class="nav-pill" data-nav="menslockers" title="Men's Locker Room, Lockers & Rainfall Showers">
+          <span class="nav-icon">🚿</span>
+          <span class="nav-label">Men's Lockers</span>
+        </button>
+        <button class="nav-pill" data-nav="womenslockers" title="Women's Locker Room, Hollywood Vanity & Rainfall Showers">
+          <span class="nav-icon">✨</span>
+          <span class="nav-label">Women's Lockers</span>
+        </button>
+        <button class="nav-pill" data-nav="restroom" title="Executive Restroom & Touchless Fixtures">
           <span class="nav-icon">🚻</span>
           <span class="nav-label">Restroom</span>
         </button>
-        <button class="nav-pill" data-nav="airlock" title="Thermal Airlock Entry & Vestibule">
-          <span class="nav-icon">🚪</span>
-          <span class="nav-label">Airlock Entry</span>
-        </button>
         <button class="nav-pill" data-nav="exterior" title="Campus Parking Lot & Landscaping">
           <span class="nav-icon">🌳</span>
-          <span class="nav-label">Exterior</span>
+          <span class="nav-label">Campus Grounds</span>
         </button>
         <button class="nav-pill nav-pill-walk" data-nav="walk" title="First-Person Walk Exploration (WASD)">
           <span class="nav-icon">🚶</span>
