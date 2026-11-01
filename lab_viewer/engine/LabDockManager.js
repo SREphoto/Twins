@@ -18,6 +18,7 @@ import { buildReactor3D } from "../../high_pressure_reactor_twin/software/viewer
 import { createMuffleFurnaceModel } from "../../muffle_furnace_twin/software/viewer/muffle_furnace3d.js";
 import { buildGloveBox3D } from "../../glove_box_twin/software/viewer/glove_box3d.js";
 import { createPHMeterModel } from "../../ph_meter_twin/software/viewer/ph_meter3d.js";
+import { buildSEMModel } from "../../sem_twin/software/viewer/sem3d.js";
 
 // 2. Class-Based Twins (Require mock DOM container for headless instantiation)
 import { FTIR3D } from "../../ftir_twin/software/viewer/ftir3d.js";
@@ -354,6 +355,23 @@ export class LabDockManager {
       scale: 0.10,
       camConsole: { pos: new THREE.Vector3(-7.0, 1.25, -7.2), look: new THREE.Vector3(-7.0, 1.05, -8.2) },
       builder: () => createPHMeterModel({ includeLab: false })
+    });
+
+    // ==========================================
+    // WORKSTATION 8: HIGH-RESOLUTION ELECTRON MICROSCOPY SUITE (X: 5.2, Z: -4.5)
+    // ==========================================
+
+    // 18. Field Emission Scanning Electron Microscope (FE-SEM)
+    this._mountTwin({
+      id: "sem",
+      name: "Scanning Electron Microscope",
+      tag: "Zeiss Gemini FE-SEM (0.8nm UHV Resolution)",
+      zone: "Zone 4: High-Resolution Microscopy & Nanomaterials Suite",
+      pos: new THREE.Vector3(5.0, 0.0, -1.8), // Dedicated vibration-isolated station
+      rotY: 0, // Facing North (+Z) towards operator
+      scale: 1.0,
+      camConsole: { pos: new THREE.Vector3(5.0, 1.45, -0.6), look: new THREE.Vector3(5.0, 1.25, -1.8) },
+      builder: (group) => buildSEMModel(null, { includeLab: false })
     });
   }
 

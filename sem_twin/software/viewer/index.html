@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zeiss Gemini FE-SEM · Digital Twin & Micrograph Gallery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="app">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="brand-cluster">
+        <span class="brand-badge">SREdesigns</span>
+        <div class="brand-title">
+          <span class="brand-primary">Zeiss Gemini Ultra FE-SEM</span>
+          <span class="brand-sub">Field Emission Scanning Electron Microscope · 0.8nm UHV</span>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <span class="badge badge-vac" id="badge-vac">UHV READY · 2.4×10⁻⁴ Pa</span>
+        <span class="badge badge-eht" id="badge-eht">EHT: 5.00 kV</span>
+        <span class="badge badge-mag" id="badge-mag">MAG: 15,000×</span>
+        <button id="btn-power" class="btn btn-power is-active">PWR ON</button>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="workspace">
+      <!-- 3D Viewport Host -->
+      <div id="viewport-container" class="viewport-host">
+        <canvas id="c3d"></canvas>
+        <div class="view-controls">
+          <button class="btn-cam" data-cam="iso">ISO 3/4</button>
+          <button class="btn-cam" data-cam="column">COLUMN</button>
+          <button class="btn-cam" data-cam="chamber">CHAMBER</button>
+          <button class="btn-cam" data-cam="console">CONSOLE</button>
+        </div>
+      </div>
+
+      <!-- Interactive Micrograph Gallery & Telemetry HUD -->
+      <aside class="gallery-panel">
+        <div class="panel-header">
+          <h3>🔬 LIVE SEM MICROGRAPH EXHIBITION</h3>
+          <span class="pill-detector" id="pill-detector">InLens SE</span>
+        </div>
+
+        <!-- Micrograph Display Canvas -->
+        <div class="micrograph-stage">
+          <canvas id="micrograph-canvas" width="640" height="480"></canvas>
+          <div class="micrograph-hud">
+            <div class="hud-left">
+              <span id="hud-specimen">SPECIMEN: Drosophila melanogaster (Compound Eye)</span>
+              <span id="hud-params">EHT = 5.00 kV · WD = 8.5 mm · Signal A = InLens</span>
+            </div>
+            <div class="hud-right">
+              <span id="hud-mag">15,000 ×</span>
+              <div class="scale-bar-container">
+                <div class="scale-bar-line" id="scale-line"></div>
+                <span id="scale-label">1.0 µm</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Specimen Selector Carousel -->
+        <div class="specimen-selector">
+          <label>SELECT SPECIMEN GALLERY MONOGRAPH:</label>
+          <div class="specimen-buttons">
+            <button class="btn-specimen is-active" data-idx="0">1. Insect Eye (Ommatidia)</button>
+            <button class="btn-specimen" data-idx="1">2. Ragweed Pollen (Exine)</button>
+            <button class="btn-specimen" data-idx="2">3. Morpho Butterfly Wing</button>
+            <button class="btn-specimen" data-idx="3">4. 7nm FinFET Silicon Gate</button>
+            <button class="btn-specimen" data-idx="4">5. ZnO Nanorod Tetrapods</button>
+          </div>
+        </div>
+
+        <!-- Live Electron Optics Tuning Controls -->
+        <div class="optics-controls">
+          <h4>ELECTRON OPTICS & DETECTOR CONTROLS</h4>
+          <div class="ctrl-row">
+            <label>MAGNIFICATION:</label>
+            <input type="range" id="slider-mag" min="500" max="150000" step="500" value="15000">
+            <span id="val-mag">15,000×</span>
+          </div>
+          <div class="ctrl-row">
+            <label>ACCEL VOLTAGE (EHT):</label>
+            <input type="range" id="slider-eht" min="1.0" max="30.0" step="0.5" value="5.0">
+            <span id="val-eht">5.0 kV</span>
+          </div>
+          <div class="ctrl-row">
+            <label>CONTRAST & BRIGHTNESS:</label>
+            <input type="range" id="slider-contrast" min="10" max="100" value="65">
+            <input type="range" id="slider-brightness" min="10" max="100" value="50">
+          </div>
+          <div class="detector-buttons">
+            <button class="btn-det is-active" data-det="InLens_Secondary">InLens SE (Topography)</button>
+            <button class="btn-det" data-det="SE2_Everhart_Thornley">SE2 (Chamber)</button>
+            <button class="btn-det" data-det="BSE_Backscatter">BSE (Z-Contrast)</button>
+            <button class="btn-det" data-det="EDS_Silicon_Drift">EDS Spectrum</button>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

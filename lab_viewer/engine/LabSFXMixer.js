@@ -290,6 +290,71 @@ class LabSFXMixer {
     osc.start(now);
     osc.stop(now + 0.03);
   }
+
+  // --- Laboratory Soap Dispenser Pump ---
+  playSoapDispense() {
+    this.ensureContext();
+    if (this.isMuted || !this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    // Dual sound: mechanical spring ratchet click + viscous liquid squirt
+    const oscClick = this.ctx.createOscillator();
+    const gainClick = this.ctx.createGain();
+    oscClick.type = "sine";
+    oscClick.frequency.setValueAtTime(880, now);
+    oscClick.frequency.exponentialRampToValueAtTime(160, now + 0.04);
+    gainClick.gain.setValueAtTime(0.2, now);
+    gainClick.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+    oscClick.connect(gainClick);
+    gainClick.connect(this.masterGain);
+    oscClick.start(now);
+    oscClick.stop(now + 0.045);
+
+    // Viscous squirt using bandpassed low-frequency surge
+    const oscSquirt = this.ctx.createOscillator();
+    const gainSquirt = this.ctx.createGain();
+    oscSquirt.type = "triangle";
+    oscSquirt.frequency.setValueAtTime(320, now + 0.01);
+    oscSquirt.frequency.linearRampToValueAtTime(140, now + 0.09);
+    gainSquirt.gain.setValueAtTime(0.12, now + 0.01);
+    gainSquirt.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+    oscSquirt.connect(gainSquirt);
+    gainSquirt.connect(this.masterGain);
+    oscSquirt.start(now + 0.01);
+    oscSquirt.stop(now + 0.095);
+  }
+
+  // --- UV Cabinet Interlock Switch & Relays ---
+  playCabinetToggle(isOpen) {
+    this.ensureContext();
+    if (this.isMuted || !this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    // Heavy mechanical door latch thud
+    const oscLatch = this.ctx.createOscillator();
+    const gainLatch = this.ctx.createGain();
+    oscLatch.type = "triangle";
+    oscLatch.frequency.setValueAtTime(isOpen ? 440 : 280, now);
+    oscLatch.frequency.exponentialRampToValueAtTime(80, now + 0.08);
+    gainLatch.gain.setValueAtTime(0.25, now);
+    gainLatch.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+    oscLatch.connect(gainLatch);
+    gainLatch.connect(this.masterGain);
+    oscLatch.start(now);
+    oscLatch.stop(now + 0.09);
+
+    // High-pitched safety interlock microswitch snap
+    const oscSnap = this.ctx.createOscillator();
+    const gainSnap = this.ctx.createGain();
+    oscSnap.type = "square";
+    oscSnap.frequency.setValueAtTime(isOpen ? 1800 : 2200, now + 0.01);
+    gainSnap.gain.setValueAtTime(0.1, now + 0.01);
+    gainSnap.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+    oscSnap.connect(gainSnap);
+    gainSnap.connect(this.masterGain);
+    oscSnap.start(now + 0.01);
+    oscSnap.stop(now + 0.04);
+  }
 }
 
 export const labAudio = new LabSFXMixer();

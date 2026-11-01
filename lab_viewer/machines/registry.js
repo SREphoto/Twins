@@ -178,6 +178,16 @@ export const MACHINES = [
     transitionKind: "box",
     panelHint: "Harmonic crank drive, 30 strokes/min, dual 6-tube baskets, 37°C flow heater",
   },
+  {
+    id: "sem",
+    name: "Zeiss Gemini FE-SEM",
+    tag: "Field Emission Scanning Electron Microscope",
+    packageDir: "sem_twin",
+    status: "ready",
+    viewerUrl: "../sem_twin/software/viewer/",
+    transitionKind: "box",
+    panelHint: "0.8nm UHV column, multi-detector array (InLens, SE2, BSE, EDS), dual 4K console",
+  },
 ];
 
 export function getMachine(id) {

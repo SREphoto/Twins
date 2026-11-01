@@ -20,7 +20,72 @@ export class LabEnvironment3D {
     this.root = new THREE.Group();
     this.root.name = "Modern_Lab_Facility_Root";
     this.colliders = [];
-    this.materials = {};
+    this.materials = {
+      // Architectural Wall, Door & Overhead MEP Infrastructure Materials
+      wainscotSlate: new THREE.MeshStandardMaterial({
+        color: 0x222832,
+        roughness: 0.55,
+        metalness: 0.2,
+        name: "Mat_Wainscot_Slate"
+      }),
+      bumperRail: new THREE.MeshStandardMaterial({
+        color: 0x333d4b,
+        roughness: 0.45,
+        metalness: 0.35,
+        name: "Mat_Crash_Bumper_Rail"
+      }),
+      fireStrobeRed: new THREE.MeshStandardMaterial({
+        color: 0xdc2626,
+        roughness: 0.35,
+        metalness: 0.15,
+        name: "Mat_Fire_Strobe_Red"
+      }),
+      exitSignGreen: new THREE.MeshStandardMaterial({
+        color: 0x10b981,
+        emissive: 0x10b981,
+        emissiveIntensity: 0.85,
+        roughness: 0.2,
+        name: "Mat_Exit_Sign_Green"
+      }),
+      magnehelicBezel: new THREE.MeshStandardMaterial({
+        color: 0xd8dde4,
+        roughness: 0.22,
+        metalness: 0.92,
+        name: "Mat_Magnehelic_Chrome"
+      }),
+      sprinklerChrome: new THREE.MeshStandardMaterial({
+        color: 0xe2e8f0,
+        roughness: 0.12,
+        metalness: 0.95,
+        name: "Mat_Sprinkler_Chrome"
+      }),
+      sprinklerRedBulb: new THREE.MeshPhysicalMaterial({
+        color: 0xef4444,
+        transparent: true,
+        opacity: 0.85,
+        roughness: 0.05,
+        ior: 1.45,
+        name: "Mat_Sprinkler_Glass_Bulb"
+      }),
+      hvacDiffuserWhite: new THREE.MeshStandardMaterial({
+        color: 0xf1f5f9,
+        roughness: 0.5,
+        metalness: 0.1,
+        name: "Mat_HVAC_Diffuser_White"
+      }),
+      doorCloserAluminum: new THREE.MeshStandardMaterial({
+        color: 0x64748b,
+        roughness: 0.32,
+        metalness: 0.78,
+        name: "Mat_Door_Closer_Aluminum"
+      }),
+      kickplateStainless: new THREE.MeshStandardMaterial({
+        color: 0xcfd6e0,
+        roughness: 0.25,
+        metalness: 0.88,
+        name: "Mat_Door_Kickplate_Stainless"
+      }),
+};
 
     this._initMaterials();
     this._buildFloorsWithGrid();
@@ -30,6 +95,7 @@ export class LabEnvironment3D {
     this._buildStructuralPillars();
     this._buildCeilingAndLighting();
     this._buildBiophilicWall();
+    this._buildColdStorageSuite();
     this._buildExteriorCampusSite();
 
     this.scene.add(this.root);
@@ -333,6 +399,39 @@ export class LabEnvironment3D {
       roughness: 0.25,
       metalness: 0.88,
       name: "Mat_Luxury_Brushed_Gold"
+    });
+
+    this.materials.camLockWhite = new THREE.MeshStandardMaterial({
+      color: 0xf1f5f9,
+      roughness: 0.35,
+      metalness: 0.25,
+      name: "Mat_CamLock_Insulated_Panel"
+    });
+
+    this.materials.diamondPlateAluminum = new THREE.MeshStandardMaterial({
+      color: 0xc8d0da,
+      roughness: 0.28,
+      metalness: 0.82,
+      name: "Mat_Diamond_Plate_Floor"
+    });
+
+    this.materials.evaporatorFins = new THREE.MeshStandardMaterial({
+      color: 0x94a3b8,
+      roughness: 0.45,
+      metalness: 0.7,
+      name: "Mat_Evaporator_Aluminum_Fins"
+    });
+
+    this.materials.wireRackGreen = new THREE.MeshStandardMaterial({
+      color: 0x166534,
+      roughness: 0.4,
+      metalness: 0.3,
+      name: "Mat_Metro_Green_Wire_Shelving"
+    });
+
+    this.materials.safetyGlowGreen = new THREE.MeshBasicMaterial({
+      color: 0x4ade80,
+      name: "Mat_Photoluminescent_Escape_Handle"
     });
   }
 
@@ -1091,6 +1190,49 @@ export class LabEnvironment3D {
     });
     group.add(rightDoorGroup);
 
+    // 16-Gauge Stainless Steel Kickplates (Front and Back of both leaves)
+    const kickGeo = new THREE.BoxGeometry(0.79, 0.25, 0.003);
+    [-0.0215, 0.0215].forEach(kz => {
+      const kpL = new THREE.Mesh(kickGeo, this.materials.kickplateStainless);
+      kpL.position.set(0, 0.135, kz);
+      leftDoorGroup.add(kpL);
+
+      const kpR = new THREE.Mesh(kickGeo, this.materials.kickplateStainless);
+      kpR.position.set(0, 0.135, kz);
+      rightDoorGroup.add(kpR);
+    });
+
+    // Overhead Surface-Mounted Heavy-Duty Hydraulic Door Closers
+    [-0.495, 0.495].forEach((cxLeaf, leafIdx) => {
+      const closerGroup = new THREE.Group();
+      closerGroup.position.set(cxLeaf, doorH - 0.06, 0.045);
+
+      const closerBody = new THREE.Mesh(
+        new THREE.BoxGeometry(0.24, 0.065, 0.045),
+        this.materials.doorCloserAluminum
+      );
+      closerGroup.add(closerBody);
+
+      [-0.08, 0.08].forEach(vx => {
+        const valve = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.008, 0.008, 0.01, 10),
+          this.materials.doorCloserAluminum
+        );
+        valve.position.set(vx, 0, 0.025);
+        closerGroup.add(valve);
+      });
+
+      const arm = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.005, 0.005, 0.14, 8),
+        this.materials.doorCloserAluminum
+      );
+      arm.rotation.z = leafIdx === 0 ? 0.4 : -0.4;
+      arm.position.set(leafIdx === 0 ? 0.05 : -0.05, 0.05, 0.015);
+      closerGroup.add(arm);
+
+      group.add(closerGroup);
+    });
+
     // 4. RFID Card Reader Panel next to Right Jamb
     const cardReader = new THREE.Mesh(
       new THREE.BoxGeometry(0.08, 0.14, 0.03),
@@ -1158,6 +1300,32 @@ export class LabEnvironment3D {
       h.position.set(leafW / 2 - 0.12, 1.05, zOff);
       leafGroup.add(h);
     });
+
+    // 16-Gauge Stainless Steel Kickplates (Front and Back)
+    const kickGeo = new THREE.BoxGeometry(leafW, 0.25, 0.003);
+    [-0.0215, 0.0215].forEach(kz => {
+      const kp = new THREE.Mesh(kickGeo, this.materials.kickplateStainless);
+      kp.position.set(0, 0.135, kz);
+      leafGroup.add(kp);
+    });
+
+    // Overhead Hydraulic Door Closer
+    const closerGroup = new THREE.Group();
+    closerGroup.position.set(0, doorH - 0.06, 0.045);
+    const closerBody = new THREE.Mesh(
+      new THREE.BoxGeometry(0.24, 0.065, 0.045),
+      this.materials.doorCloserAluminum
+    );
+    closerGroup.add(closerBody);
+
+    const arm = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.005, 0.005, 0.14, 8),
+      this.materials.doorCloserAluminum
+    );
+    arm.rotation.z = 0.4;
+    arm.position.set(0.05, 0.05, 0.015);
+    closerGroup.add(arm);
+    group.add(closerGroup);
 
     group.add(leafGroup);
     this.root.add(group);
@@ -2066,5 +2234,551 @@ export class LabEnvironment3D {
 
     this.root.add(siteGroup);
     this.colliders.push(new THREE.Box3().setFromObject(asphalt));
+  }
+
+  // --- Architectural Walk-In Refrigerator (+4°C) & Freezer (-20°C / -80°C) Suite ---
+  _buildColdStorageSuite() {
+    const suite = new THREE.Group();
+    suite.name = "Architectural_Cold_Storage_Suite";
+
+    const H = 2.8;   // Insulated ceiling height
+    const wallT = 0.12; // 5-inch polyurethane insulated panel
+
+    // Sited on North Wall inside Zone 5 Chemical Storage & Biological Vault
+    // Suite A: Walk-In Cold Room (+4°C Chromatography & Reagents) at X: 2.8 to 5.2 (W: 2.4m, D: 2.2m, Z: 7.2 to 9.4)
+    this._createWalkInUnit(suite, {
+      id: "WalkIn_Refrigerator_4C",
+      title: "COLD ROOM · +4.0°C",
+      subtitle: "USP REAGENTS & CHROMATOGRAPHY FRACTIONS",
+      tempStr: "+4.0 °C",
+      tempColor: "#0284c7",
+      cx: 3.8,
+      cz: 8.3,
+      w: 2.4,
+      d: 2.0,
+      h: H,
+      wallT,
+      doorSide: "south",
+      lightColor: 0xdbeafe,
+      lightIntensity: 0.75
+    });
+
+    // Suite B: Walk-In Ultra-Low Freezer (-20°C / -80°C Cryo Storage) at X: 5.5 to 7.8 (W: 2.3m, D: 2.0m, Z: 7.2 to 9.4)
+    this._createWalkInUnit(suite, {
+      id: "WalkIn_Freezer_SubZero",
+      title: "ULTRA-LOW FREEZER · -20.0°C",
+      subtitle: "CRYO ENZYMES, SERUM & STABILITY MONOGRAPHS",
+      tempStr: "-20.0 °C",
+      tempColor: "#38bdf8",
+      cx: 6.6,
+      cz: 8.3,
+      w: 2.2,
+      d: 2.0,
+      h: H,
+      wallT,
+      doorSide: "south",
+      lightColor: 0xcffafe,
+      lightIntensity: 0.85
+    });
+
+    this.root.add(suite);
+  }
+
+  _createWalkInUnit(parent, cfg) {
+    const unit = new THREE.Group();
+    unit.position.set(cfg.cx, 0, cfg.cz);
+    unit.name = cfg.id;
+
+    const halfW = cfg.w / 2;
+    const halfD = cfg.d / 2;
+
+    // 1. Exterior Insulated Cam-Lock Polyurethane White Stucco Panels (Walls & Ceiling)
+    // North Back Wall
+    const backWall = new THREE.Mesh(
+      new THREE.BoxGeometry(cfg.w, cfg.h, cfg.wallT),
+      this.materials.camLockWhite
+    );
+    backWall.position.set(0, cfg.h / 2, halfD - cfg.wallT / 2);
+    unit.add(backWall);
+
+    // East Wall
+    const eastWall = new THREE.Mesh(
+      new THREE.BoxGeometry(cfg.wallT, cfg.h, cfg.d),
+      this.materials.camLockWhite
+    );
+    eastWall.position.set(halfW - cfg.wallT / 2, cfg.h / 2, 0);
+    unit.add(eastWall);
+
+    // West Wall
+    const westWall = new THREE.Mesh(
+      new THREE.BoxGeometry(cfg.wallT, cfg.h, cfg.d),
+      this.materials.camLockWhite
+    );
+    westWall.position.set(-halfW + cfg.wallT / 2, cfg.h / 2, 0);
+    unit.add(westWall);
+
+    // Insulated Ceiling Cap
+    const ceiling = new THREE.Mesh(
+      new THREE.BoxGeometry(cfg.w, cfg.wallT, cfg.d),
+      this.materials.camLockWhite
+    );
+    ceiling.position.set(0, cfg.h - cfg.wallT / 2, 0);
+    unit.add(ceiling);
+
+    // 2. Interior Diamond Plate Aluminum Treadwear Floor
+    const floor = new THREE.Mesh(
+      new THREE.BoxGeometry(cfg.w - cfg.wallT * 2, 0.015, cfg.d - cfg.wallT * 2),
+      this.materials.diamondPlateAluminum
+    );
+    floor.position.set(0, 0.008, 0);
+    unit.add(floor);
+
+    // 3. Front Wall Segments with Heavy Overlap Door Opening
+    const doorW = 0.95;
+    const doorH = 2.15;
+    const sideW = (cfg.w - doorW) / 2;
+
+    // Left Front Wall
+    const frontL = new THREE.Mesh(
+      new THREE.BoxGeometry(sideW, cfg.h, cfg.wallT),
+      this.materials.camLockWhite
+    );
+    frontL.position.set(-halfW + sideW / 2, cfg.h / 2, -halfD + cfg.wallT / 2);
+    unit.add(frontL);
+
+    // Right Front Wall
+    const frontR = new THREE.Mesh(
+      new THREE.BoxGeometry(sideW, cfg.h, cfg.wallT),
+      this.materials.camLockWhite
+    );
+    frontR.position.set(halfW - sideW / 2, cfg.h / 2, -halfD + cfg.wallT / 2);
+    unit.add(frontR);
+
+    // Lintel Header over Door
+    const lintelH = cfg.h - doorH;
+    const lintel = new THREE.Mesh(
+      new THREE.BoxGeometry(doorW, lintelH, cfg.wallT),
+      this.materials.camLockWhite
+    );
+    lintel.position.set(0, doorH + lintelH / 2, -halfD + cfg.wallT / 2);
+    unit.add(lintel);
+
+    // 4. Heavy In-Fitting Cold Storage Door with Heated Frame & Safety Latch
+    const doorGroup = new THREE.Group();
+    doorGroup.position.set(-doorW / 2, 0, -halfD + cfg.wallT / 2); // Hinged at left jamb
+
+    const doorLeaf = new THREE.Mesh(
+      new THREE.BoxGeometry(doorW - 0.02, doorH - 0.02, 0.08),
+      this.materials.camLockWhite
+    );
+    doorLeaf.position.set(doorW / 2, doorH / 2, 0.04);
+    doorGroup.add(doorLeaf);
+
+    // Heated Door Perimeter Rubber Gasket
+    const gasket = new THREE.Mesh(
+      new THREE.BoxGeometry(doorW, doorH, 0.01),
+      this.materials.matteBlackTrim
+    );
+    gasket.position.set(doorW / 2, doorH / 2, -0.005);
+    doorGroup.add(gasket);
+
+    // Exterior Heavy Chrome Cam-Lift Latch with Padlock Hasp
+    const latch = new THREE.Mesh(
+      new THREE.BoxGeometry(0.06, 0.22, 0.08),
+      this.materials.goldBrassAccent
+    );
+    latch.position.set(doorW - 0.08, 1.05, 0.09);
+    doorGroup.add(latch);
+
+    // Interior Photoluminescent Emergency Safety Escape Release Plunger
+    // (Mandatory OSHA/ANSI safety feature to prevent personnel entrapment)
+    const escapePlunger = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.035, 0.035, 0.09, 16),
+      this.materials.safetyGlowGreen
+    );
+    escapePlunger.rotation.x = Math.PI / 2;
+    escapePlunger.position.set(doorW - 0.08, 1.05, -0.05);
+    doorGroup.add(escapePlunger);
+
+    // Heavy Cam-Lift Self-Closing Hinges (Upper and Lower)
+    [0.4, doorH - 0.4].forEach(hy => {
+      const hinge = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.022, 0.022, 0.12, 12),
+        this.materials.matteBlackTrim
+      );
+      hinge.position.set(0.02, hy, 0.05);
+      doorGroup.add(hinge);
+    });
+
+    unit.add(doorGroup);
+
+    // 5. Overhead Forced-Air Dual-Fan Evaporator Cooling Coil
+    const evap = new THREE.Group();
+    evap.position.set(0, cfg.h - 0.35, halfD - 0.45);
+
+    const evapBody = new THREE.Mesh(
+      new THREE.BoxGeometry(1.1, 0.30, 0.45),
+      this.materials.evaporatorFins
+    );
+    evap.add(evapBody);
+
+    // Dual axial fan grills
+    [-0.32, 0.32].forEach(fx => {
+      const fanGrill = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.12, 0.12, 0.015, 16),
+        this.materials.matteBlackTrim
+      );
+      fanGrill.rotation.x = Math.PI / 2;
+      fanGrill.position.set(fx, 0, -0.23);
+      evap.add(fanGrill);
+    });
+
+    unit.add(evap);
+
+    // 6. Metro Green Heavy Epoxy-Coated Wire Storage Shelving Inside
+    [-halfW + 0.35, halfW - 0.35].forEach(sx => {
+      const rack = new THREE.Group();
+      rack.position.set(sx, 0, 0);
+
+      // 4 Shelf tiers
+      for (let s = 1; s <= 4; s++) {
+        const sy = s * 0.52;
+        const shelf = new THREE.Mesh(
+          new THREE.BoxGeometry(0.55, 0.02, cfg.d - 0.6),
+          this.materials.wireRackGreen
+        );
+        shelf.position.y = sy;
+        rack.add(shelf);
+      }
+      unit.add(rack);
+    });
+
+    // 7. Vapor-Proof Sub-Zero LED Light Luminaire Inside Unit
+    const coldLight = new THREE.PointLight(cfg.lightColor, cfg.lightIntensity, 3.2);
+    coldLight.position.set(0, cfg.h - 0.2, 0);
+    unit.add(coldLight);
+
+    // 8. Exterior Digital Microprocessor Temperature HUD Controller & Alarm Panel
+    const hudGroup = new THREE.Group();
+    hudGroup.position.set(halfW - 0.28, 1.55, -halfD + cfg.wallT / 2 + 0.01);
+
+    const hudCase = new THREE.Mesh(
+      new THREE.BoxGeometry(0.24, 0.32, 0.04),
+      this.materials.matteBlackTrim
+    );
+    hudGroup.add(hudCase);
+
+    const hudCanvas = document.createElement("canvas");
+    hudCanvas.width = 256;
+    hudCanvas.height = 320;
+    const hctx = hudCanvas.getContext("2d");
+    hctx.fillStyle = "#0f172a";
+    hctx.fillRect(0, 0, 256, 320);
+    hctx.strokeStyle = "#38bdf8";
+    hctx.lineWidth = 4;
+    hctx.strokeRect(6, 6, 244, 308);
+
+    hctx.fillStyle = "#f8fafc";
+    hctx.font = "bold 18px sans-serif";
+    hctx.textAlign = "center";
+    hctx.fillText(cfg.title.split("·")[0].trim(), 128, 38);
+
+    hctx.fillStyle = cfg.tempColor;
+    hctx.font = "bold 44px monospace";
+    hctx.fillText(cfg.tempStr, 128, 105);
+
+    hctx.fillStyle = "#10b981";
+    hctx.font = "bold 16px monospace";
+    hctx.fillText("STATUS: STABLE · BMS LINKED", 128, 145);
+    hctx.fillText("DEFROST: OFF · FAN AUTO", 128, 172);
+
+    hctx.fillStyle = "#64748b";
+    hctx.font = "12px monospace";
+    hctx.fillText("SETPOINT: " + cfg.tempStr, 128, 220);
+    hctx.fillText("ALARM HIGH: " + (cfg.tempStr.includes("-") ? "-12.0°C" : "+8.0°C"), 128, 245);
+    hctx.fillText("CALIBRATED NIST TRACEABLE", 128, 275);
+
+    const hudTex = new THREE.CanvasTexture(hudCanvas);
+    const hudScreen = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.22, 0.28),
+      new THREE.MeshBasicMaterial({ map: hudTex })
+    );
+    hudScreen.position.set(0, 0, 0.022);
+    hudGroup.add(hudScreen);
+
+    unit.add(hudGroup);
+
+    // Colliders for walk-in walls
+    [backWall, eastWall, westWall, frontL, frontR].forEach(mesh => {
+      this.colliders.push(new THREE.Box3().setFromObject(mesh));
+    });
+
+    parent.add(unit);
+  }
+
+// --- Architectural Wall Wainscoting, Crash Bumper Rails, Fire Strobes & MEP Devices ---
+  _buildWallArchitecturalTrims() {
+    const H = 3.8;
+
+    // 1. High-Impact Wainscot Paneling along Central Hallway (X: 16.0 to 38.0, Y: 0 to 1.05m)
+    // North Hallway Wainscot (Z = 1.42)
+    const northWainscot = new THREE.Mesh(
+      new THREE.BoxGeometry(22.0, 1.05, 0.02),
+      this.materials.wainscotSlate
+    );
+    northWainscot.position.set(27.0, 1.05 / 2, 1.42);
+    this.root.add(northWainscot);
+
+    // South Hallway Wainscot (Z = -1.42)
+    const southWainscot = new THREE.Mesh(
+      new THREE.BoxGeometry(22.0, 1.05, 0.02),
+      this.materials.wainscotSlate
+    );
+    southWainscot.position.set(27.0, 1.05 / 2, -1.42);
+    this.root.add(southWainscot);
+
+    // 2. Heavy-Duty Wall Crash Bumper Rails with End Caps (Y = 0.95m)
+    [-1.40, 1.40].forEach((bz) => {
+      const bumper = new THREE.Mesh(
+        new THREE.BoxGeometry(22.0, 0.10, 0.025),
+        this.materials.bumperRail
+      );
+      bumper.position.set(27.0, 0.95, bz);
+      this.root.add(bumper);
+    });
+
+    // Lab West Perimeter Crash Rail (X = -15.9, Z: -9.0 to 9.0)
+    const labBumper = new THREE.Mesh(
+      new THREE.BoxGeometry(0.025, 0.10, 18.0),
+      this.materials.bumperRail
+    );
+    labBumper.position.set(-15.88, 0.95, 0);
+    this.root.add(labBumper);
+
+    // 3. ANSI Z535 Fire Alarm Strobe / Horn Stations (Safety Red + Xenon Strobe at Y = 2.4m)
+    const fireStrobeLocations = [
+      { x: -15.88, z: 0.0, rotY: Math.PI / 2 },    // West Lab Wall
+      { x: -0.5, z: 9.38, rotY: Math.PI },          // North Lab Wall
+      { x: 12.0, z: -9.38, rotY: 0 },              // Reception Entrance
+      { x: 21.0, z: 1.42, rotY: Math.PI },          // Hallway West
+      { x: 32.0, z: 1.42, rotY: Math.PI },          // Hallway East
+      { x: 38.0, z: 0.0, rotY: -Math.PI / 2 }       // End Hallway
+    ];
+
+    fireStrobeLocations.forEach((loc) => {
+      const group = new THREE.Group();
+      group.position.set(loc.x, 2.4, loc.z);
+      group.rotation.y = loc.rotY;
+
+      // Red Polycarbonate Box
+      const body = new THREE.Mesh(
+        new THREE.BoxGeometry(0.12, 0.12, 0.045),
+        this.materials.fireStrobeRed
+      );
+      group.add(body);
+
+      // Xenon White Flash Strobe Lens
+      const lens = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.025, 0.025, 0.015, 12),
+        this.materials.sprinklerChrome
+      );
+      lens.rotation.x = Math.PI / 2;
+      lens.position.set(0, 0.025, 0.025);
+      group.add(lens);
+
+      // Alarm Horn Grill Slots
+      for (let s = 0; s < 3; s++) {
+        const slot = new THREE.Mesh(
+          new THREE.BoxGeometry(0.06, 0.005, 0.004),
+          new THREE.MeshBasicMaterial({ color: 0x050709 })
+        );
+        slot.position.set(0, -0.02 - s * 0.012, 0.024);
+        group.add(slot);
+      }
+
+      this.root.add(group);
+    });
+
+    // 4. Emergency Green LED Exit Signs with Directional Chevrons over Portals (Y = 2.65m)
+    const exitLocations = [
+      { x: 13.0, z: -9.38, rotY: 0 },          // Exterior Main Entrance
+      { x: 8.0, z: -0.45, rotY: Math.PI / 2 },  // Lab to Reception Portal
+      { x: 16.0, z: 0.0, rotY: -Math.PI / 2 },  // Reception to Hallway Portal
+      { x: 38.0, z: 0.0, rotY: -Math.PI / 2 }   // Far East Hallway Portal
+    ];
+
+    exitLocations.forEach((loc) => {
+      const group = new THREE.Group();
+      group.position.set(loc.x, 2.65, loc.z);
+      group.rotation.y = loc.rotY;
+
+      // Brushed Aluminum Enclosure
+      const box = new THREE.Mesh(
+        new THREE.BoxGeometry(0.32, 0.18, 0.04),
+        this.materials.cabinetHandle
+      );
+      group.add(box);
+
+      // Illuminated Green Face
+      const face = new THREE.Mesh(
+        new THREE.BoxGeometry(0.28, 0.14, 0.006),
+        this.materials.exitSignGreen
+      );
+      face.position.z = 0.022;
+      group.add(face);
+
+      this.root.add(group);
+    });
+
+    // 5. Dwyer Magnehelic Differential Pressure Gauges beside Cleanroom Doors (Y = 1.55m)
+    const magnehelicLocations = [
+      { x: 8.12, z: -0.45 + 1.25, rotY: Math.PI / 2 },  // Lab entrance
+      { x: 16.12, z: 1.25, rotY: Math.PI / 2 },          // Hallway entrance
+      { x: 38.12, z: 1.25, rotY: Math.PI / 2 }           // Women's locker entrance
+    ];
+
+    magnehelicLocations.forEach((loc) => {
+      const group = new THREE.Group();
+      group.position.set(loc.x, 1.55, loc.z);
+      group.rotation.y = loc.rotY;
+
+      // Chrome Bezel Housing
+      const bezel = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.065, 0.065, 0.035, 20),
+        this.materials.magnehelicChrome || this.materials.cabinetHandle
+      );
+      bezel.rotation.x = Math.PI / 2;
+      group.add(bezel);
+
+      // Dial Face (White with black ticks)
+      const dial = new THREE.Mesh(
+        new THREE.CircleGeometry(0.058, 20),
+        new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2 })
+      );
+      dial.position.z = 0.019;
+      group.add(dial);
+
+      // Red Pointer Needle (reading +0.03 in w.g.)
+      const needle = new THREE.Mesh(
+        new THREE.BoxGeometry(0.002, 0.045, 0.002),
+        this.materials.hazardFlammable || this.materials.fireStrobeRed
+      );
+      needle.position.set(0.008, 0.015, 0.021);
+      needle.rotation.z = -0.25;
+      group.add(needle);
+
+      this.root.add(group);
+    });
+
+    // 6. Digital HVAC Climate Thermostat Controllers (Y = 1.45m)
+    const thermostatLocations = [
+      { x: -15.88, z: 4.5, rotY: Math.PI / 2 },
+      { x: 12.0, z: -9.38, rotY: 0 },
+      { x: 18.75, z: -1.62, rotY: 0 },
+      { x: 21.5, z: 1.62, rotY: Math.PI },
+      { x: 30.25, z: 1.62, rotY: Math.PI }
+    ];
+
+    thermostatLocations.forEach((loc) => {
+      const tStat = new THREE.Mesh(
+        new THREE.BoxGeometry(0.10, 0.10, 0.025),
+        this.materials.gfciFaceplate || this.materials.porcelainWhite
+      );
+      tStat.position.set(loc.x, 1.45, loc.z);
+      tStat.rotation.y = loc.rotY;
+      this.root.add(tStat);
+
+      const lcd = new THREE.Mesh(
+        new THREE.BoxGeometry(0.065, 0.045, 0.003),
+        this.materials.telDigitalGreen
+      );
+      lcd.position.set(loc.x, 1.45, loc.z + (loc.rotY === 0 ? 0.014 : (loc.rotY === Math.PI ? -0.014 : 0)));
+      this.root.add(lcd);
+    });
+
+    // 7. Overhead Fire Sprinklers & 4-Way HVAC Air Diffusers in Ceiling Grid (Y = 3.78m)
+    const hvacGrid = [
+      [-10.0, -4.5], [-2.0, -4.5], [-10.0, 5.0], [-0.5, 5.0],
+      [12.0, -4.0], [12.0, 4.0], [21.5, 5.5], [30.25, 5.5],
+      [18.75, -5.5], [26.75, -5.5], [35.0, -5.5], [41.0, 0.0]
+    ];
+
+    hvacGrid.forEach(([hx, hz]) => {
+      // 4-Way Aerodynamic Square HVAC Diffuser (600mm x 600mm)
+      const diffuser = new THREE.Mesh(
+        new THREE.BoxGeometry(0.60, 0.02, 0.60),
+        this.materials.hvacDiffuserWhite
+      );
+      diffuser.position.set(hx, 3.79, hz);
+      this.root.add(diffuser);
+
+      // Concentric Louvers
+      [0.45, 0.30, 0.15].forEach((lSize) => {
+        const louver = new THREE.Mesh(
+          new THREE.BoxGeometry(lSize, 0.008, lSize),
+          new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.4 })
+        );
+        louver.position.set(hx, 3.782, hz);
+        this.root.add(louver);
+      });
+
+      // Chrome Pendant Fire Sprinkler Head nearby
+      const groupSprinkler = new THREE.Group();
+      groupSprinkler.position.set(hx + 1.2, 3.75, hz + 0.8);
+
+      const escutcheon = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.035, 0.035, 0.008, 16),
+        this.materials.sprinklerChrome
+      );
+      escutcheon.position.y = 0.04;
+      groupSprinkler.add(escutcheon);
+
+      const pipeDrop = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.01, 0.01, 0.04, 12),
+        this.materials.sprinklerChrome
+      );
+      pipeDrop.position.y = 0.02;
+      groupSprinkler.add(pipeDrop);
+
+      const frame = new THREE.Mesh(
+        new THREE.TorusGeometry(0.012, 0.003, 8, 16),
+        this.materials.sprinklerChrome
+      );
+      frame.position.y = -0.005;
+      groupSprinkler.add(frame);
+
+      // Red heat-sensitive glass bulb
+      const bulb = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.003, 0.003, 0.014, 8),
+        this.materials.sprinklerRedBulb
+      );
+      bulb.position.y = -0.005;
+      groupSprinkler.add(bulb);
+
+      // Deflector plate
+      const deflector = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.018, 0.018, 0.003, 12),
+        this.materials.sprinklerChrome
+      );
+      deflector.position.y = -0.015;
+      groupSprinkler.add(deflector);
+
+      this.root.add(groupSprinkler);
+
+      // Photoelectric Smoke Detector with pulsing LED
+      const smokeDet = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.07, 0.075, 0.035, 20),
+        this.materials.hvacDiffuserWhite
+      );
+      smokeDet.position.set(hx - 1.2, 3.78, hz - 0.8);
+      this.root.add(smokeDet);
+
+      const sLED = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.003, 0.003, 0.004, 8),
+        this.materials.telDigitalGreen
+      );
+      sLED.position.set(hx - 1.2, 3.76, hz - 0.8);
+      this.root.add(sLED);
+    });
   }
 }

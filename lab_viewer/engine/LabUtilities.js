@@ -26,12 +26,107 @@ export class LabUtilities {
     this._buildBunsenBurners();
     this._buildReagentsAndGlassware();
     this._buildDuplexPowerOutlets();
+    this._buildInstrumentWorkstationSurroundings();
 
     this.scene.add(this.root);
   }
 
   _initMaterials() {
     this.materials = {
+      // Laboratory Consumables & Surrounding Ecosystem Materials
+      kimwipesGreen: new THREE.MeshStandardMaterial({
+        color: 0x15803d,
+        roughness: 0.55,
+        metalness: 0.05,
+        name: "Mat_Kimwipes_Box_Green"
+      }),
+      kimwipesWhite: new THREE.MeshStandardMaterial({
+        color: 0xf8fafc,
+        roughness: 0.65,
+        metalness: 0.02,
+        name: "Mat_Kimwipes_White_Tissue"
+      }),
+      cuvetteQuartz: new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.28,
+        roughness: 0.02,
+        ior: 1.54,
+        name: "Mat_Quartz_Cuvette"
+      }),
+      cuvetteVelvet: new THREE.MeshStandardMaterial({
+        color: 0x1e1b4b,
+        roughness: 0.92,
+        metalness: 0.02,
+        name: "Mat_Cuvette_Box_Velvet"
+      }),
+      agateStone: new THREE.MeshStandardMaterial({
+        color: 0x7c3aed,
+        roughness: 0.22,
+        metalness: 0.05,
+        name: "Mat_Polished_Agate"
+      }),
+      weightChrome: new THREE.MeshStandardMaterial({
+        color: 0xf1f5f9,
+        roughness: 0.08,
+        metalness: 0.96,
+        name: "Mat_Class_E2_Weight"
+      }),
+      weightWoodBox: new THREE.MeshStandardMaterial({
+        color: 0x451a03,
+        roughness: 0.45,
+        metalness: 0.05,
+        name: "Mat_Mahogany_Weight_Box"
+      }),
+      powerCordRubber: new THREE.MeshStandardMaterial({
+        color: 0x111317,
+        roughness: 0.75,
+        metalness: 0.1,
+        name: "Mat_SJTOW_Rubber_Cord"
+      }),
+      nemaPlugMolded: new THREE.MeshStandardMaterial({
+        color: 0x1c1f24,
+        roughness: 0.5,
+        metalness: 0.15,
+        name: "Mat_NEMA_Molded_Plug"
+      }),
+      nemaBrassPin: new THREE.MeshStandardMaterial({
+        color: 0xd4af37,
+        roughness: 0.2,
+        metalness: 0.88,
+        name: "Mat_Plug_Brass_Pin"
+      }),
+      pcTowerSteel: new THREE.MeshStandardMaterial({
+        color: 0x181d24,
+        roughness: 0.35,
+        metalness: 0.75,
+        name: "Mat_PC_Chassis_Steel"
+      }),
+      cat6Blue: new THREE.MeshStandardMaterial({
+        color: 0x1d4ed8,
+        roughness: 0.6,
+        metalness: 0.1,
+        name: "Mat_Cat6_Ethernet_Blue"
+      }),
+      serialBeige: new THREE.MeshStandardMaterial({
+        color: 0xd1d5db,
+        roughness: 0.5,
+        metalness: 0.1,
+        name: "Mat_RS232_Serial_Beige"
+      }),
+      semStubAluminum: new THREE.MeshStandardMaterial({
+        color: 0xc4cbd4,
+        roughness: 0.18,
+        metalness: 0.9,
+        name: "Mat_SEM_Stub_Aluminum"
+      }),
+      torqueWrenchChrome: new THREE.MeshStandardMaterial({
+        color: 0xe2e8f0,
+        roughness: 0.12,
+        metalness: 0.94,
+        name: "Mat_Torque_Wrench_Chrome"
+      }),
+
       chrome: new THREE.MeshStandardMaterial({
         color: 0xe8ecf2,
         roughness: 0.15,
@@ -192,6 +287,94 @@ export class LabUtilities {
         roughness: 0.4,
         metalness: 0.05,
         name: "Mat_Cap_Yellow"
+      }),
+      soapTranslucentAmber: new THREE.MeshPhysicalMaterial({
+        color: 0xf59e0b,
+        transparent: true,
+        opacity: 0.85,
+        roughness: 0.1,
+        ior: 1.38,
+        name: "Mat_Liquid_Soap_Amber"
+      }),
+      soapTranslucentEmerald: new THREE.MeshPhysicalMaterial({
+        color: 0x10b981,
+        transparent: true,
+        opacity: 0.85,
+        roughness: 0.1,
+        ior: 1.38,
+        name: "Mat_Liquid_Soap_Emerald"
+      }),
+      stainlessSoapDispenser: new THREE.MeshStandardMaterial({
+        color: 0xd8dde4,
+        roughness: 0.22,
+        metalness: 0.88,
+        name: "Mat_Stainless_Soap_Dispenser"
+      }),
+      gasTurretDarkBronze: new THREE.MeshStandardMaterial({
+        color: 0x333b48,
+        roughness: 0.35,
+        metalness: 0.75,
+        name: "Mat_Gas_Turret_Bronze"
+      }),
+      gasButtonBlue: new THREE.MeshStandardMaterial({
+        color: 0x2563eb,
+        roughness: 0.3,
+        metalness: 0.2,
+        name: "Mat_Gas_Index_Button"
+      }),
+      gasTubingRed: new THREE.MeshStandardMaterial({
+        color: 0xb91c1c,
+        roughness: 0.65,
+        metalness: 0.05,
+        name: "Mat_Red_Gum_Rubber_Hose"
+      }),
+      agarGelNutrient: new THREE.MeshPhysicalMaterial({
+        color: 0xfef08a,
+        transparent: true,
+        opacity: 0.82,
+        roughness: 0.15,
+        ior: 1.35,
+        name: "Mat_Nutrient_Agar_Gel"
+      }),
+      agarGelBlood: new THREE.MeshPhysicalMaterial({
+        color: 0x991b1b,
+        transparent: true,
+        opacity: 0.9,
+        roughness: 0.2,
+        ior: 1.36,
+        name: "Mat_Blood_Agar_Gel"
+      }),
+      colonyStreaksOpal: new THREE.MeshStandardMaterial({
+        color: 0xfef9c3,
+        roughness: 0.4,
+        metalness: 0.05,
+        name: "Mat_Bacterial_Colony_Streak"
+      }),
+      stopperCork: new THREE.MeshStandardMaterial({
+        color: 0x92613b,
+        roughness: 0.9,
+        metalness: 0.0,
+        name: "Mat_Natural_Cork_Stopper"
+      }),
+      stopperRedRubber: new THREE.MeshStandardMaterial({
+        color: 0x991b1b,
+        roughness: 0.75,
+        metalness: 0.05,
+        name: "Mat_Red_Rubber_Stopper"
+      }),
+      desiccatorPorcelain: new THREE.MeshStandardMaterial({
+        color: 0xf1f5f9,
+        roughness: 0.3,
+        metalness: 0.05,
+        name: "Mat_Desiccator_Porcelain_Plate"
+      }),
+      silicaGelCobaltBlue: new THREE.MeshPhysicalMaterial({
+        color: 0x1d4ed8,
+        transparent: true,
+        opacity: 0.75,
+        roughness: 0.2,
+        ior: 1.45,
+        name: "Mat_Silica_Gel_Indicator_Beads"
       })
     };
   }
@@ -247,6 +430,56 @@ export class LabUtilities {
     group.add(handleR);
     this.interactiveObjects.push(handleR);
 
+    // --- Laboratory Hand Washing Soap Dispenser at Sink Station ---
+    const soapDisp = new THREE.Group();
+    soapDisp.position.set(0.24, 0.28, -0.22); // Mounted right of faucet
+    soapDisp.name = `Soap_Dispenser_${id}`;
+
+    // Brushed stainless wall/backsplash bracket
+    const dispBracket = new THREE.Mesh(
+      new THREE.BoxGeometry(0.09, 0.18, 0.08),
+      this.materials.stainlessSoapDispenser
+    );
+    soapDisp.add(dispBracket);
+
+    // Translucent viewing reservoir showing liquid soap & meniscus
+    const resGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.12, 16);
+    const soapMat = id === "Sink_Synthesis" ? this.materials.soapTranslucentAmber : this.materials.soapTranslucentEmerald;
+    const soapRes = new THREE.Mesh(resGeo, soapMat);
+    soapRes.position.set(0, 0.01, 0.025);
+    soapDisp.add(soapRes);
+
+    // Downward angled dispensing nozzle & chrome push lever
+    const dispNozzle = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.005, 0.008, 0.04, 12),
+      this.materials.chrome
+    );
+    dispNozzle.rotation.x = Math.PI / 4;
+    dispNozzle.position.set(0, -0.07, 0.05);
+    soapDisp.add(dispNozzle);
+
+    const pushLever = new THREE.Mesh(
+      new THREE.BoxGeometry(0.04, 0.015, 0.05),
+      this.materials.chrome
+    );
+    pushLever.position.set(0, -0.09, 0.025);
+    soapDisp.add(pushLever);
+
+    // Interactive soap dispensing action
+    soapDisp.userData = {
+      isSoapDispenser: true,
+      sinkId: id,
+      label: "Antimicrobial Liquid Hand Soap"
+    };
+    soapDisp.userData.toggle = () => {
+      labAudio.playSoapDispense();
+      // Animate lever depress
+      pushLever.position.y -= 0.012;
+      setTimeout(() => { pushLever.position.y += 0.012; }, 180);
+    };
+    this.interactiveObjects.push(soapDisp);
+    group.add(soapDisp);
+
     // Procedural Running Water Stream Mesh (Hidden until handle clicked)
     const streamGeo = new THREE.CylinderGeometry(0.009, 0.014, 0.38, 12);
     const stream = new THREE.Mesh(streamGeo, this.materials.waterStream);
@@ -282,15 +515,88 @@ export class LabUtilities {
     this.root.add(group);
   }
 
-  // --- Bunsen / Tirrill Burners ---
+  // --- Bunsen / Tirrill Burners & Benchtop Gas Line Hookups ---
   _buildBunsenBurners() {
     // 2x Bunsen Burners on Synthesis Prep Bench (X: -11.5, -8.5, Z: 5.0)
+    // with heavy brass benchtop dual gas turrets seated on the backsplash (Z = 5.28)
     [-11.5, -8.5].forEach((bx, idx) => {
-      this._createBunsenBurner(bx, 5.0, `Burner_${idx + 1}`);
+      this._createGasTurretHookup(bx, 5.28, `GasTurret_${idx + 1}`);
+      this._createBunsenBurner(bx, 5.0, `Burner_${idx + 1}`, bx, 5.28);
     });
   }
 
-  _createBunsenBurner(cx, cz, id) {
+  // Heavy cast brass dual gas petcock turret
+  _createGasTurretHookup(cx, cz, id) {
+    const turret = new THREE.Group();
+    turret.position.set(cx, 0.90, cz);
+    turret.name = id;
+
+    // Heavy round brass mounting base flange
+    const flange = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.045, 0.05, 0.018, 16),
+      this.materials.gasTurretDarkBronze
+    );
+    flange.position.y = 0.009;
+    turret.add(flange);
+
+    // Vertical riser column
+    const riser = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.02, 0.02, 0.12, 16),
+      this.materials.gasTurretDarkBronze
+    );
+    riser.position.y = 0.07;
+    turret.add(riser);
+
+    // Dual 90° Serrated Hose Barbs (Left and Right)
+    [-0.045, 0.045].forEach((bx, idx) => {
+      // Quarter-turn valve ball body
+      const valveBody = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.015, 0.015, 0.035, 12),
+        this.materials.gasTurretDarkBronze
+      );
+      valveBody.rotation.z = Math.PI / 2;
+      valveBody.position.set(bx, 0.10, 0);
+      turret.add(valveBody);
+
+      // Serrated Hose Barb extending forward/downward toward bench
+      const barb = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.006, 0.009, 0.045, 12),
+        this.materials.brassBurner
+      );
+      barb.rotation.x = Math.PI / 3;
+      barb.position.set(bx, 0.08, -0.025);
+      turret.add(barb);
+
+      // Valve handle lever with blue "GAS" index button
+      const handle = new THREE.Mesh(
+        new THREE.BoxGeometry(0.012, 0.008, 0.05),
+        this.materials.gasTurretDarkBronze
+      );
+      handle.position.set(bx, 0.12, 0.01);
+      turret.add(handle);
+
+      const gasBtn = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.008, 0.008, 0.006, 12),
+        this.materials.gasButtonBlue
+      );
+      gasBtn.position.set(bx, 0.126, 0.01);
+      turret.add(gasBtn);
+    });
+
+    turret.userData = {
+      isGasTurret: true,
+      turretId: id,
+      label: "Laboratory Benchtop Gas Turret"
+    };
+    turret.userData.toggle = () => {
+      labAudio.playButtonClick();
+    };
+
+    this.interactiveObjects.push(turret);
+    this.root.add(turret);
+  }
+
+  _createBunsenBurner(cx, cz, id, turretX = cx, turretZ = cz + 0.28) {
     const burner = new THREE.Group();
     burner.position.set(cx, 0.90, cz); // Seated on countertop
     burner.name = id;
@@ -322,15 +628,18 @@ export class LabUtilities {
     burner.add(collar);
     this.interactiveObjects.push(collar);
 
-    // Red gum rubber gas tubing connecting to rear gas turret
+    // Red gum rubber thick-wall gas tubing connecting from rear gas turret to burner base inlet
+    const relTurretZ = turretZ - cz;
+    const relTurretX = turretX - cx;
     const tubeCurve = new THREE.CatmullRomCurve3([
       new THREE.Vector3(0, 0.02, 0),
-      new THREE.Vector3(0.08, 0.01, 0.12),
-      new THREE.Vector3(0.12, 0.02, 0.28)
+      new THREE.Vector3(relTurretX * 0.3, 0.012, relTurretZ * 0.3),
+      new THREE.Vector3(relTurretX * 0.7, 0.025, relTurretZ * 0.7),
+      new THREE.Vector3(relTurretX, 0.08, relTurretZ)
     ]);
     const tube = new THREE.Mesh(
-      new THREE.TubeGeometry(tubeCurve, 16, 0.007, 8, false),
-      new THREE.MeshStandardMaterial({ color: 0x991b1b, roughness: 0.6 })
+      new THREE.TubeGeometry(tubeCurve, 20, 0.008, 10, false),
+      this.materials.gasTubingRed
     );
     burner.add(tube);
 
@@ -499,6 +808,509 @@ export class LabUtilities {
     this._createWinchesterSolventBottle(0.9, 0.42 + 2 * 0.55, 8.3, "DICHLOROMETHANE", "HPLC GRADE");
     this._createWinchesterSolventBottle(1.5, 0.42 + 2 * 0.55, 8.3, "TETRAHYDROFURAN", "ANHYDROUS");
     this._createWinchesterSolventBottle(2.1, 0.42 + 2 * 0.55, 8.3, "ETHYL ACETATE", "ACS REAGENT");
+
+    // 12. Griffin Glass Beakers Suite (50 mL to 1000 mL with Dual Menisci & Graduations)
+    this._createGriffinBeaker(-9.8, -4.0, "1000 mL", this.materials.fluidBlue, 0.65);
+    this._createGriffinBeaker(-9.4, -4.0, "600 mL", this.materials.fluidAmber, 0.5);
+    this._createGriffinBeaker(-9.0, -4.0, "250 mL", this.materials.fluidViolet, 0.7);
+    this._createGriffinBeaker(-8.6, -4.0, "100 mL", this.materials.fluidGreen, 0.4);
+    this._createGriffinBeaker(-8.3, -4.0, "50 mL", this.materials.reagentFluidClear, 0.5);
+
+    // 13. Heavy Borosilicate Vacuum Desiccator with Cobalt Silica Gel Beads (Pharma QC X: -3.8, Z: -4.0)
+    this._createVacuumDesiccator(-3.8, -4.0);
+
+    // 14. Culture Media Petri Dishes with Bacterial Isolation Streaks (Sample Prep X: -1.0, Z: 5.0)
+    this._createPetriDishStack(-1.0, 5.0);
+    this._createSinglePetriDish(-0.7, 5.0, "Nutrient Agar · E. coli Streak", this.materials.agarGelNutrient, true);
+    this._createSinglePetriDish(-0.4, 5.0, "Blood Agar · S. aureus Hemolysis", this.materials.agarGelBlood, true);
+
+    // 15. Classical Glass Pipettes with Suction Bulbs & Pipette Fillers (Sample Prep X: -0.1, Z: 5.0)
+    this._createPipetteStand(-0.1, 5.0);
+
+    // 16. Büchner Vacuum Filter Flask with Ceramic Perforated Funnel (Synthesis Bench X: -10.2, Z: 5.0)
+    this._createBuchnerFilterFlask(-10.2, 5.0);
+  }
+
+  // --- Classical Griffin Borosilicate Glass Beakers with Pour Spouts ---
+  _createGriffinBeaker(cx, cz, volume = "250 mL", fluidMat = null, fillRatio = 0.6) {
+    const beaker = new THREE.Group();
+    beaker.position.set(cx, 0.90, cz);
+    beaker.name = `Griffin_Beaker_${volume}`;
+
+    let radius = 0.035;
+    let height = 0.08;
+    if (volume === "1000 mL") { radius = 0.055; height = 0.14; }
+    else if (volume === "600 mL") { radius = 0.046; height = 0.115; }
+    else if (volume === "250 mL") { radius = 0.036; height = 0.088; }
+    else if (volume === "100 mL") { radius = 0.026; height = 0.068; }
+    else if (volume === "50 mL") { radius = 0.020; height = 0.052; }
+
+    // Thin cylindrical glass body
+    const body = new THREE.Mesh(
+      new THREE.CylinderGeometry(radius, radius, height, 24, 1, true),
+      this.materials.glassPyrex
+    );
+    body.position.y = height / 2;
+    beaker.add(body);
+
+    // Flat bottom
+    const bottom = new THREE.Mesh(
+      new THREE.CircleGeometry(radius, 24),
+      this.materials.glassPyrex
+    );
+    bottom.rotation.x = Math.PI / 2;
+    beaker.add(bottom);
+
+    // Flared beaded pouring rim & spout
+    const rim = new THREE.Mesh(
+      new THREE.TorusGeometry(radius, 0.002, 6, 24),
+      this.materials.glassPyrex
+    );
+    rim.rotation.x = Math.PI / 2;
+    rim.position.y = height;
+    beaker.add(rim);
+
+    // Beaker pouring spout lip
+    const spout = new THREE.Mesh(
+      new THREE.ConeGeometry(0.008, 0.012, 8),
+      this.materials.glassPyrex
+    );
+    spout.rotation.z = Math.PI / 3;
+    spout.position.set(radius + 0.003, height, 0);
+    beaker.add(spout);
+
+    // Graduation silk marks
+    const gradCanvas = document.createElement("canvas");
+    gradCanvas.width = 128;
+    gradCanvas.height = 256;
+    const gctx = gradCanvas.getContext("2d");
+    gctx.fillStyle = "rgba(0,0,0,0)";
+    gctx.fillRect(0, 0, 128, 256);
+    gctx.fillStyle = "#ffffff";
+    gctx.font = "bold 18px sans-serif";
+    gctx.fillText("PYREX®", 10, 40);
+    gctx.font = "14px monospace";
+    gctx.fillText(volume, 10, 65);
+    for (let l = 1; l <= 5; l++) {
+      const yLine = 220 - l * 30;
+      gctx.fillRect(10, yLine, l % 2 === 0 ? 35 : 20, 2);
+    }
+    const gradTex = new THREE.CanvasTexture(gradCanvas);
+    const gradMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(radius * 1.2, height * 0.7),
+      new THREE.MeshBasicMaterial({ map: gradTex, transparent: true })
+    );
+    gradMesh.position.set(0, height * 0.5, radius + 0.001);
+    beaker.add(gradMesh);
+
+    // Liquid contents & concave meniscus
+    if (fluidMat && fillRatio > 0) {
+      const fHeight = height * fillRatio;
+      const fluid = new THREE.Mesh(
+        new THREE.CylinderGeometry(radius * 0.96, radius * 0.96, fHeight, 24),
+        fluidMat
+      );
+      fluid.position.y = fHeight / 2;
+      beaker.add(fluid);
+
+      const meniscus = new THREE.Mesh(
+        new THREE.TorusGeometry(radius * 0.94, 0.002, 6, 24),
+        fluidMat
+      );
+      meniscus.rotation.x = Math.PI / 2;
+      meniscus.position.y = fHeight;
+      beaker.add(meniscus);
+    }
+
+    this.root.add(beaker);
+    return beaker;
+  }
+
+  // --- Heavy Borosilicate Vacuum Desiccator with Cobalt Silica Gel Beads ---
+  _createVacuumDesiccator(cx, cz) {
+    const desiccator = new THREE.Group();
+    desiccator.position.set(cx, 0.90, cz);
+    desiccator.name = "Vacuum_Desiccator_Glass";
+
+    const rBase = 0.11;
+    const hLower = 0.09;
+    const hFlange = 0.015;
+
+    // Lower hemispherical / cylindrical bowl
+    const lowerBowl = new THREE.Mesh(
+      new THREE.CylinderGeometry(rBase, rBase * 0.85, hLower, 24),
+      this.materials.glassPyrex
+    );
+    lowerBowl.position.y = hLower / 2;
+    desiccator.add(lowerBowl);
+
+    // Cobalt-blue active silica gel indicator desiccant bed in bottom
+    const silicaBed = new THREE.Mesh(
+      new THREE.CylinderGeometry(rBase * 0.82, rBase * 0.82, 0.025, 24),
+      this.materials.silicaGelCobaltBlue
+    );
+    silicaBed.position.y = 0.015;
+    desiccator.add(silicaBed);
+
+    // White Perforated Porcelain Desiccator Plate
+    const plate = new THREE.Mesh(
+      new THREE.CylinderGeometry(rBase * 0.94, rBase * 0.94, 0.008, 24),
+      this.materials.desiccatorPorcelain
+    );
+    plate.position.y = 0.045;
+    desiccator.add(plate);
+
+    // Precision Ground Flat Glass Flange Collar
+    const flange = new THREE.Mesh(
+      new THREE.CylinderGeometry(rBase + 0.02, rBase + 0.02, hFlange, 24),
+      this.materials.glassPyrex
+    );
+    flange.position.y = hLower + hFlange / 2;
+    desiccator.add(flange);
+
+    // Domed Glass Lid with heavy ground glass handle & vacuum stopcock port
+    const dome = new THREE.Mesh(
+      new THREE.SphereGeometry(rBase + 0.005, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2.2),
+      this.materials.glassPyrex
+    );
+    dome.position.y = hLower + hFlange;
+    desiccator.add(dome);
+
+    // Vacuum Stopcock Valve on dome summit
+    const stopcockBody = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.012, 0.012, 0.045, 12),
+      this.materials.glassPyrex
+    );
+    stopcockBody.position.y = hLower + hFlange + 0.095;
+    desiccator.add(stopcockBody);
+
+    const stopcockHandle = new THREE.Mesh(
+      new THREE.BoxGeometry(0.04, 0.01, 0.01),
+      this.materials.screwCapBlue
+    );
+    stopcockHandle.position.y = hLower + hFlange + 0.11;
+    desiccator.add(stopcockHandle);
+
+    desiccator.userData = {
+      isDesiccator: true,
+      label: "Borosilicate Glass Vacuum Desiccator"
+    };
+    desiccator.userData.toggle = () => {
+      labAudio.playButtonClick();
+    };
+
+    this.interactiveObjects.push(desiccator);
+    this.root.add(desiccator);
+  }
+
+  // --- Petri Dishes (Culture Plates) with Agar & Colony Streaks ---
+  _createPetriDishStack(cx, cz) {
+    const stack = new THREE.Group();
+    stack.position.set(cx, 0.90, cz);
+    stack.name = "Petri_Dish_Sterile_Stack";
+
+    // Stack of 4 sterile polystyrene plates
+    for (let p = 0; p < 4; p++) {
+      const yOffset = p * 0.018;
+      const baseDish = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.05, 0.05, 0.014, 24),
+        this.materials.glassPyrex
+      );
+      baseDish.position.y = yOffset + 0.007;
+      stack.add(baseDish);
+
+      const lid = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.052, 0.052, 0.008, 24),
+        this.materials.glassPyrex
+      );
+      lid.position.y = yOffset + 0.015;
+      stack.add(lid);
+    }
+
+    this.root.add(stack);
+  }
+
+  _createSinglePetriDish(cx, cz, label, agarMat, isStreaked = false) {
+    const dish = new THREE.Group();
+    dish.position.set(cx, 0.90, cz);
+    dish.name = `Petri_Dish_${label}`;
+
+    const rDish = 0.05;
+
+    // Bottom plate
+    const baseDish = new THREE.Mesh(
+      new THREE.CylinderGeometry(rDish, rDish, 0.014, 24),
+      this.materials.glassPyrex
+    );
+    baseDish.position.y = 0.007;
+    dish.add(baseDish);
+
+    // Agar bed layer (3mm thickness)
+    const agar = new THREE.Mesh(
+      new THREE.CylinderGeometry(rDish * 0.96, rDish * 0.96, 0.005, 24),
+      agarMat
+    );
+    agar.position.y = 0.004;
+    dish.add(agar);
+
+    // Microbial four-quadrant streak pattern
+    if (isStreaked) {
+      const streakCanvas = document.createElement("canvas");
+      streakCanvas.width = 256;
+      streakCanvas.height = 256;
+      const sctx = streakCanvas.getContext("2d");
+      sctx.fillStyle = "rgba(0,0,0,0)";
+      sctx.fillRect(0, 0, 256, 256);
+
+      // Primary dense streak
+      sctx.strokeStyle = "#fef08a";
+      sctx.lineWidth = 3;
+      for (let s = 0; s < 8; s++) {
+        sctx.beginPath();
+        sctx.moveTo(30 + s * 8, 40);
+        sctx.lineTo(80 + s * 6, 110);
+        sctx.stroke();
+      }
+
+      // Secondary zigzag dilution
+      sctx.lineWidth = 2;
+      for (let s = 0; s < 6; s++) {
+        sctx.beginPath();
+        sctx.moveTo(80, 110 + s * 8);
+        sctx.lineTo(160, 140 + s * 6);
+        sctx.stroke();
+      }
+
+      // Single isolated colony forming units (CFUs)
+      sctx.fillStyle = "#ffffff";
+      const colonies = [
+        [180, 180], [195, 175], [210, 190], [170, 205], [190, 220], [165, 160]
+      ];
+      colonies.forEach(([x, y]) => {
+        sctx.beginPath();
+        sctx.arc(x, y, 4, 0, Math.PI * 2);
+        sctx.fill();
+      });
+
+      const streakTex = new THREE.CanvasTexture(streakCanvas);
+      const streakPlane = new THREE.Mesh(
+        new THREE.PlaneGeometry(rDish * 1.8, rDish * 1.8),
+        new THREE.MeshBasicMaterial({ map: streakTex, transparent: true })
+      );
+      streakPlane.rotation.x = -Math.PI / 2;
+      streakPlane.position.y = 0.0075;
+      dish.add(streakPlane);
+    }
+
+    // Top Cover Lid (Slightly tilted open for culture aeration)
+    const lid = new THREE.Mesh(
+      new THREE.CylinderGeometry(rDish * 1.04, rDish * 1.04, 0.008, 24),
+      this.materials.glassPyrex
+    );
+    lid.rotation.z = 0.08; // Natural tilt
+    lid.position.set(0.004, 0.016, 0);
+    dish.add(lid);
+
+    dish.userData = {
+      isPetriDish: true,
+      label
+    };
+    dish.userData.toggle = () => {
+      labAudio.playButtonClick();
+    };
+
+    this.interactiveObjects.push(dish);
+    this.root.add(dish);
+  }
+
+  // --- Classical Pipette Stand with Volumetric & Mohr Pipettes ---
+  _createPipetteStand(cx, cz) {
+    const stand = new THREE.Group();
+    stand.position.set(cx, 0.90, cz);
+    stand.name = "Pipette_Stand_Rotary";
+
+    // Weighted circular base
+    const base = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.07, 0.08, 0.018, 20),
+      this.materials.cabinetBody
+    );
+    base.position.y = 0.009;
+    stand.add(base);
+
+    // Center vertical support rod
+    const rod = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.008, 0.008, 0.44, 16),
+      this.materials.chrome
+    );
+    rod.position.y = 0.22;
+    stand.add(rod);
+
+    // Rotary upper pipette retaining disk with radial slots
+    const upperDisk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.075, 0.075, 0.012, 20),
+      this.materials.ppBlueRack
+    );
+    upperDisk.position.y = 0.38;
+    stand.add(upperDisk);
+
+    // Suspended glass pipettes (Class A 25mL, 10mL, 5mL and Mohr measuring pipettes)
+    const pipettes = [
+      { r: 0.05, angle: 0, len: 0.38, hasBulb: true, bulbMat: this.materials.stopperRedRubber },
+      { r: 0.05, angle: Math.PI / 2, len: 0.34, hasBulb: false, filler: true },
+      { r: 0.05, angle: Math.PI, len: 0.40, hasBulb: true, bulbMat: this.materials.stopperRedRubber },
+      { r: 0.05, angle: Math.PI * 1.5, len: 0.32, hasBulb: false, filler: true }
+    ];
+
+    pipettes.forEach((p, idx) => {
+      const px = Math.cos(p.angle) * p.r;
+      const pz = Math.sin(p.angle) * p.r;
+
+      const pipGroup = new THREE.Group();
+      pipGroup.position.set(px, 0.20, pz);
+
+      // Slender glass pipette stem
+      const stem = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.004, 0.002, p.len, 12),
+        this.materials.glassPyrex
+      );
+      pipGroup.add(stem);
+
+      // Spherical central reservoir bulb (for volumetric pipettes)
+      if (p.hasBulb) {
+        const midBulb = new THREE.Mesh(
+          new THREE.SphereGeometry(0.012, 12, 12),
+          this.materials.glassPyrex
+        );
+        midBulb.scale.set(1, 2.2, 1);
+        midBulb.position.y = 0;
+        pipGroup.add(midBulb);
+
+        // Red rubber suction filler bulb on top
+        const suctionBulb = new THREE.Mesh(
+          new THREE.SphereGeometry(0.016, 12, 12),
+          p.bulbMat
+        );
+        suctionBulb.scale.set(1, 1.4, 1);
+        suctionBulb.position.y = p.len / 2 + 0.015;
+        pipGroup.add(suctionBulb);
+      } else if (p.filler) {
+        // Green thumbwheel pipette pump
+        const pump = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.010, 0.010, 0.065, 12),
+          this.materials.screwCapGreen
+        );
+        pump.position.y = p.len / 2 + 0.025;
+        pipGroup.add(pump);
+      }
+
+      stand.add(pipGroup);
+    });
+
+    this.root.add(stand);
+  }
+
+  // --- Büchner Vacuum Filtration Flask & Porcelain Funnel ---
+  _createBuchnerFilterFlask(cx, cz) {
+    const assembly = new THREE.Group();
+    assembly.position.set(cx, 0.90, cz);
+    assembly.name = "Buchner_Vacuum_Filtration_Setup";
+
+    const rBottom = 0.065;
+    const rTop = 0.022;
+    const hCone = 0.14;
+    const hNeck = 0.045;
+
+    // Heavy-wall Erlenmeyer filter flask body
+    const body = new THREE.Mesh(
+      new THREE.CylinderGeometry(rTop, rBottom, hCone, 18, 1, true),
+      this.materials.glassPyrex
+    );
+    body.position.y = hCone / 2;
+    assembly.add(body);
+
+    const base = new THREE.Mesh(new THREE.CircleGeometry(rBottom, 18), this.materials.glassPyrex);
+    base.rotation.x = Math.PI / 2;
+    assembly.add(base);
+
+    // Neck
+    const neck = new THREE.Mesh(
+      new THREE.CylinderGeometry(rTop, rTop, hNeck, 18, 1, true),
+      this.materials.glassPyrex
+    );
+    neck.position.y = hCone + hNeck / 2;
+    assembly.add(neck);
+
+    // Side-arm vacuum tubulure barb extending at 90 degrees
+    const tubulure = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.005, 0.005, 0.035, 12),
+      this.materials.glassPyrex
+    );
+    tubulure.rotation.z = Math.PI / 2;
+    tubulure.position.set(rTop + 0.015, hCone + hNeck * 0.45, 0);
+    assembly.add(tubulure);
+
+    // Thick-wall vacuum rubber tubing connecting from side-arm
+    const vacHoseCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(rTop + 0.035, hCone + hNeck * 0.45, 0),
+      new THREE.Vector3(rTop + 0.08, hCone + 0.01, 0.04),
+      new THREE.Vector3(rTop + 0.12, 0.02, 0.08)
+    ]);
+    const vacHose = new THREE.Mesh(
+      new THREE.TubeGeometry(vacHoseCurve, 16, 0.008, 8, false),
+      this.materials.cabinetBody
+    );
+    assembly.add(vacHose);
+
+    // Neoprene black adapter gasket collar
+    const collar = new THREE.Mesh(
+      new THREE.CylinderGeometry(rTop * 1.05, rTop * 0.95, 0.018, 18),
+      this.materials.cabinetBody
+    );
+    collar.position.y = hCone + hNeck + 0.008;
+    assembly.add(collar);
+
+    // White Glazed Porcelain Büchner Funnel
+    const funnelStem = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.008, 0.008, 0.055, 12),
+      this.materials.desiccatorPorcelain
+    );
+    funnelStem.position.y = hCone + hNeck;
+    assembly.add(funnelStem);
+
+    const funnelBowl = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.05, 0.025, 0.045, 24),
+      this.materials.desiccatorPorcelain
+    );
+    funnelBowl.position.y = hCone + hNeck + 0.04;
+    assembly.add(funnelBowl);
+
+    // Circular white filter paper disk inside funnel
+    const filterPaper = new THREE.Mesh(
+      new THREE.CircleGeometry(0.042, 24),
+      new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 })
+    );
+    filterPaper.rotation.x = -Math.PI / 2;
+    filterPaper.position.y = hCone + hNeck + 0.042;
+    assembly.add(filterPaper);
+
+    // Crystal precipitate cake on filter paper
+    const cake = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.038, 0.038, 0.008, 20),
+      new THREE.MeshStandardMaterial({ color: 0xfef08a, roughness: 0.85 })
+    );
+    cake.position.y = hCone + hNeck + 0.046;
+    assembly.add(cake);
+
+    assembly.userData = {
+      isFilterFlask: true,
+      label: "Büchner Vacuum Filtration System"
+    };
+    assembly.userData.toggle = () => {
+      labAudio.playButtonClick();
+    };
+
+    this.interactiveObjects.push(assembly);
+    this.root.add(assembly);
   }
 
   // --- Volumetric Flask (Pear-shaped body, calibration ring, ground pennyhead stopper) ---
@@ -1175,28 +1987,1390 @@ export class LabUtilities {
     this.root.add(beakerGroup);
   }
 
-  // --- Benchtop Duplex Power Outlets ---
+  // --- High-Fidelity Benchtop Duplex Power Outlets (Power_Receptacle_Duplex) ---
   _buildDuplexPowerOutlets() {
-    // Outlets mounted on the backsplashes of all main benches
     const outletPositions = [
-      [-12.0, -4.5], [-8.0, -4.5], // Analytical Island
-      [-4.0, -4.5], [0.0, -4.5],   // Pharma QC Island
-      [-12.0, 5.0], [-8.0, 5.0],   // Synthesis Island
-      [-2.0, 5.0], [1.0, 5.0]      // Sample Prep Island
+      [-12.0, -4.5], [-10.0, -4.5], [-8.0, -4.5], // Analytical Island
+      [-4.0, -4.5], [-2.0, -4.5], [0.0, -4.5],    // Pharma QC Island
+      [-2.0, 5.0], [-0.5, 5.0], [1.0, 5.0], [2.0, 5.0], // Sample Prep Island
+      [-12.0, 5.0], [-8.0, 5.0], // Synthesis Island
+      [-13.0, -8.2], [-7.0, -8.2] // Perimeter Wet & Furnace Benches
     ];
 
     outletPositions.forEach(([ox, oz], i) => {
-      const outletBox = new THREE.Mesh(
-        new THREE.BoxGeometry(0.07, 0.11, 0.04),
-        new THREE.MeshStandardMaterial({ color: 0xd8dde4, roughness: 0.35, metalness: 0.4 })
+      const group = new THREE.Group();
+      group.position.set(ox, 1.05, oz);
+      group.name = `Power_Receptacle_Duplex_${i + 1}`;
+
+      // Galvanized deep junction box
+      const jBox = new THREE.Mesh(
+        new THREE.BoxGeometry(0.08, 0.125, 0.045),
+        new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.35, metalness: 0.85 })
       );
-      outletBox.position.set(ox, 1.05, oz);
-      outletBox.name = `Power_Receptacle_Duplex_${i + 1}`;
-      this.root.add(outletBox);
+      group.add(jBox);
+
+      // Brushed Stainless Steel Architectural Beveled Faceplate
+      const plate = new THREE.Mesh(
+        new THREE.BoxGeometry(0.075, 0.12, 0.006),
+        new THREE.MeshStandardMaterial({ color: 0xd8dde4, roughness: 0.22, metalness: 0.9 })
+      );
+      plate.position.z = 0.024;
+      group.add(plate);
+
+      // Upper and Lower NEMA 5-15R Receptacle faces
+      [-0.028, 0.028].forEach((ry) => {
+        const socketFace = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.016, 0.016, 0.003, 16),
+          new THREE.MeshStandardMaterial({ color: 0x1e242d, roughness: 0.7 })
+        );
+        socketFace.rotation.x = Math.PI / 2;
+        socketFace.position.set(0, ry, 0.027);
+        group.add(socketFace);
+
+        // Ground hole (D-shaped)
+        const gHole = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.0025, 0.0025, 0.004, 8),
+          new THREE.MeshBasicMaterial({ color: 0x050709 })
+        );
+        gHole.rotation.x = Math.PI / 2;
+        gHole.position.set(0, ry - 0.007, 0.029);
+        group.add(gHole);
+
+        // Hot and Neutral Parallel Slots
+        [-0.0045, 0.0045].forEach((sx, sIdx) => {
+          const slot = new THREE.Mesh(
+            new THREE.BoxGeometry(0.0015, sIdx === 0 ? 0.0065 : 0.0055, 0.004),
+            new THREE.MeshBasicMaterial({ color: 0x050709 })
+          );
+          slot.position.set(sx, ry + 0.004, 0.029);
+          group.add(slot);
+        });
+      });
+
+      // GFCI Test and Reset buttons with green status LED
+      const testBtn = new THREE.Mesh(
+        new THREE.BoxGeometry(0.012, 0.006, 0.003),
+        new THREE.MeshStandardMaterial({ color: 0x111827 })
+      );
+      testBtn.position.set(-0.01, 0, 0.028);
+      group.add(testBtn);
+
+      const resetBtn = new THREE.Mesh(
+        new THREE.BoxGeometry(0.012, 0.006, 0.003),
+        new THREE.MeshStandardMaterial({ color: 0xdc2626 })
+      );
+      resetBtn.position.set(0.01, 0, 0.028);
+      group.add(resetBtn);
+
+      const statusLED = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.0015, 0.0015, 0.003, 8),
+        new THREE.MeshStandardMaterial({ color: 0x10b981, emissive: 0x10b981, emissiveIntensity: 0.9 })
+      );
+      statusLED.rotation.x = Math.PI / 2;
+      statusLED.position.set(0, -0.012, 0.028);
+      group.add(statusLED);
+
+      this.root.add(group);
     });
   }
 
-  // Animation step called in RAF loop
+// --- Dedicated Instrument Workstation Surroundings & Accessories ---
+  _buildInstrumentWorkstationSurroundings() {
+    const BENCH_Y = 0.90;
+
+    // 1. Shimadzu UV-2600i Spectrophotometer Station (X = -12.2, Z = -4.0)
+    // Analytical PC Workstation running UV-Vis LabSolutions
+    this._createAnalyticalPCWorkstation(-13.2, -4.0, 0, "twin-dashboard");
+    // Kimwipes Delicate Task Wiper Box
+    this._createKimwipesBox(-11.5, -3.9, 0.15);
+    // Velvet-Lined Quartz Cuvette Case
+    this._createCuvetteBox(-11.5, -4.18);
+    // Calibration Standard Solution Flask
+    this._createVolumetricFlask(-11.2, -4.0, "100 mL", this.materials.fluidBlue);
+    // Power Cord & RS-232 Cable
+    this._createEquipmentPowerCord("spectrophotometer", -12.2, BENCH_Y + 0.12, -4.25, -12.0, 1.05, -4.5);
+    this._createCommunicationCable(-12.2, BENCH_Y + 0.10, -4.25, -13.2, BENCH_Y + 0.20, -4.3, "serial");
+
+    // 2. Thermo Nicolet iS50 FTIR Spectrometer Station (X = -10.2, Z = -4.0)
+    // Analytical PC Workstation running OMNIC Spectra
+    this._createAnalyticalPCWorkstation(-11.1, -4.0, 0, "chromatogram-uv");
+    // Polished Agate Mortar & Pestle for Solid Grinding
+    this._createAgateMortarPestle(-9.6, -3.9);
+    // KBr Pellet Die Press Kit
+    this._createKBrPelletPress(-9.6, -4.2);
+    // Wash Bottle for ATR Diamond Cleaning (Ethanol)
+    this._createWashBottle(-9.3, -4.0, "ETHANOL 99%", this.materials.screwCapGreen);
+    // Kimwipes box
+    this._createKimwipesBox(-9.3, -4.22, 0);
+    // Power Cord & USB Cable
+    this._createEquipmentPowerCord("ftir", -10.2, BENCH_Y + 0.14, -4.25, -10.0, 1.05, -4.5);
+    this._createCommunicationCable(-10.2, BENCH_Y + 0.10, -4.25, -11.1, BENCH_Y + 0.20, -4.3, "cat6");
+
+    // 3. Metrohm 901 Karl Fischer Titrator Station (X = -8.2, Z = -4.0)
+    // Hamilton 100 uL Gastight Microsyringe
+    this._createMicrosyringe(-8.7, -3.9);
+    // Hydranal Composite 5 Reagent Bottle with Delivery Tubing
+    this._createKarlFischerReagentBottle(-8.7, -4.2);
+    // Waste Solvent Bottle with PTFE Discharge Line
+    this._createWinchesterSolventBottle(-7.7, 0.90, -4.2, "KF TITRATION WASTE", "HAZARDOUS");
+    // Indicating Silica Gel Drying Tube Towers
+    this._createDryingTubesTower(-7.7, -3.9);
+    // Power Cord
+    this._createEquipmentPowerCord("karl_fischer", -8.2, BENCH_Y + 0.12, -4.25, -8.0, 1.05, -4.5);
+
+    // 4. Agilent 708-DS USP Dissolution Tester Station (X = -4.0, Z = -4.0)
+    // USP Reference Tablets Blister Pack
+    this._createTabletBlisterPack(-4.7, -3.9);
+    // Cannulas with Syringe Filters Rack
+    this._createCannulaFilterRack(-4.7, -4.2);
+    // 1000 mL Dissolution Media Buffer Flask
+    this._createVolumetricFlask(-3.3, -4.0, "1000 mL", this.materials.reagentFluidClear);
+    // Digital PT100 Immersion Thermometer
+    this._createDigitalThermometer(-3.3, -4.2);
+    // Heavy Power Cord
+    this._createEquipmentPowerCord("dissolution_tester", -4.0, BENCH_Y + 0.22, -4.35, -4.0, 1.05, -4.5);
+
+    // 5. ERWEKA ZT 322 Tablet Disintegration Tester Station (X = -2.0, Z = -4.0)
+    // Disintegration Baskets with Wire Mesh Screens
+    this._createDisintegrationBaskets(-2.6, -3.9);
+    // Acrylic Disintegration Fluted Guide Disks
+    this._createDisintegrationDisks(-2.6, -4.18);
+    // Digital Stopwatch / Chronometer
+    this._createDigitalStopwatch(-1.4, -3.9);
+    // Tall Beakers in Bath
+    this._createGriffinBeaker(-1.4, -4.18, "1000 mL", this.materials.reagentFluidClear, 0.7);
+    // Power Cord
+    this._createEquipmentPowerCord("disintegration_tester", -2.0, BENCH_Y + 0.15, -4.3, -2.0, 1.05, -4.5);
+
+    // 6. Mettler Analytical Microbalance Station (X = 0.0, Z = -4.0)
+    // Class E2 Stainless Steel Weights Wooden Box with Ivory Forceps
+    this._createCalibrationWeightsBox(-0.6, -3.9);
+    // Aluminum Fluted Weighing Boats Stack & Spatulas
+    this._createWeighingBoatsStack(-0.6, -4.2);
+    // Anti-Static Camel Hair Dusting Brush
+    this._createAntiStaticBrush(0.55, -3.9);
+    // Ground Glass Weighing Bottle
+    this._createWeighingBottle(0.55, -4.18);
+    // Power Cord
+    this._createEquipmentPowerCord("balance", 0.0, BENCH_Y + 0.10, -4.25, 0.0, 1.05, -4.5);
+
+    // 7. MICRO 5424-R Microcentrifuge Station (X = -2.2, Z = 4.4)
+    // 24-Place Tube Rack loaded with 1.5mL and 2.0mL Eppendorf tubes
+    this._createEppendorfRack(-2.8, 4.4, this.materials.ppBlueRack);
+    // Fine-Point Indelible Lab Marker
+    this._createLabMarker(-1.6, 4.3);
+    // Colored Balance Counterweight Tubes
+    this._createTestTubeRack(-1.6, 4.55, this.materials.ppOrangeRack);
+    // Heavy Power Cord
+    this._createEquipmentPowerCord("centrifuge", -2.2, BENCH_Y + 0.15, 4.75, -2.0, 1.05, 5.0);
+
+    // 8. Labconco FreeZone 4.5L Freeze Dryer (Lyophilizer) Station (X = -0.5, Z = 4.4)
+    // Borosilicate Freeze-Drying Flasks with Silicone Rubber Adapters
+    this._createFreezeDryerFlask(-1.1, 4.4);
+    // 20 mL Serum Vials with Gray Chlorobutyl Split Stoppers
+    this._createSerumVialsTray(0.1, 4.4);
+    // Handheld Vial Crimper Tool
+    this._createVialCrimper(0.1, 4.65);
+    // Heavy Power Cord
+    this._createEquipmentPowerCord("freeze_dryer", -0.5, BENCH_Y + 0.22, 4.75, -0.5, 1.05, 5.0);
+
+    // 9. Ultrasonic Cleaner Bath Station (X = 1.0, Z = 4.4)
+    // Perforated Stainless Parts Basket
+    this._createUltrasonicBasket(1.6, 4.35);
+    // Squeeze Wash Bottle of Degassing Detergent
+    this._createWashBottle(1.6, 4.65, "SONIC CLEAN", this.materials.screwCapYellow);
+    // Power Cord
+    this._createEquipmentPowerCord("ultrasonic_cleaner", 1.0, BENCH_Y + 0.12, 4.75, 1.0, 1.05, 5.0);
+
+    // 10. Digital Vortex Mixer Station (X = 2.0, Z = 4.4)
+    // 12-Tube Foam Insert Rack with Colored Solution Tubes
+    this._createVortexFoamRack(2.5, 4.4);
+    // Power Cord
+    this._createEquipmentPowerCord("vortex_mixer", 2.0, BENCH_Y + 0.08, 4.7, 2.0, 1.05, 5.0);
+
+    // 11. Buchi Rotovap R-300 & V-300 Vacuum Pump Station in Fume Hood 1 (X = -13.5, Z = 8.05)
+    // Keck Ground Glass Joint Clips (Green 24/40 and Yellow 14/20)
+    this._createKeckClipsSet(-13.0, 8.0);
+    // Molded Natural Cork Receiving Flask Support Ring
+    this._createCorkFlaskRing(-13.0, 8.25);
+    // Vacuum Grease Syringe
+    this._createVacuumGreaseSyringe(-13.9, 7.95);
+    // Vacuum Hose linking Rotovap to V-300 Pump
+    this._createVacuumHoseInterconnect(-13.3, BENCH_Y + 0.40, 8.1, -12.8, BENCH_Y + 0.25, 8.05);
+
+    // 12. Digital Ceramic Hotplate Stirrer Station in Fume Hood 2 (X = -9.8, Z = 8.05)
+    // PT1000 Temperature Probe on Bosshead Clamp Stand
+    this._createHotplateClampStand(-9.4, 8.05);
+    // Magnetic Stir Bar Acrylic Storage Box with assorted stir bars
+    this._createMagneticStirBarBox(-10.2, 7.95);
+    // Magnetic Stir Bar Retriever Wand
+    this._createStirBarRetriever(-10.2, 8.25);
+
+    // 13. Parr 4560 High-Pressure Reactor Station in Fume Hood 2 (X = -9.1, Z = 8.05)
+    // Braided Stainless Flexible Pigtail Hose to Gas Supply
+    this._createBraidedPigtailHose(-9.1, BENCH_Y + 0.35, 8.05, -8.6, BENCH_Y + 0.55, 8.3);
+    // Calibrated Click-Type Torque Wrench for Head Bolts
+    this._createTorqueWrench(-8.7, 7.95);
+
+    // 14. High-Temperature Muffle Furnace Station (X = -13.0, Z = -8.2)
+    // High-Purity Alumina Ceramic Crucibles with Lids
+    this._createCeramicCrucibles(-12.4, -8.15);
+    // Heavy 24-inch Stainless Steel Crucible Tongs
+    this._createCrucibleTongs(-12.4, -8.35);
+    // Aluminized Kevlar Heat-Resistant Furnace Gloves
+    this._createFurnaceGloves(-13.6, -8.2);
+
+    // 15. MBraun Inert Atmosphere Glove Box Station (X = 5.5, Z = -4.5)
+    // Dual High-Pressure Argon / Nitrogen Gas Cylinders with Wall Safety Chains
+    this._createGasCylinderBank(6.5, -4.5);
+    // Antechamber Sliding Sample Transfer Tray
+    this._createAntechamberTray(4.8, -4.5);
+
+    // 16. Benchtop Dual pH / mV Meter Station (X = -7.0, Z = -8.2)
+    // NIST Calibration Buffer Solutions (pH 4.00 Red, pH 7.00 Yellow, pH 10.01 Blue)
+    this._createPHBufferSet(-6.4, -8.15);
+    // Electrode Storage Beaker with 3M KCl
+    this._createGriffinBeaker(-6.4, -8.35, "50 mL", this.materials.reagentFluidClear, 0.6);
+    // DI Water Wash Bottle & Kimwipes Box
+    this._createWashBottle(-7.6, -8.15, "DI WATER", this.materials.screwCapBlue);
+    this._createKimwipesBox(-7.6, -8.35, 0);
+
+    // 17. Zeiss Gemini FE-SEM Station (X = 5.0, Z = -1.8)
+    // Specimen Stub Box holding 12.7mm aluminum pin stubs
+    this._createSEMStubBox(4.4, -1.6);
+    // Carbon Conductive Adhesive Tape & Colloidal Silver Paint
+    this._createCarbonTapeAndSilverPaint(4.4, -1.9);
+    // Titanium Precision Tweezers
+    this._createPrecisionTweezers(4.4, -2.1);
+    // Gold/Palladium Sputter Coater Chamber Nearby
+    this._createSputterCoaterChamber(5.6, -2.5);
+  }
+
+  // --- PC Workstation for Analytical Instruments ---
+  _createAnalyticalPCWorkstation(cx, cz, rotY = 0, screenType = "twin-dashboard") {
+    const pcGroup = new THREE.Group();
+    pcGroup.position.set(cx, 0.90, cz);
+    pcGroup.rotation.y = rotY;
+    pcGroup.name = "Analytical_PC_Workstation";
+
+    // 27" Thin-Bezel Workstation Monitor
+    const stand = new THREE.Mesh(
+      new THREE.BoxGeometry(0.18, 0.008, 0.16),
+      this.materials.cabinetHandle
+    );
+    stand.position.set(0, 0.004, -0.05);
+    pcGroup.add(stand);
+
+    const post = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.015, 0.015, 0.28, 12),
+      this.materials.cabinetHandle
+    );
+    post.position.set(0, 0.14, -0.07);
+    pcGroup.add(post);
+
+    const monFrame = new THREE.Mesh(
+      new THREE.BoxGeometry(0.60, 0.36, 0.02),
+      this.materials.screenBezelMetal
+    );
+    monFrame.position.set(0, 0.26, -0.03);
+    pcGroup.add(monFrame);
+
+    // High-DPI Canvas Screen Texture
+    const screenFace = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.58, 0.34),
+      new THREE.MeshBasicMaterial({ color: 0x0f172a })
+    );
+    screenFace.position.set(0, 0.26, -0.019);
+    pcGroup.add(screenFace);
+
+    // Full-Size Slim Keyboard with Chiclet Keys
+    const kbd = new THREE.Mesh(
+      new THREE.BoxGeometry(0.42, 0.012, 0.14),
+      this.materials.screenBezelMetal
+    );
+    kbd.position.set(0, 0.006, 0.12);
+    pcGroup.add(kbd);
+
+    // Laser Optical Mouse on Textured Neoprene Mousepad
+    const pad = new THREE.Mesh(
+      new THREE.BoxGeometry(0.20, 0.002, 0.18),
+      this.materials.leatherBlack
+    );
+    pad.position.set(0.28, 0.001, 0.12);
+    pcGroup.add(pad);
+
+    const mouse = new THREE.Mesh(
+      new THREE.BoxGeometry(0.06, 0.02, 0.10),
+      this.materials.screenBezelMetal
+    );
+    mouse.position.set(0.28, 0.01, 0.12);
+    pcGroup.add(mouse);
+
+    // Small Form Factor (SFF) Laboratory Desktop PC Tower
+    const tower = new THREE.Mesh(
+      new THREE.BoxGeometry(0.12, 0.32, 0.32),
+      this.materials.pcTowerSteel
+    );
+    tower.position.set(-0.35, 0.16, -0.05);
+    pcGroup.add(tower);
+
+    // Power LED & Front USB Ports on PC Tower
+    const pwrLED = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.003, 0.003, 0.004, 8),
+      this.materials.telDigitalGreen
+    );
+    pwrLED.rotation.x = Math.PI / 2;
+    pwrLED.position.set(-0.35, 0.28, 0.111);
+    pcGroup.add(pwrLED);
+
+    this.root.add(pcGroup);
+  }
+
+  // --- Iconic Green/White Kimwipes EX-L Pop-Up Box ---
+  _createKimwipesBox(cx, cz, rotY = 0) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+    group.rotation.y = rotY;
+    group.name = "Kimwipes_Box";
+
+    const boxW = 0.12;
+    const boxH = 0.07;
+    const boxD = 0.12;
+
+    const box = new THREE.Mesh(
+      new THREE.BoxGeometry(boxW, boxH, boxD),
+      this.materials.kimwipesGreen
+    );
+    box.position.y = boxH / 2;
+    group.add(box);
+
+    // White pop-up tissue opening
+    const tissue = new THREE.Mesh(
+      new THREE.BoxGeometry(0.045, 0.025, 0.02),
+      this.materials.kimwipesWhite
+    );
+    tissue.position.set(0, boxH + 0.01, 0);
+    tissue.rotation.y = 0.3;
+    group.add(tissue);
+
+    this.root.add(group);
+  }
+
+  // --- Velvet-Lined Quartz Cuvette Case ---
+  _createCuvetteBox(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+    group.name = "Cuvette_Storage_Box";
+
+    // Wooden velvet-lined box base
+    const box = new THREE.Mesh(
+      new THREE.BoxGeometry(0.10, 0.035, 0.08),
+      this.materials.weightWoodBox
+    );
+    box.position.y = 0.0175;
+    group.add(box);
+
+    const velvet = new THREE.Mesh(
+      new THREE.BoxGeometry(0.09, 0.01, 0.07),
+      this.materials.cuvetteVelvet
+    );
+    velvet.position.y = 0.032;
+    group.add(velvet);
+
+    // Two 10mm Pathlength Optical Quartz Cuvettes
+    [-0.02, 0.02].forEach((qx) => {
+      const cuvette = new THREE.Mesh(
+        new THREE.BoxGeometry(0.012, 0.045, 0.012),
+        this.materials.cuvetteQuartz
+      );
+      cuvette.position.set(qx, 0.035, 0);
+      group.add(cuvette);
+
+      // White Teflon stopper cap
+      const cap = new THREE.Mesh(
+        new THREE.BoxGeometry(0.013, 0.008, 0.013),
+        this.materials.kimwipesWhite
+      );
+      cap.position.set(qx, 0.06, 0);
+      group.add(cap);
+    });
+
+    this.root.add(group);
+  }
+
+  // --- Polished Agate Mortar & Pestle ---
+  _createAgateMortarPestle(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+    group.name = "Agate_Mortar_Pestle";
+
+    // Heavy hexagonal/round agate mortar bowl
+    const mortar = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.055, 0.04, 0.045, 16),
+      this.materials.agateStone
+    );
+    mortar.position.y = 0.0225;
+    group.add(mortar);
+
+    // Agate pestle resting angled inside bowl
+    const pestle = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.012, 0.018, 0.09, 12),
+      this.materials.agateStone
+    );
+    pestle.position.set(0.01, 0.04, 0.01);
+    pestle.rotation.z = 0.45;
+    pestle.rotation.x = 0.2;
+    group.add(pestle);
+
+    this.root.add(group);
+  }
+
+  // --- KBr Pellet Die Press Kit ---
+  _createKBrPelletPress(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+    group.name = "KBr_Pellet_Die_Press";
+
+    const base = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.035, 0.038, 0.06, 16),
+      this.materials.cabinetHandle
+    );
+    base.position.y = 0.03;
+    group.add(base);
+
+    const anvil = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.014, 0.014, 0.04, 12),
+      this.materials.weightChrome
+    );
+    anvil.position.y = 0.07;
+    group.add(anvil);
+
+    this.root.add(group);
+  }
+
+  // --- Hamilton 100 uL Precision Microsyringe ---
+  _createMicrosyringe(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+    group.name = "Hamilton_Microsyringe";
+
+    // Glass barrel
+    const barrel = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.005, 0.005, 0.12, 10),
+      this.materials.glassPyrex
+    );
+    barrel.rotation.z = Math.PI / 2;
+    barrel.position.set(0, 0.006, 0);
+    group.add(barrel);
+
+    // Stainless plunger with button
+    const plunger = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.002, 0.002, 0.06, 8),
+      this.materials.cabinetHandle
+    );
+    plunger.rotation.z = Math.PI / 2;
+    plunger.position.set(-0.08, 0.006, 0);
+    group.add(plunger);
+
+    // Stainless needle (bevel tip)
+    const needle = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.0008, 0.0008, 0.05, 6),
+      this.materials.cabinetHandle
+    );
+    needle.rotation.z = Math.PI / 2;
+    needle.position.set(0.085, 0.006, 0);
+    group.add(needle);
+
+    this.root.add(group);
+  }
+
+  // --- Karl Fischer Reagent Bottle with PTFE Tubing ---
+  _createKarlFischerReagentBottle(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+    group.name = "Hydranal_Reagent_Bottle";
+
+    // Amber 1L Schott GL45 bottle
+    const bottle = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.048, 0.048, 0.18, 16),
+      this.materials.amberGlass
+    );
+    bottle.position.y = 0.09;
+    group.add(bottle);
+
+    // GL45 Screw Cap with 2-port PTFE adapter
+    const cap = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.024, 0.024, 0.025, 16),
+      this.materials.screwCapBlue
+    );
+    cap.position.y = 0.19;
+    group.add(cap);
+
+    // PTFE discharge tubing curving toward instrument
+    const curve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0, 0.20, 0),
+      new THREE.Vector3(0.08, 0.28, 0.05),
+      new THREE.Vector3(0.22, 0.25, 0.08),
+      new THREE.Vector3(0.38, 0.22, 0.10)
+    ]);
+    const tube = new THREE.Mesh(
+      new THREE.TubeGeometry(curve, 16, 0.004, 8, false),
+      this.materials.reagentFluidClear
+    );
+    group.add(tube);
+
+    this.root.add(group);
+  }
+
+  // --- Indicating Silica Gel Drying Tubes Tower ---
+  _createDryingTubesTower(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+    group.name = "Drying_Tubes_Tower";
+
+    const tube = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.015, 0.015, 0.16, 12),
+      this.materials.glassPyrex
+    );
+    tube.position.y = 0.08;
+    group.add(tube);
+
+    // Orange silica gel beads
+    const beads = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.013, 0.013, 0.13, 12),
+      this.materials.silicaGelCobaltBlue
+    );
+    beads.position.y = 0.075;
+    group.add(beads);
+
+    this.root.add(group);
+  }
+
+  // --- USP Reference Tablet Blister Pack ---
+  _createTabletBlisterPack(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+    group.name = "USP_Tablet_Blister_Pack";
+
+    const foil = new THREE.Mesh(
+      new THREE.BoxGeometry(0.12, 0.002, 0.08),
+      this.materials.cabinetHandle
+    );
+    foil.position.y = 0.001;
+    group.add(foil);
+
+    // 6 Blister tablet bubbles
+    for (let r = 0; r < 2; r++) {
+      for (let c = 0; c < 3; c++) {
+        const bubble = new THREE.Mesh(
+          new THREE.SphereGeometry(0.008, 10, 8, 0, Math.PI * 2, 0, Math.PI / 2),
+          this.materials.cuvetteQuartz
+        );
+        bubble.position.set(-0.035 + c * 0.035, 0.002, -0.02 + r * 0.04);
+        group.add(bubble);
+      }
+    }
+
+    this.root.add(group);
+  }
+
+  // --- Cannula Sampling Syringe Filters Rack ---
+  _createCannulaFilterRack(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+    group.name = "Cannula_Filter_Rack";
+
+    const stand = new THREE.Mesh(
+      new THREE.BoxGeometry(0.08, 0.08, 0.08),
+      this.materials.ppBlueRack
+    );
+    stand.position.y = 0.04;
+    group.add(stand);
+
+    // 6 stainless cannulas with yellow syringe filters
+    for (let i = 0; i < 6; i++) {
+      const px = -0.025 + (i % 3) * 0.025;
+      const pz = -0.02 + Math.floor(i / 3) * 0.04;
+
+      const filter = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.008, 0.008, 0.005, 12),
+        this.materials.screwCapYellow
+      );
+      filter.position.set(px, 0.085, pz);
+      group.add(filter);
+
+      const cannula = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.0015, 0.0015, 0.12, 8),
+        this.materials.cabinetHandle
+      );
+      cannula.position.set(px, 0.14, pz);
+      group.add(cannula);
+    }
+
+    this.root.add(group);
+  }
+
+  // --- Digital Immersion Bath Thermometer ---
+  _createDigitalThermometer(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+    group.name = "Digital_Thermometer";
+
+    const meter = new THREE.Mesh(
+      new THREE.BoxGeometry(0.06, 0.09, 0.025),
+      this.materials.screenBezelMetal
+    );
+    meter.position.y = 0.045;
+    group.add(meter);
+
+    const probe = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.002, 0.002, 0.18, 8),
+      this.materials.cabinetHandle
+    );
+    probe.position.set(0.04, 0.08, 0);
+    group.add(probe);
+
+    this.root.add(group);
+  }
+
+  // --- Disintegration Baskets & Guide Disks ---
+  _createDisintegrationBaskets(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+    group.name = "Disintegration_Basket";
+
+    const topPlate = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.045, 0.045, 0.006, 16),
+      this.materials.cabinetHandle
+    );
+    topPlate.position.y = 0.09;
+    group.add(topPlate);
+
+    const bottomPlate = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.045, 0.045, 0.006, 16),
+      this.materials.cabinetHandle
+    );
+    bottomPlate.position.y = 0.01;
+    group.add(bottomPlate);
+
+    for (let t = 0; t < 6; t++) {
+      const angle = (t * Math.PI * 2) / 6;
+      const tube = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.009, 0.009, 0.075, 12),
+        this.materials.glassPyrex
+      );
+      tube.position.set(Math.sin(angle) * 0.028, 0.05, Math.cos(angle) * 0.028);
+      group.add(tube);
+    }
+
+    this.root.add(group);
+  }
+
+  _createDisintegrationDisks(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+    group.name = "Disintegration_Disks_Tray";
+
+    for (let d = 0; d < 6; d++) {
+      const disk = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.008, 0.008, 0.008, 12),
+        this.materials.sashGlass
+      );
+      disk.position.set(-0.03 + (d % 3) * 0.03, 0.004, -0.02 + Math.floor(d / 3) * 0.03);
+      group.add(disk);
+    }
+    this.root.add(group);
+  }
+
+  // --- Digital Laboratory Stopwatch ---
+  _createDigitalStopwatch(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+    group.name = "Laboratory_Stopwatch";
+
+    const body = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.032, 0.035, 0.018, 16),
+      this.materials.screenBezelMetal
+    );
+    body.position.y = 0.009;
+    group.add(body);
+
+    const lcd = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.035, 0.02),
+      this.materials.telDigitalGreen
+    );
+    lcd.rotation.x = -Math.PI / 2;
+    lcd.position.y = 0.0185;
+    group.add(lcd);
+
+    this.root.add(group);
+  }
+
+  // --- Class E2 Calibration Weights Mahogany Box with Forceps ---
+  _createCalibrationWeightsBox(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+    group.name = "Class_E2_Weights_Box";
+
+    const box = new THREE.Mesh(
+      new THREE.BoxGeometry(0.14, 0.045, 0.09),
+      this.materials.weightWoodBox
+    );
+    box.position.y = 0.0225;
+    group.add(box);
+
+    const velvet = new THREE.Mesh(
+      new THREE.BoxGeometry(0.125, 0.01, 0.075),
+      this.materials.cuvetteVelvet
+    );
+    velvet.position.y = 0.04;
+    group.add(velvet);
+
+    // Class E2 Stainless Steel Weights (Knob tops)
+    const weightSizes = [0.014, 0.012, 0.010, 0.008, 0.006];
+    weightSizes.forEach((rad, idx) => {
+      const wt = new THREE.Mesh(
+        new THREE.CylinderGeometry(rad, rad, rad * 2, 12),
+        this.materials.weightChrome
+      );
+      wt.position.set(-0.045 + idx * 0.022, 0.04 + rad, 0.01);
+      group.add(wt);
+
+      const knob = new THREE.Mesh(
+        new THREE.SphereGeometry(rad * 0.5, 8, 8),
+        this.materials.weightChrome
+      );
+      knob.position.set(-0.045 + idx * 0.022, 0.04 + rad * 2 + rad * 0.3, 0.01);
+      group.add(knob);
+    });
+
+    // Ivory-Tipped Non-Magnetic Forceps
+    const forceps = new THREE.Mesh(
+      new THREE.BoxGeometry(0.10, 0.004, 0.012),
+      this.materials.kimwipesWhite
+    );
+    forceps.position.set(0, 0.048, -0.025);
+    group.add(forceps);
+
+    this.root.add(group);
+  }
+
+  // --- Aluminum Weighing Boats Stack & Micro-Spatulas ---
+  _createWeighingBoatsStack(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+    group.name = "Weighing_Boats_Stack";
+
+    // Hexagonal / trapezoid aluminum fluted dishes stack
+    for (let b = 0; b < 6; b++) {
+      const boat = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.028, 0.022, 0.008, 6),
+        this.materials.cabinetHandle
+      );
+      boat.position.y = 0.004 + b * 0.003;
+      group.add(boat);
+    }
+
+    // Stainless Dual-Ended Micro-Spatula
+    const spatula = new THREE.Mesh(
+      new THREE.BoxGeometry(0.14, 0.002, 0.008),
+      this.materials.cabinetHandle
+    );
+    spatula.position.set(0, 0.002, 0.04);
+    spatula.rotation.y = 0.2;
+    group.add(spatula);
+
+    this.root.add(group);
+  }
+
+  _createAntiStaticBrush(cx, cz) {
+    const brush = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.004, 0.004, 0.12, 8),
+      this.materials.weightWoodBox
+    );
+    brush.position.set(cx, 0.904, cz);
+    brush.rotation.z = Math.PI / 2;
+    brush.rotation.y = -0.3;
+    this.root.add(brush);
+  }
+
+  _createWeighingBottle(cx, cz) {
+    const bottle = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.018, 0.018, 0.045, 16),
+      this.materials.glassPyrex
+    );
+    bottle.position.set(cx, 0.9225, cz);
+    this.root.add(bottle);
+
+    const stopper = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.015, 0.012, 0.015, 12),
+      this.materials.glassPyrex
+    );
+    stopper.position.set(cx, 0.95, cz);
+    this.root.add(stopper);
+  }
+
+  // --- 24-Place Polypropylene Eppendorf Tube Rack ---
+  _createEppendorfRack(cx, cz, rackMat) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+    group.name = "Eppendorf_Tube_Rack";
+
+    const rackW = 0.18;
+    const rackH = 0.04;
+    const rackD = 0.09;
+
+    const body = new THREE.Mesh(
+      new THREE.BoxGeometry(rackW, rackH, rackD),
+      rackMat
+    );
+    body.position.y = rackH / 2;
+    group.add(body);
+
+    // 24 microcentrifuge tubes (4 rows x 6 cols)
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 8; c++) {
+        const tx = -rackW / 2 + 0.02 + c * 0.02;
+        const tz = -rackD / 2 + 0.022 + r * 0.022;
+
+        const tube = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.005, 0.002, 0.038, 10),
+          this.materials.reagentFluidClear
+        );
+        tube.position.set(tx, rackH + 0.012, tz);
+        group.add(tube);
+
+        // Snap cap
+        const cap = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.006, 0.006, 0.004, 10),
+          rackMat
+        );
+        cap.position.set(tx, rackH + 0.032, tz);
+        group.add(cap);
+      }
+    }
+
+    this.root.add(group);
+  }
+
+  _createLabMarker(cx, cz) {
+    const marker = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.006, 0.006, 0.13, 10),
+      this.materials.leatherBlack
+    );
+    marker.position.set(cx, 0.906, cz);
+    marker.rotation.z = Math.PI / 2;
+    marker.rotation.y = 0.4;
+    this.root.add(marker);
+  }
+
+  // --- Freeze Dryer Accessories ---
+  _createFreezeDryerFlask(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+    group.name = "Fast_Freeze_Flask";
+
+    const flask = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.045, 0.045, 0.14, 16),
+      this.materials.glassPyrex
+    );
+    flask.position.y = 0.07;
+    group.add(flask);
+
+    const rubberTop = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.048, 0.048, 0.03, 16),
+      this.materials.powerCordRubber
+    );
+    rubberTop.position.y = 0.155;
+    group.add(rubberTop);
+
+    const valve = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.008, 0.008, 0.04, 8),
+      this.materials.cabinetHandle
+    );
+    valve.position.set(0.03, 0.16, 0);
+    group.add(valve);
+
+    this.root.add(group);
+  }
+
+  _createSerumVialsTray(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+    group.name = "Serum_Vials_Tray";
+
+    for (let i = 0; i < 6; i++) {
+      const vx = -0.03 + (i % 3) * 0.03;
+      const vz = -0.015 + Math.floor(i / 3) * 0.03;
+
+      const vial = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.012, 0.012, 0.045, 12),
+        this.materials.glassPyrex
+      );
+      vial.position.set(vx, 0.0225, vz);
+      group.add(vial);
+
+      const stopper = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.009, 0.009, 0.008, 10),
+        this.materials.powerCordRubber
+      );
+      stopper.position.set(vx, 0.048, vz);
+      group.add(stopper);
+
+      const crimp = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.011, 0.011, 0.006, 10),
+        this.materials.cabinetHandle
+      );
+      crimp.position.set(vx, 0.052, vz);
+      group.add(crimp);
+    }
+    this.root.add(group);
+  }
+
+  _createVialCrimper(cx, cz) {
+    const crimper = new THREE.Mesh(
+      new THREE.BoxGeometry(0.18, 0.035, 0.05),
+      this.materials.cabinetHandle
+    );
+    crimper.position.set(cx, 0.915, cz);
+    crimper.rotation.y = -0.3;
+    this.root.add(crimper);
+  }
+
+  // --- Ultrasonic & Vortex Accessories ---
+  _createUltrasonicBasket(cx, cz) {
+    const basket = new THREE.Mesh(
+      new THREE.BoxGeometry(0.16, 0.08, 0.12),
+      this.materials.cabinetHandle
+    );
+    basket.position.set(cx, 0.94, cz);
+    this.root.add(basket);
+  }
+
+  _createVortexFoamRack(cx, cz) {
+    const rack = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.065, 0.065, 0.05, 16),
+      this.materials.leatherBlack
+    );
+    rack.position.set(cx, 0.925, cz);
+    this.root.add(rack);
+  }
+
+  // --- Rotovap & Fume Hood Accessories ---
+  _createKeckClipsSet(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+    [-0.02, 0.02].forEach((kx, idx) => {
+      const clip = new THREE.Mesh(
+        new THREE.TorusGeometry(0.014, 0.004, 8, 16),
+        idx === 0 ? this.materials.screwCapGreen : this.materials.screwCapYellow
+      );
+      clip.rotation.x = Math.PI / 2;
+      clip.position.set(kx, 0.005, 0);
+      group.add(clip);
+    });
+    this.root.add(group);
+  }
+
+  _createCorkFlaskRing(cx, cz) {
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(0.045, 0.014, 10, 20),
+      this.materials.weightWoodBox
+    );
+    ring.rotation.x = Math.PI / 2;
+    ring.position.set(cx, 0.914, cz);
+    this.root.add(ring);
+  }
+
+  _createVacuumGreaseSyringe(cx, cz) {
+    const syringe = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.008, 0.008, 0.10, 10),
+      this.materials.kimwipesWhite
+    );
+    syringe.position.set(cx, 0.908, cz);
+    syringe.rotation.z = Math.PI / 2;
+    syringe.rotation.y = 0.5;
+    this.root.add(syringe);
+  }
+
+  _createVacuumHoseInterconnect(x1, y1, z1, x2, y2, z2) {
+    const curve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(x1, y1, z1),
+      new THREE.Vector3((x1 + x2) / 2, Math.min(y1, y2) - 0.08, (z1 + z2) / 2),
+      new THREE.Vector3(x2, y2, z2)
+    ]);
+    const hose = new THREE.Mesh(
+      new THREE.TubeGeometry(curve, 20, 0.012, 10, false),
+      this.materials.powerCordRubber
+    );
+    this.root.add(hose);
+  }
+
+  // --- Hotplate & Reactor Accessories ---
+  _createHotplateClampStand(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+
+    const base = new THREE.Mesh(
+      new THREE.BoxGeometry(0.12, 0.015, 0.16),
+      this.materials.screenBezelMetal
+    );
+    base.position.y = 0.0075;
+    group.add(base);
+
+    const rod = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.006, 0.006, 0.45, 10),
+      this.materials.cabinetHandle
+    );
+    rod.position.set(0, 0.225, -0.05);
+    group.add(rod);
+
+    const clamp = new THREE.Mesh(
+      new THREE.BoxGeometry(0.03, 0.02, 0.12),
+      this.materials.cabinetHandle
+    );
+    clamp.position.set(0, 0.28, 0);
+    group.add(clamp);
+
+    const probe = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.002, 0.002, 0.20, 8),
+      this.materials.cabinetHandle
+    );
+    probe.position.set(0, 0.22, 0.05);
+    group.add(probe);
+
+    this.root.add(group);
+  }
+
+  _createMagneticStirBarBox(cx, cz) {
+    const box = new THREE.Mesh(
+      new THREE.BoxGeometry(0.08, 0.025, 0.06),
+      this.materials.sashGlass
+    );
+    box.position.set(cx, 0.9125, cz);
+    this.root.add(box);
+  }
+
+  _createStirBarRetriever(cx, cz) {
+    const wand = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.004, 0.004, 0.30, 8),
+      this.materials.kimwipesWhite
+    );
+    wand.position.set(cx, 0.904, cz);
+    wand.rotation.z = Math.PI / 2;
+    wand.rotation.y = -0.4;
+    this.root.add(wand);
+  }
+
+  _createBraidedPigtailHose(x1, y1, z1, x2, y2, z2) {
+    const curve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(x1, y1, z1),
+      new THREE.Vector3((x1 + x2) / 2, Math.max(y1, y2) + 0.12, (z1 + z2) / 2),
+      new THREE.Vector3(x2, y2, z2)
+    ]);
+    const hose = new THREE.Mesh(
+      new THREE.TubeGeometry(curve, 20, 0.009, 10, false),
+      this.materials.cabinetHandle
+    );
+    this.root.add(hose);
+  }
+
+  _createTorqueWrench(cx, cz) {
+    const wrench = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.008, 0.008, 0.28, 10),
+      this.materials.torqueWrenchChrome
+    );
+    wrench.position.set(cx, 0.908, cz);
+    wrench.rotation.z = Math.PI / 2;
+    wrench.rotation.y = 0.2;
+    this.root.add(wrench);
+  }
+
+  // --- Muffle Furnace Accessories ---
+  _createCeramicCrucibles(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+
+    [-0.03, 0.03].forEach((cxPos) => {
+      const crucible = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.022, 0.015, 0.035, 14),
+        this.materials.kimwipesWhite
+      );
+      crucible.position.set(cxPos, 0.0175, 0);
+      group.add(crucible);
+
+      const lid = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.024, 0.024, 0.006, 14),
+        this.materials.kimwipesWhite
+      );
+      lid.position.set(cxPos, 0.038, 0);
+      group.add(lid);
+    });
+
+    this.root.add(group);
+  }
+
+  _createCrucibleTongs(cx, cz) {
+    const tongs = new THREE.Mesh(
+      new THREE.BoxGeometry(0.40, 0.012, 0.04),
+      this.materials.cabinetHandle
+    );
+    tongs.position.set(cx, 0.906, cz);
+    tongs.rotation.y = -0.2;
+    this.root.add(tongs);
+  }
+
+  _createFurnaceGloves(cx, cz) {
+    const gloves = new THREE.Mesh(
+      new THREE.BoxGeometry(0.18, 0.04, 0.12),
+      this.materials.cabinetHandle
+    );
+    gloves.position.set(cx, 0.92, cz);
+    this.root.add(gloves);
+  }
+
+  // --- Glove Box Gas Cylinders ---
+  _createGasCylinderBank(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0, cz);
+
+    [-0.22, 0.22].forEach((gx) => {
+      // 50L High Pressure Gas Cylinder
+      const cyl = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.11, 0.11, 1.45, 20),
+        this.materials.fumeHoodSteel
+      );
+      cyl.position.set(gx, 0.725, 0);
+      group.add(cyl);
+
+      const dome = new THREE.Mesh(
+        new THREE.SphereGeometry(0.11, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2),
+        this.materials.fumeHoodSteel
+      );
+      dome.position.set(gx, 1.45, 0);
+      group.add(dome);
+
+      // Dual-Stage Stainless Regulator & Gauges
+      const reg = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.02, 0.02, 0.08, 12),
+        this.materials.cabinetHandle
+      );
+      reg.position.set(gx, 1.60, 0);
+      group.add(reg);
+
+      [-0.025, 0.025].forEach((gxOff) => {
+        const gauge = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.022, 0.022, 0.015, 14),
+          this.materials.kimwipesWhite
+        );
+        gauge.rotation.x = Math.PI / 2;
+        gauge.position.set(gx + gxOff, 1.62, 0.025);
+        group.add(gauge);
+      });
+    });
+
+    // Safety Wall Bracket with Chain
+    const bracket = new THREE.Mesh(
+      new THREE.BoxGeometry(0.65, 0.04, 0.08),
+      this.materials.cabinetBody
+    );
+    bracket.position.set(0, 1.05, 0.12);
+    group.add(bracket);
+
+    this.root.add(group);
+  }
+
+  _createAntechamberTray(cx, cz) {
+    const tray = new THREE.Mesh(
+      new THREE.BoxGeometry(0.35, 0.02, 0.22),
+      this.materials.cabinetHandle
+    );
+    tray.position.set(cx, 0.91, cz);
+    this.root.add(tray);
+  }
+
+  // --- pH Buffer Calibration Set ---
+  _createPHBufferSet(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+
+    const buffers = [
+      { color: 0xdc2626, label: "pH 4.00" },
+      { color: 0xeab308, label: "pH 7.00" },
+      { color: 0x2563eb, label: "pH 10.01" }
+    ];
+
+    buffers.forEach((b, idx) => {
+      const bottle = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.022, 0.022, 0.075, 14),
+        new THREE.MeshStandardMaterial({ color: b.color, roughness: 0.4 })
+      );
+      bottle.position.set(-0.06 + idx * 0.06, 0.0375, 0);
+      group.add(bottle);
+
+      const cap = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.014, 0.014, 0.015, 12),
+        this.materials.kimwipesWhite
+      );
+      cap.position.set(-0.06 + idx * 0.06, 0.0825, 0);
+      group.add(cap);
+    });
+
+    this.root.add(group);
+  }
+
+  // --- SEM Stub Box & Preparation Accessories ---
+  _createSEMStubBox(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+    group.name = "SEM_Stub_Box";
+
+    const box = new THREE.Mesh(
+      new THREE.BoxGeometry(0.12, 0.025, 0.09),
+      this.materials.weightWoodBox
+    );
+    box.position.y = 0.0125;
+    group.add(box);
+
+    // 6 Aluminum 12.7mm Pin Stubs
+    for (let s = 0; s < 6; s++) {
+      const sx = -0.035 + (s % 3) * 0.035;
+      const sz = -0.02 + Math.floor(s / 3) * 0.04;
+
+      const stub = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.008, 0.008, 0.012, 12),
+        this.materials.semStubAluminum
+      );
+      stub.position.set(sx, 0.028, sz);
+      group.add(stub);
+    }
+    this.root.add(group);
+  }
+
+  _createCarbonTapeAndSilverPaint(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+
+    // Carbon tape roll
+    const tape = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.024, 0.024, 0.018, 16),
+      this.materials.leatherBlack
+    );
+    tape.position.set(-0.03, 0.009, 0);
+    group.add(tape);
+
+    // Colloidal silver paint vial
+    const vial = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.014, 0.014, 0.045, 12),
+      this.materials.semStubAluminum
+    );
+    vial.position.set(0.03, 0.0225, 0);
+    group.add(vial);
+
+    this.root.add(group);
+  }
+
+  _createPrecisionTweezers(cx, cz) {
+    const tweezers = new THREE.Mesh(
+      new THREE.BoxGeometry(0.11, 0.002, 0.006),
+      this.materials.cabinetHandle
+    );
+    tweezers.position.set(cx, 0.901, cz);
+    tweezers.rotation.y = 0.35;
+    this.root.add(tweezers);
+  }
+
+  _createSputterCoaterChamber(cx, cz) {
+    const group = new THREE.Group();
+    group.position.set(cx, 0.90, cz);
+    group.name = "Sputter_Coater";
+
+    const base = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.14, 0.15, 0.12, 20),
+      this.materials.screenBezelMetal
+    );
+    base.position.y = 0.06;
+    group.add(base);
+
+    const glassJar = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.10, 0.10, 0.14, 16),
+      this.materials.glassPyrex
+    );
+    glassJar.position.y = 0.19;
+    group.add(glassJar);
+
+    const topHead = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.12, 0.12, 0.04, 16),
+      this.materials.cabinetHandle
+    );
+    topHead.position.y = 0.28;
+    group.add(topHead);
+
+    this.root.add(group);
+  }
+
+  // --- Genuine Physical Equipment Power Cord & NEMA 5-15P Plug Continuity ---
+  _createEquipmentPowerCord(machineId, startX, startY, startZ, outletX, outletY, outletZ) {
+    const cordGroup = new THREE.Group();
+    cordGroup.name = `Power_Cord_${machineId}`;
+
+    // Natural catenary drape curve from instrument IEC socket to benchtop outlet
+    const midX = (startX + outletX) / 2;
+    const midY = Math.min(startY, outletY) - 0.04;
+    const midZ = (startZ + outletZ) / 2;
+
+    const curve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(startX, startY, startZ),
+      new THREE.Vector3(startX, startY - 0.06, startZ + (outletZ > startZ ? 0.08 : -0.08)),
+      new THREE.Vector3(midX, midY, midZ),
+      new THREE.Vector3(outletX, outletY - 0.04, outletZ + (outletZ > startZ ? -0.06 : 0.06)),
+      new THREE.Vector3(outletX, outletY, outletZ)
+    ]);
+
+    const cord = new THREE.Mesh(
+      new THREE.TubeGeometry(curve, 20, 0.007, 8, false),
+      this.materials.powerCordRubber
+    );
+    cordGroup.add(cord);
+
+    // Molded NEMA 5-15P Plug inserted firmly into the duplex receptacle
+    const plug = new THREE.Mesh(
+      new THREE.BoxGeometry(0.025, 0.038, 0.035),
+      this.materials.nemaPlugMolded
+    );
+    plug.position.set(outletX, outletY, outletZ);
+    cordGroup.add(plug);
+
+    // Brass Ground & Power Blades
+    [-0.006, 0.006].forEach((px) => {
+      const blade = new THREE.Mesh(
+        new THREE.BoxGeometry(0.002, 0.012, 0.014),
+        this.materials.nemaBrassPin
+      );
+      blade.position.set(outletX + px, outletY, outletZ - 0.018);
+      cordGroup.add(blade);
+    });
+
+    this.root.add(cordGroup);
+  }
+
+  // --- Communication & Data Cable (RS-232 / Cat6 / USB) ---
+  _createCommunicationCable(startX, startY, startZ, endX, endY, endZ, cableType = "serial") {
+    const cableMat = cableType === "cat6" ? this.materials.cat6Blue : this.materials.serialBeige;
+    const curve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(startX, startY, startZ),
+      new THREE.Vector3((startX + endX) / 2, Math.min(startY, endY) - 0.03, (startZ + endZ) / 2),
+      new THREE.Vector3(endX, endY, endZ)
+    ]);
+
+    const cable = new THREE.Mesh(
+      new THREE.TubeGeometry(curve, 18, 0.0045, 8, false),
+      cableMat
+    );
+    this.root.add(cable);
+  }
+
+    // Animation step called in RAF loop
   update(time) {
     // Flame flicker animation
     this.activeFlames.forEach((f) => {

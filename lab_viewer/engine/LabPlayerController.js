@@ -337,6 +337,7 @@ export class LabPlayerController {
     if (x >= 28.5 && x < 32.0 && z < -1.5) return "Faculty Suite: Instructor's Office";
     if (x >= 32.0 && x < 38.0 && z < -1.5) return "Zone 13: Men's Locker Room & Showers";
     if (x >= 8.0 && x < 16.0) return "Zone 6: Grand Entrance Atrium & Waiting Lounge";
+    if (x <= 8.0 && x >= 2.5 && z >= 7.0) return "Cold Storage Suite: Walk-In Refrigerator (+4°C) & Freezer (-20°C)";
     if (x <= 8.0 && x > 2.0 && z > 1.0) return "Zone 5: Chemical & Reagent Storage Vault";
     if (x <= 8.0 && x > 2.0 && z <= 1.0) return "Zone 4: Controlled Atmosphere & Glove Box Bay";
     if (x <= 2.0 && x > -5.0 && z > 1.0) return "Zone 3: Sample Prep & Lyophilization Suite";

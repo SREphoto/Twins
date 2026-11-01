@@ -47,7 +47,12 @@ class GrandLabApp {
 
     this.camera = new THREE.PerspectiveCamera(65, this.width / this.height, 0.1, 100);
 
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+    try {
+      this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+    } catch (e) {
+      console.warn("High-performance WebGL context unavailable, initializing standard WebGL fallback:", e);
+      this.renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "default", failIfMajorPerformanceCaveat: false });
+    }
     this.renderer.setSize(this.width, this.height);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.shadowMap.enabled = true;
@@ -531,9 +536,10 @@ class GrandLabApp {
     const coords = (this.player && this.player.isPointerLocked) ? this.centerMouse : this.mousePos;
     this.raycaster.setFromCamera(coords, this.camera);
 
-    // Objects to test: interactive utilities + clickable instrument dock hitboxes
+    // Objects to test: interactive utilities + casework interactive objects + clickable instrument dock hitboxes
     const targets = [
       ...this.utilities.interactiveObjects,
+      ...(this.casework?.interactiveObjects || []),
       ...this.dockManager.clickableDocks
     ];
 
@@ -558,6 +564,20 @@ class GrandLabApp {
         this.promptText.textContent = "Click to Titrate / Neutralize Solution";
       } else if (obj.userData?.isReagent) {
         this.promptText.textContent = `Inspect ${obj.userData.label}`;
+      } else if (obj.userData?.isUVCabinet) {
+        this.promptText.textContent = obj.userData.isOpen ? "Click to Close UV-C Sanitizing Cabinet" : "Click to Open UV-C Cabinet & Inspect Goggles";
+      } else if (obj.userData?.isGloveStation) {
+        this.promptText.textContent = `Dispense ${obj.userData.label}`;
+      } else if (obj.userData?.isSoapDispenser) {
+        this.promptText.textContent = "Click to Dispense Antimicrobial Soap";
+      } else if (obj.userData?.isGasTurret) {
+        this.promptText.textContent = "Click to Toggle Laboratory Gas Supply";
+      } else if (obj.userData?.isPetriDish) {
+        this.promptText.textContent = `Inspect Culture: ${obj.userData.label}`;
+      } else if (obj.userData?.isDesiccator) {
+        this.promptText.textContent = "Inspect Vacuum Desiccator Chamber";
+      } else if (obj.userData?.isFilterFlask) {
+        this.promptText.textContent = "Inspect Büchner Vacuum Filtration";
       } else if (obj.userData?.isTwinDock) {
         this.promptText.textContent = `Click to Focus on ${obj.userData.name}`;
       }

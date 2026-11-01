@@ -13,6 +13,7 @@
  * - NFPA 30 Flammable Storage Cabinets & ANSI Z358.1 Emergency Safety Showers
  */
 import * as THREE from "three";
+import { labAudio } from "./LabSFXMixer.js";
 
 export class LabCasework {
   constructor(scene, colliders = []) {
@@ -21,6 +22,7 @@ export class LabCasework {
     this.root = new THREE.Group();
     this.root.name = "Modern_Lab_Casework_Root";
     this.fumeHoodSashes = [];
+    this.interactiveObjects = [];
 
     this._initMaterials();
     this._buildLabIslands();
@@ -34,12 +36,130 @@ export class LabCasework {
     this._buildMensLockerRoom();
     this._buildWomensLockerRoom();
     this._buildSafetyCore();
+    this._buildUVGoggleCabinets();
+    this._buildGloveDispenserStations();
 
     this.scene.add(this.root);
   }
 
   _initMaterials() {
     this.materials = {
+      // Modular SEFA-8 Casework & Marine Edge Materials
+      toeKick: new THREE.MeshStandardMaterial({
+        color: 0x0c0f14,
+        roughness: 0.85,
+        metalness: 0.15,
+        name: "Mat_SEFA_Toe_Kick"
+      }),
+      drawerFace: new THREE.MeshStandardMaterial({
+        color: 0x242a34,
+        roughness: 0.52,
+        metalness: 0.22,
+        name: "Mat_SEFA_Drawer_Face"
+      }),
+      drawerShadow: new THREE.MeshBasicMaterial({
+        color: 0x050709,
+        name: "Mat_Drawer_Reveal_Shadow"
+      }),
+      keyLock: new THREE.MeshStandardMaterial({
+        color: 0xc8d0db,
+        roughness: 0.2,
+        metalness: 0.9,
+        name: "Mat_Cam_Lock_Chrome"
+      }),
+      marineEdge: new THREE.MeshStandardMaterial({
+        color: 0x0f1217,
+        roughness: 0.2,
+        metalness: 0.28,
+        name: "Mat_Marine_Edge_Epoxy"
+      }),
+      unistrutChannel: new THREE.MeshStandardMaterial({
+        color: 0x5a6372,
+        roughness: 0.35,
+        metalness: 0.82,
+        name: "Mat_Unistrut_Aluminum"
+      }),
+      taskLightDiffuser: new THREE.MeshStandardMaterial({
+        color: 0xfffaed,
+        emissive: 0xfffaed,
+        emissiveIntensity: 0.85,
+        roughness: 0.2,
+        name: "Mat_LED_Task_Diffuser"
+      }),
+      plugmoldRaceway: new THREE.MeshStandardMaterial({
+        color: 0x94a3b8,
+        roughness: 0.25,
+        metalness: 0.88,
+        name: "Mat_Plugmold_Stainless"
+      }),
+      gfciFaceplate: new THREE.MeshStandardMaterial({
+        color: 0xf1f5f9,
+        roughness: 0.45,
+        metalness: 0.05,
+        name: "Mat_GFCI_Receptacle"
+      }),
+      valveVacuum: new THREE.MeshStandardMaterial({
+        color: 0xeab308,
+        roughness: 0.35,
+        metalness: 0.3,
+        name: "Mat_Valve_Vacuum_Yellow"
+      }),
+      valveGas: new THREE.MeshStandardMaterial({
+        color: 0x2563eb,
+        roughness: 0.35,
+        metalness: 0.3,
+        name: "Mat_Valve_Gas_Blue"
+      }),
+      valveAir: new THREE.MeshStandardMaterial({
+        color: 0xf97316,
+        roughness: 0.35,
+        metalness: 0.3,
+        name: "Mat_Valve_Air_Orange"
+      }),
+      valveWater: new THREE.MeshStandardMaterial({
+        color: 0x16a34a,
+        roughness: 0.35,
+        metalness: 0.3,
+        name: "Mat_Valve_Water_Green"
+      }),
+      hazardFlammable: new THREE.MeshStandardMaterial({
+        color: 0xdc2626,
+        roughness: 0.4,
+        metalness: 0.1,
+        name: "Mat_OSHA_Flammable_Red"
+      }),
+      hazardCorrosive: new THREE.MeshStandardMaterial({
+        color: 0x1d4ed8,
+        roughness: 0.4,
+        metalness: 0.1,
+        name: "Mat_OSHA_Corrosive_Blue"
+      }),
+      telMonitorFace: new THREE.MeshStandardMaterial({
+        color: 0x111827,
+        roughness: 0.28,
+        metalness: 0.65,
+        name: "Mat_TEL_Monitor_Bezel"
+      }),
+      telDigitalGreen: new THREE.MeshStandardMaterial({
+        color: 0x10b981,
+        emissive: 0x10b981,
+        emissiveIntensity: 0.95,
+        roughness: 0.1,
+        name: "Mat_TEL_Digital_Green"
+      }),
+      airfoilStainless: new THREE.MeshStandardMaterial({
+        color: 0xd8dde4,
+        roughness: 0.2,
+        metalness: 0.9,
+        name: "Mat_Airfoil_Stainless"
+      }),
+      cupSinkPoly: new THREE.MeshStandardMaterial({
+        color: 0x1a1e24,
+        roughness: 0.4,
+        metalness: 0.1,
+        name: "Mat_Cup_Sink_Polypropylene"
+      }),
+
       epoxyTop: new THREE.MeshStandardMaterial({
         color: 0x12151a,
         roughness: 0.22,
@@ -243,8 +363,171 @@ export class LabCasework {
         roughness: 0.22,
         metalness: 0.88,
         name: "Mat_Brushed_Stainless_Appliance"
+      }),
+      uvCabinetEnamel: new THREE.MeshStandardMaterial({
+        color: 0xe6e9ee,
+        roughness: 0.35,
+        metalness: 0.25,
+        name: "Mat_UV_Cabinet_Enamel"
+      }),
+      uvWindowAmber: new THREE.MeshPhysicalMaterial({
+        color: 0xf59e0b,
+        transparent: true,
+        opacity: 0.55,
+        roughness: 0.1,
+        metalness: 0.1,
+        ior: 1.49,
+        transmission: 0.6,
+        name: "Mat_UV_Amber_Shield"
+      }),
+      uvGlowTube: new THREE.MeshBasicMaterial({
+        color: 0x9333ea,
+        name: "Mat_UVC_Germicidal_Tube"
+      }),
+      goggleLensClear: new THREE.MeshPhysicalMaterial({
+        color: 0xdbeafe,
+        transparent: true,
+        opacity: 0.35,
+        roughness: 0.05,
+        metalness: 0.05,
+        ior: 1.52,
+        name: "Mat_Safety_Goggle_Polycarbonate"
+      }),
+      goggleStrapBlack: new THREE.MeshStandardMaterial({
+        color: 0x1f242c,
+        roughness: 0.85,
+        metalness: 0.05,
+        name: "Mat_Goggle_Elastic_Strap"
+      }),
+      gloveBoxSmall: new THREE.MeshStandardMaterial({
+        color: 0x10b981, // Mint green for size S
+        roughness: 0.45,
+        metalness: 0.05,
+        name: "Mat_Glove_Box_Small"
+      }),
+      gloveBoxMed: new THREE.MeshStandardMaterial({
+        color: 0x2563eb, // Cobalt blue for size M
+        roughness: 0.45,
+        metalness: 0.05,
+        name: "Mat_Glove_Box_Medium"
+      }),
+      gloveBoxLarge: new THREE.MeshStandardMaterial({
+        color: 0x7c3aed, // Purple nitrile for size L
+        roughness: 0.45,
+        metalness: 0.05,
+        name: "Mat_Glove_Box_Large"
+      }),
+      wireCaddyChrome: new THREE.MeshStandardMaterial({
+        color: 0xccd3dc,
+        roughness: 0.2,
+        metalness: 0.85,
+        name: "Mat_Glove_Caddy_Chrome"
       })
     };
+  }
+
+  // --- Ergonomic Swivel Laboratory Technician Stool ---
+  _createLabStool(cx, cz, stoolH = 0.68) {
+    const stool = new THREE.Group();
+    stool.position.set(cx, 0, cz);
+    stool.name = "Ergonomic_Lab_Stool";
+
+    // 1. Five-Star Spider Base with Dual-Wheel Rolling Casters
+    const hub = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.04, 0.04, 0.05, 16),
+      this.materials.cabinetHandle
+    );
+    hub.position.y = 0.10;
+    stool.add(hub);
+
+    for (let i = 0; i < 5; i++) {
+      const angle = (i * Math.PI * 2) / 5;
+      const leg = new THREE.Mesh(
+        new THREE.BoxGeometry(0.03, 0.018, 0.24),
+        this.materials.cabinetHandle
+      );
+      leg.position.set(Math.sin(angle) * 0.12, 0.08, Math.cos(angle) * 0.12);
+      leg.rotation.y = angle;
+      stool.add(leg);
+
+      // Caster fork & dual wheels
+      [-0.012, 0.012].forEach((wx) => {
+        const wheel = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.022, 0.022, 0.01, 10),
+          this.materials.leatherBlack
+        );
+        wheel.rotation.z = Math.PI / 2;
+        wheel.position.set(
+          Math.sin(angle) * 0.24 + Math.cos(angle) * wx,
+          0.022,
+          Math.cos(angle) * 0.24 - Math.sin(angle) * wx
+        );
+        stool.add(wheel);
+      });
+    }
+
+    // 2. Heavy-Duty Pneumatic Lift Cylinder with Bellows
+    const gasCylinder = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.025, 0.028, stoolH - 0.12, 16),
+      this.materials.cabinetHandle
+    );
+    gasCylinder.position.y = 0.10 + (stoolH - 0.12) / 2;
+    stool.add(gasCylinder);
+
+    const bellows = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.035, 0.038, 0.18, 16),
+      this.materials.leatherBlack
+    );
+    bellows.position.y = 0.22;
+    stool.add(bellows);
+
+    // 3. 360° Circular Chrome Footrest Ring (Diameter 400mm)
+    const footRing = new THREE.Mesh(
+      new THREE.TorusGeometry(0.20, 0.012, 10, 24),
+      this.materials.cabinetHandle
+    );
+    footRing.rotation.x = Math.PI / 2;
+    footRing.position.y = 0.26;
+    stool.add(footRing);
+
+    for (let r = 0; r < 4; r++) {
+      const spokeAngle = (r * Math.PI) / 2;
+      const spoke = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.008, 0.008, 0.20, 8),
+        this.materials.cabinetHandle
+      );
+      spoke.rotation.z = Math.PI / 2;
+      spoke.rotation.y = spokeAngle;
+      spoke.position.set(Math.sin(spokeAngle) * 0.10, 0.26, Math.cos(spokeAngle) * 0.10);
+      stool.add(spoke);
+    }
+
+    // 4. Contoured Polyurethane Round Cushion Seat (Diameter 360mm, Thickness 70mm)
+    const seat = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.18, 0.175, 0.07, 24),
+      this.materials.leatherBlack
+    );
+    seat.position.y = stoolH;
+    stool.add(seat);
+
+    // 5. Ergonomic Lumbar Backrest on Curved Chrome Stalk
+    const backStalk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.012, 0.012, 0.32, 10),
+      this.materials.cabinetHandle
+    );
+    backStalk.position.set(0, stoolH + 0.16, -0.16);
+    backStalk.rotation.x = -0.15;
+    stool.add(backStalk);
+
+    const backrest = new THREE.Mesh(
+      new THREE.BoxGeometry(0.32, 0.16, 0.04),
+      this.materials.leatherBlack
+    );
+    backrest.position.set(0, stoolH + 0.28, -0.19);
+    backrest.rotation.x = -0.10;
+    stool.add(backrest);
+
+    return stool;
   }
 
   // --- SEFA Laboratory Casework Islands ---
@@ -268,6 +551,7 @@ export class LabCasework {
     this._createStorageRacks(4.5, 8.4, 4.0, 0.7);
   }
 
+// --- SEFA-8 High-Fidelity Modular Double-Sided Island Casework ---
   _createDoubleSidedBench(cx, cz, length, depth, name) {
     const group = new THREE.Group();
     group.position.set(cx, 0, cz);
@@ -275,59 +559,431 @@ export class LabCasework {
 
     const benchH = 0.87; // Base height
     const topT = 0.03;   // Countertop thickness 30mm -> Surface exactly at Y = 0.90m!
+    const toeH = 0.10;   // 100mm recessed toe kick
+    const toeRecess = 0.075;
 
-    // Under-counter cabinetry bases
-    const cabGeo = new THREE.BoxGeometry(length - 0.1, benchH, depth - 0.1);
-    const cab = new THREE.Mesh(cabGeo, this.materials.cabinetBody);
-    cab.position.y = benchH / 2;
-    cab.castShadow = true;
-    cab.receiveShadow = true;
-    group.add(cab);
+    // 1. Continuous Recessed Black Vinyl/Steel Toe Kick
+    const toeW = length - toeRecess * 2;
+    const toeD = depth - toeRecess * 2;
+    const toeMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(toeW, toeH, toeD),
+      this.materials.toeKick
+    );
+    toeMesh.position.y = toeH / 2;
+    toeMesh.castShadow = true;
+    toeMesh.receiveShadow = true;
+    group.add(toeMesh);
 
-    // Countertop with bevel marine edge (Jet black epoxy)
-    const topGeo = new THREE.BoxGeometry(length, topT, depth);
-    const top = new THREE.Mesh(topGeo, this.materials.epoxyTop);
-    top.position.y = benchH + topT / 2;
-    top.castShadow = true;
-    top.receiveShadow = true;
-    group.add(top);
+    // 2. Modular SEFA Cabinet Bays
+    const cabH = benchH - toeH; // 0.77m
+    const moduleW = 0.90;
+    const numBays = Math.max(3, Math.floor((length - 0.1) / moduleW));
+    const actualBayW = (length - 0.04) / numBays;
+    const halfDepth = (depth - 0.04) / 2;
 
-    // Center utility spine / reagent shelf riser
-    const shelfH = 0.45;
-    const shelfD = 0.35;
-    const spineGeo = new THREE.BoxGeometry(length - 0.4, shelfH, shelfD);
-    const spine = new THREE.Mesh(spineGeo, this.materials.cabinetBody);
-    spine.position.set(0, benchH + topT + shelfH / 2, 0);
-    group.add(spine);
+    // Base subframe core
+    const subframe = new THREE.Mesh(
+      new THREE.BoxGeometry(length - 0.04, cabH, depth - 0.04),
+      this.materials.cabinetBody
+    );
+    subframe.position.y = toeH + cabH / 2;
+    group.add(subframe);
 
-    const shelfTopGeo = new THREE.BoxGeometry(length - 0.3, 0.02, shelfD + 0.05);
-    const shelfTop = new THREE.Mesh(shelfTopGeo, this.materials.epoxyTop);
-    shelfTop.position.set(0, benchH + topT + shelfH + 0.01, 0);
-    group.add(shelfTop);
+    // Both front (+Z) and rear (-Z) modular faces
+    [1, -1].forEach((sideSign) => {
+      const faceZ = sideSign * (depth / 2 - 0.015);
+      const isFront = sideSign > 0;
 
-    // Stainless steel drawer handles
-    const numDrawers = Math.floor(length / 0.9);
-    for (let i = 0; i < numDrawers; i++) {
-      const x = -((numDrawers - 1) * 0.9) / 2 + i * 0.9;
-      // Front side
-      const hFront = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.008, 0.008, 0.15, 8),
+      for (let b = 0; b < numBays; b++) {
+        const bayX = -((numBays - 1) * actualBayW) / 2 + b * actualBayW;
+        const isCenter = b === Math.floor(numBays / 2);
+
+        if (isCenter && isFront) {
+          // Kneespace Opening for Technician Seating
+          const modesty = new THREE.Mesh(
+            new THREE.BoxGeometry(actualBayW - 0.04, cabH - 0.06, 0.02),
+            this.materials.cabinetBody
+          );
+          modesty.position.set(bayX, toeH + (cabH - 0.06) / 2, sideSign * 0.12);
+          group.add(modesty);
+
+          // Stainless Footrest Rail
+          const footRail = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.012, 0.012, actualBayW - 0.06, 12),
+            this.materials.cabinetHandle
+          );
+          footRail.rotation.z = Math.PI / 2;
+          footRail.position.set(bayX, 0.18, sideSign * 0.22);
+          group.add(footRail);
+
+          // Ergonomic Swivel Lab Stool tucked in
+          const stool = this._createLabStool(bayX, sideSign * (depth / 2 + 0.35));
+          stool.rotation.y = isFront ? 0 : Math.PI;
+          group.add(stool);
+        } else if (b % 2 === 0) {
+          // 4-Drawer Modular Stack
+          const numDrawers = 4;
+          const drwH = (cabH - 0.04) / numDrawers;
+
+          // Shadow reveal border around bay
+          const shadowBorder = new THREE.Mesh(
+            new THREE.BoxGeometry(actualBayW - 0.02, cabH - 0.02, 0.005),
+            this.materials.drawerShadow
+          );
+          shadowBorder.position.set(bayX, toeH + cabH / 2, faceZ);
+          group.add(shadowBorder);
+
+          for (let d = 0; d < numDrawers; d++) {
+            const dy = toeH + (d + 0.5) * drwH;
+
+            // Inset drawer face with bevel edges
+            const drwFace = new THREE.Mesh(
+              new THREE.BoxGeometry(actualBayW - 0.035, drwH - 0.008, 0.018),
+              this.materials.drawerFace
+            );
+            drwFace.position.set(bayX, dy, faceZ + sideSign * 0.01);
+            group.add(drwFace);
+
+            // Brushed Stainless Wire D-Pull Handle
+            const handle = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.006, 0.006, 0.14, 10),
+              this.materials.cabinetHandle
+            );
+            handle.rotation.z = Math.PI / 2;
+            handle.position.set(bayX, dy, faceZ + sideSign * 0.028);
+            group.add(handle);
+
+            // Handle standoffs
+            [-0.06, 0.06].forEach((hx) => {
+              const standoff = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.005, 0.005, 0.015, 8),
+                this.materials.cabinetHandle
+              );
+              standoff.rotation.x = Math.PI / 2;
+              standoff.position.set(bayX + hx, dy, faceZ + sideSign * 0.02);
+              group.add(standoff);
+            });
+
+            // Top drawer cam lock with key slot
+            if (d === numDrawers - 1) {
+              const lock = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.008, 0.008, 0.006, 12),
+                this.materials.keyLock
+              );
+              lock.rotation.x = Math.PI / 2;
+              lock.position.set(bayX + (actualBayW / 2 - 0.05), dy, faceZ + sideSign * 0.02);
+              group.add(lock);
+            }
+          }
+        } else {
+          // 2-Door Flush-Inset Cupboard
+          const doorW = (actualBayW - 0.04) / 2;
+
+          [-doorW / 2 - 0.003, doorW / 2 + 0.003].forEach((dx, doorIdx) => {
+            const door = new THREE.Mesh(
+              new THREE.BoxGeometry(doorW - 0.006, cabH - 0.03, 0.018),
+              this.materials.drawerFace
+            );
+            door.position.set(bayX + dx, toeH + cabH / 2, faceZ + sideSign * 0.01);
+            group.add(door);
+
+            // Vertical wire pull handle
+            const vHandle = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.006, 0.006, 0.18, 10),
+              this.materials.cabinetHandle
+            );
+            vHandle.position.set(
+              bayX + dx + (doorIdx === 0 ? doorW / 2 - 0.03 : -doorW / 2 + 0.03),
+              toeH + cabH * 0.72,
+              faceZ + sideSign * 0.028
+            );
+            group.add(vHandle);
+          });
+        }
+
+        // Heavy-Duty Leveling Feet at modular bay seams
+        [-actualBayW / 2, actualBayW / 2].forEach((fx) => {
+          const foot = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.02, 0.025, 0.02, 12),
+            this.materials.cabinetHandle
+          );
+          foot.position.set(bayX + fx, 0.01, faceZ);
+          group.add(foot);
+        });
+      }
+    });
+
+    // 3. Countertop: 30mm Solid Jet-Black Epoxy with Raised 3D Marine Spill Edge
+    const topSlab = new THREE.Mesh(
+      new THREE.BoxGeometry(length, topT, depth),
+      this.materials.epoxyTop
+    );
+    topSlab.position.y = benchH + topT / 2; // Y = 0.885m
+    topSlab.castShadow = true;
+    topSlab.receiveShadow = true;
+    group.add(topSlab);
+
+    // 3D Physical Marine Drip Edge (8mm raised spill lip around all outer rims)
+    const lipH = 0.008;
+    const lipW = 0.014;
+    const lipY = benchH + topT + lipH / 2;
+
+    // Front & Back Lip Bars
+    [-depth / 2 + lipW / 2, depth / 2 - lipW / 2].forEach((lz) => {
+      const lipBar = new THREE.Mesh(
+        new THREE.BoxGeometry(length, lipH, lipW),
+        this.materials.marineEdge
+      );
+      lipBar.position.set(0, lipY, lz);
+      group.add(lipBar);
+    });
+
+    // Left & Right Lip Bars
+    [-length / 2 + lipW / 2, length / 2 - lipW / 2].forEach((lx) => {
+      const lipBar = new THREE.Mesh(
+        new THREE.BoxGeometry(lipW, lipH, depth - lipW * 2),
+        this.materials.marineEdge
+      );
+      lipBar.position.set(lx, lipY, 0);
+      group.add(lipBar);
+    });
+
+    // Drop-in Undermount Epoxy Sink Basin on End of Island
+    const hasSink = name.includes("Analytical") || name.includes("Synthesis") || name.includes("Pharma");
+    if (hasSink) {
+      const sinkX = -length / 2 + 0.55;
+      const sinkW = 0.60;
+      const sinkD = 0.45;
+      const sinkDepth = 0.28;
+
+      const sinkBasin = new THREE.Mesh(
+        new THREE.BoxGeometry(sinkW, sinkDepth, sinkD),
+        this.materials.cupSinkPoly
+      );
+      sinkBasin.position.set(sinkX, benchH - sinkDepth / 2, 0);
+      group.add(sinkBasin);
+
+      // Chrome Drain Grate
+      const drain = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.04, 0.04, 0.005, 16),
         this.materials.cabinetHandle
       );
-      hFront.rotation.z = Math.PI / 2;
-      hFront.position.set(x, benchH * 0.75, depth / 2 + 0.01);
-      group.add(hFront);
+      drain.position.set(sinkX, benchH - sinkDepth + 0.005, 0);
+      group.add(drain);
 
-      // Back side
-      const hBack = hFront.clone();
-      hBack.position.z = -depth / 2 - 0.01;
-      group.add(hBack);
+      // Grooved Sloped Drainage Runnels in Epoxy Top
+      for (let r = 0; r < 5; r++) {
+        const runnel = new THREE.Mesh(
+          new THREE.BoxGeometry(0.28, 0.004, 0.012),
+          this.materials.marineEdge
+        );
+        runnel.position.set(sinkX + sinkW / 2 + 0.16, benchH + topT + 0.001, -0.12 + r * 0.06);
+        group.add(runnel);
+      }
+
+      // Tall Gooseneck Swivel Faucet with Dual Wrist-Blade Handles
+      const faucetBase = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.025, 0.028, 0.05, 16),
+        this.materials.chromeFaucet
+      );
+      faucetBase.position.set(sinkX, benchH + topT + 0.025, -sinkD / 2 - 0.06);
+      group.add(faucetBase);
+
+      const gooseneckCurve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(sinkX, benchH + topT + 0.05, -sinkD / 2 - 0.06),
+        new THREE.Vector3(sinkX, benchH + topT + 0.32, -sinkD / 2 - 0.06),
+        new THREE.Vector3(sinkX, benchH + topT + 0.42, -sinkD / 2 + 0.02),
+        new THREE.Vector3(sinkX, benchH + topT + 0.38, -sinkD / 2 + 0.10),
+        new THREE.Vector3(sinkX, benchH + topT + 0.28, -sinkD / 2 + 0.10)
+      ]);
+      const gooseneck = new THREE.Mesh(
+        new THREE.TubeGeometry(gooseneckCurve, 20, 0.012, 12, false),
+        this.materials.chromeFaucet
+      );
+      group.add(gooseneck);
+
+      // Wrist-Blade Handles (Hot Left, Cold Right)
+      [-0.06, 0.06].forEach((hx, hIdx) => {
+        const valveStem = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.012, 0.012, 0.04, 12),
+          this.materials.chromeFaucet
+        );
+        valveStem.position.set(sinkX + hx, benchH + topT + 0.02, -sinkD / 2 - 0.06);
+        group.add(valveStem);
+
+        const blade = new THREE.Mesh(
+          new THREE.BoxGeometry(0.014, 0.008, 0.07),
+          this.materials.chromeFaucet
+        );
+        blade.position.set(sinkX + hx, benchH + topT + 0.045, -sinkD / 2 - 0.06);
+        group.add(blade);
+      });
+    }
+
+    // 4. Center Utility Spine & Dual-Tier Reagent Shelving Riser
+    const spineStartX = hasSink ? -length / 2 + 1.15 : -length / 2 + 0.25;
+    const spineEndX = length / 2 - 0.25;
+    const spineLen = spineEndX - spineStartX;
+    const spineCenterX = (spineStartX + spineEndX) / 2;
+    const spineW = 0.35; // Spine width
+
+    // Slotted Unistrut / Extruded Aluminum Uprights (Every ~1.5m)
+    const numUprights = Math.max(2, Math.floor(spineLen / 1.5) + 1);
+    const uprightH = 0.78;
+    for (let u = 0; u < numUprights; u++) {
+      const ux = spineStartX + (u / (numUprights - 1)) * spineLen;
+
+      // Heavy vertical Unistrut channel
+      const unistrut = new THREE.Mesh(
+        new THREE.BoxGeometry(0.042, uprightH, 0.042),
+        this.materials.unistrutChannel
+      );
+      unistrut.position.set(ux, benchH + topT + uprightH / 2, 0);
+      group.add(unistrut);
+
+      // Shelf mounting brackets
+      [0.35, 0.65].forEach((by) => {
+        const bracket = new THREE.Mesh(
+          new THREE.BoxGeometry(0.046, 0.025, spineW),
+          this.materials.unistrutChannel
+        );
+        bracket.position.set(ux, benchH + topT + by, 0);
+        group.add(bracket);
+      });
+    }
+
+    // Dual-Tier Chemical-Resistant Epoxy Reagent Shelves
+    [0.35, 0.65].forEach((sy, tierIdx) => {
+      const shelfY = benchH + topT + sy;
+
+      // Epoxy shelf slab
+      const shelf = new THREE.Mesh(
+        new THREE.BoxGeometry(spineLen, 0.022, spineW),
+        this.materials.epoxyTop
+      );
+      shelf.position.set(spineCenterX, shelfY, 0);
+      group.add(shelf);
+
+      // Stainless Steel Bottle Retaining Guardrails (12mm high)
+      [-spineW / 2 + 0.012, spineW / 2 - 0.012].forEach((rz) => {
+        const rail = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.005, 0.005, spineLen, 10),
+          this.materials.cabinetHandle
+        );
+        rail.rotation.z = Math.PI / 2;
+        rail.position.set(spineCenterX, shelfY + 0.02, rz);
+        group.add(rail);
+
+        // Stanchions along rail
+        for (let st = 0; st < numUprights; st++) {
+          const stx = spineStartX + (st / (numUprights - 1)) * spineLen;
+          const stanchion = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.006, 0.006, 0.028, 8),
+            this.materials.cabinetHandle
+          );
+          stanchion.position.set(stx, shelfY + 0.014, rz);
+          group.add(stanchion);
+        }
+      });
+
+      // Under-Shelf LED Task Lighting on Lower Shelf Tier
+      if (tierIdx === 0) {
+        const fixture = new THREE.Mesh(
+          new THREE.BoxGeometry(spineLen * 0.95, 0.015, 0.06),
+          this.materials.taskLightDiffuser
+        );
+        fixture.position.set(spineCenterX, shelfY - 0.018, 0);
+        group.add(fixture);
+      }
+    });
+
+    // 5. Double-Sided Stainless Plugmold Electrical Service Raceway
+    [-(spineW / 2 + 0.02), spineW / 2 + 0.02].forEach((pz, pSideIdx) => {
+      const raceway = new THREE.Mesh(
+        new THREE.BoxGeometry(spineLen, 0.06, 0.035),
+        this.materials.plugmoldRaceway
+      );
+      raceway.position.set(spineCenterX, benchH + topT + 0.045, pz);
+      group.add(raceway);
+
+      // Duplex GFCI Outlets spaced every 0.8m
+      const numOutlets = Math.max(2, Math.floor(spineLen / 0.8));
+      for (let o = 0; o < numOutlets; o++) {
+        const ox = spineStartX + (o + 0.5) * (spineLen / numOutlets);
+
+        const gfciPlate = new THREE.Mesh(
+          new THREE.BoxGeometry(0.08, 0.05, 0.004),
+          this.materials.gfciFaceplate
+        );
+        gfciPlate.position.set(ox, benchH + topT + 0.045, pz + (pSideIdx === 0 ? -0.018 : 0.018));
+        group.add(gfciPlate);
+
+        // Green status LED
+        const led = new THREE.Mesh(
+          new THREE.BoxGeometry(0.006, 0.006, 0.002),
+          this.materials.telDigitalGreen
+        );
+        led.position.set(ox + 0.025, benchH + topT + 0.055, pz + (pSideIdx === 0 ? -0.021 : 0.021));
+        group.add(led);
+      }
+    });
+
+    // 6. Multi-Service Laboratory Utility Turrets (Vacuum, Gas, Air, Water)
+    const numTurrets = Math.max(2, Math.floor(spineLen / 2.0));
+    for (let t = 0; t < numTurrets; t++) {
+      const tx = spineStartX + (t + 0.5) * (spineLen / numTurrets);
+
+      // Central turret post
+      const turretBase = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.025, 0.03, 0.12, 16),
+        this.materials.cabinetHandle
+      );
+      turretBase.position.set(tx, benchH + topT + 0.06, 0);
+      group.add(turretBase);
+
+      // 4 Color-coded service needle valves (North, South, East, West)
+      const valveConfigs = [
+        { angle: 0, mat: this.materials.valveVacuum, label: "VAC" },
+        { angle: Math.PI / 2, mat: this.materials.valveGas, label: "GAS" },
+        { angle: Math.PI, mat: this.materials.valveAir, label: "AIR" },
+        { angle: -Math.PI / 2, mat: this.materials.valveWater, label: "H2O" }
+      ];
+
+      valveConfigs.forEach((vc) => {
+        const nozzle = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.008, 0.006, 0.045, 10),
+          this.materials.cabinetHandle
+        );
+        nozzle.rotation.z = Math.PI / 2;
+        nozzle.rotation.y = vc.angle;
+        nozzle.position.set(
+          tx + Math.cos(vc.angle) * 0.035,
+          benchH + topT + 0.08,
+          Math.sin(vc.angle) * 0.035
+        );
+        group.add(nozzle);
+
+        // Knurled turn handle
+        const handle = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.014, 0.014, 0.018, 12),
+          vc.mat
+        );
+        handle.rotation.z = Math.PI / 2;
+        handle.rotation.y = vc.angle;
+        handle.position.set(
+          tx + Math.cos(vc.angle) * 0.055,
+          benchH + topT + 0.08,
+          Math.sin(vc.angle) * 0.055
+        );
+        group.add(handle);
+      });
     }
 
     this.root.add(group);
     this.colliders.push(new THREE.Box3().setFromObject(group));
   }
 
+  // --- SEFA-8 Perimeter Single-Sided Casework Bench ---
   _createSingleSidedBench(cx, cz, length, depth, name) {
     const group = new THREE.Group();
     group.position.set(cx, 0, cz);
@@ -335,29 +991,137 @@ export class LabCasework {
 
     const benchH = 0.87;
     const topT = 0.03;
+    const toeH = 0.10;
+    const toeRecess = 0.075;
 
-    const cab = new THREE.Mesh(
-      new THREE.BoxGeometry(length - 0.05, benchH, depth - 0.05),
+    // 1. Recessed Toe Kick
+    const toeMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(length - 0.1, toeH, depth - toeRecess),
+      this.materials.toeKick
+    );
+    toeMesh.position.set(0, toeH / 2, -toeRecess / 2);
+    group.add(toeMesh);
+
+    // 2. Modular Modular Cabinet Bays
+    const cabH = benchH - toeH;
+    const moduleW = 0.90;
+    const numBays = Math.max(2, Math.floor(length / moduleW));
+    const actualBayW = length / numBays;
+
+    const subframe = new THREE.Mesh(
+      new THREE.BoxGeometry(length - 0.04, cabH, depth - 0.04),
       this.materials.cabinetBody
     );
-    cab.position.y = benchH / 2;
-    group.add(cab);
+    subframe.position.set(0, toeH + cabH / 2, -0.01);
+    group.add(subframe);
 
-    const top = new THREE.Mesh(
+    const faceZ = depth / 2 - 0.015;
+
+    for (let b = 0; b < numBays; b++) {
+      const bayX = -((numBays - 1) * actualBayW) / 2 + b * actualBayW;
+
+      if (b % 2 === 0) {
+        // 4-Drawer Stack
+        const numDrawers = 4;
+        const drwH = (cabH - 0.04) / numDrawers;
+
+        for (let d = 0; d < numDrawers; d++) {
+          const dy = toeH + (d + 0.5) * drwH;
+          const drwFace = new THREE.Mesh(
+            new THREE.BoxGeometry(actualBayW - 0.035, drwH - 0.008, 0.018),
+            this.materials.drawerFace
+          );
+          drwFace.position.set(bayX, dy, faceZ + 0.01);
+          group.add(drwFace);
+
+          const handle = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.006, 0.006, 0.14, 10),
+            this.materials.cabinetHandle
+          );
+          handle.rotation.z = Math.PI / 2;
+          handle.position.set(bayX, dy, faceZ + 0.028);
+          group.add(handle);
+        }
+      } else {
+        // 2-Door Cupboard
+        const doorW = (actualBayW - 0.04) / 2;
+        [-doorW / 2 - 0.003, doorW / 2 + 0.003].forEach((dx, doorIdx) => {
+          const door = new THREE.Mesh(
+            new THREE.BoxGeometry(doorW - 0.006, cabH - 0.03, 0.018),
+            this.materials.drawerFace
+          );
+          door.position.set(bayX + dx, toeH + cabH / 2, faceZ + 0.01);
+          group.add(door);
+
+          const vHandle = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.006, 0.006, 0.18, 10),
+            this.materials.cabinetHandle
+          );
+          vHandle.position.set(
+            bayX + dx + (doorIdx === 0 ? doorW / 2 - 0.03 : -doorW / 2 + 0.03),
+            toeH + cabH * 0.72,
+            faceZ + 0.028
+          );
+          group.add(vHandle);
+        });
+      }
+    }
+
+    // 3. Countertop with Raised 3D Marine Spill Edge
+    const topSlab = new THREE.Mesh(
       new THREE.BoxGeometry(length, topT, depth),
       this.materials.epoxyTop
     );
-    top.position.y = benchH + topT / 2;
-    group.add(top);
+    topSlab.position.y = benchH + topT / 2;
+    group.add(topSlab);
+
+    const lipH = 0.008;
+    const lipW = 0.014;
+    const lipY = benchH + topT + lipH / 2;
+
+    // Front & Side Lip Bars
+    const frontLip = new THREE.Mesh(
+      new THREE.BoxGeometry(length, lipH, lipW),
+      this.materials.marineEdge
+    );
+    frontLip.position.set(0, lipY, depth / 2 - lipW / 2);
+    group.add(frontLip);
+
+    [-length / 2 + lipW / 2, length / 2 - lipW / 2].forEach((lx) => {
+      const sideLip = new THREE.Mesh(
+        new THREE.BoxGeometry(lipW, lipH, depth - lipW),
+        this.materials.marineEdge
+      );
+      sideLip.position.set(lx, lipY, -lipW / 2);
+      group.add(sideLip);
+    });
+
+    // 4. Wall-Mounted Stainless Plugmold Electrical Raceway Strip
+    const raceway = new THREE.Mesh(
+      new THREE.BoxGeometry(length * 0.95, 0.06, 0.035),
+      this.materials.plugmoldRaceway
+    );
+    raceway.position.set(0, benchH + topT + 0.05, -depth / 2 + 0.02);
+    group.add(raceway);
+
+    // Duplex GFCI Outlets
+    const numOutlets = Math.max(2, Math.floor(length / 1.0));
+    for (let o = 0; o < numOutlets; o++) {
+      const ox = -((numOutlets - 1) * 1.0) / 2 + o * 1.0;
+      const gfciPlate = new THREE.Mesh(
+        new THREE.BoxGeometry(0.08, 0.05, 0.004),
+        this.materials.gfciFaceplate
+      );
+      gfciPlate.position.set(ox, benchH + topT + 0.05, -depth / 2 + 0.038);
+      group.add(gfciPlate);
+    }
 
     this.root.add(group);
     this.colliders.push(new THREE.Box3().setFromObject(group));
   }
 
-  // --- Ducted Chemical Fume Hoods ---
-  // --- Ducted Chemical Fume Hoods ---
+  // --- High-Performance Labconco Protector Premier Fume Hoods ---
   _buildFumeHoods() {
-    // 2x 6-Ft Labconco Protector Premier Fume Hoods along Northwest wall (Z = 8.1)
     const hoodXPositions = [-13.5, -9.5];
 
     hoodXPositions.forEach((hx, idx) => {
@@ -370,42 +1134,117 @@ export class LabCasework {
       const hoodH = 2.45;
       const baseH = 0.87;
       const cavityH = hoodH - baseH;
+      const toeH = 0.10;
 
-      // Base Cabinet with twin chemical-resistant doors
-      const baseCab = new THREE.Mesh(
-        new THREE.BoxGeometry(hoodW, baseH, hoodD),
-        this.materials.fumeHoodSteel
+      // 1. Recessed Toe Kick
+      const toe = new THREE.Mesh(
+        new THREE.BoxGeometry(hoodW - 0.10, toeH, hoodD - 0.08),
+        this.materials.toeKick
       );
-      baseCab.position.y = baseH / 2;
-      hood.add(baseCab);
+      toe.position.set(0, toeH / 2, 0.02);
+      hood.add(toe);
 
-      // Base cabinet stainless handles
-      [-0.45, 0.45].forEach((bx) => {
-        const handle = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.008, 0.008, 0.22, 12),
+      // 2. Dual Hazardous Safety Storage Base Cabinets
+      const cabH = baseH - toeH;
+      const cabW = (hoodW - 0.04) / 2;
+
+      // Left Cabinet: Flammable Liquids Storage
+      const flamCab = new THREE.Mesh(
+        new THREE.BoxGeometry(cabW, cabH, hoodD - 0.04),
+        this.materials.cabinetBody
+      );
+      flamCab.position.set(-cabW / 2 - 0.01, toeH + cabH / 2, 0);
+      hood.add(flamCab);
+
+      // Flammables Warning Placard
+      const flamPlacard = new THREE.Mesh(
+        new THREE.BoxGeometry(cabW * 0.75, 0.16, 0.005),
+        this.materials.hazardFlammable
+      );
+      flamPlacard.position.set(-cabW / 2 - 0.01, toeH + cabH * 0.72, -hoodD / 2 + 0.01);
+      hood.add(flamPlacard);
+
+      // Right Cabinet: Corrosive / Acid Storage
+      const acidCab = new THREE.Mesh(
+        new THREE.BoxGeometry(cabW, cabH, hoodD - 0.04),
+        this.materials.cabinetBody
+      );
+      acidCab.position.set(cabW / 2 + 0.01, toeH + cabH / 2, 0);
+      hood.add(acidCab);
+
+      // Corrosives Warning Placard
+      const acidPlacard = new THREE.Mesh(
+        new THREE.BoxGeometry(cabW * 0.75, 0.16, 0.005),
+        this.materials.hazardCorrosive
+      );
+      acidPlacard.position.set(cabW / 2 + 0.01, toeH + cabH * 0.72, -hoodD / 2 + 0.01);
+      hood.add(acidPlacard);
+
+      // Louvered Ventilation Slots & Stainless Latch Handles on both cabinets
+      [-cabW / 2 - 0.01, cabW / 2 + 0.01].forEach((cx) => {
+        // Louvers
+        for (let l = 0; l < 3; l++) {
+          const louver = new THREE.Mesh(
+            new THREE.BoxGeometry(cabW * 0.60, 0.012, 0.008),
+            this.materials.fumeHoodLining
+          );
+          louver.position.set(cx, toeH + 0.15 + l * 0.035, -hoodD / 2 + 0.01);
+          hood.add(louver);
+        }
+
+        // Heavy latch handle with padlock hasp
+        const latch = new THREE.Mesh(
+          new THREE.BoxGeometry(0.024, 0.16, 0.02),
           this.materials.cabinetHandle
         );
-        handle.rotation.z = Math.PI / 2;
-        handle.position.set(bx, baseH * 0.7, -hoodD / 2 - 0.01);
-        hood.add(handle);
+        latch.position.set(cx, toeH + cabH * 0.50, -hoodD / 2 - 0.005);
+        hood.add(latch);
       });
 
-      // Chemical Work Surface (Epoxy with dished basin rim)
+      // 3. Chemical Dished Epoxy Work Surface with Spill Containment Basin
       const workDeck = new THREE.Mesh(
-        new THREE.BoxGeometry(hoodW + 0.02, 0.03, hoodD + 0.02),
+        new THREE.BoxGeometry(hoodW + 0.02, 0.035, hoodD + 0.02),
         this.materials.epoxyTop
       );
-      workDeck.position.y = baseH + 0.015;
+      workDeck.position.y = baseH + 0.0175;
       workDeck.receiveShadow = true;
       hood.add(workDeck);
 
-      // --- Upper Open Fume Enclosure Structure ---
-      const headerH = 0.38; // Top canopy header with bypass air grill
-      const sideWallT = 0.06;
-      const innerW = hoodW - sideWallT * 2;
-      const openH = cavityH - headerH;
+      // Dished containment rim (12mm high) around work surface
+      const dishRim = new THREE.Mesh(
+        new THREE.BoxGeometry(hoodW + 0.02, 0.012, 0.016),
+        this.materials.marineEdge
+      );
+      dishRim.position.set(0, baseH + 0.035 + 0.006, -hoodD / 2 - 0.002);
+      hood.add(dishRim);
 
-      // 1. Top Bypass Canopy Header
+      // Polypropylene Cup Sink in Left Rear Corner
+      const cupSink = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.08, 0.06, 0.14, 16),
+        this.materials.cupSinkPoly
+      );
+      cupSink.position.set(-hoodW / 2 + 0.22, baseH - 0.04, hoodD / 2 - 0.22);
+      hood.add(cupSink);
+
+      const cupFaucet = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.008, 0.008, 0.18, 10),
+        this.materials.chromeFaucet
+      );
+      cupFaucet.position.set(-hoodW / 2 + 0.22, baseH + 0.12, hoodD / 2 - 0.22);
+      hood.add(cupFaucet);
+
+      // 4. Aerodynamic Curved Stainless Steel Airfoil Entry Sill
+      const airfoil = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.032, 0.032, hoodW * 0.88, 16, 1, false, 0, Math.PI),
+        this.materials.airfoilStainless
+      );
+      airfoil.rotation.z = Math.PI / 2;
+      airfoil.rotation.x = Math.PI / 2;
+      airfoil.position.set(0, baseH + 0.048, -hoodD / 2 + 0.03);
+      hood.add(airfoil);
+
+      // 5. Upper Canopy Header with Bypass Louvers
+      const headerH = 0.38;
       const header = new THREE.Mesh(
         new THREE.BoxGeometry(hoodW, headerH, hoodD),
         this.materials.fumeHoodSteel
@@ -413,7 +1252,6 @@ export class LabCasework {
       header.position.set(0, hoodH - headerH / 2, 0);
       hood.add(header);
 
-      // Bypass air slot louvers on header front
       for (let l = 0; l < 4; l++) {
         const louver = new THREE.Mesh(
           new THREE.BoxGeometry(hoodW * 0.75, 0.015, 0.01),
@@ -431,25 +1269,86 @@ export class LabCasework {
       duct.position.set(0, hoodH + 0.225, 0);
       hood.add(duct);
 
-      // 2. Left and Right Aerodynamic Airfoil Side Stiles
-      [-hoodW / 2 + sideWallT / 2, hoodW / 2 - sideWallT / 2].forEach((sx) => {
-        const sideWall = new THREE.Mesh(
-          new THREE.BoxGeometry(sideWallT, openH, hoodD),
-          this.materials.fumeHoodSteel
-        );
-        sideWall.position.set(sx, baseH + openH / 2, 0);
-        hood.add(sideWall);
+      // 6. Aerodynamic Corner Posts & Side Enclosures
+      const openH = cavityH - headerH;
+      const postW = 0.12;
 
-        // Aerodynamic corner post in front
-        const post = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.04, 0.04, openH, 16),
-          this.materials.fumeHoodSteel
+      // Left Corner Post: TEL AFA1000 Digital Airflow Velocity Monitor
+      const leftPost = new THREE.Mesh(
+        new THREE.BoxGeometry(postW, openH, 0.12),
+        this.materials.fumeHoodSteel
+      );
+      leftPost.position.set(-hoodW / 2 + postW / 2, baseH + openH / 2, -hoodD / 2 + 0.06);
+      hood.add(leftPost);
+
+      // TEL AFA1000 Digital Monitor Faceplate
+      const telBezel = new THREE.Mesh(
+        new THREE.BoxGeometry(0.085, 0.14, 0.012),
+        this.materials.telMonitorFace
+      );
+      telBezel.position.set(-hoodW / 2 + postW / 2, baseH + openH * 0.65, -hoodD / 2 - 0.006);
+      hood.add(telBezel);
+
+      // Digital Screen: 100 FPM
+      const telScreen = new THREE.Mesh(
+        new THREE.BoxGeometry(0.065, 0.035, 0.004),
+        this.materials.telDigitalGreen
+      );
+      telScreen.position.set(-hoodW / 2 + postW / 2, baseH + openH * 0.67, -hoodD / 2 - 0.014);
+      hood.add(telScreen);
+
+      // Green Normal & Red Alarm LEDs
+      const greenLED = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.005, 0.005, 0.004, 8),
+        this.materials.telDigitalGreen
+      );
+      greenLED.rotation.x = Math.PI / 2;
+      greenLED.position.set(-hoodW / 2 + postW / 2 - 0.02, baseH + openH * 0.63, -hoodD / 2 - 0.013);
+      hood.add(greenLED);
+
+      const redLED = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.005, 0.005, 0.004, 8),
+        this.materials.hazardFlammable
+      );
+      redLED.rotation.x = Math.PI / 2;
+      redLED.position.set(-hoodW / 2 + postW / 2 + 0.02, baseH + openH * 0.63, -hoodD / 2 - 0.013);
+      hood.add(redLED);
+
+      // Weatherproof Duplex GFCI Outlet with Clear Flip Cover
+      const gfciCover = new THREE.Mesh(
+        new THREE.BoxGeometry(0.07, 0.11, 0.025),
+        this.materials.sashGlass
+      );
+      gfciCover.position.set(-hoodW / 2 + postW / 2, baseH + openH * 0.35, -hoodD / 2 - 0.01);
+      hood.add(gfciCover);
+
+      // Right Corner Post: Remote Service Needle Valves
+      const rightPost = new THREE.Mesh(
+        new THREE.BoxGeometry(postW, openH, 0.12),
+        this.materials.fumeHoodSteel
+      );
+      rightPost.position.set(hoodW / 2 - postW / 2, baseH + openH / 2, -hoodD / 2 + 0.06);
+      hood.add(rightPost);
+
+      // 4 Service Knobs: Vacuum, Nitrogen, Fuel Gas, Cold Water
+      const hoodValves = [
+        { my: 0.72, mat: this.materials.valveVacuum },
+        { my: 0.58, mat: this.materials.valveGas },
+        { my: 0.44, mat: this.materials.valveAir },
+        { my: 0.30, mat: this.materials.valveWater }
+      ];
+      hoodValves.forEach((hv) => {
+        const knob = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.016, 0.016, 0.022, 12),
+          hv.mat
         );
-        post.position.set(sx > 0 ? sx - 0.01 : sx + 0.01, baseH + openH / 2, -hoodD / 2 + 0.04);
-        hood.add(post);
+        knob.rotation.x = Math.PI / 2;
+        knob.position.set(hoodW / 2 - postW / 2, baseH + openH * hv.my, -hoodD / 2 - 0.01);
+        hood.add(knob);
       });
 
-      // 3. Rear Acid-Resistant Baffle Wall
+      // 7. Interior White Chemical Liner & 3-Tier Aerodynamic Scavenger Baffles
+      const innerW = hoodW - postW * 2;
       const rearBaffle = new THREE.Mesh(
         new THREE.BoxGeometry(innerW, openH, 0.04),
         this.materials.fumeHoodLining
@@ -457,58 +1356,77 @@ export class LabCasework {
       rearBaffle.position.set(0, baseH + openH / 2, hoodD / 2 - 0.03);
       hood.add(rearBaffle);
 
-      // Baffle exhaust suction slots
-      [0.2, 0.7, 1.2].forEach((by) => {
+      // 3 Exhaust Scavenger Slots (Upper, Middle, Lower) with Directional Vanes
+      [0.15, openH / 2, openH - 0.15].forEach((by) => {
         const slot = new THREE.Mesh(
-          new THREE.BoxGeometry(innerW * 0.85, 0.03, 0.02),
-          new THREE.MeshBasicMaterial({ color: 0x111317 })
+          new THREE.BoxGeometry(innerW * 0.90, 0.035, 0.015),
+          new THREE.MeshBasicMaterial({ color: 0x050709 })
         );
-        slot.position.set(0, baseH + by, hoodD / 2 - 0.01);
+        slot.position.set(0, baseH + by, hoodD / 2 - 0.05);
         hood.add(slot);
       });
 
-      // 4. White Molded Seamless Interior Lining Side Panels
-      [-innerW / 2 + 0.01, innerW / 2 - 0.01].forEach((lx) => {
-        const liner = new THREE.Mesh(
-          new THREE.BoxGeometry(0.015, openH - 0.04, hoodD - 0.12),
+      // Side Wall Liners
+      [-hoodW / 2 + 0.03, hoodW / 2 - 0.03].forEach((sx) => {
+        const sideLiner = new THREE.Mesh(
+          new THREE.BoxGeometry(0.04, openH, hoodD - 0.08),
           this.materials.fumeHoodLining
         );
-        liner.position.set(lx, baseH + openH / 2, 0.02);
-        hood.add(liner);
+        sideLiner.position.set(sx, baseH + openH / 2, 0.04);
+        hood.add(sideLiner);
       });
 
-      // 5. Sliding Acrylic / Tempered Glass Sash (Raised halfway for clear view)
+      // Vapor-Tight Sealed LED Ceiling Light Panel
+      const hoodLight = new THREE.Mesh(
+        new THREE.BoxGeometry(innerW * 0.85, 0.02, 0.35),
+        this.materials.taskLightDiffuser
+      );
+      hoodLight.position.set(0, hoodH - headerH - 0.01, 0);
+      hood.add(hoodLight);
+
+      // Downward Hood Interior Spotlight
+      const spot = new THREE.PointLight(0xffffff, 0.85, 3.5);
+      spot.position.set(0, hoodH - headerH - 0.05, 0);
+      hood.add(spot);
+
+      // 8. Vertical Sliding Counterweighted Laminated Safety Glass Sash
       const sashW = innerW + 0.04;
-      const sashH = 0.65;
-      const sash = new THREE.Mesh(
-        new THREE.BoxGeometry(sashW, sashH, 0.015),
+      const sashH = openH * 0.82;
+      const sashGroup = new THREE.Group();
+      sashGroup.position.set(0, baseH + openH * 0.35, -hoodD / 2 + 0.04);
+
+      // Laminated Safety Glass Pane
+      const glass = new THREE.Mesh(
+        new THREE.BoxGeometry(sashW, sashH, 0.012),
         this.materials.sashGlass
       );
-      // Raised position: bottom of sash is 0.42m above work deck (420mm opening)
-      sash.position.set(0, baseH + 0.42 + sashH / 2, -hoodD / 2 + 0.04);
-      hood.add(sash);
-      this.fumeHoodSashes.push(sash);
+      sashGroup.add(glass);
 
-      // Brushed Aluminum Full-Width Sash Handle Grip
+      // Stainless Guide Rails & Bottom D-Handle
       const sashHandle = new THREE.Mesh(
-        new THREE.BoxGeometry(sashW + 0.02, 0.03, 0.03),
+        new THREE.CylinderGeometry(0.008, 0.008, sashW * 0.90, 10),
         this.materials.cabinetHandle
       );
-      sashHandle.position.set(0, baseH + 0.42, -hoodD / 2 + 0.04);
-      hood.add(sashHandle);
+      sashHandle.rotation.z = Math.PI / 2;
+      sashHandle.position.set(0, -sashH / 2 + 0.015, -0.018);
+      sashGroup.add(sashHandle);
 
-      // 6. High-Lumen Vapor-Proof LED Downlight Inside Cavity
-      const hoodLight = new THREE.PointLight(0xf4f9ff, 1.4, 5.0, 1.1);
-      hoodLight.position.set(0, hoodH - headerH - 0.1, 0.05);
-      hoodLight.castShadow = true;
-      hood.add(hoodLight);
+      // Frosted Etched 18" (450mm) Sash Stop Warning Line
+      const warningLine = new THREE.Mesh(
+        new THREE.BoxGeometry(sashW * 0.95, 0.006, 0.014),
+        this.materials.hazardFlammable
+      );
+      warningLine.position.set(0, -sashH / 2 + 0.45, 0);
+      sashGroup.add(warningLine);
+
+      hood.add(sashGroup);
 
       this.root.add(hood);
       this.colliders.push(new THREE.Box3().setFromObject(hood));
     });
   }
 
-  _createDefaultMonitorCanvas(uiType = "default") {
+    _createDefaultMonitorCanvas(uiType = "default") {
     const canvas = document.createElement("canvas");
     canvas.width = 1024;
     canvas.height = 640;
@@ -591,7 +1509,21 @@ export class LabCasework {
   }
 
   // --- Helper: Ultra-Realistic Workstation Monitor Builder ---
-  _createRealisticWorkstationMonitor(opts) {
+  _createRealisticWorkstationMonitor(optsOrW, maybeH, maybeX, maybeRotY, maybeZ, maybeCanvas) {
+    let opts = {};
+    if (typeof optsOrW === "object" && optsOrW !== null) {
+      opts = optsOrW;
+    } else {
+      opts = {
+        screenW: optsOrW,
+        screenH: maybeH,
+        x: maybeX || 0,
+        rotY: maybeRotY || 0,
+        z: maybeZ || 0,
+        canvas: maybeCanvas
+      };
+    }
+
     const group = new THREE.Group();
     group.name = opts.name || "Realistic_Monitor";
     group.position.set(opts.x || 0, opts.y || 0, opts.z || 0);
@@ -824,7 +1756,978 @@ export class LabCasework {
     return group;
   }
 
-// --- High-Fidelity 5-Star Caster Ergonomic Swivel Chair ---
+  // --- Helper: Modern Boucle / Leather Club Armchair ---
+  _createModernClubArmchair(fabricMat, legMat) {
+    const chair = new THREE.Group();
+    const fab = fabricMat || this.materials.boucleFabric;
+    const legM = legMat || this.materials.screenBezelMetal;
+
+    // 1. Four Tapered Architectural Splayed Steel Legs (Front Left, Front Right, Rear Left, Rear Right)
+    const legPositions = [
+      { fx: -0.36, fz: 0.34, sx: -0.26, sz: 0.24 },  // FL
+      { fx: 0.36, fz: 0.34, sx: 0.26, sz: 0.24 },   // FR
+      { fx: -0.34, fz: -0.36, sx: -0.24, sz: -0.26 }, // RL
+      { fx: 0.34, fz: -0.36, sx: 0.24, sz: -0.26 }   // RR
+    ];
+    legPositions.forEach(pos => {
+      const legGeo = new THREE.CylinderGeometry(0.012, 0.018, 0.26, 12);
+      const leg = new THREE.Mesh(legGeo, legM);
+      const dx = pos.fx - pos.sx;
+      const dz = pos.fz - pos.sz;
+      leg.position.set((pos.fx + pos.sx) / 2, 0.13, (pos.fz + pos.sz) / 2);
+      leg.rotation.z = Math.atan2(-dx, 0.26);
+      leg.rotation.x = Math.atan2(dz, 0.26);
+      chair.add(leg);
+
+      const glide = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.018, 0.018, 0.012, 12),
+        this.materials.brassAccent
+      );
+      glide.position.set(pos.fx, 0.006, pos.fz);
+      chair.add(glide);
+    });
+
+    // Steel Sub-Frame Ring
+    const subFrame = new THREE.Mesh(
+      new THREE.BoxGeometry(0.60, 0.02, 0.58),
+      legM
+    );
+    subFrame.position.set(0, 0.25, 0);
+    chair.add(subFrame);
+
+    // 2. Sculpted Bucket Seat Shell Base
+    const shell = new THREE.Mesh(
+      new THREE.BoxGeometry(0.80, 0.10, 0.78),
+      fab
+    );
+    shell.position.set(0, 0.30, 0);
+    chair.add(shell);
+
+    // 3. Plush Boxed Seat Cushion with French Seams
+    const cushion = new THREE.Mesh(
+      new THREE.BoxGeometry(0.70, 0.14, 0.68),
+      fab
+    );
+    cushion.position.set(0, 0.40, 0.02);
+    chair.add(cushion);
+
+    // 4. Wrap-Around Curved Tub Backrest & Sloping Armrests
+    const backrest = new THREE.Mesh(
+      new THREE.BoxGeometry(0.80, 0.42, 0.14),
+      fab
+    );
+    backrest.position.set(0, 0.58, -0.32);
+    chair.add(backrest);
+
+    [-0.37, 0.37].forEach(ax => {
+      const arm = new THREE.Mesh(
+        new THREE.BoxGeometry(0.12, 0.34, 0.64),
+        fab
+      );
+      arm.position.set(ax, 0.50, 0.02);
+      chair.add(arm);
+    });
+
+    // 5. Tailored Lumbar Accent Pillow
+    const pillow = new THREE.Mesh(
+      new THREE.BoxGeometry(0.48, 0.22, 0.08),
+      this.materials.leatherBlack
+    );
+    pillow.position.set(0, 0.50, -0.22);
+    pillow.rotation.x = 0.12;
+    chair.add(pillow);
+
+    return chair;
+  }
+
+  // --- Helper: Contemporary Café Dining Chair ---
+  _createCafeDiningChair() {
+    const chair = new THREE.Group();
+    const frameMat = this.materials.screenBezelMetal;
+    const shellMat = this.materials.walnutDesk;
+
+    // 1. Four Splayed Powder-Coated Steel Tubular Legs
+    const legCoords = [
+      [-0.21, 0.21], [0.21, 0.21],
+      [-0.20, -0.21], [0.20, -0.21]
+    ];
+    legCoords.forEach(([lx, lz]) => {
+      const leg = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.010, 0.014, 0.46, 12),
+        frameMat
+      );
+      leg.position.set(lx * 0.75, 0.23, lz * 0.75);
+      leg.rotation.z = -lx * 0.4;
+      leg.rotation.x = lz * 0.4;
+      chair.add(leg);
+
+      const foot = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.014, 0.014, 0.01, 8),
+        frameMat
+      );
+      foot.position.set(lx, 0.005, lz);
+      chair.add(foot);
+    });
+
+    // Cross-stretcher hub under seat
+    const cross = new THREE.Mesh(
+      new THREE.BoxGeometry(0.36, 0.015, 0.36),
+      frameMat
+    );
+    cross.position.set(0, 0.43, 0);
+    chair.add(cross);
+
+    // 2. Ergonomic 3D Molded Plywood / Poly Shell Seat with Waterfall Front Lip
+    const seat = new THREE.Mesh(
+      new THREE.BoxGeometry(0.46, 0.03, 0.44),
+      shellMat
+    );
+    seat.position.set(0, 0.45, 0.02);
+    chair.add(seat);
+
+    // 3. Ergonomic Curved Backrest & Slender Steel Upright Stanchions
+    [-0.14, 0.14].forEach(sx => {
+      const stanchion = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.008, 0.008, 0.38, 8),
+        frameMat
+      );
+      stanchion.position.set(sx, 0.62, -0.19);
+      stanchion.rotation.x = -0.12;
+      chair.add(stanchion);
+    });
+
+    const backrest = new THREE.Mesh(
+      new THREE.BoxGeometry(0.44, 0.22, 0.025),
+      shellMat
+    );
+    backrest.position.set(0, 0.74, -0.22);
+    backrest.rotation.x = -0.12;
+    chair.add(backrest);
+
+    return chair;
+  }
+
+  // --- Helper: High-Top Modern 4-Legged Barstool ---
+  _createModernBarstool() {
+    const stool = new THREE.Group();
+    const frameMat = this.materials.screenBezelMetal;
+    const seatH = 0.72; // Standard 30" bar-height seat
+
+    // 1. Four Splayed Tapered Steel Legs
+    const spreadFloor = 0.22;
+    const spreadTop = 0.15;
+    [[-1, 1], [1, 1], [-1, -1], [1, -1]].forEach(([sx, sz]) => {
+      const leg = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.012, 0.016, seatH - 0.04, 12),
+        frameMat
+      );
+      leg.position.set(sx * (spreadFloor + spreadTop) / 2, (seatH - 0.04) / 2, sz * (spreadFloor + spreadTop) / 2);
+      leg.rotation.z = -sx * 0.11;
+      leg.rotation.x = sz * 0.11;
+      stool.add(leg);
+
+      const glide = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.018, 0.018, 0.012, 10),
+        this.materials.brassAccent
+      );
+      glide.position.set(sx * spreadFloor, 0.006, sz * spreadFloor);
+      stool.add(glide);
+    });
+
+    // 2. Welded Square Perimeter Footrest Ring at Y = 0.28m
+    const footrestW = (spreadFloor * 2 + spreadTop * 2) * 0.45;
+    [-1, 1].forEach(side => {
+      const rungX = new THREE.Mesh(new THREE.BoxGeometry(footrestW, 0.016, 0.016), frameMat);
+      rungX.position.set(0, 0.28, side * footrestW / 2);
+      stool.add(rungX);
+
+      const rungZ = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.016, footrestW), frameMat);
+      rungZ.position.set(side * footrestW / 2, 0.28, 0);
+      stool.add(rungZ);
+    });
+
+    // 3. Swivel Mechanism Plate under seat
+    const swivelPlate = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.12, 0.14, 0.02, 16),
+      frameMat
+    );
+    swivelPlate.position.y = seatH - 0.02;
+    stool.add(swivelPlate);
+
+    // 4. Contoured Saddle Seat in Stitched Leather
+    const seat = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.20, 0.19, 0.06, 24),
+      this.materials.leatherBlack
+    );
+    seat.position.y = seatH + 0.02;
+    stool.add(seat);
+
+    const brassRim = new THREE.Mesh(
+      new THREE.TorusGeometry(0.195, 0.006, 8, 24),
+      this.materials.brassAccent
+    );
+    brassRim.rotation.x = Math.PI / 2;
+    brassRim.position.y = seatH - 0.005;
+    stool.add(brassRim);
+
+    // 5. Low Curved Lumbar Backrest
+    [-0.10, 0.10].forEach(bx => {
+      const post = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.007, 0.007, 0.22, 8),
+        frameMat
+      );
+      post.position.set(bx, seatH + 0.12, -0.16);
+      stool.add(post);
+    });
+
+    const lowBack = new THREE.Mesh(
+      new THREE.BoxGeometry(0.32, 0.12, 0.03),
+      this.materials.leatherBlack
+    );
+    lowBack.position.set(0, seatH + 0.22, -0.17);
+    lowBack.rotation.x = -0.1;
+    stool.add(lowBack);
+
+    return stool;
+  }
+
+  // --- Helper: Architectural 4-Legged Café Dining Table ---
+  _createCafeDiningTable(w = 0.85, d = 0.85, h = 0.74) {
+    const table = new THREE.Group();
+    const frameMat = this.materials.screenBezelMetal;
+
+    const top = new THREE.Mesh(
+      new THREE.BoxGeometry(w, 0.04, d),
+      this.materials.walnutDesk
+    );
+    top.position.y = h - 0.02;
+    table.add(top);
+
+    const apronW = w - 0.10;
+    const apronD = d - 0.10;
+    const apron = new THREE.Mesh(
+      new THREE.BoxGeometry(apronW, 0.03, apronD),
+      frameMat
+    );
+    apron.position.y = h - 0.055;
+    table.add(apron);
+
+    [[-1, 1], [1, 1], [-1, -1], [1, -1]].forEach(([sx, sz]) => {
+      const legX = sx * (w / 2 - 0.06);
+      const legZ = sz * (d / 2 - 0.06);
+
+      const leg = new THREE.Mesh(
+        new THREE.BoxGeometry(0.035, h - 0.06, 0.035),
+        frameMat
+      );
+      leg.position.set(legX, (h - 0.06) / 2, legZ);
+      table.add(leg);
+
+      const glide = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.02, 0.02, 0.01, 12),
+        this.materials.brassAccent
+      );
+      glide.position.set(legX, 0.005, legZ);
+      table.add(glide);
+    });
+
+    return table;
+  }
+
+  // --- Helper: Architectural Executive Credenza ---
+  _createExecutiveCredenza(w = 4.2, h = 0.72, d = 0.55) {
+    const cred = new THREE.Group();
+    const numDoors = 6;
+    const doorW = (w - 0.04) / numDoors;
+    const doorH = h - 0.12;
+
+    const plinth = new THREE.Mesh(
+      new THREE.BoxGeometry(w - 0.10, 0.08, d - 0.08),
+      this.materials.toeKick
+    );
+    plinth.position.y = 0.04;
+    cred.add(plinth);
+
+    const caseBody = new THREE.Mesh(
+      new THREE.BoxGeometry(w - 0.02, doorH, d - 0.04),
+      this.materials.walnutDesk
+    );
+    caseBody.position.y = 0.08 + doorH / 2;
+    cred.add(caseBody);
+
+    const topSlab = new THREE.Mesh(
+      new THREE.BoxGeometry(w, 0.04, d),
+      this.materials.carraraMarble
+    );
+    topSlab.position.y = h - 0.02;
+    cred.add(topSlab);
+
+    for (let i = 0; i < numDoors; i++) {
+      const dx = -(w - 0.04) / 2 + (i + 0.5) * doorW;
+      const door = new THREE.Mesh(
+        new THREE.BoxGeometry(doorW - 0.006, doorH - 0.01, 0.02),
+        this.materials.walnutSlat
+      );
+      door.position.set(dx, 0.08 + doorH / 2, d / 2 - 0.01);
+      cred.add(door);
+
+      const pull = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.004, 0.004, 0.16, 8),
+        this.materials.brassAccent
+      );
+      pull.position.set(dx + (i % 2 === 0 ? doorW / 2 - 0.03 : -doorW / 2 + 0.03), 0.08 + doorH / 2, d / 2 + 0.005);
+      cred.add(pull);
+    }
+
+    return cred;
+  }
+
+  // --- Helper: Modular Bookcase with 3D Monograph Volumes ---
+  _createModularBookcase(w = 2.4, h = 2.1, d = 0.38) {
+    const caseGroup = new THREE.Group();
+    const woodMat = this.materials.walnutDesk;
+
+    const topCap = new THREE.Mesh(new THREE.BoxGeometry(w, 0.04, d), woodMat);
+    topCap.position.y = h - 0.02;
+    caseGroup.add(topCap);
+
+    const bottomCap = new THREE.Mesh(new THREE.BoxGeometry(w, 0.08, d), woodMat);
+    bottomCap.position.y = 0.04;
+    caseGroup.add(bottomCap);
+
+    [-w / 2 + 0.02, w / 2 - 0.02].forEach(gx => {
+      const gable = new THREE.Mesh(new THREE.BoxGeometry(0.04, h - 0.08, d), woodMat);
+      gable.position.set(gx, h / 2, 0);
+      caseGroup.add(gable);
+    });
+
+    const backPanel = new THREE.Mesh(new THREE.BoxGeometry(w - 0.04, h - 0.12, 0.015), this.materials.acousticFelt);
+    backPanel.position.set(0, h / 2, -d / 2 + 0.01);
+    caseGroup.add(backPanel);
+
+    const centerDiv = new THREE.Mesh(new THREE.BoxGeometry(0.03, h - 0.12, d - 0.02), woodMat);
+    centerDiv.position.set(0, h / 2, 0);
+    caseGroup.add(centerDiv);
+
+    const numShelves = 5;
+    const shelfSpacing = (h - 0.16) / (numShelves + 1);
+    const bookColors = [0x991b1b, 0x1e3a8a, 0x14532d, 0x78350f, 0x312e81, 0x18181b];
+
+    for (let s = 1; s <= numShelves; s++) {
+      const sy = 0.08 + s * shelfSpacing;
+      [-w / 4, w / 4].forEach((bx, bIdx) => {
+        const shelf = new THREE.Mesh(new THREE.BoxGeometry(w / 2 - 0.04, 0.025, d - 0.02), woodMat);
+        shelf.position.set(bx, sy, 0);
+        caseGroup.add(shelf);
+
+        const numBooks = 6 + Math.floor(Math.sin(s * 3 + bIdx) * 3);
+        let currX = bx - (w / 4 - 0.08);
+        for (let b = 0; b < numBooks; b++) {
+          const bW = 0.03 + (b % 3) * 0.012;
+          const bH = 0.22 + (b % 4) * 0.025;
+          const bD = 0.18 + (b % 2) * 0.03;
+          const bMat = new THREE.MeshStandardMaterial({
+            color: bookColors[(s * 3 + b + bIdx) % bookColors.length],
+            roughness: 0.65,
+            metalness: 0.1
+          });
+          const book = new THREE.Mesh(new THREE.BoxGeometry(bW, bH, bD), bMat);
+          book.position.set(currX + bW / 2, sy + 0.0125 + bH / 2, 0);
+          caseGroup.add(book);
+
+          const goldSpine = new THREE.Mesh(new THREE.PlaneGeometry(bW * 0.8, 0.02), this.materials.brassAccent);
+          goldSpine.position.set(currX + bW / 2, sy + 0.0125 + bH * 0.75, bD / 2 + 0.001);
+          caseGroup.add(goldSpine);
+
+          currX += bW + 0.003;
+        }
+
+        const bookend = new THREE.Mesh(
+          new THREE.BoxGeometry(0.015, 0.16, 0.12),
+          this.materials.screenBezelMetal
+        );
+        bookend.position.set(currX + 0.015, sy + 0.0125 + 0.08, 0);
+        caseGroup.add(bookend);
+      });
+    }
+
+    return caseGroup;
+  }
+
+  // --- Helper: Exhaustively Detailed Vending Machine ---
+  _createDetailedVendingMachine(type = "drinks") {
+    const vm = new THREE.Group();
+    const w = 0.95;
+    const h = 1.95;
+    const d = 0.82;
+
+    const toe = new THREE.Mesh(
+      new THREE.BoxGeometry(w - 0.06, 0.10, d - 0.06),
+      this.materials.toeKick
+    );
+    toe.position.y = 0.05;
+    vm.add(toe);
+
+    const body = new THREE.Mesh(
+      new THREE.BoxGeometry(w, h - 0.10, d),
+      this.materials.cabinetBody
+    );
+    body.position.y = 0.10 + (h - 0.10) / 2;
+    vm.add(body);
+
+    const winW = 0.62;
+    const winH = 1.22;
+    const winX = -0.12;
+    const winY = 1.15;
+
+    const windowGlass = new THREE.Mesh(
+      new THREE.BoxGeometry(winW, winH, 0.015),
+      this.materials.sashGlass
+    );
+    windowGlass.position.set(winX, winY, d / 2 + 0.008);
+    vm.add(windowGlass);
+
+    const winFrame = new THREE.Mesh(
+      new THREE.BoxGeometry(winW + 0.04, winH + 0.04, 0.02),
+      this.materials.screenBezelMetal
+    );
+    winFrame.position.set(winX, winY, d / 2);
+    vm.add(winFrame);
+
+    const numShelves = 5;
+    const shelfSpacing = winH / (numShelves + 0.5);
+    const canColors = [0xdc2626, 0x2563eb, 0x16a34a, 0x9333ea, 0xca8a04];
+
+    for (let s = 0; s < numShelves; s++) {
+      const sy = winY - winH / 2 + 0.12 + s * shelfSpacing;
+
+      const shelf = new THREE.Mesh(
+        new THREE.BoxGeometry(winW - 0.04, 0.012, d - 0.25),
+        this.materials.cabinetHandle
+      );
+      shelf.position.set(winX, sy, 0.05);
+      vm.add(shelf);
+
+      const priceStrip = new THREE.Mesh(
+        new THREE.BoxGeometry(winW - 0.04, 0.02, 0.008),
+        this.materials.screenBezelMetal
+      );
+      priceStrip.position.set(winX, sy, d / 2 - 0.08);
+      vm.add(priceStrip);
+
+      const numCols = 5;
+      const colW = (winW - 0.06) / numCols;
+      for (let c = 0; c < numCols; c++) {
+        const cx = winX - (winW - 0.06) / 2 + (c + 0.5) * colW;
+
+        if (type === "drinks") {
+          const canMat = new THREE.MeshStandardMaterial({
+            color: canColors[(s + c) % canColors.length],
+            roughness: 0.25,
+            metalness: 0.85
+          });
+          const can = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.03, 0.03, 0.11, 16),
+            canMat
+          );
+          can.position.set(cx, sy + 0.06, d / 2 - 0.16);
+          vm.add(can);
+
+          const lid = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.028, 0.028, 0.004, 16),
+            this.materials.cabinetHandle
+          );
+          lid.position.set(cx, sy + 0.115, d / 2 - 0.16);
+          vm.add(lid);
+        } else {
+          const spiral = new THREE.Mesh(
+            new THREE.TorusGeometry(0.032, 0.004, 8, 16),
+            this.materials.cabinetHandle
+          );
+          spiral.position.set(cx, sy + 0.04, d / 2 - 0.14);
+          vm.add(spiral);
+
+          const bagMat = new THREE.MeshStandardMaterial({
+            color: canColors[(s * 2 + c) % canColors.length],
+            roughness: 0.4,
+            metalness: 0.6
+          });
+          const snack = new THREE.Mesh(
+            new THREE.BoxGeometry(0.07, 0.10, 0.025),
+            bagMat
+          );
+          snack.position.set(cx, sy + 0.06, d / 2 - 0.15);
+          snack.rotation.x = -0.15;
+          vm.add(snack);
+        }
+      }
+    }
+
+    [-winW / 2 + 0.02, winW / 2 - 0.02].forEach(lx => {
+      const ledStrip = new THREE.Mesh(
+        new THREE.BoxGeometry(0.015, winH - 0.04, 0.015),
+        this.materials.taskLightDiffuser
+      );
+      ledStrip.position.set(winX + lx, winY, d / 2 - 0.04);
+      vm.add(ledStrip);
+    });
+
+    const uiX = 0.30;
+    const headerCanvas = document.createElement("canvas");
+    headerCanvas.width = 256;
+    headerCanvas.height = 128;
+    const hCtx = headerCanvas.getContext("2d");
+    hCtx.fillStyle = type === "drinks" ? "#0284c7" : "#d97706";
+    hCtx.fillRect(0, 0, 256, 128);
+    hCtx.fillStyle = "#ffffff";
+    hCtx.font = "bold 32px sans-serif";
+    hCtx.textAlign = "center";
+    hCtx.fillText(type === "drinks" ? "ICE COLD" : "SNACKS", 128, 55);
+    hCtx.font = "20px sans-serif";
+    hCtx.fillText("REFRESHMENT", 128, 95);
+    const headerTex = new THREE.CanvasTexture(headerCanvas);
+
+    const marquee = new THREE.Mesh(
+      new THREE.BoxGeometry(0.24, 0.18, 0.02),
+      new THREE.MeshBasicMaterial({ map: headerTex })
+    );
+    marquee.position.set(uiX, 1.70, d / 2 + 0.005);
+    vm.add(marquee);
+
+    const priceDisplay = new THREE.Mesh(
+      new THREE.BoxGeometry(0.18, 0.05, 0.015),
+      this.materials.telMonitorFace
+    );
+    priceDisplay.position.set(uiX, 1.48, d / 2 + 0.008);
+    vm.add(priceDisplay);
+
+    const priceText = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.14, 0.035),
+      this.materials.telDigitalGreen
+    );
+    priceText.position.set(uiX, 1.48, d / 2 + 0.016);
+    vm.add(priceText);
+
+    const keypad = new THREE.Mesh(
+      new THREE.BoxGeometry(0.16, 0.22, 0.015),
+      this.materials.screenBezelMetal
+    );
+    keypad.position.set(uiX, 1.30, d / 2 + 0.008);
+    vm.add(keypad);
+
+    const billSlot = new THREE.Mesh(
+      new THREE.BoxGeometry(0.14, 0.035, 0.02),
+      this.materials.telDigitalGreen
+    );
+    billSlot.position.set(uiX, 1.12, d / 2 + 0.008);
+    vm.add(billSlot);
+
+    const coinSlot = new THREE.Mesh(
+      new THREE.BoxGeometry(0.04, 0.06, 0.015),
+      this.materials.cabinetHandle
+    );
+    coinSlot.position.set(uiX, 1.02, d / 2 + 0.008);
+    vm.add(coinSlot);
+
+    const flap = new THREE.Mesh(
+      new THREE.BoxGeometry(winW, 0.28, 0.03),
+      this.materials.screenBezelMetal
+    );
+    flap.position.set(winX, 0.35, d / 2 + 0.005);
+    vm.add(flap);
+
+    const pushPlate = new THREE.Mesh(
+      new THREE.BoxGeometry(winW * 0.7, 0.04, 0.01),
+      this.materials.cabinetHandle
+    );
+    pushPlate.position.set(winX, 0.35, d / 2 + 0.021);
+    vm.add(pushPlate);
+
+    return vm;
+  }
+
+  // --- Helper: Commercial Dual-Group Espresso Machine & Grinder Station ---
+  _createCommercialEspressoStation() {
+    const group = new THREE.Group();
+    const machine = new THREE.Group();
+
+    const bodyW = 0.72;
+    const bodyH = 0.44;
+    const bodyD = 0.52;
+
+    const mainBody = new THREE.Mesh(
+      new THREE.BoxGeometry(bodyW, bodyH, bodyD),
+      this.materials.espressoChrome
+    );
+    mainBody.position.y = bodyH / 2;
+    machine.add(mainBody);
+
+    [[-bodyW / 2 + 0.06, -bodyD / 2 + 0.06], [bodyW / 2 - 0.06, -bodyD / 2 + 0.06],
+     [-bodyW / 2 + 0.06, bodyD / 2 - 0.06], [bodyW / 2 - 0.06, bodyD / 2 - 0.06]].forEach(([fx, fz]) => {
+      const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.03, 0.04, 16), this.materials.espressoChrome);
+      foot.position.set(fx, 0.02, fz);
+      machine.add(foot);
+    });
+
+    const dripTray = new THREE.Mesh(
+      new THREE.BoxGeometry(bodyW - 0.04, 0.04, 0.24),
+      this.materials.airfoilStainless
+    );
+    dripTray.position.set(0, 0.06, bodyD / 2 - 0.08);
+    machine.add(dripTray);
+
+    [-0.14, 0.14].forEach(gx => {
+      const groupHead = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.045, 0.045, 0.08, 16),
+        this.materials.espressoChrome
+      );
+      groupHead.position.set(gx, bodyH - 0.08, bodyD / 2 - 0.04);
+      machine.add(groupHead);
+
+      const pfHead = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.038, 0.038, 0.04, 16),
+        this.materials.espressoChrome
+      );
+      pfHead.position.set(gx, bodyH - 0.14, bodyD / 2 - 0.04);
+      machine.add(pfHead);
+
+      const pfHandle = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.012, 0.014, 0.15, 12),
+        this.materials.leatherBlack
+      );
+      pfHandle.rotation.x = Math.PI / 2;
+      pfHandle.position.set(gx, bodyH - 0.14, bodyD / 2 + 0.06);
+      machine.add(pfHandle);
+    });
+
+    [-bodyW / 2 + 0.06, bodyW / 2 - 0.06].forEach((wx, wIdx) => {
+      const wand = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.006, 0.006, 0.24, 8),
+        this.materials.espressoChrome
+      );
+      wand.rotation.z = wIdx === 0 ? 0.35 : -0.35;
+      wand.position.set(wx, bodyH - 0.12, bodyD / 2 - 0.02);
+      machine.add(wand);
+
+      const knob = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.022, 0.022, 0.03, 12),
+        this.materials.leatherBlack
+      );
+      knob.rotation.x = Math.PI / 2;
+      knob.position.set(wx, bodyH - 0.04, bodyD / 2 + 0.01);
+      machine.add(knob);
+    });
+
+    [-0.04, 0.04].forEach(px => {
+      const gauge = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.024, 0.024, 0.01, 16),
+        this.materials.espressoChrome
+      );
+      gauge.rotation.x = Math.PI / 2;
+      gauge.position.set(px, bodyH - 0.05, bodyD / 2 + 0.006);
+      machine.add(gauge);
+    });
+
+    const rail = new THREE.Mesh(
+      new THREE.BoxGeometry(bodyW - 0.04, 0.03, bodyD - 0.06),
+      this.materials.cabinetHandle
+    );
+    rail.position.set(0, bodyH + 0.015, 0);
+    machine.add(rail);
+
+    for (let c = 0; c < 6; c++) {
+      const cup = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.03, 0.02, 0.045, 12),
+        this.materials.porcelainWhite
+      );
+      cup.position.set(-0.22 + c * 0.088, bodyH + 0.025, 0.02);
+      machine.add(cup);
+    }
+    group.add(machine);
+
+    // Burr Coffee Grinder
+    const grinder = new THREE.Group();
+    grinder.position.set(bodyW / 2 + 0.16, 0, 0);
+
+    const grinderBase = new THREE.Mesh(
+      new THREE.BoxGeometry(0.20, 0.36, 0.28),
+      this.materials.cabinetBody
+    );
+    grinderBase.position.y = 0.18;
+    grinder.add(grinderBase);
+
+    const hopper = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.08, 0.04, 0.18, 16),
+      new THREE.MeshPhysicalMaterial({ color: 0x4a2e18, transparent: true, opacity: 0.85, roughness: 0.1 })
+    );
+    hopper.position.y = 0.45;
+    grinder.add(hopper);
+
+    const hopperLid = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.085, 0.085, 0.02, 16),
+      this.materials.screenBezelMetal
+    );
+    hopperLid.position.y = 0.55;
+    grinder.add(hopperLid);
+
+    const mat = new THREE.Mesh(
+      new THREE.BoxGeometry(0.16, 0.01, 0.18),
+      this.materials.leatherBlack
+    );
+    mat.position.set(0, 0.005, 0.22);
+    grinder.add(mat);
+
+    const tamper = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.028, 0.028, 0.06, 16),
+      this.materials.espressoChrome
+    );
+    tamper.position.set(0, 0.04, 0.22);
+    grinder.add(tamper);
+
+    group.add(grinder);
+
+    return group;
+  }
+
+  // --- Helper: Commercial Heavy-Duty Stainless Microwave ---
+  _createCommercialMicrowave() {
+    const uwave = new THREE.Group();
+    const mwW = 0.58;
+    const mwH = 0.36;
+    const mwD = 0.42;
+
+    const shell = new THREE.Mesh(
+      new THREE.BoxGeometry(mwW, mwH, mwD),
+      this.materials.stainlessAppliance
+    );
+    shell.position.y = mwH / 2;
+    uwave.add(shell);
+
+    [[-mwW / 2 + 0.04, -mwD / 2 + 0.04], [mwW / 2 - 0.04, -mwD / 2 + 0.04],
+     [-mwW / 2 + 0.04, mwD / 2 - 0.04], [mwW / 2 - 0.04, mwD / 2 - 0.04]].forEach(([fx, fz]) => {
+      const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.015, 8), this.materials.toeKick);
+      foot.position.set(fx, 0.0075, fz);
+      uwave.add(foot);
+    });
+
+    const doorW = mwW * 0.70;
+    const doorH = mwH - 0.05;
+    const door = new THREE.Mesh(
+      new THREE.BoxGeometry(doorW, doorH, 0.015),
+      this.materials.screenBezelMetal
+    );
+    door.position.set(-mwW / 2 + doorW / 2 + 0.025, mwH / 2, mwD / 2 + 0.008);
+    uwave.add(door);
+
+    const viewingWindow = new THREE.Mesh(
+      new THREE.PlaneGeometry(doorW - 0.08, doorH - 0.08),
+      new THREE.MeshBasicMaterial({ color: 0x05070a })
+    );
+    viewingWindow.position.set(-mwW / 2 + doorW / 2 + 0.025, mwH / 2, mwD / 2 + 0.017);
+    uwave.add(viewingWindow);
+
+    const handle = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.007, 0.007, doorH * 0.65, 8),
+      this.materials.cabinetHandle
+    );
+    handle.position.set(-mwW / 2 + doorW - 0.015, mwH / 2, mwD / 2 + 0.032);
+    uwave.add(handle);
+
+    const consoleW = mwW - doorW - 0.05;
+    const consoleX = mwW / 2 - consoleW / 2 - 0.02;
+
+    const ledClock = new THREE.Mesh(
+      new THREE.BoxGeometry(consoleW - 0.02, 0.04, 0.01),
+      new THREE.MeshBasicMaterial({ color: 0xf59e0b })
+    );
+    ledClock.position.set(consoleX, mwH - 0.06, mwD / 2 + 0.01);
+    uwave.add(ledClock);
+
+    const touchpad = new THREE.Mesh(
+      new THREE.BoxGeometry(consoleW - 0.02, 0.16, 0.005),
+      this.materials.screenBezelMetal
+    );
+    touchpad.position.set(consoleX, mwH / 2 - 0.02, mwD / 2 + 0.01);
+    uwave.add(touchpad);
+
+    const rotaryDial = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.024, 0.024, 0.015, 16),
+      this.materials.cabinetHandle
+    );
+    rotaryDial.rotation.x = Math.PI / 2;
+    rotaryDial.position.set(consoleX, 0.07, mwD / 2 + 0.015);
+    uwave.add(rotaryDial);
+
+    return uwave;
+  }
+
+  // --- Helper: Commercial French-Door Refrigerator ---
+  _createCommercialRefrigerator() {
+    const fridge = new THREE.Group();
+    const w = 0.98;
+    const h = 1.95;
+    const d = 0.85;
+
+    const body = new THREE.Mesh(
+      new THREE.BoxGeometry(w, h - 0.08, d - 0.04),
+      this.materials.stainlessAppliance
+    );
+    body.position.y = 0.08 + (h - 0.08) / 2;
+    fridge.add(body);
+
+    const kickGrill = new THREE.Mesh(
+      new THREE.BoxGeometry(w, 0.08, d),
+      this.materials.screenBezelMetal
+    );
+    kickGrill.position.y = 0.04;
+    fridge.add(kickGrill);
+
+    const upperH = (h - 0.08) * 0.62;
+    const upperY = 0.08 + (h - 0.08) * 0.38 + upperH / 2;
+    const doorW = (w - 0.01) / 2;
+
+    [-doorW / 2 - 0.003, doorW / 2 + 0.003].forEach((dx, dIdx) => {
+      const door = new THREE.Mesh(
+        new THREE.BoxGeometry(doorW - 0.004, upperH - 0.01, 0.04),
+        this.materials.stainlessAppliance
+      );
+      door.position.set(dx, upperY, d / 2 + 0.02);
+      fridge.add(door);
+
+      const handle = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.012, 0.012, upperH * 0.8, 12),
+        this.materials.cabinetHandle
+      );
+      handle.position.set(dIdx === 0 ? dx + doorW / 2 - 0.04 : dx - doorW / 2 + 0.04, upperY, d / 2 + 0.06);
+      fridge.add(handle);
+    });
+
+    const dispenserNiche = new THREE.Mesh(
+      new THREE.BoxGeometry(0.24, 0.32, 0.04),
+      this.materials.screenBezelMetal
+    );
+    dispenserNiche.position.set(-doorW / 2, upperY - 0.05, d / 2 + 0.035);
+    fridge.add(dispenserNiche);
+
+    const paddle = new THREE.Mesh(
+      new THREE.BoxGeometry(0.08, 0.12, 0.01),
+      this.materials.cabinetHandle
+    );
+    paddle.position.set(-doorW / 2, upperY - 0.06, d / 2 + 0.02);
+    paddle.rotation.x = 0.1;
+    fridge.add(paddle);
+
+    const tempDisp = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.18, 0.04),
+      this.materials.telDigitalGreen
+    );
+    tempDisp.position.set(-doorW / 2, upperY + 0.08, d / 2 + 0.042);
+    fridge.add(tempDisp);
+
+    const lowerH = (h - 0.08) * 0.36;
+    const lowerY = 0.08 + lowerH / 2;
+    const freezerDrawer = new THREE.Mesh(
+      new THREE.BoxGeometry(w - 0.01, lowerH - 0.01, 0.04),
+      this.materials.stainlessAppliance
+    );
+    freezerDrawer.position.set(0, lowerY, d / 2 + 0.02);
+    fridge.add(freezerDrawer);
+
+    const freezerHandle = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.012, 0.012, w * 0.65, 12),
+      this.materials.cabinetHandle
+    );
+    freezerHandle.rotation.z = Math.PI / 2;
+    freezerHandle.position.set(0, lowerY + lowerH * 0.32, d / 2 + 0.06);
+    fridge.add(freezerHandle);
+
+    return fridge;
+  }
+
+  // --- Helper: Modular Louvered Steel Locker Bank ---
+  _createLockerBank(numBays = 12, isChampagne = false) {
+    const bank = new THREE.Group();
+    const bayW = 0.35;
+    const totalW = numBays * bayW;
+    const h = 1.95;
+    const d = 0.55;
+    const steelMat = isChampagne ? this.materials.lockerChampagne : this.materials.lockerSteel;
+
+    const toe = new THREE.Mesh(
+      new THREE.BoxGeometry(totalW - 0.04, 0.10, d - 0.06),
+      this.materials.toeKick
+    );
+    toe.position.y = 0.05;
+    bank.add(toe);
+
+    const body = new THREE.Mesh(
+      new THREE.BoxGeometry(totalW, h - 0.10, d),
+      steelMat
+    );
+    body.position.y = 0.10 + (h - 0.10) / 2;
+    bank.add(body);
+
+    const slopedCap = new THREE.Mesh(
+      new THREE.BoxGeometry(totalW + 0.02, 0.12, d + 0.02),
+      steelMat
+    );
+    slopedCap.position.y = h + 0.04;
+    slopedCap.rotation.x = -0.15;
+    bank.add(slopedCap);
+
+    const doorH = (h - 0.14) / 2;
+    for (let b = 0; b < numBays; b++) {
+      const bx = -totalW / 2 + (b + 0.5) * bayW;
+
+      [0, 1].forEach(tier => {
+        const dy = 0.10 + (tier + 0.5) * doorH;
+
+        const door = new THREE.Mesh(
+          new THREE.BoxGeometry(bayW - 0.015, doorH - 0.01, 0.02),
+          steelMat
+        );
+        door.position.set(bx, dy, d / 2 + 0.005);
+        bank.add(door);
+
+        [-doorH * 0.35, doorH * 0.35].forEach(ly => {
+          for (let s = 0; s < 3; s++) {
+            const slot = new THREE.Mesh(
+              new THREE.BoxGeometry(bayW * 0.55, 0.008, 0.006),
+              this.materials.screenBezelMetal
+            );
+            slot.position.set(bx, dy + ly + s * 0.016, d / 2 + 0.016);
+            bank.add(slot);
+          }
+        });
+
+        const lockPocket = new THREE.Mesh(
+          new THREE.BoxGeometry(0.045, 0.10, 0.015),
+          this.materials.screenBezelMetal
+        );
+        lockPocket.position.set(bx + bayW / 2 - 0.05, dy, d / 2 + 0.012);
+        bank.add(lockPocket);
+
+        const lockDial = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.012, 0.012, 0.01, 12),
+          this.materials.cabinetHandle
+        );
+        lockDial.rotation.x = Math.PI / 2;
+        lockDial.position.set(bx + bayW / 2 - 0.05, dy + 0.02, d / 2 + 0.02);
+        bank.add(lockDial);
+
+        const numPlate = new THREE.Mesh(
+          new THREE.BoxGeometry(0.05, 0.025, 0.006),
+          this.materials.brassAccent
+        );
+        numPlate.position.set(bx, dy + doorH * 0.22, d / 2 + 0.016);
+        bank.add(numPlate);
+      });
+    }
+
+    return bank;
+  }
+
+  // --- High-Fidelity 5-Star Caster Ergonomic Swivel Chair ---
   _createExecutiveSwivelChair(isExecutive = false) {
     const chair = new THREE.Group();
 
@@ -1105,76 +3008,97 @@ export class LabCasework {
 
     // Curved Modern Sectional Sofa in Emerald Velvet (Facing Entrance & Desk)
     const sofaMain = new THREE.Mesh(
-      new THREE.BoxGeometry(3.2, 0.44, 0.95),
+      new THREE.BoxGeometry(3.2, 0.28, 0.95),
       this.materials.velvetLounge
     );
-    sofaMain.position.set(0, 0.22, -0.9);
+    sofaMain.position.set(0, 0.14, -0.9);
     loungeGroup.add(sofaMain);
 
+    // Three Tailored Boxed Seat Cushions with French Seams
+    for (let c = 0; c < 3; c++) {
+      const cx = -1.0 + c * 1.0;
+      const cushion = new THREE.Mesh(
+        new THREE.BoxGeometry(0.96, 0.14, 0.88),
+        this.materials.velvetLounge
+      );
+      cushion.position.set(cx, 0.35, -0.86);
+      loungeGroup.add(cushion);
+    }
+
     const sofaBack = new THREE.Mesh(
-      new THREE.BoxGeometry(3.2, 0.40, 0.25),
+      new THREE.BoxGeometry(3.2, 0.44, 0.22),
       this.materials.velvetLounge
     );
-    sofaBack.position.set(0, 0.58, -1.25);
+    sofaBack.position.set(0, 0.56, -1.25);
     loungeGroup.add(sofaBack);
 
-    // Brass cylindrical sofa feet
-    [[-1.5, -0.5], [1.5, -0.5], [-1.5, -1.3], [1.5, -1.3]].forEach(([fx, fz]) => {
+    // Tapered Architectural Brushed Brass Legs
+    [[-1.5, -0.48], [1.5, -0.48], [-1.5, -1.3], [1.5, -1.3], [0, -1.3]].forEach(([fx, fz]) => {
       const foot = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.03, 0.03, 0.10, 12),
+        new THREE.CylinderGeometry(0.014, 0.022, 0.12, 12),
         this.materials.brassAccent
       );
-      foot.position.set(fx, 0.05, fz);
+      foot.position.set(fx, 0.06, fz);
       loungeGroup.add(foot);
     });
 
-    // Pair of Boucle Club Armchairs
-    [-1.6, 1.6].forEach((cx, idx) => {
-      const chairSeat = new THREE.Mesh(
-        new THREE.BoxGeometry(0.85, 0.42, 0.85),
-        this.materials.boucleFabric
-      );
-      chairSeat.position.set(cx, 0.21, 0.4);
-      chairSeat.rotation.y = (idx === 0 ? 0.35 : -0.35);
-      loungeGroup.add(chairSeat);
-
-      const chairBack = new THREE.Mesh(
-        new THREE.BoxGeometry(0.85, 0.38, 0.20),
-        this.materials.boucleFabric
-      );
-      chairBack.position.set(cx + (idx === 0 ? -0.1 : 0.1), 0.54, 0.7);
-      chairBack.rotation.y = (idx === 0 ? 0.35 : -0.35);
-      loungeGroup.add(chairBack);
+    // Pair of Ultra-High-Fidelity Boucle Club Armchairs
+    [-1.65, 1.65].forEach((cx, idx) => {
+      const armChair = this._createModernClubArmchair(this.materials.boucleFabric, this.materials.screenBezelMetal);
+      armChair.position.set(cx, 0, 0.4);
+      armChair.rotation.y = idx === 0 ? 0.35 : -0.35;
+      loungeGroup.add(armChair);
     });
 
-    // Twin Round Carrara Marble Coffee Tables
+    // Twin Round Carrara Marble Coffee Tables with Tripod Brass Stretcher Bases
     const tableLarge = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.45, 0.45, 0.04, 32),
+      new THREE.CylinderGeometry(0.45, 0.45, 0.035, 32),
       this.materials.carraraMarble
     );
     tableLarge.position.set(-0.25, 0.38, 0.1);
     loungeGroup.add(tableLarge);
 
-    const tableLargeStem = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.04, 0.18, 0.36, 16),
+    // Large table 3-legged tripod brass base
+    for (let i = 0; i < 3; i++) {
+      const angle = (i * Math.PI * 2) / 3;
+      const leg = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.012, 0.014, 0.36, 12),
+        this.materials.brassAccent
+      );
+      leg.position.set(-0.25 + Math.sin(angle) * 0.32, 0.18, 0.1 + Math.cos(angle) * 0.32);
+      loungeGroup.add(leg);
+    }
+    const tripodRingL = new THREE.Mesh(
+      new THREE.TorusGeometry(0.30, 0.008, 8, 24),
       this.materials.brassAccent
     );
-    tableLargeStem.position.set(-0.25, 0.18, 0.1);
-    loungeGroup.add(tableLargeStem);
+    tripodRingL.rotation.x = Math.PI / 2;
+    tripodRingL.position.set(-0.25, 0.12, 0.1);
+    loungeGroup.add(tripodRingL);
 
     const tableSmall = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.32, 0.32, 0.035, 32),
+      new THREE.CylinderGeometry(0.32, 0.32, 0.03, 32),
       this.materials.carraraMarble
     );
     tableSmall.position.set(0.55, 0.44, 0.35);
     loungeGroup.add(tableSmall);
 
-    const tableSmallStem = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.035, 0.15, 0.42, 16),
+    for (let i = 0; i < 3; i++) {
+      const angle = (i * Math.PI * 2) / 3;
+      const leg = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.012, 0.014, 0.42, 12),
+        this.materials.brassAccent
+      );
+      leg.position.set(0.55 + Math.sin(angle) * 0.22, 0.21, 0.35 + Math.cos(angle) * 0.22);
+      loungeGroup.add(leg);
+    }
+    const tripodRingS = new THREE.Mesh(
+      new THREE.TorusGeometry(0.20, 0.008, 8, 24),
       this.materials.brassAccent
     );
-    tableSmallStem.position.set(0.55, 0.21, 0.35);
-    loungeGroup.add(tableSmallStem);
+    tripodRingS.rotation.x = Math.PI / 2;
+    tripodRingS.position.set(0.55, 0.14, 0.35);
+    loungeGroup.add(tripodRingS);
 
     // Architectural monographs & journals on table
     const mag1 = new THREE.Mesh(
@@ -1455,20 +3379,37 @@ export class LabCasework {
     }
     office.add(slatWall);
 
-    // 4. Low Executive Walnut Credenza & Coffee Station (South wall: Z = -3.55)
-    const credenza = new THREE.Mesh(
-      new THREE.BoxGeometry(4.2, 0.68, 0.55),
-      this.materials.walnutDesk
-    );
-    credenza.position.set(0, 0.34, -3.55);
+    // 4. Low Architectural Executive Walnut & Marble Credenza (South wall: Z = -3.55)
+    const credenza = this._createExecutiveCredenza(4.2, 0.72, 0.55);
+    credenza.position.set(0, 0, -3.55);
     office.add(credenza);
 
-    // Espresso Machine on Credenza
-    const espressoMachine = new THREE.Mesh(
-      new THREE.BoxGeometry(0.38, 0.36, 0.40),
-      this.materials.stainlessAppliance
+    // Compact Espresso Station on Credenza
+    const espressoMachine = new THREE.Group();
+    espressoMachine.position.set(1.4, 0.72, -3.55);
+
+    const espBody = new THREE.Mesh(
+      new THREE.BoxGeometry(0.32, 0.32, 0.36),
+      this.materials.espressoChrome
     );
-    espressoMachine.position.set(1.4, 0.86, -3.55);
+    espBody.position.y = 0.16;
+    espressoMachine.add(espBody);
+
+    const espHandle = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.01, 0.012, 0.12, 8),
+      this.materials.leatherBlack
+    );
+    espHandle.rotation.x = Math.PI / 2;
+    espHandle.position.set(0, 0.12, 0.22);
+    espressoMachine.add(espHandle);
+
+    const espCup = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.025, 0.018, 0.04, 12),
+      this.materials.porcelainWhite
+    );
+    espCup.position.set(0, 0.04, 0.14);
+    espressoMachine.add(espCup);
+
     office.add(espressoMachine);
 
     // Books and Reference binders on Credenza
@@ -1477,7 +3418,7 @@ export class LabCasework {
         new THREE.BoxGeometry(0.04, 0.24, 0.18),
         b % 2 === 0 ? this.materials.leatherBlack : this.materials.cabinetBody
       );
-      book.position.set(-1.6 + b * 0.045, 0.80, -3.55);
+      book.position.set(-1.6 + b * 0.045, 0.84, -3.55);
       office.add(book);
     }
 
@@ -1485,24 +3426,13 @@ export class LabCasework {
     const lounge = new THREE.Group();
     lounge.position.set(-0.8, 0, 2.0);
 
-    const table = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.55, 0.55, 0.04, 32),
-      this.materials.walnutDesk
-    );
-    table.position.y = 0.72;
+    const table = this._createCafeDiningTable(0.95, 0.95, 0.72);
     lounge.add(table);
-
-    const tableLeg = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.05, 0.22, 0.70, 16),
-      this.materials.brassAccent
-    );
-    tableLeg.position.y = 0.35;
-    lounge.add(tableLeg);
 
     for (let i = 0; i < 3; i++) {
       const angle = (i * Math.PI * 2) / 3;
-      const cArm = this._createExecutiveSwivelChair(false);
-      cArm.position.set(Math.sin(angle) * 0.85, 0, Math.cos(angle) * 0.85);
+      const cArm = this._createModernClubArmchair(this.materials.leatherBlack, this.materials.brassAccent);
+      cArm.position.set(Math.sin(angle) * 0.95, 0, Math.cos(angle) * 0.95);
       cArm.rotation.y = angle + Math.PI;
       lounge.add(cArm);
     }
@@ -1687,50 +3617,133 @@ export class LabCasework {
     conf.add(videoWall);
 
     // 5. Refreshment Buffet Credenza (North Wall: Z = 3.82)
-    const credenza = new THREE.Mesh(
-      new THREE.BoxGeometry(4.2, 0.85, 0.60),
-      this.materials.kitchenCabinetSlate
-    );
-    credenza.position.set(0.6, 0.425, 3.65);
+    const credenza = this._createExecutiveCredenza(4.2, 0.85, 0.60);
+    credenza.position.set(0.6, 0, 3.65);
     conf.add(credenza);
 
-    const credenzaTop = new THREE.Mesh(
-      new THREE.BoxGeometry(4.25, 0.04, 0.65),
-      this.materials.kitchenQuartz
-    );
-    credenzaTop.position.set(0.6, 0.87, 3.65);
-    conf.add(credenzaTop);
+    // Filtered Water Bar Station on Credenza
+    const waterBar = new THREE.Group();
+    waterBar.position.set(2.0, 0.85, 3.65);
 
-    // Water cooler & coffee carafes
-    const waterDispenser = new THREE.Mesh(
-      new THREE.BoxGeometry(0.35, 0.50, 0.35),
+    const wbBase = new THREE.Mesh(
+      new THREE.BoxGeometry(0.35, 0.42, 0.35),
       this.materials.stainlessAppliance
     );
-    waterDispenser.position.set(2.2, 1.15, 3.65);
-    conf.add(waterDispenser);
+    wbBase.position.y = 0.21;
+    waterBar.add(wbBase);
 
-    // 6. Mobile Glass Whiteboard (East Side: X = 4.8)
+    // Dispense tap
+    const wbTap = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.012, 0.012, 0.16, 12),
+      this.materials.chromeFaucet
+    );
+    wbTap.position.set(0, 0.32, 0.18);
+    waterBar.add(wbTap);
+
+    // Blue (Cold) and Red (Hot) touch sensor indicators
+    [-0.04, 0.04].forEach((ix, iIdx) => {
+      const ind = new THREE.Mesh(
+        new THREE.CircleGeometry(0.01, 12),
+        new THREE.MeshBasicMaterial({ color: iIdx === 0 ? 0x0284c7 : 0xdc2626 })
+      );
+      ind.position.set(ix, 0.36, 0.18);
+      waterBar.add(ind);
+    });
+
+    // Twin Stainless Thermal Carafes
+    [-0.14, 0.14].forEach(cx => {
+      const carafe = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.05, 0.065, 0.24, 16),
+        this.materials.espressoChrome
+      );
+      carafe.position.set(cx, 0.12, -0.05);
+      waterBar.add(carafe);
+
+      const cHandle = new THREE.Mesh(
+        new THREE.BoxGeometry(0.02, 0.16, 0.04),
+        this.materials.leatherBlack
+      );
+      cHandle.position.set(cx, 0.14, -0.10);
+      waterBar.add(cHandle);
+    });
+
+    conf.add(waterBar);
+
+    // 6. Mobile Magnetic Whiteboard with Caster Base & Marker Accessories (East Side: X = 4.8)
     const boardGroup = new THREE.Group();
-    boardGroup.position.set(4.8, 1.4, 0);
+    boardGroup.position.set(4.8, 0, 0);
 
+    // Floor Base Frame with 4 Dual-Wheel Locking Casters
+    [-0.8, 0.8].forEach(bx => {
+      const bLeg = new THREE.Mesh(
+        new THREE.BoxGeometry(0.04, 0.04, 0.60),
+        this.materials.standAnodized
+      );
+      bLeg.position.set(bx, 0.08, 0);
+      boardGroup.add(bLeg);
+
+      [-0.26, 0.26].forEach(cz => {
+        const caster = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.025, 0.025, 0.015, 12),
+          this.materials.screenBezelMetal
+        );
+        caster.rotation.z = Math.PI / 2;
+        caster.position.set(bx, 0.025, cz);
+        boardGroup.add(caster);
+      });
+
+      // Upright Stanchion Post
+      const post = new THREE.Mesh(
+        new THREE.BoxGeometry(0.04, 1.80, 0.04),
+        this.materials.standAnodized
+      );
+      post.position.set(bx, 0.98, 0);
+      boardGroup.add(post);
+    });
+
+    // Whiteboard Frame
     const boardFrame = new THREE.Mesh(
-      new THREE.BoxGeometry(0.04, 1.4, 2.2),
+      new THREE.BoxGeometry(1.84, 1.24, 0.03),
       this.materials.standAnodized
     );
+    boardFrame.position.set(0, 1.30, 0);
     boardGroup.add(boardFrame);
 
+    // Porcelain Enamelled Magnetic Whiteboard Surface
     const glassSurface = new THREE.Mesh(
-      new THREE.BoxGeometry(0.015, 1.34, 2.14),
+      new THREE.BoxGeometry(1.78, 1.18, 0.012),
       this.materials.porcelainWhite
     );
+    glassSurface.position.set(0, 1.30, 0);
     boardGroup.add(glassSurface);
 
+    // Full-Width Extruded Aluminum Marker & Eraser Tray
     const tray = new THREE.Mesh(
-      new THREE.BoxGeometry(0.08, 0.02, 1.8),
+      new THREE.BoxGeometry(1.60, 0.02, 0.08),
       this.materials.standAnodized
     );
-    tray.position.set(0.04, -0.71, 0);
+    tray.position.set(0, 0.67, 0.04);
     boardGroup.add(tray);
+
+    // Dry-Erase Markers (Black, Blue, Red, Green)
+    const markerColors = [0x09090b, 0x1d4ed8, 0xb91c1c, 0x15803d];
+    markerColors.forEach((col, idx) => {
+      const marker = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.008, 0.008, 0.12, 10),
+        new THREE.MeshStandardMaterial({ color: col, roughness: 0.3 })
+      );
+      marker.rotation.z = Math.PI / 2;
+      marker.position.set(-0.35 + idx * 0.05, 0.69, 0.04);
+      boardGroup.add(marker);
+    });
+
+    // Magnetic Felt Eraser
+    const eraser = new THREE.Mesh(
+      new THREE.BoxGeometry(0.12, 0.035, 0.05),
+      this.materials.screenBezelMetal
+    );
+    eraser.position.set(0.10, 0.70, 0.04);
+    boardGroup.add(eraser);
 
     conf.add(boardGroup);
 
@@ -1754,19 +3767,31 @@ export class LabCasework {
     guestDesk.position.set(0, 0.74, -0.5);
     guestOff.add(guestDesk);
 
-    const guestDeskLegL = new THREE.Mesh(
-      new THREE.BoxGeometry(0.05, 0.72, 0.85),
-      this.materials.standAnodized
-    );
-    guestDeskLegL.position.set(-0.95, 0.36, -0.5);
-    guestOff.add(guestDeskLegL);
+    // Welded Steel O-Frame Legs & 3-Drawer Mobile Pedestal
+    [-0.92, 0.92].forEach(lx => {
+      const oFrame = new THREE.Mesh(
+        new THREE.BoxGeometry(0.04, 0.72, 0.85),
+        this.materials.screenBezelMetal
+      );
+      oFrame.position.set(lx, 0.36, -0.5);
+      guestOff.add(oFrame);
+    });
 
-    const guestDeskLegR = new THREE.Mesh(
-      new THREE.BoxGeometry(0.40, 0.72, 0.85),
+    const gPedestal = new THREE.Mesh(
+      new THREE.BoxGeometry(0.38, 0.58, 0.65),
       this.materials.cabinetBody
     );
-    guestDeskLegR.position.set(0.80, 0.36, -0.5);
-    guestOff.add(guestDeskLegR);
+    gPedestal.position.set(0.68, 0.29, -0.5);
+    guestOff.add(gPedestal);
+
+    for (let d = 0; d < 3; d++) {
+      const drw = new THREE.Mesh(
+        new THREE.BoxGeometry(0.36, 0.17, 0.015),
+        this.materials.drawerFace
+      );
+      drw.position.set(0.68, 0.10 + d * 0.19, -0.17);
+      guestOff.add(drw);
+    }
 
     // Dual monitors
     const gMon = this._createRealisticWorkstationMonitor(
@@ -1785,12 +3810,9 @@ export class LabCasework {
     gClientChair.rotation.y = Math.PI;
     guestOff.add(gClientChair);
 
-    // Bookcase on South wall (Z = -3.7)
-    const gBookcase = new THREE.Mesh(
-      new THREE.BoxGeometry(1.8, 1.8, 0.40),
-      this.materials.walnutDesk
-    );
-    gBookcase.position.set(0, 0.90, -3.65);
+    // Modular Bookcase loaded with 3D chemistry volumes (South wall: Z = -3.7)
+    const gBookcase = this._createModularBookcase(1.8, 1.9, 0.38);
+    gBookcase.position.set(0, 0, -3.65);
     guestOff.add(gBookcase);
 
     suite.add(guestOff);
@@ -1806,19 +3828,30 @@ export class LabCasework {
     adminDesk.position.set(0, 0.74, -0.5);
     adminOff.add(adminDesk);
 
-    const aLegL = new THREE.Mesh(
-      new THREE.BoxGeometry(0.40, 0.72, 0.85),
+    [-0.92, 0.92].forEach(lx => {
+      const oFrame = new THREE.Mesh(
+        new THREE.BoxGeometry(0.04, 0.72, 0.85),
+        this.materials.screenBezelMetal
+      );
+      oFrame.position.set(lx, 0.36, -0.5);
+      adminOff.add(oFrame);
+    });
+
+    const aPedestal = new THREE.Mesh(
+      new THREE.BoxGeometry(0.38, 0.58, 0.65),
       this.materials.cabinetBody
     );
-    aLegL.position.set(-0.80, 0.36, -0.5);
-    adminOff.add(aLegL);
+    aPedestal.position.set(-0.68, 0.29, -0.5);
+    adminOff.add(aPedestal);
 
-    const aLegR = new THREE.Mesh(
-      new THREE.BoxGeometry(0.05, 0.72, 0.85),
-      this.materials.standAnodized
-    );
-    aLegR.position.set(0.95, 0.36, -0.5);
-    adminOff.add(aLegR);
+    for (let d = 0; d < 3; d++) {
+      const drw = new THREE.Mesh(
+        new THREE.BoxGeometry(0.36, 0.17, 0.015),
+        this.materials.drawerFace
+      );
+      drw.position.set(-0.68, 0.10 + d * 0.19, -0.17);
+      adminOff.add(drw);
+    }
 
     const aMon = this._createRealisticWorkstationMonitor(
       0.62, 0.38, 0, 0, 0,
@@ -1842,6 +3875,23 @@ export class LabCasework {
     copierBody.position.y = 0.525;
     copierGroup.add(copierBody);
 
+    // Dual 550-sheet paper cassettes with level indicator windows
+    [0.22, 0.38].forEach(cy => {
+      const tray = new THREE.Mesh(
+        new THREE.BoxGeometry(0.81, 0.13, 0.02),
+        this.materials.drawerFace
+      );
+      tray.position.set(0, cy, 0.38);
+      copierGroup.add(tray);
+
+      const handle = new THREE.Mesh(
+        new THREE.BoxGeometry(0.24, 0.02, 0.01),
+        this.materials.cabinetHandle
+      );
+      handle.position.set(0, cy + 0.03, 0.395);
+      copierGroup.add(handle);
+    });
+
     const feeder = new THREE.Mesh(
       new THREE.BoxGeometry(0.65, 0.15, 0.50),
       this.materials.screenBezelMetal
@@ -1857,14 +3907,42 @@ export class LabCasework {
     copScreen.rotation.x = -0.3;
     copierGroup.add(copScreen);
 
+    // Output finisher catch tray
+    const outTray = new THREE.Mesh(
+      new THREE.BoxGeometry(0.35, 0.02, 0.45),
+      this.materials.screenBezelMetal
+    );
+    outTray.position.set(-0.52, 0.75, 0);
+    copierGroup.add(outTray);
+
     adminOff.add(copierGroup);
 
-    // Lateral 4-Drawer Metal File Cabinets (South wall: Z = -3.7)
-    const fileCabinet = new THREE.Mesh(
+    // Lateral 4-Drawer Steel File Cabinet (South wall: Z = -3.7)
+    const fileCabinet = new THREE.Group();
+    fileCabinet.position.set(0, 0, -3.65);
+
+    const fcBody = new THREE.Mesh(
       new THREE.BoxGeometry(1.4, 1.35, 0.55),
       this.materials.cabinetBody
     );
-    fileCabinet.position.set(0, 0.675, -3.65);
+    fcBody.position.y = 0.675;
+    fileCabinet.add(fcBody);
+
+    for (let d = 0; d < 4; d++) {
+      const drw = new THREE.Mesh(
+        new THREE.BoxGeometry(1.34, 0.29, 0.02),
+        this.materials.drawerFace
+      );
+      drw.position.set(0, 0.20 + d * 0.31, 0.28);
+      fileCabinet.add(drw);
+
+      const jPull = new THREE.Mesh(
+        new THREE.BoxGeometry(1.20, 0.025, 0.01),
+        this.materials.cabinetHandle
+      );
+      jPull.position.set(0, 0.31 + d * 0.31, 0.295);
+      fileCabinet.add(jPull);
+    }
     adminOff.add(fileCabinet);
 
     suite.add(adminOff);
@@ -1880,19 +3958,21 @@ export class LabCasework {
     instDesk.position.set(0, 0.74, -0.5);
     instOff.add(instDesk);
 
-    const iLegL = new THREE.Mesh(
-      new THREE.BoxGeometry(0.05, 0.72, 0.85),
-      this.materials.standAnodized
-    );
-    iLegL.position.set(-0.95, 0.36, -0.5);
-    instOff.add(iLegL);
+    [-0.92, 0.92].forEach(lx => {
+      const oFrame = new THREE.Mesh(
+        new THREE.BoxGeometry(0.04, 0.72, 0.85),
+        this.materials.screenBezelMetal
+      );
+      oFrame.position.set(lx, 0.36, -0.5);
+      instOff.add(oFrame);
+    });
 
-    const iLegR = new THREE.Mesh(
-      new THREE.BoxGeometry(0.40, 0.72, 0.85),
+    const iPedestal = new THREE.Mesh(
+      new THREE.BoxGeometry(0.38, 0.58, 0.65),
       this.materials.cabinetBody
     );
-    iLegR.position.set(0.80, 0.36, -0.5);
-    instOff.add(iLegR);
+    iPedestal.position.set(0.68, 0.29, -0.5);
+    instOff.add(iPedestal);
 
     const iMon = this._createRealisticWorkstationMonitor(
       0.62, 0.38, 0, 0, 0,
@@ -1905,34 +3985,21 @@ export class LabCasework {
     iChair.position.set(0, 0, -1.1);
     instOff.add(iChair);
 
-    // Discussion table with 2 student chairs
-    const discTable = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.45, 0.45, 0.035, 24),
-      this.materials.walnutDesk
-    );
-    discTable.position.set(-0.8, 0.72, 1.2);
+    // Discussion table with 2 modern Scandinavian dining chairs
+    const discTable = this._createCafeDiningTable(0.90, 0.90, 0.72);
+    discTable.position.set(-0.8, 0, 1.2);
     instOff.add(discTable);
 
-    const discStem = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.04, 0.16, 0.70, 16),
-      this.materials.standAnodized
-    );
-    discStem.position.set(-0.8, 0.35, 1.2);
-    instOff.add(discStem);
-
     [-0.55, 0.55].forEach((dx) => {
-      const sChair = this._createExecutiveSwivelChair(false);
+      const sChair = this._createCafeDiningChair();
       sChair.position.set(-0.8 + dx, 0, 1.2);
       sChair.rotation.y = dx > 0 ? -Math.PI / 2 : Math.PI / 2;
       instOff.add(sChair);
     });
 
     // Academic Bookcase wall loaded with chemistry monographs (South wall: Z = -3.7)
-    const bookcase = new THREE.Mesh(
-      new THREE.BoxGeometry(2.4, 2.1, 0.38),
-      this.materials.walnutDesk
-    );
-    bookcase.position.set(0, 1.05, -3.65);
+    const bookcase = this._createModularBookcase(2.4, 2.1, 0.38);
+    bookcase.position.set(0, 0, -3.65);
     instOff.add(bookcase);
 
     // Magnetic Teaching Whiteboard on East Wall
@@ -1956,12 +4023,40 @@ export class LabCasework {
     breakroom.name = "Staff_Break_Room_And_Kitchenette";
 
     // 1. Kitchenette Cabinetry & Countertop along North Wall (Z = 3.82)
+    // Continuous Recessed Toe-Kick
+    const toeKick = new THREE.Mesh(
+      new THREE.BoxGeometry(5.75, 0.10, 0.58),
+      this.materials.toeKick
+    );
+    toeKick.position.set(0, 0.05, 3.65);
+    breakroom.add(toeKick);
+
     const kitchenBase = new THREE.Mesh(
-      new THREE.BoxGeometry(5.8, 0.86, 0.65),
+      new THREE.BoxGeometry(5.8, 0.76, 0.65),
       this.materials.kitchenCabinetSlate
     );
-    kitchenBase.position.set(0, 0.43, 3.65);
+    kitchenBase.position.set(0, 0.48, 3.65);
     breakroom.add(kitchenBase);
+
+    // Modular Cabinet Doors with 3mm Reveals & Brushed Stainless Handles
+    const numCabDoors = 8;
+    const cabDoorW = 5.70 / numCabDoors;
+    for (let d = 0; d < numCabDoors; d++) {
+      const dx = -2.85 + (d + 0.5) * cabDoorW;
+      const door = new THREE.Mesh(
+        new THREE.BoxGeometry(cabDoorW - 0.008, 0.72, 0.02),
+        this.materials.kitchenCabinetSlate
+      );
+      door.position.set(dx, 0.48, 3.985);
+      breakroom.add(door);
+
+      const handle = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.005, 0.005, 0.16, 8),
+        this.materials.cabinetHandle
+      );
+      handle.position.set(dx + (d % 2 === 0 ? cabDoorW / 2 - 0.04 : -cabDoorW / 2 + 0.04), 0.72, 4.005);
+      breakroom.add(handle);
+    }
 
     const kitchenTop = new THREE.Mesh(
       new THREE.BoxGeometry(5.85, 0.04, 0.68),
@@ -1986,39 +4081,56 @@ export class LabCasework {
     sinkBasin.position.set(-0.8, 0.77, 3.65);
     breakroom.add(sinkBasin);
 
-    // High-Arc Commercial Pull-Down Faucet
-    const faucetStem = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.015, 0.015, 0.35, 12),
+    // High-Arc Commercial Spring Pull-Down Faucet
+    const faucetGroup = new THREE.Group();
+    faucetGroup.position.set(-0.8, 0.90, 3.82);
+
+    const faucetBase = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.022, 0.025, 0.08, 12),
       this.materials.chromeFaucet
     );
-    faucetStem.position.set(-0.8, 1.05, 3.82);
-    breakroom.add(faucetStem);
+    faucetBase.position.y = 0.04;
+    faucetGroup.add(faucetBase);
+
+    const faucetStem = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.012, 0.012, 0.35, 12),
+      this.materials.chromeFaucet
+    );
+    faucetStem.position.y = 0.22;
+    faucetGroup.add(faucetStem);
+
+    const springCoil = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.022, 0.022, 0.25, 12),
+      this.materials.espressoChrome
+    );
+    springCoil.position.y = 0.30;
+    faucetGroup.add(springCoil);
+
+    const sprayHead = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.018, 0.012, 0.08, 12),
+      this.materials.chromeFaucet
+    );
+    sprayHead.position.set(0, 0.24, -0.14);
+    faucetGroup.add(sprayHead);
+
+    breakroom.add(faucetGroup);
 
     // Full-Size French Door Refrigerator / Freezer
-    const fridge = new THREE.Mesh(
-      new THREE.BoxGeometry(0.95, 1.85, 0.80),
-      this.materials.stainlessAppliance
-    );
-    fridge.position.set(-2.3, 0.925, 3.55);
+    const fridge = this._createCommercialRefrigerator();
+    fridge.position.set(-2.3, 0, 3.50);
     breakroom.add(fridge);
 
     // Twin Commercial Microwave Ovens
-    [-0.1, 0.8].forEach((mx) => {
-      const uwave = new THREE.Mesh(
-        new THREE.BoxGeometry(0.55, 0.34, 0.38),
-        this.materials.stainlessAppliance
-      );
-      uwave.position.set(mx, 1.07, 3.65);
+    [-0.1, 0.7].forEach((mx) => {
+      const uwave = this._createCommercialMicrowave();
+      uwave.position.set(mx, 0.90, 3.65);
       breakroom.add(uwave);
     });
 
     // Commercial Dual-Group Espresso Machine & Grinder Station
-    const espresso = new THREE.Mesh(
-      new THREE.BoxGeometry(0.65, 0.42, 0.45),
-      this.materials.espressoChrome
-    );
-    espresso.position.set(1.9, 1.11, 3.65);
-    breakroom.add(espresso);
+    const espressoStation = this._createCommercialEspressoStation();
+    espressoStation.position.set(1.9, 0.90, 3.65);
+    breakroom.add(espressoStation);
 
     // 2. Quartz Waterfall Dining Island (Z = 0.8)
     const island = new THREE.Group();
@@ -2048,91 +4160,75 @@ export class LabCasework {
     islandBody.position.set(0, 0.44, 0);
     island.add(islandBody);
 
-    // 5 Modern High-Top Barstools
+    // Island front cabinet reveals
+    for (let c = 0; c < 4; c++) {
+      const cx = -1.1 + c * 0.73;
+      const pPanel = new THREE.Mesh(
+        new THREE.BoxGeometry(0.68, 0.76, 0.015),
+        this.materials.kitchenCabinetSlate
+      );
+      pPanel.position.set(cx, 0.44, 0.41);
+      island.add(pPanel);
+    }
+
+    // 5 Modern High-Top 4-Legged Barstools with Footrest Rungs
     for (let s = 0; s < 5; s++) {
       const sx = -1.2 + s * 0.60;
-      const stool = new THREE.Group();
+      const stool = this._createModernBarstool();
       stool.position.set(sx, 0, -0.75);
-
-      const seat = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.18, 0.18, 0.05, 16),
-        this.materials.leatherBlack
-      );
-      seat.position.y = 0.65;
-      stool.add(seat);
-
-      const leg = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.02, 0.02, 0.63, 8),
-        this.materials.screenBezelMetal
-      );
-      leg.position.y = 0.315;
-      stool.add(leg);
-
-      const base = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.20, 0.20, 0.02, 16),
-        this.materials.screenBezelMetal
-      );
-      base.position.y = 0.01;
-      stool.add(base);
-
       island.add(stool);
     }
     breakroom.add(island);
 
-    // 3. Café Dining Seating Area (Z = -2.2)
+    // 3. Café Dining Seating Area with 4-Legged Tables & Scandinavian Chairs (Z = -2.2)
     [-1.2, 1.2].forEach((tx) => {
-      const table = new THREE.Mesh(
-        new THREE.BoxGeometry(0.90, 0.04, 0.90),
-        this.materials.walnutDesk
-      );
-      table.position.set(tx, 0.74, -2.2);
+      const table = this._createCafeDiningTable(0.90, 0.90, 0.74);
+      table.position.set(tx, 0, -2.2);
       breakroom.add(table);
 
-      const leg = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.04, 0.16, 0.72, 16),
-        this.materials.standAnodized
-      );
-      leg.position.set(tx, 0.36, -2.2);
-      breakroom.add(leg);
-
-      // 4 chairs per table
+      // 4 modern chairs per table
       [[0, 0.6], [0, -0.6], [0.6, 0], [-0.6, 0]].forEach(([cx, cz]) => {
-        const chair = this._createExecutiveSwivelChair(false);
+        const chair = this._createCafeDiningChair();
         chair.position.set(tx + cx, 0, -2.2 + cz);
         chair.rotation.y = Math.atan2(-cx, -cz);
         breakroom.add(chair);
       });
     });
 
-    // 4. Glass-Front Vending Machines along West Wall (X = -3.0)
+    // 4. Detailed Glass-Front Vending Machines along West Wall (X = -3.0)
     const vendGroup = new THREE.Group();
     vendGroup.position.set(-3.0, 0, 1.5);
 
-    const drinkVend = new THREE.Mesh(
-      new THREE.BoxGeometry(0.85, 1.95, 0.80),
-      this.materials.cabinetBody
-    );
-    drinkVend.position.set(0, 0.975, 0.5);
+    const drinkVend = this._createDetailedVendingMachine("drinks");
+    drinkVend.position.set(0, 0, 0.55);
     drinkVend.rotation.y = Math.PI / 2;
     vendGroup.add(drinkVend);
 
-    const snackVend = new THREE.Mesh(
-      new THREE.BoxGeometry(0.85, 1.95, 0.80),
-      this.materials.screenBezelMetal
-    );
-    snackVend.position.set(0, 0.975, -0.5);
+    const snackVend = this._createDetailedVendingMachine("snacks");
+    snackVend.position.set(0, 0, -0.55);
     snackVend.rotation.y = Math.PI / 2;
     vendGroup.add(snackVend);
 
     breakroom.add(vendGroup);
 
     // 5. Wall-Mounted 65" TV & Announcement Board on East Wall (X = 3.1)
-    const tv = new THREE.Mesh(
-      new THREE.BoxGeometry(0.05, 0.85, 1.45),
+    const tvGroup = new THREE.Group();
+    tvGroup.position.set(3.15, 1.75, 0);
+
+    const tvBezel = new THREE.Mesh(
+      new THREE.BoxGeometry(0.04, 0.88, 1.48),
       this.materials.screenBezelMetal
     );
-    tv.position.set(3.15, 1.75, 0);
-    breakroom.add(tv);
+    tvGroup.add(tvBezel);
+
+    const tvScreen = new THREE.Mesh(
+      new THREE.BoxGeometry(0.015, 0.82, 1.42),
+      new THREE.MeshBasicMaterial({ map: this._createDefaultMonitorCanvas("twin-dashboard") })
+    );
+    tvScreen.position.x = -0.015;
+    tvGroup.add(tvScreen);
+
+    breakroom.add(tvGroup);
 
     this.root.add(breakroom);
     this.colliders.push(new THREE.Box3().setFromObject(breakroom));
@@ -2167,6 +4263,14 @@ export class LabCasework {
       );
       faucet.position.set(vx, 0.98, 3.82);
       restroom.add(faucet);
+
+      // Exposed Chrome P-Trap Plumbing underneath vanity
+      const pTrap = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.016, 0.016, 0.22, 10),
+        this.materials.chromeFaucet
+      );
+      pTrap.position.set(vx, 0.58, 3.65);
+      restroom.add(pTrap);
 
       // Backlit LED Mirror
       const mirror = new THREE.Mesh(
@@ -2228,13 +4332,33 @@ export class LabCasework {
       restroom.add(stall);
     });
 
-    // 3. Wall-Hung Urinal with Privacy Screen along West Wall (X = -2.15)
+    // 3. Wall-Hung Vitreous China Urinal with Flushometer Valve along West Wall (X = -2.15)
+    const urinalGroup = new THREE.Group();
+    urinalGroup.position.set(-2.0, 0.75, 0.5);
+
     const urinal = new THREE.Mesh(
       new THREE.BoxGeometry(0.35, 0.65, 0.35),
       this.materials.porcelainWhite
     );
-    urinal.position.set(-2.0, 0.75, 0.5);
-    restroom.add(urinal);
+    urinalGroup.add(urinal);
+
+    // Chrome Flushometer Valve on Urinal
+    const uFlush = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.016, 0.016, 0.28, 12),
+      this.materials.chromeFaucet
+    );
+    uFlush.position.set(0, 0.46, -0.10);
+    urinalGroup.add(uFlush);
+
+    const uHandle = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.006, 0.006, 0.08, 8),
+      this.materials.chromeFaucet
+    );
+    uHandle.rotation.z = Math.PI / 2;
+    uHandle.position.set(0.05, 0.46, -0.10);
+    urinalGroup.add(uHandle);
+
+    restroom.add(urinalGroup);
 
     const urinalScreen = new THREE.Mesh(
       new THREE.BoxGeometry(0.02, 1.2, 0.50),
@@ -2261,40 +4385,16 @@ export class LabCasework {
     mens.position.set(35.0, 0, -5.5);
     mens.name = "Mens_Locker_Room_And_Showers";
 
-    // 1. Double-Tier Steel Locker Banks (2 banks of 12 = 24 compartments)
+    // 1. Double-Tier Steel Locker Banks with Louvered Doors & Combination Locks
     // Bank A: North partition wall (Z = 3.65)
-    const lockerBankA = new THREE.Mesh(
-      new THREE.BoxGeometry(4.2, 1.95, 0.55),
-      this.materials.lockerSteel
-    );
-    lockerBankA.position.set(0, 0.975, 3.65);
+    const lockerBankA = this._createLockerBank(12, false);
+    lockerBankA.position.set(0, 0, 3.65);
     mens.add(lockerBankA);
 
     // Bank B: Center dividing bank (Z = 0.5)
-    const lockerBankB = new THREE.Mesh(
-      new THREE.BoxGeometry(4.2, 1.95, 0.55),
-      this.materials.lockerSteel
-    );
-    lockerBankB.position.set(0, 0.975, 0.5);
+    const lockerBankB = this._createLockerBank(12, false);
+    lockerBankB.position.set(0, 0, 0.5);
     mens.add(lockerBankB);
-
-    // Number plates & handles on lockers
-    for (let i = 0; i < 12; i++) {
-      const lx = -1.9 + i * 0.35;
-      const plateA = new THREE.Mesh(
-        new THREE.BoxGeometry(0.08, 0.04, 0.01),
-        this.materials.brassAccent
-      );
-      plateA.position.set(lx, 1.45, 3.37);
-      mens.add(plateA);
-
-      const plateB = new THREE.Mesh(
-        new THREE.BoxGeometry(0.08, 0.04, 0.01),
-        this.materials.brassAccent
-      );
-      plateB.position.set(lx, 1.45, 0.22);
-      mens.add(plateB);
-    }
 
     // 2. Heavy Solid Oak Butcher-Block Dressing Benches
     [2.1, -1.0].forEach((bz) => {
@@ -2328,6 +4428,14 @@ export class LabCasework {
       glassDoor.position.set(0, 1.025, 0.45);
       showerStall.add(glassDoor);
 
+      // Continuous Slotted Stainless Floor Trench Drain
+      const trench = new THREE.Mesh(
+        new THREE.BoxGeometry(0.80, 0.01, 0.12),
+        this.materials.cabinetHandle
+      );
+      trench.position.set(0, 0.005, 0);
+      showerStall.add(trench);
+
       // Chrome rainfall shower head
       const pipe = new THREE.Mesh(
         new THREE.CylinderGeometry(0.012, 0.012, 0.35, 12),
@@ -2343,14 +4451,30 @@ export class LabCasework {
       head.position.set(0, 2.0, -0.2);
       showerStall.add(head);
 
-      // Thermostatic mixer valve
+      // Thermostatic Dual-Control Mixer Valve Trim
       const valve = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.035, 0.035, 0.05, 12),
+        new THREE.CylinderGeometry(0.045, 0.045, 0.02, 16),
         this.materials.chromeFaucet
       );
       valve.rotation.x = Math.PI / 2;
-      valve.position.set(0, 1.10, -0.65);
+      valve.position.set(0, 1.10, -0.68);
       showerStall.add(valve);
+
+      // Vertical Slide Bar with Multi-Function Handheld Wand
+      const slideBar = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.008, 0.008, 0.70, 8),
+        this.materials.chromeFaucet
+      );
+      slideBar.position.set(0.25, 1.35, -0.67);
+      showerStall.add(slideBar);
+
+      // Wire Shampoo & Bodywash Caddy with Bottles
+      const caddy = new THREE.Mesh(
+        new THREE.BoxGeometry(0.24, 0.05, 0.10),
+        this.materials.cabinetHandle
+      );
+      caddy.position.set(-0.25, 1.20, -0.64);
+      showerStall.add(caddy);
 
       mens.add(showerStall);
     });
@@ -2398,40 +4522,16 @@ export class LabCasework {
     womens.position.set(41.0, 0, 0.0);
     womens.name = "Womens_Locker_Room_And_Showers";
 
-    // 1. Champagne Gold Steel Locker Banks (32 compartments total)
-    // North Locker Bank (Z = 7.55)
-    const lockersNorth = new THREE.Mesh(
-      new THREE.BoxGeometry(4.8, 1.95, 0.55),
-      this.materials.lockerChampagne
-    );
-    lockersNorth.position.set(0, 0.975, 7.35);
+    // 1. Champagne Gold Steel Locker Banks with Louvered Doors & Digital Keypads
+    // North Locker Bank (Z = 7.35)
+    const lockersNorth = this._createLockerBank(14, true);
+    lockersNorth.position.set(0, 0, 7.35);
     womens.add(lockersNorth);
 
-    // South Locker Bank (Z = -7.55)
-    const lockersSouth = new THREE.Mesh(
-      new THREE.BoxGeometry(4.8, 1.95, 0.55),
-      this.materials.lockerChampagne
-    );
-    lockersSouth.position.set(0, 0.975, -7.35);
+    // South Locker Bank (Z = -7.35)
+    const lockersSouth = this._createLockerBank(14, true);
+    lockersSouth.position.set(0, 0, -7.35);
     womens.add(lockersSouth);
-
-    // Digital pin keypads on lockers
-    for (let i = 0; i < 14; i++) {
-      const lx = -2.1 + i * 0.32;
-      const padN = new THREE.Mesh(
-        new THREE.BoxGeometry(0.06, 0.08, 0.015),
-        this.materials.screenBezelMetal
-      );
-      padN.position.set(lx, 1.35, 7.07);
-      womens.add(padN);
-
-      const padS = new THREE.Mesh(
-        new THREE.BoxGeometry(0.06, 0.08, 0.015),
-        this.materials.screenBezelMetal
-      );
-      padS.position.set(lx, 1.35, -7.07);
-      womens.add(padS);
-    }
 
     // 2. Central Dressing & Lounge Area (Z = 0.0)
     // Large Emerald Velvet Circular Ottoman
@@ -2519,6 +4619,14 @@ export class LabCasework {
       glassFront.position.set(-0.6, 1.05, 0);
       suite.add(glassFront);
 
+      // Slotted Stainless Trench Floor Drain
+      const trench = new THREE.Mesh(
+        new THREE.BoxGeometry(0.12, 0.01, 1.2),
+        this.materials.cabinetHandle
+      );
+      trench.position.set(-0.55, 0.005, 0);
+      suite.add(trench);
+
       // Rainfall shower head
       const rainHead = new THREE.Mesh(
         new THREE.CylinderGeometry(0.15, 0.15, 0.02, 24),
@@ -2527,13 +4635,37 @@ export class LabCasework {
       rainHead.position.set(0, 2.1, 0);
       suite.add(rainHead);
 
-      // Handheld sprayer wand
+      // Thermostatic Dual-Control Mixer Valve
+      const valve = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.045, 0.045, 0.02, 16),
+        this.materials.chromeFaucet
+      );
+      valve.rotation.z = Math.PI / 2;
+      valve.position.set(0.68, 1.10, 0);
+      suite.add(valve);
+
+      // Vertical Slide Bar & Handheld Sprayer Wand
+      const slideBar = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.008, 0.008, 0.70, 8),
+        this.materials.chromeFaucet
+      );
+      slideBar.position.set(0.67, 1.35, 0.25);
+      suite.add(slideBar);
+
       const sprayer = new THREE.Mesh(
         new THREE.CylinderGeometry(0.015, 0.015, 0.25, 12),
         this.materials.chromeFaucet
       );
-      sprayer.position.set(0.35, 1.2, 0.4);
+      sprayer.position.set(0.64, 1.35, 0.25);
       suite.add(sprayer);
+
+      // Wire Caddy with Shampoo & Conditioner Bottles
+      const caddy = new THREE.Mesh(
+        new THREE.BoxGeometry(0.10, 0.05, 0.26),
+        this.materials.cabinetHandle
+      );
+      caddy.position.set(0.64, 1.15, -0.25);
+      suite.add(caddy);
 
       womens.add(suite);
     }
@@ -2798,5 +4930,308 @@ export class LabCasework {
 
     this.root.add(rack);
     this.colliders.push(new THREE.Box3().setFromObject(rack));
+  }
+
+  // --- Germicidal UV-C Wall-Mounted Goggle Sanitizing Cabinets ---
+  _buildUVGoggleCabinets() {
+    // Cabinet 1: Airlock Entry Gowning Station (X = 7.75, Z = -1.8, mounted on partition wall facing Lab -X)
+    this._createUVCabinet(7.75, 1.45, -1.8, Math.PI / 2, "UV_Cabinet_Entrance");
+
+    // Cabinet 2: Synthesis Prep Safety Corridor (X = -15.8, Z = 3.5, mounted on West perimeter wall facing East +X)
+    this._createUVCabinet(-15.8, 1.45, 3.5, -Math.PI / 2, "UV_Cabinet_Synthesis");
+  }
+
+  _createUVCabinet(cx, cy, cz, rotY, id) {
+    const cab = new THREE.Group();
+    cab.position.set(cx, cy, cz);
+    cab.rotation.y = rotY;
+    cab.name = id;
+
+    const W = 0.65; // Width
+    const H = 0.75; // Height
+    const D = 0.26; // Depth
+    const wallT = 0.02;
+
+    // 1. Heavy Gauge Steel Enamel Body Box
+    const bodyGeo = new THREE.BoxGeometry(W, H, D);
+    const body = new THREE.Mesh(bodyGeo, this.materials.uvCabinetEnamel);
+    cab.add(body);
+
+    // Dark interior cavity for depth
+    const cavGeo = new THREE.BoxGeometry(W - wallT * 2, H - wallT * 2, D - 0.04);
+    const cav = new THREE.Mesh(cavGeo, new THREE.MeshStandardMaterial({ color: 0x181c22, roughness: 0.8 }));
+    cav.position.z = 0.02;
+    cab.add(cav);
+
+    // 2. Quartz Germicidal UV-C Emitter Tube (254nm, centered vertically)
+    const tubeGeo = new THREE.CylinderGeometry(0.012, 0.012, H - 0.16, 16);
+    const uvTube = new THREE.Mesh(tubeGeo, this.materials.uvGlowTube);
+    uvTube.position.set(0, 0, -D / 2 + 0.06);
+    cab.add(uvTube);
+
+    // Ambient Purple UVC Glow Light
+    const uvLight = new THREE.PointLight(0xa855f7, 0.85, 2.5);
+    uvLight.position.set(0, 0, 0);
+    cab.add(uvLight);
+
+    // 3. Four tiers of stainless steel wire rod goggle shelves
+    const shelfYOffsets = [-0.22, -0.07, 0.08, 0.23];
+    shelfYOffsets.forEach((sy, tierIdx) => {
+      // Wire rack grid
+      const rackWire = new THREE.Mesh(
+        new THREE.BoxGeometry(W - 0.08, 0.008, D - 0.08),
+        this.materials.cabinetHandle
+      );
+      rackWire.position.set(0, sy, 0.01);
+      cab.add(rackWire);
+
+      // Add 2 pairs of genuine 3D safety goggles per shelf tier
+      [-0.16, 0.16].forEach((gx, gIdx) => {
+        const goggle = this._createSafetyGoggleMesh();
+        goggle.position.set(gx, sy + 0.035, 0.02);
+        goggle.rotation.y = (tierIdx % 2 === 0 ? 0.08 : -0.08);
+        cab.add(goggle);
+      });
+    });
+
+    // 4. Front Hinged Door with Viewing Filter Window & Chrome Pull
+    const doorGroup = new THREE.Group();
+    // Pivot at right edge
+    doorGroup.position.set(W / 2, 0, D / 2);
+
+    const doorFrame = new THREE.Mesh(
+      new THREE.BoxGeometry(W, H, 0.02),
+      this.materials.uvCabinetEnamel
+    );
+    doorFrame.position.set(-W / 2, 0, 0);
+    doorGroup.add(doorFrame);
+
+    // Amber UV-filtering acrylic viewport
+    const windowMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(W * 0.68, H * 0.72, 0.025),
+      this.materials.uvWindowAmber
+    );
+    windowMesh.position.set(-W / 2, 0, 0.002);
+    doorGroup.add(windowMesh);
+
+    // Chrome Pull Handle
+    const handle = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.008, 0.008, 0.16, 12),
+      this.materials.cabinetHandle
+    );
+    handle.position.set(-W + 0.05, 0, 0.035);
+    doorGroup.add(handle);
+
+    // Magnetic Safety Interlock Switch Nub & Warning Label
+    const lockSwitch = new THREE.Mesh(
+      new THREE.BoxGeometry(0.02, 0.04, 0.02),
+      this.materials.cabinetHandle
+    );
+    lockSwitch.position.set(-W + 0.05, -H / 2 + 0.05, 0.015);
+    doorGroup.add(lockSwitch);
+
+    cab.add(doorGroup);
+
+    // 5. Header Control Panel (Timer Dial + Rocker Power Switch + Active LED)
+    const headerPanel = new THREE.Group();
+    headerPanel.position.set(0, H / 2 - 0.045, D / 2 + 0.012);
+
+    // Mechanical 15-min Spring Timer Dial
+    const timerKnob = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.022, 0.022, 0.018, 16),
+      this.materials.cabinetBody
+    );
+    timerKnob.rotation.x = Math.PI / 2;
+    timerKnob.position.set(-0.15, 0, 0);
+    headerPanel.add(timerKnob);
+
+    // Power Rocker Switch
+    const pwrSwitch = new THREE.Mesh(
+      new THREE.BoxGeometry(0.02, 0.032, 0.012),
+      new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.3 })
+    );
+    pwrSwitch.position.set(0.15, 0, 0);
+    headerPanel.add(pwrSwitch);
+
+    // Active Sanitizing Indicator LED (Glowing Purple when running)
+    const uvLed = new THREE.Mesh(
+      new THREE.SphereGeometry(0.008, 12, 12),
+      new THREE.MeshBasicMaterial({ color: 0xc084fc })
+    );
+    uvLed.position.set(0, 0, 0.005);
+    headerPanel.add(uvLed);
+
+    cab.add(headerPanel);
+
+    // Interactive State: Click cabinet door to toggle open/closed with real safety interlock
+    cab.userData = {
+      isUVCabinet: true,
+      isOpen: false,
+      label: "UV-C Safety Goggle Sanitizer"
+    };
+
+    cab.userData.toggle = () => {
+      cab.userData.isOpen = !cab.userData.isOpen;
+      const isOpen = cab.userData.isOpen;
+
+      if (isOpen) {
+        doorGroup.rotation.y = -Math.PI * 0.55; // Swing door open
+        uvLight.intensity = 0.05; // Safety Interlock Trips: Cut UV lamp
+        uvLed.material.color.setHex(0x4b5563); // LED unpowered
+        uvTube.material = this.materials.cabinetHandle;
+      } else {
+        doorGroup.rotation.y = 0; // Door closed
+        uvLight.intensity = 0.85; // Interlock engaged: UV germicidal mode active
+        uvLed.material.color.setHex(0xc084fc);
+        uvTube.material = this.materials.uvGlowTube;
+      }
+      labAudio.playCabinetToggle(isOpen);
+    };
+
+    this.interactiveObjects.push(cab);
+    this.root.add(cab);
+    this.colliders.push(new THREE.Box3().setFromObject(body));
+  }
+
+  // Authentic Procedural Lab Safety Goggle
+  _createSafetyGoggleMesh() {
+    const goggle = new THREE.Group();
+
+    // Curved Polycarbonate Front Lens Wrap
+    const lensCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-0.065, 0, -0.015),
+      new THREE.Vector3(-0.035, 0, 0.015),
+      new THREE.Vector3(0, 0, 0.01),
+      new THREE.Vector3(0.035, 0, 0.015),
+      new THREE.Vector3(0.065, 0, -0.015)
+    ]);
+    const lensGeo = new THREE.TubeGeometry(lensCurve, 16, 0.018, 8, false);
+    const lens = new THREE.Mesh(lensGeo, this.materials.goggleLensClear);
+    goggle.add(lens);
+
+    // Soft PVC facial flange frame
+    const frameGeo = new THREE.BoxGeometry(0.135, 0.042, 0.045);
+    const frame = new THREE.Mesh(
+      frameGeo,
+      new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.6, transparent: true, opacity: 0.7 })
+    );
+    frame.position.z = -0.018;
+    goggle.add(frame);
+
+    // Adjustable Elastic Head Strap Loop
+    const strapCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-0.065, 0, -0.03),
+      new THREE.Vector3(-0.045, 0, -0.075),
+      new THREE.Vector3(0, 0, -0.085),
+      new THREE.Vector3(0.045, 0, -0.075),
+      new THREE.Vector3(0.065, 0, -0.03)
+    ]);
+    const strap = new THREE.Mesh(
+      new THREE.TubeGeometry(strapCurve, 16, 0.005, 6, false),
+      this.materials.goggleStrapBlack
+    );
+    goggle.add(strap);
+
+    return goggle;
+  }
+
+  // --- Nitrile Glove Dispenser Caddies (Triple Boxes: S, M, L) ---
+  _buildGloveDispenserStations() {
+    const stations = [
+      // 1. Analytical & Spectroscopy Island (X: -13.5, Z: -4.5, facing East +X)
+      { x: -13.4, y: 1.15, z: -4.5, rotY: -Math.PI / 2, id: "Glove_Station_Analytical" },
+      // 2. Pharma QC & Solid Dosage Island (X: -5.5, Z: -4.5, facing East +X)
+      { x: -5.4, y: 1.15, z: -4.5, rotY: -Math.PI / 2, id: "Glove_Station_PharmaQC" },
+      // 3. Synthesis Prep Island (X: -13.2, Z: 5.0, facing East +X)
+      { x: -13.1, y: 1.15, z: 5.0, rotY: -Math.PI / 2, id: "Glove_Station_Synthesis" },
+      // 4. Sample Prep Suite (X: -3.6, Z: 5.0, facing East +X)
+      { x: -3.5, y: 1.15, z: 5.0, rotY: -Math.PI / 2, id: "Glove_Station_SamplePrep" },
+      // 5. Airlock Gowning Wall (X: 7.75, Z: -3.2, facing West -X)
+      { x: 7.75, y: 1.25, z: -3.2, rotY: Math.PI / 2, id: "Glove_Station_Airlock" }
+    ];
+
+    stations.forEach(st => {
+      this._createGloveCaddy(st.x, st.y, st.z, st.rotY, st.id);
+    });
+  }
+
+  _createGloveCaddy(cx, cy, cz, rotY, id) {
+    const group = new THREE.Group();
+    group.position.set(cx, cy, cz);
+    group.rotation.y = rotY;
+    group.name = id;
+
+    const boxW = 0.25;  // 250mm
+    const boxH = 0.125; // 125mm
+    const boxD = 0.075; // 75mm
+    const spacing = 0.14;
+
+    // Heavy gauge wire bracket cage
+    const wireBack = new THREE.Mesh(
+      new THREE.BoxGeometry(boxW + 0.03, spacing * 3 + 0.04, 0.01),
+      this.materials.wireCaddyChrome
+    );
+    wireBack.position.set(0, spacing, -boxD / 2 - 0.008);
+    group.add(wireBack);
+
+    // Retaining front wire bars
+    for (let b = 0; b < 3; b++) {
+      const barY = b * spacing;
+      const frontBar = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.003, 0.003, boxW + 0.02, 8),
+        this.materials.wireCaddyChrome
+      );
+      frontBar.rotation.z = Math.PI / 2;
+      frontBar.position.set(0, barY, boxD / 2 + 0.004);
+      group.add(frontBar);
+    }
+
+    // 3 Tiers of Nitrile Glove Boxes (Top: Large Purple, Mid: Medium Cobalt, Bottom: Small Mint)
+    const tiers = [
+      { y: 0, label: "SIZE S · 6-7", colorMat: this.materials.gloveBoxSmall, count: "100 ct" },
+      { y: spacing, label: "SIZE M · 7-8", colorMat: this.materials.gloveBoxMed, count: "100 ct" },
+      { y: spacing * 2, label: "SIZE L · 8-9", colorMat: this.materials.gloveBoxLarge, count: "100 ct" }
+    ];
+
+    tiers.forEach((t) => {
+      const box = new THREE.Group();
+      box.position.set(0, t.y, 0);
+
+      // Cardboard box body
+      const boxMesh = new THREE.Mesh(new THREE.BoxGeometry(boxW, boxH, boxD), t.colorMat);
+      box.add(boxMesh);
+
+      // Front Perforated Dispensing Oval with realistic crumpled nitrile cuff
+      const ovalGeo = new THREE.CylinderGeometry(0.045, 0.045, 0.004, 24);
+      const oval = new THREE.Mesh(
+        ovalGeo,
+        new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.9 })
+      );
+      oval.rotation.x = Math.PI / 2;
+      oval.position.set(0, 0, boxD / 2 + 0.002);
+      box.add(oval);
+
+      // Procedural folded nitrile glove cuff protruding slightly from slot
+      const cuff = new THREE.Mesh(
+        new THREE.SphereGeometry(0.024, 12, 12),
+        t.colorMat
+      );
+      cuff.scale.set(1.4, 0.5, 0.6);
+      cuff.position.set(0, 0, boxD / 2 + 0.012);
+      box.add(cuff);
+
+      group.add(box);
+    });
+
+    group.userData = {
+      isGloveStation: true,
+      label: "Nitrile Examination Gloves (S / M / L)"
+    };
+    group.userData.toggle = () => {
+      labAudio.playButtonClick();
+    };
+
+    this.interactiveObjects.push(group);
+    this.root.add(group);
   }
 }
