@@ -1508,6 +1508,13 @@ export class LabCasework {
     return canvas;
   }
 
+  _createDefaultMonitorTexture(uiType = "default") {
+    const canvas = this._createDefaultMonitorCanvas(uiType);
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.anisotropy = 4;
+    return tex;
+  }
+
   // --- Helper: Ultra-Realistic Workstation Monitor Builder ---
   _createRealisticWorkstationMonitor(optsOrW, maybeH, maybeX, maybeRotY, maybeZ, maybeCanvas) {
     let opts = {};
@@ -1723,9 +1730,15 @@ export class LabCasework {
     displayHead.add(pwrLed);
 
     // 7. High-DPI Anti-Glare IPS Display Panel Face
-    const canvas = opts.canvas || this._createDefaultMonitorCanvas(opts.uiType || "default");
-    const screenTex = new THREE.CanvasTexture(canvas);
-    screenTex.anisotropy = 4;
+    let screenTex;
+    if (opts.canvas instanceof THREE.Texture) {
+      screenTex = opts.canvas;
+    } else if (opts.canvas) {
+      screenTex = new THREE.CanvasTexture(opts.canvas);
+      screenTex.anisotropy = 4;
+    } else {
+      screenTex = this._createDefaultMonitorTexture(opts.uiType || "default");
+    }
     const screenFace = new THREE.Mesh(
       new THREE.PlaneGeometry(monW - bezelT * 2, monH - chinH - bezelT),
       new THREE.MeshBasicMaterial({ map: screenTex })
@@ -3196,7 +3209,7 @@ export class LabCasework {
 
     const totemScreen = new THREE.Mesh(
       new THREE.BoxGeometry(0.58, 1.05, 0.02),
-      new THREE.MeshBasicMaterial({ map: this._createDefaultMonitorCanvas("twin-dashboard") })
+      new THREE.MeshBasicMaterial({ map: this._createDefaultMonitorTexture("twin-dashboard") })
     );
     totemScreen.position.set(0, 1.25, 0.075);
     totem.add(totemScreen);
@@ -3566,7 +3579,7 @@ export class LabCasework {
     // Touch presentation preview display & gooseneck mic
     const touchScreen = new THREE.Mesh(
       new THREE.BoxGeometry(0.32, 0.015, 0.22),
-      new THREE.MeshBasicMaterial({ map: this._createDefaultMonitorCanvas("twin-dashboard") })
+      new THREE.MeshBasicMaterial({ map: this._createDefaultMonitorTexture("twin-dashboard") })
     );
     touchScreen.position.set(0, 1.23, 0);
     touchScreen.rotation.x = -0.15;
@@ -3593,7 +3606,7 @@ export class LabCasework {
 
     const screenFace = new THREE.Mesh(
       new THREE.BoxGeometry(0.02, 1.68, 3.12),
-      new THREE.MeshBasicMaterial({ map: this._createDefaultMonitorCanvas("twin-dashboard") })
+      new THREE.MeshBasicMaterial({ map: this._createDefaultMonitorTexture("twin-dashboard") })
     );
     screenFace.position.x = 0.035;
     videoWall.add(screenFace);
@@ -4223,7 +4236,7 @@ export class LabCasework {
 
     const tvScreen = new THREE.Mesh(
       new THREE.BoxGeometry(0.015, 0.82, 1.42),
-      new THREE.MeshBasicMaterial({ map: this._createDefaultMonitorCanvas("twin-dashboard") })
+      new THREE.MeshBasicMaterial({ map: this._createDefaultMonitorTexture("twin-dashboard") })
     );
     tvScreen.position.x = -0.015;
     tvGroup.add(tvScreen);

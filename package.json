@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "scripts": {
     "format": "prettier --write . && markdownlint --fix --dot .",
     "format:check": "prettier --check . && markdownlint --dot .",
