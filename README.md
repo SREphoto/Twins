@@ -2,7 +2,8 @@
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-00d4e8?style=for-the-badge&logo=googlechrome&logoColor=white)](https://srephoto.github.io/Twins/)
 [![Video Walkthroughs](https://img.shields.io/badge/Video%20Presentations-Internal%20Anatomy-ff0055?style=for-the-badge&logo=youtube&logoColor=white)](https://srephoto.github.io/Twins/presentations.html)
-[![Active Twins](https://img.shields.io/badge/Active%20Twins-17%20Instruments-00e676?style=for-the-badge)](https://srephoto.github.io/Twins/)
+[![PR Campaign & Media Kit](https://img.shields.io/badge/PR%20Campaign-Media%20Kit-a855f7?style=for-the-badge&logo=rss&logoColor=white)](https://srephoto.github.io/Twins/docs/pr_campaign.html)
+[![Active Twins](https://img.shields.io/badge/Active%20Twins-18%20Instruments-00e676?style=for-the-badge)](https://srephoto.github.io/Twins/)
 [![Fidelity](https://img.shields.io/badge/CAD%20Fidelity-1%3A1%20Procedural-f59e0b?style=for-the-badge)](https://srephoto.github.io/Twins/)
 
 A premier open-access collection of **hyper-realistic, physically accurate 3D digital twins** representing scientific, analytical, and pharmaceutical laboratory instruments. 
@@ -15,6 +16,7 @@ Every instrument is procedurally engineered down to the smallest mechanical deta
 
 - 🚀 **[Launch Master Instrument Lab](https://srephoto.github.io/Twins/)** — Interactive multi-instrument portal and desk picker.
 - 🎬 **[Watch Narrated Video Presentations & Internal Anatomy Guide](https://srephoto.github.io/Twins/presentations.html)** — High-definition operator workflows with synchronized voiceover tour and internal electromechanical tear-downs.
+- 📰 **[Official PR Campaign, Media Kit & Social Command Center](https://srephoto.github.io/Twins/docs/pr_campaign.html)** — Press release, fleet showcase with 1600×1000 high-res screenshots, social media playbooks (FB, IG, YT, TT, X), and video roadmap.
 
 ---
 

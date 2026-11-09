@@ -93,6 +93,76 @@ const TARGETS = [
     name: 'glovebox_iso',
     url: '/glove_box_twin/software/viewer/index.html',
     wait: 3000,
+  },
+  {
+    name: 'spectro_iso',
+    url: '/spectrophotometer_twin/software/viewer/index.html',
+    wait: 3000,
+  },
+  {
+    name: 'ph_meter_iso',
+    url: '/ph_meter_twin/software/viewer/index.html',
+    wait: 3000,
+  },
+  {
+    name: 'muffle_furnace_iso',
+    url: '/muffle_furnace_twin/software/viewer/index.html',
+    wait: 3000,
+  },
+  {
+    name: 'vacuum_pump_iso',
+    url: '/vacuum_pump_twin/software/viewer/index.html',
+    wait: 3000,
+  },
+  {
+    name: 'vortex_mixer_iso',
+    url: '/vortex_mixer_twin/software/viewer/index.html',
+    wait: 3000,
+  },
+  {
+    name: 'ultrasonic_iso',
+    url: '/ultrasonic_cleaner_twin/software/viewer/index.html',
+    wait: 3000,
+  },
+  {
+    name: 'karl_fischer_iso',
+    url: '/karl_fischer_twin/software/viewer/index.html',
+    wait: 3000,
+  },
+  {
+    name: 'freeze_dryer_iso',
+    url: '/freeze_dryer_twin/software/viewer/index.html',
+    wait: 3000,
+  },
+  {
+    name: 'dissolution_tester_iso',
+    url: '/dissolution_tester_twin/software/viewer/index.html',
+    wait: 3000,
+  },
+  {
+    name: 'ftir_iso',
+    url: '/ftir_twin/software/viewer/index.html',
+    wait: 3000,
+  },
+  {
+    name: 'sem_iso',
+    url: '/sem_twin/software/viewer/index.html',
+    wait: 3000,
+  },
+  {
+    name: 'f1_full_car_iso',
+    url: '/f1_2026_full_car_twin/software/viewer/index.html',
+    wait: 3500,
+  },
+  {
+    name: 'f1_brake_iso',
+    url: '/f1_2026_brake_twin/software/viewer/index.html',
+    wait: 3000,
+  },
+  {
+    name: 'lab_overview',
+    url: '/lab_viewer/index.html',
+    wait: 3500,
   }
 ];
 

@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SRE Laboratory Digital Twins · Official PR Campaign &amp; Media Kit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070a0f;
+      --card-bg: rgba(18, 25, 38, 0.85);
+      --card-border: rgba(42, 53, 69, 0.75);
+      --card-hover: rgba(28, 38, 58, 0.95);
+      --cyan: #00d4e8;
+      --cyan-glow: rgba(0, 212, 232, 0.35);
+      --green: #3dd68c;
+      --amber: #f0b429;
+      --purple: #a855f7;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --font: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+      --mono: 'IBM Plex Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image:
+        radial-gradient(ellipse at 50% 0%, rgba(0, 212, 232, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 90%, rgba(61, 214, 140, 0.08) 0%, transparent 50%);
+    }
+
+    /* Top Sticky Header */
+    header {
+      background: rgba(10, 14, 20, 0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: inherit;
+    }
+    .brand-badge {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(6, 182, 212, 0.2));
+      border: 1px solid rgba(245, 158, 11, 0.6);
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #fbbf24;
+      text-transform: uppercase;
+    }
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .brand-title span { color: var(--cyan); }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .nav-btn {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .nav-btn:hover, .nav-btn.active {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      background: rgba(0, 212, 232, 0.12);
+    }
+
+    main {
+      flex: 1;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+    }
+
+    /* Hero PR Banner */
+    .hero-pr {
+      background: linear-gradient(135deg, rgba(14, 24, 42, 0.95), rgba(9, 14, 24, 0.92));
+      border: 1px solid rgba(0, 212, 232, 0.45);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), 0 0 28px rgba(0, 212, 232, 0.12);
+      border-radius: 18px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    .hero-tag {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .hero-tag::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 10px var(--green);
+    }
+    .hero-title {
+      font-size: 2.25rem;
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+    .hero-sub {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 950px;
+      line-height: 1.6;
+    }
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 0.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--card-border);
+    }
+    .stat-box {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      padding: 0.9rem 1.1rem;
+    }
+    .stat-val {
+      font-family: var(--mono);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--cyan);
+    }
+    .stat-lbl {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Filter Bar */
+    .filter-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 1rem;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 0.75rem;
+    }
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .section-title span {
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      color: var(--cyan);
+      font-weight: 600;
+    }
+    .filter-tabs {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .filter-tab {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .filter-tab:hover, .filter-tab.active {
+      color: #fff;
+      border-color: var(--cyan);
+      background: rgba(0, 212, 232, 0.15);
+    }
+
+    /* Fleet Machine Grid */
+    .fleet-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 1.5rem;
+    }
+    @media (max-width: 600px) {
+      .fleet-grid { grid-template-columns: 1fr; }
+    }
+
+    .machine-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.25s ease;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+    .machine-card:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 12px 32px rgba(0, 212, 232, 0.15);
+      transform: translateY(-2px);
+    }
+    .machine-thumb-wrap {
+      position: relative;
+      background: #03060a;
+      width: 100%;
+      height: 230px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .machine-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    .machine-card:hover .machine-thumb {
+      transform: scale(1.03);
+    }
+    .thumb-badge {
+      position: absolute;
+      top: 0.75rem;
+      left: 0.75rem;
+      background: rgba(5, 10, 18, 0.85);
+      border: 1px solid rgba(0, 212, 232, 0.4);
+      backdrop-filter: blur(8px);
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .zoom-hint {
+      position: absolute;
+      bottom: 0.75rem;
+      right: 0.75rem;
+      background: rgba(0, 0, 0, 0.75);
+      padding: 0.2rem 0.55rem;
+      border-radius: 5px;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    .machine-content {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      flex: 1;
+    }
+    .machine-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    .machine-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.3;
+    }
+    .machine-subtitle {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--amber);
+      font-weight: 600;
+      margin-top: 0.15rem;
+    }
+    .machine-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .machine-specs {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 0.6rem 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .spec-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+    }
+    .spec-lbl {
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+    .spec-val {
+      color: var(--text);
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .machine-actions {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: auto;
+      padding-top: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .btn-act {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.5rem 0.9rem;
+      border-radius: 7px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .btn-act-primary {
+      background: var(--cyan);
+      color: #050b14;
+      box-shadow: 0 0 12px var(--cyan-glow);
+    }
+    .btn-act-primary:hover {
+      background: #38e1f5;
+    }
+    .btn-act-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+    }
+    .btn-act-secondary:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    /* Social Command Center */
+    .social-command {
+      background: linear-gradient(135deg, rgba(16, 22, 34, 0.9), rgba(10, 14, 22, 0.92));
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .platform-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+    .platform-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: all 0.2s ease;
+    }
+    .platform-card:hover {
+      border-color: var(--cyan);
+      background: rgba(0, 212, 232, 0.04);
+    }
+    .platform-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .platform-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .platform-handle {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--cyan);
+    }
+    .platform-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .btn-copy-post {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      padding: 0.45rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      margin-top: auto;
+      text-align: center;
+    }
+    .btn-copy-post:hover {
+      border-color: var(--green);
+      color: var(--green);
+      background: rgba(61, 214, 140, 0.1);
+    }
+
+    /* Video Teardown Showcase */
+    .video-showcase {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 900px) {
+      .video-showcase { grid-template-columns: 1fr; }
+    }
+    .video-box {
+      background: #030508;
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .video-box video {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: #000;
+    }
+    .video-info {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .video-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .video-desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* Press Release Article Section */
+    .press-article {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    .press-article h2 {
+      font-size: 1.5rem;
+      color: #fff;
+    }
+    .press-article p {
+      font-size: 0.92rem;
+      color: #cbd5e1;
+      line-height: 1.65;
+    }
+    .press-article blockquote {
+      border-left: 3px solid var(--cyan);
+      padding-left: 1rem;
+      color: #94a3b8;
+      font-style: italic;
+    }
+
+    /* Modal for Full-Res Image Viewing */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(3, 6, 12, 0.92);
+      backdrop-filter: blur(12px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      max-width: 1200px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      background: #0b111a;
+      border: 1px solid var(--cyan);
+      border-radius: 14px;
+      padding: 1rem;
+      box-shadow: 0 0 40px rgba(0, 212, 232, 0.25);
+    }
+    .modal-img {
+      max-width: 100%;
+      max-height: 75vh;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-caption {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      color: var(--cyan);
+    }
+    .modal-close {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--card-border);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #0f2334;
+      border: 1px solid var(--green);
+      color: var(--green);
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      transform: translateY(150%);
+      transition: transform 0.25s ease;
+      z-index: 2000;
+    }
+    .toast.show { transform: translateY(0); }
+
+    footer {
+      background: #05080c;
+      border-top: 1px solid var(--card-border);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <a href="../index.html" class="brand-wrap">
+      <span class="brand-badge">PR Campaign &amp; Media Kit</span>
+      <span class="brand-title">SRE<span>designs</span> · Digital Twins</span>
+    </a>
+    <div class="header-nav">
+      <a href="#fleet" class="nav-btn">🔬 Fleet Showcase</a>
+      <a href="#videos" class="nav-btn">🎬 Video Teardowns</a>
+      <a href="#social" class="nav-btn">📱 Social Media Hub</a>
+      <a href="#press" class="nav-btn">📰 Press Release</a>
+      <a href="../presentations.html" class="nav-btn">🎥 Cinema Hub</a>
+      <a href="../index.html" class="nav-btn">🏠 Master Lab</a>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- Hero PR Banner -->
+    <section class="hero-pr">
+      <div class="hero-tag">Official Public Release · 2026 Fleet Campaign</div>
+      <h1 class="hero-title">The Metaverse of Metrology: 1:1 Scientific Digital Twins with Physical Continuity</h1>
+      <p class="hero-sub">
+        Explore 18 world-class pharmaceutical and analytical laboratory instruments and the 2026 Formula 1 engineering suite—engineered procedurally down to genuine 3D fasteners, solid-state relays, internal electric motors, and real-time Web Audio acoustics.
+      </p>
+      <div class="hero-stats">
+        <div class="stat-box">
+          <div class="stat-val">18 + 2</div>
+          <div class="stat-lbl">Completed Digital Twins</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val">100% CAD</div>
+          <div class="stat-lbl">Zero Normal Map Tricks</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val">Hardwired</div>
+          <div class="stat-lbl">Physical Circuit Continuity</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val">1080p 60fps</div>
+          <div class="stat-lbl">Narrated Video Teardowns</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Video Teardowns Preview -->
+    <section id="videos" class="filter-section">
+      <div class="section-header">
+        <div class="section-title">
+          🎬 Master 10-Stage Narrated Walkthrough Videos <span>(1080p H.264 / AAC)</span>
+        </div>
+        <a href="../presentations.html" class="nav-btn">Open Full Cinema Hub ➔</a>
+      </div>
+
+      <div class="video-showcase">
+        <!-- Video 1: ERWEKA ZT 322 -->
+        <div class="video-box">
+          <video controls preload="metadata" poster="media/showcase/zt322_iso.png">
+            <source src="../disintegration_tester_twin/docs/ERWEKA_ZT322_Social_Walkthrough.mp4" type="video/mp4">
+            Your browser does not support HTML5 video.
+          </video>
+          <div class="video-info">
+            <div class="video-title">ERWEKA ZT 322 · USP &lang;701&rang; Tablet Disintegration Tester</div>
+            <p class="video-desc">
+              10-chapter walkthrough: electrical continuity from the bench duplex outlet, 30.0 CPM harmonic oscillation drive, 1000W immersion heating bath, 45° gold optical relay mirrors, and full internal 5-motor teardown.
+            </p>
+            <div class="machine-actions">
+              <a href="../disintegration_tester_twin/software/viewer/index.html?tour=1" class="btn-act btn-act-primary">🎬 Live 3D Tour</a>
+              <a href="../disintegration_tester_twin/docs/ERWEKA_ZT322_Social_Walkthrough.mp4" download class="btn-act btn-act-secondary">⬇ Download MP4 (63 MB)</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video 2: Centrifuge -->
+        <div class="video-box">
+          <video controls preload="metadata" poster="media/showcase/centrifuge_iso.png">
+            <source src="../centrifuge_twin/docs/CENTRIFUGE_Social_Walkthrough.mp4" type="video/mp4">
+            Your browser does not support HTML5 video.
+          </video>
+          <div class="video-info">
+            <div class="video-title">Eppendorf MICRO 5424-R · High-Speed Refrigerated Microcentrifuge</div>
+            <p class="video-desc">
+              10-stage walkthrough: 15,000 RPM (21,130 &times; g) induction drive, aerosol-tight QuickLock rotor lid, motorized safety interlocks, Stokes sedimentation pellet layers, cast iron ballast, and PCB teardown.
+            </p>
+            <div class="machine-actions">
+              <a href="../centrifuge_twin/software/viewer/index.html?tour=1" class="btn-act btn-act-primary">🎬 Live 3D Tour</a>
+              <a href="../centrifuge_twin/docs/CENTRIFUGE_Social_Walkthrough.mp4" download class="btn-act btn-act-secondary">⬇ Download MP4 (78 MB)</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Fleet Showcase with Filter -->
+    <section id="fleet" class="filter-section">
+      <div class="section-header">
+        <div class="section-title">
+          🔬 Complete Machine Fleet Showcase &amp; High-Res Assets <span>(Click any photo to zoom)</span>
+        </div>
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-filter="all">All Instruments (20)</button>
+          <button class="filter-tab" data-filter="pharma">Pharma &amp; Testing</button>
+          <button class="filter-tab" data-filter="separation">Separation &amp; Drying</button>
+          <button class="filter-tab" data-filter="reaction">Reaction &amp; Thermal</button>
+          <button class="filter-tab" data-filter="analytical">Analytical &amp; Optics</button>
+          <button class="filter-tab" data-filter="motorsport">Motorsport &amp; Lab</button>
+        </div>
+      </div>
+
+      <div class="fleet-grid">
+
+        <!-- 1. ERWEKA ZT 322 -->
+        <div class="machine-card" data-cat="pharma">
+          <div class="machine-thumb-wrap" onclick="openModal('media/showcase/zt322_iso.png', 'ERWEKA ZT 322 Tablet Disintegration Tester (USP <701>)')">
+            <img class="machine-thumb" src="media/showcase/zt322_iso.png" alt="ERWEKA ZT 322" loading="lazy" />
+            <div class="thumb-badge">USP &lang;701&rang; / Ph. Eur. 2.9.1</div>
+            <div class="zoom-hint">🔍 Click to Zoom</div>
+          </div>
+          <div class="machine-content">
+            <div class="machine-header">
+              <div>
+                <h3 class="machine-title">ERWEKA ZT 322 Tablet Disintegration Tester</h3>
+                <div class="machine-subtitle">Dual-Station Automated Metrological Apparatus</div>
+              </div>
+            </div>
+            <p class="machine-desc">
+              Harmonic 30.0 CPM stroke reciprocation, 6.5 L bath, 1000W PT100 immersion circulator, dual 1000 mL Griffin beakers, and 10-mesh 316L SS screens.
+            </p>
+            <div class="machine-specs">
+              <div class="spec-item"><span class="spec-lbl">Stroke / Rate:</span><span class="spec-val">55.0 mm @ 30.0 CPM</span></div>
+              <div class="spec-item"><span class="spec-lbl">Actuators:</span><span class="spec-val">5 Motors (BLDC + Dual Steppers + Pump)</span></div>
+              <div class="spec-item"><span class="spec-lbl">Sensors:</span><span class="spec-val">8 Sensors + 45° Gold Relay Mirrors</span></div>
+            </div>
+            <div class="machine-actions">
+              <a href="../disintegration_tester_twin/software/viewer/index.html" class="btn-act btn-act-primary">Launch 3D</a>
+              <button class="btn-act btn-act-secondary" onclick="copyMachineCopy('ERWEKA ZT 322', 'https://srephoto.github.io/Twins/disintegration_tester_twin/software/viewer/index.html')">📋 Copy Post</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Eppendorf Centrifuge -->
+        <div class="machine-card" data-cat="separation">
+          <div class="machine-thumb-wrap" onclick="openModal('media/showcase/centrifuge_iso.png', 'Eppendorf MICRO 5424-R High-Speed Centrifuge')">
+            <img class="machine-thumb" src="media/showcase/centrifuge_iso.png" alt="MICRO 5424-R" loading="lazy" />
+            <div class="thumb-badge">15,000 RPM · 21,130 &times; g</div>
+            <div class="zoom-hint">🔍 Click to Zoom</div>
+          </div>
+          <div class="machine-content">
+            <div class="machine-header">
+              <div>
+                <h3 class="machine-title">Eppendorf MICRO 5424-R Centrifuge</h3>
+                <div class="machine-subtitle">Refrigerated High-Speed Microcentrifuge</div>
+              </div>
+            </div>
+            <p class="machine-desc">
+              Aerosol-tight 24-place QuickLock rotor, -10°C to +40°C cooling, Stokes pelleting physics, cast iron dynamic ballast, and dual safety lid interlocks.
+            </p>
+            <div class="machine-specs">
+              <div class="spec-item"><span class="spec-lbl">Max Speed:</span><span class="spec-val">15,000 RPM (21,130 &times; g)</span></div>
+              <div class="spec-item"><span class="spec-lbl">Rotor Capacity:</span><span class="spec-val">24 &times; 1.5/2.0 mL conical tubes</span></div>
+              <div class="spec-item"><span class="spec-lbl">Refrigeration:</span><span class="spec-val">-10°C to +40°C fast-cool loop</span></div>
+            </div>
+            <div class="machine-actions">
+              <a href="../centrifuge_twin/software/viewer/index.html" class="btn-act btn-act-primary">Launch 3D</a>
+              <button class="btn-act btn-act-secondary" onclick="copyMachineCopy('Eppendorf MICRO 5424-R', 'https://srephoto.github.io/Twins/centrifuge_twin/software/viewer/index.html')">📋 Copy Post</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. METTLER TOLEDO Balance -->
+        <div class="machine-card" data-cat="pharma">
+          <div class="machine-thumb-wrap" onclick="openModal('media/showcase/balance_iso.png', 'METTLER TOLEDO XSE204 Precision Analytical Balance')">
+            <img class="machine-thumb" src="media/showcase/balance_iso.png" alt="METTLER TOLEDO XSE204" loading="lazy" />
+            <div class="thumb-badge">0.1 mg Readability · EMFR Cell</div>
+            <div class="zoom-hint">🔍 Click to Zoom</div>
+          </div>
+          <div class="machine-content">
+            <div class="machine-header">
+              <div>
+                <h3 class="machine-title">METTLER TOLEDO XSE204 Balance</h3>
+                <div class="machine-subtitle">4-Decimal Analytical Microbalance</div>
+              </div>
+            </div>
+            <p class="machine-desc">
+              0.1 mg precision, motorized 3-door glass draft shield, SmartGrid weighing pan, proFACT internal calibration test weights, and EMFR voice coil physics.
+            </p>
+            <div class="machine-specs">
+              <div class="spec-item"><span class="spec-lbl">Readability:</span><span class="spec-val">0.0001 g (0.1 mg) / 220 g Max</span></div>
+              <div class="spec-item"><span class="spec-lbl">Transducer:</span><span class="spec-val">EMFR Voice-Coil Null Restorer</span></div>
+              <div class="spec-item"><span class="spec-lbl">Automation:</span><span class="spec-val">Motorized Draft Doors &amp; proFACT</span></div>
+            </div>
+            <div class="machine-actions">
+              <a href="../balance_twin/software/viewer/index.html" class="btn-act btn-act-primary">Launch 3D</a>
+              <button class="btn-act btn-act-secondary" onclick="copyMachineCopy('METTLER XSE204', 'https://srephoto.github.io/Twins/balance_twin/software/viewer/index.html')">📋 Copy Post</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. BÜCHI Rotavapor R-300 -->
+        <div class="machine-card" data-cat="reaction">
+          <div class="machine-thumb-wrap" onclick="openModal('media/showcase/rotovap_iso.png', 'BÜCHI Rotavapor R-300 Rotary Evaporator')">
+            <img class="machine-thumb" src="media/showcase/rotovap_iso.png" alt="Buchi Rotavapor R-300" loading="lazy" />
+            <div class="thumb-badge">Vacuum Distillation &amp; Lift</div>
+            <div class="zoom-hint">🔍 Click to Zoom</div>
+          </div>
+          <div class="machine-content">
+            <div class="machine-header">
+              <div>
+                <h3 class="machine-title">BÜCHI Rotavapor R-300</h3>
+                <div class="machine-subtitle">Precision Solvent Distillation Suite</div>
+              </div>
+            </div>
+            <p class="machine-desc">
+              Motorized Acme lead screw vertical lift mast, Combi-Clip quick release, B-300 heating bath (up to 220°C), and double-spiral borosilicate glass condenser.
+            </p>
+            <div class="machine-specs">
+              <div class="spec-item"><span class="spec-lbl">Bath Range:</span><span class="spec-val">20°C to 220°C water/oil</span></div>
+              <div class="spec-item"><span class="spec-lbl">Rotation Drive:</span><span class="spec-val">10 to 280 RPM BLDC drive</span></div>
+              <div class="spec-item"><span class="spec-lbl">Glassware:</span><span class="spec-val">Double-spiral condenser &amp; receiving flask</span></div>
+            </div>
+            <div class="machine-actions">
+              <a href="../rotovap_twin/software/viewer/index.html" class="btn-act btn-act-primary">Launch 3D</a>
+              <button class="btn-act btn-act-secondary" onclick="copyMachineCopy('BÜCHI Rotavapor R-300', 'https://srephoto.github.io/Twins/rotovap_twin/software/viewer/index.html')">📋 Copy Post</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Parr 4560 Reactor -->
+        <div class="machine-card" data-cat="reaction">
+          <div class="machine-thumb-wrap" onclick="openModal('media/showcase/reactor_iso.png', 'Parr 4560 High-Pressure Stirred Mini-Reactor')">
+            <img class="machine-thumb" src="media/showcase/reactor_iso.png" alt="Parr Reactor 4560" loading="lazy" />
+            <div class="thumb-badge">200 bar MAWP · 350°C Mantle</div>
+            <div class="zoom-hint">🔍 Click to Zoom</div>
+          </div>
+          <div class="machine-content">
+            <div class="machine-header">
+              <div>
+                <h3 class="machine-title">Parr 4560 High-Pressure Reactor</h3>
+                <div class="machine-subtitle">300 mL 316L SS Catalytic Autoclave</div>
+              </div>
+            </div>
+            <p class="machine-desc">
+              200 bar (2900 psi) MAWP rating, 2-piece split-ring closure clamp, magnetic stirrer drive (0–1700 RPM), electric clamshell mantle, and Parr 4848 PID controller.
+            </p>
+            <div class="machine-specs">
+              <div class="spec-item"><span class="spec-lbl">Pressure / Temp:</span><span class="spec-val">200 bar (2900 psi) / 350°C</span></div>
+              <div class="spec-item"><span class="spec-lbl">Vessel:</span><span class="spec-val">300 mL 316L Stainless Steel</span></div>
+              <div class="spec-item"><span class="spec-lbl">Stirring:</span><span class="spec-val">Magnetic drive + turbine impeller</span></div>
+            </div>
+            <div class="machine-actions">
+              <a href="../high_pressure_reactor_twin/software/viewer/index.html" class="btn-act btn-act-primary">Launch 3D</a>
+              <button class="btn-act btn-act-secondary" onclick="copyMachineCopy('Parr 4560 Reactor', 'https://srephoto.github.io/Twins/high_pressure_reactor_twin/software/viewer/index.html')">📋 Copy Post</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. STIR-HEAT 500-D Hotplate -->
+        <div class="machine-card" data-cat="reaction">
+          <div class="machine-thumb-wrap" onclick="openModal('media/showcase/hotplate_iso.png', 'STIR-HEAT 500-D Digital Ceramic Hotplate Stirrer')">
+            <img class="machine-thumb" src="media/showcase/hotplate_iso.png" alt="STIR-HEAT 500-D Hotplate" loading="lazy" />
+            <div class="thumb-badge">310°C Ceramic · 1500 RPM Vortex</div>
+            <div class="zoom-hint">🔍 Click to Zoom</div>
+          </div>
+          <div class="machine-content">
+            <div class="machine-header">
+              <div>
+                <h3 class="machine-title">STIR-HEAT 500-D Hotplate Stirrer</h3>
+                <div class="machine-subtitle">Ceramic Digital Magnetic Stirrer</div>
+              </div>
+            </div>
+            <p class="machine-desc">
+              Chemical-resistant white ceramic plate, external PT1000 ATC temperature probe, fluid vortex meniscus physics, and residual hot surface warning LED.
+            </p>
+            <div class="machine-specs">
+              <div class="spec-item"><span class="spec-lbl">Heating Range:</span><span class="spec-val">Ambient to 310°C ±1.0°C</span></div>
+              <div class="spec-item"><span class="spec-lbl">Stir Speed:</span><span class="spec-val">100 to 1500 RPM vortex</span></div>
+              <div class="spec-item"><span class="spec-lbl">Safety:</span><span class="spec-val">Hot top warning (&gt;50°C) + thermal fuse</span></div>
+            </div>
+            <div class="machine-actions">
+              <a href="../hotplate_twin/software/viewer/index.html" class="btn-act btn-act-primary">Launch 3D</a>
+              <button class="btn-act btn-act-secondary" onclick="copyMachineCopy('STIR-HEAT 500-D Hotplate', 'https://srephoto.github.io/Twins/hotplate_twin/software/viewer/index.html')">📋 Copy Post</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 7. UNI-9000 Glove Box -->
+        <div class="machine-card" data-cat="reaction">
+          <div class="machine-thumb-wrap" onclick="openModal('media/showcase/glovebox_iso.png', 'SRE UNI-9000 Pro Inert Atmosphere Glove Box')">
+            <img class="machine-thumb" src="media/showcase/glovebox_iso.png" alt="Inert Glove Box" loading="lazy" />
+            <div class="thumb-badge">&lt;1 ppm O₂/H₂O · 3-Cycle Antechamber</div>
+            <div class="zoom-hint">🔍 Click to Zoom</div>
+          </div>
+          <div class="machine-content">
+            <div class="machine-header">
+              <div>
+                <h3 class="machine-title">UNI-9000 Pro Inert Glove Box</h3>
+                <div class="machine-subtitle">Hermetic Atmosphere Workstation</div>
+              </div>
+            </div>
+            <p class="machine-desc">
+              Hermetic 304 stainless steel chamber, 3-cycle antechamber vacuum/purge sequence, butyl glove ports with ergonomic tilt, and PLC touchscreen controls.
+            </p>
+            <div class="machine-specs">
+              <div class="spec-item"><span class="spec-lbl">Purity:</span><span class="spec-val">&lt; 1 ppm O₂ and &lt; 1 ppm H₂O</span></div>
+              <div class="spec-item"><span class="spec-lbl">Antechamber:</span><span class="spec-val">3-cycle automated evacuation</span></div>
+              <div class="spec-item"><span class="spec-lbl">Interface:</span><span class="spec-val">Color PLC touchscreen + bubbler</span></div>
+            </div>
+            <div class="machine-actions">
+              <a href="../glove_box_twin/software/viewer/index.html" class="btn-act btn-act-primary">Launch 3D</a>
+              <button class="btn-act btn-act-secondary" onclick="copyMachineCopy('UNI-9000 Glove Box', 'https://srephoto.github.io/Twins/glove_box_twin/software/viewer/index.html')">📋 Copy Post</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 8. Shimadzu UV-Vis Spectro -->
+        <div class="machine-card" data-cat="analytical">
+          <div class="machine-thumb-wrap" onclick="openModal('media/showcase/spectro_iso.png', 'Shimadzu UV-1900i Double-Beam Spectrophotometer')">
+            <img class="machine-thumb" src="media/showcase/spectro_iso.png" alt="Shimadzu UV-1900i" loading="lazy" />
+            <div class="thumb-badge">190–1100 nm · Czerny-Turner Optics</div>
+            <div class="zoom-hint">🔍 Click to Zoom</div>
+          </div>
+          <div class="machine-content">
+            <div class="machine-header">
+              <div>
+                <h3 class="machine-title">Shimadzu UV-1900i Spectro</h3>
+                <div class="machine-subtitle">Double-Beam UV-Vis Spectrophotometer</div>
+              </div>
+            </div>
+            <p class="machine-desc">
+              Czerny-Turner blazed holographic monochromator, 6-cell motorized carousel, Beer-Lambert absorbance simulation, deuterium &amp; halogen lamp sources.
+            </p>
+            <div class="machine-specs">
+              <div class="spec-item"><span class="spec-lbl">Wavelength:</span><span class="spec-val">190 to 1100 nm (1 nm bandwidth)</span></div>
+              <div class="spec-item"><span class="spec-lbl">Carousel:</span><span class="spec-val">6-position automated changer</span></div>
+              <div class="spec-item"><span class="spec-lbl">Physics:</span><span class="spec-val">Beer-Lambert A = ε·c·l calculation</span></div>
+            </div>
+            <div class="machine-actions">
+              <a href="../spectrophotometer_twin/software/viewer/index.html" class="btn-act btn-act-primary">Launch 3D</a>
+              <button class="btn-act btn-act-secondary" onclick="copyMachineCopy('Shimadzu UV-1900i', 'https://srephoto.github.io/Twins/spectrophotometer_twin/software/viewer/index.html')">📋 Copy Post</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 9. SRE PH-7000 Pro pH Meter -->
+        <div class="machine-card" data-cat="analytical">
+          <div class="machine-thumb-wrap" onclick="openModal('media/showcase/ph_meter_iso.png', 'SRE PH-7000 Pro Benchtop pH / Ion Meter')">
+            <img class="machine-thumb" src="media/showcase/ph_meter_iso.png" alt="SRE PH-7000 Pro" loading="lazy" />
+            <div class="thumb-badge">0.001 pH · Nernstian Electrochemistry</div>
+            <div class="zoom-hint">🔍 Click to Zoom</div>
+          </div>
+          <div class="machine-content">
+            <div class="machine-header">
+              <div>
+                <h3 class="machine-title">SRE PH-7000 Pro pH Meter</h3>
+                <div class="machine-subtitle">High-Precision Benchtop Ion Meter</div>
+              </div>
+            </div>
+            <p class="machine-desc">
+              0.001 pH resolution, Nernstian electrochemistry equation with dynamic temperature slope compensation, ATC probe, and combination glass electrode.
+            </p>
+            <div class="machine-specs">
+              <div class="spec-item"><span class="spec-lbl">Resolution:</span><span class="spec-val">0.001 pH / ±0.002 pH accuracy</span></div>
+              <div class="spec-item"><span class="spec-lbl">Electrochemistry:</span><span class="spec-val">Dynamic Nernst slope E = E° - (2.303RT/F)pH</span></div>
+              <div class="spec-item"><span class="spec-lbl">Stand:</span><span class="spec-val">3-axis articulated probe arm</span></div>
+            </div>
+            <div class="machine-actions">
+              <a href="../ph_meter_twin/software/viewer/index.html" class="btn-act btn-act-primary">Launch 3D</a>
+              <button class="btn-act btn-act-secondary" onclick="copyMachineCopy('SRE PH-7000 Pro', 'https://srephoto.github.io/Twins/ph_meter_twin/software/viewer/index.html')">📋 Copy Post</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 10. THERMO-1200 Muffle Furnace -->
+        <div class="machine-card" data-cat="reaction">
+          <div class="machine-thumb-wrap" onclick="openModal('media/showcase/muffle_furnace_iso.png', 'THERMO-1200 High-Temperature Muffle Furnace')">
+            <img class="machine-thumb" src="media/showcase/muffle_furnace_iso.png" alt="THERMO-1200 Muffle Furnace" loading="lazy" />
+            <div class="thumb-badge">1200°C · 4-Bar Parallel Lift Door</div>
+            <div class="zoom-hint">🔍 Click to Zoom</div>
+          </div>
+          <div class="machine-content">
+            <div class="machine-header">
+              <div>
+                <h3 class="machine-title">THERMO-1200 Muffle Furnace</h3>
+                <div class="machine-subtitle">High-Temperature Box Furnace</div>
+              </div>
+            </div>
+            <p class="machine-desc">
+              1200°C chamber temperature, 4-bar parallel motion safety lift door, alumina ceramic fiber insulation, and Planck blackbody thermal radiation glow.
+            </p>
+            <div class="machine-specs">
+              <div class="spec-item"><span class="spec-lbl">Max Chamber:</span><span class="spec-val">1200°C continuous</span></div>
+              <div class="spec-item"><span class="spec-lbl">Door Kinematics:</span><span class="spec-val">4-bar linkage keeping hot face away</span></div>
+              <div class="spec-item"><span class="spec-lbl">Thermal Glow:</span><span class="spec-val">Dynamic blackbody Planck shader</span></div>
+            </div>
+            <div class="machine-actions">
+              <a href="../muffle_furnace_twin/software/viewer/index.html" class="btn-act btn-act-primary">Launch 3D</a>
+              <button class="btn-act btn-act-secondary" onclick="copyMachineCopy('THERMO-1200 Muffle Furnace', 'https://srephoto.github.io/Twins/muffle_furnace_twin/software/viewer/index.html')">📋 Copy Post</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 11. KNF Laboport Vacuum Pump -->
+        <div class="machine-card" data-cat="motorsport">
+          <div class="machine-thumb-wrap" onclick="openModal('media/showcase/vacuum_pump_iso.png', 'KNF Laboport N820 Diaphragm Vacuum Pump')">
+            <img class="machine-thumb" src="media/showcase/vacuum_pump_iso.png" alt="KNF Laboport N820" loading="lazy" />
+            <div class="thumb-badge">6 mbar Ultimate · 100% Oil-Free</div>
+            <div class="zoom-hint">🔍 Click to Zoom</div>
+          </div>
+          <div class="machine-content">
+            <div class="machine-header">
+              <div>
+                <h3 class="machine-title">KNF Laboport N820 Vacuum Pump</h3>
+                <div class="machine-subtitle">Chemical Diaphragm Vacuum Pump</div>
+              </div>
+            </div>
+            <p class="machine-desc">
+              100% oil-free, dual PTFE-coated heads, 6 mbar ultimate vacuum, 20 L/min flow rate, capacitor-start induction motor, and gas ballast valve.
+            </p>
+            <div class="machine-specs">
+              <div class="spec-item"><span class="spec-lbl">Vacuum:</span><span class="spec-val">6 mbar (4.5 Torr) ultimate</span></div>
+              <div class="spec-item"><span class="spec-lbl">Flow Rate:</span><span class="spec-val">20 L/min chemical resistant</span></div>
+              <div class="spec-item"><span class="spec-lbl">Mechanics:</span><span class="spec-val">Dual eccentric rods + reed valves</span></div>
+            </div>
+            <div class="machine-actions">
+              <a href="../vacuum_pump_twin/software/viewer/index.html" class="btn-act btn-act-primary">Launch 3D</a>
+              <button class="btn-act btn-act-secondary" onclick="copyMachineCopy('KNF Laboport N820', 'https://srephoto.github.io/Twins/vacuum_pump_twin/software/viewer/index.html')">📋 Copy Post</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 12. Vortex-Genie 2 Pro -->
+        <div class="machine-card" data-cat="separation">
+          <div class="machine-thumb-wrap" onclick="openModal('media/showcase/vortex_mixer_iso.png', 'Vortex-Genie 2 Pro Heavy-Duty Vortex Mixer')">
+            <img class="machine-thumb" src="media/showcase/vortex_mixer_iso.png" alt="Vortex Mixer" loading="lazy" />
+            <div class="thumb-badge">2400 RPM · Eccentric Orbital Motion</div>
+            <div class="zoom-hint">🔍 Click to Zoom</div>
+          </div>
+          <div class="machine-content">
+            <div class="machine-header">
+              <div>
+                <h3 class="machine-title">Vortex-Genie 2 Pro Mixer</h3>
+                <div class="machine-subtitle">Heavy-Duty Laboratory Vortexer</div>
+              </div>
+            </div>
+            <p class="machine-desc">
+              600–2400 RPM continuous and touch-activated vortexing, true eccentric orbital kinematics, parabolic liquid funnel vortex physics for tubes.
+            </p>
+            <div class="machine-specs">
+              <div class="spec-item"><span class="spec-lbl">Speed:</span><span class="spec-val">600 to 2400 RPM orbital</span></div>
+              <div class="spec-item"><span class="spec-lbl">Activation:</span><span class="spec-val">Touch / Continuous toggle</span></div>
+              <div class="spec-item"><span class="spec-lbl">Ballast:</span><span class="spec-val">Heavy cast zinc base pan</span></div>
+            </div>
+            <div class="machine-actions">
+              <a href="../vortex_mixer_twin/software/viewer/index.html" class="btn-act btn-act-primary">Launch 3D</a>
+              <button class="btn-act btn-act-secondary" onclick="copyMachineCopy('Vortex-Genie 2 Pro', 'https://srephoto.github.io/Twins/vortex_mixer_twin/software/viewer/index.html')">📋 Copy Post</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 13. Branson CPX Ultrasonic Cleaner -->
+        <div class="machine-card" data-cat="motorsport">
+          <div class="machine-thumb-wrap" onclick="openModal('media/showcase/ultrasonic_iso.png', 'Branson CPX Ultrasonic Cleaner with Heated Degas')">
+            <img class="machine-thumb" src="media/showcase/ultrasonic_iso.png" alt="Branson Ultrasonic Cleaner" loading="lazy" />
+            <div class="thumb-badge">40 kHz Piezo Cavitation · Heated Degas</div>
+            <div class="zoom-hint">🔍 Click to Zoom</div>
+          </div>
+          <div class="machine-content">
+            <div class="machine-header">
+              <div>
+                <h3 class="machine-title">Branson CPX Ultrasonic Cleaner</h3>
+                <div class="machine-subtitle">Industrial Cavitation Cleaner</div>
+              </div>
+            </div>
+            <p class="machine-desc">
+              40 kHz industrial piezo-ceramic cavitation transducer array, heated bath up to 69°C, ultrasonic degassing pulse sequence, and stainless parts basket.
+            </p>
+            <div class="machine-specs">
+              <div class="spec-item"><span class="spec-lbl">Frequency:</span><span class="spec-val">40 kHz Langevin transducers</span></div>
+              <div class="spec-item"><span class="spec-lbl">Heating:</span><span class="spec-val">Up to 69°C with digital timer</span></div>
+              <div class="spec-item"><span class="spec-lbl">Feature:</span><span class="spec-val">Ultrasonic degas pulse sequence</span></div>
+            </div>
+            <div class="machine-actions">
+              <a href="../ultrasonic_cleaner_twin/software/viewer/index.html" class="btn-act btn-act-primary">Launch 3D</a>
+              <button class="btn-act btn-act-secondary" onclick="copyMachineCopy('Branson CPX Ultrasonic', 'https://srephoto.github.io/Twins/ultrasonic_cleaner_twin/software/viewer/index.html')">📋 Copy Post</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 14. Metrohm Karl Fischer Titrator -->
+        <div class="machine-card" data-cat="pharma">
+          <div class="machine-thumb-wrap" onclick="openModal('media/showcase/karl_fischer_iso.png', 'Metrohm 901 Titrando Karl Fischer Moisture Titrator')">
+            <img class="machine-thumb" src="media/showcase/karl_fischer_iso.png" alt="Metrohm 901 Titrando" loading="lazy" />
+            <div class="thumb-badge">0.1 µL Buret Res · Volumetric/Coulometric</div>
+            <div class="zoom-hint">🔍 Click to Zoom</div>
+          </div>
+          <div class="machine-content">
+            <div class="machine-header">
+              <div>
+                <h3 class="machine-title">Metrohm 901 Karl Fischer Titrator</h3>
+                <div class="machine-subtitle">Precision Moisture Determination</div>
+              </div>
+            </div>
+            <p class="machine-desc">
+              Volumetric and coulometric water determination, 800 Dosino precision buret with 0.1 µL resolution, and double platinum wire polarization indicator.
+            </p>
+            <div class="machine-specs">
+              <div class="spec-item"><span class="spec-lbl">Resolution:</span><span class="spec-val">0.1 µL per cylinder step</span></div>
+              <div class="spec-item"><span class="spec-lbl">Detector:</span><span class="spec-val">Double platinum polarization pin</span></div>
+              <div class="spec-item"><span class="spec-lbl">Buret:</span><span class="spec-val">Dosino 800 magnetic valve disk</span></div>
+            </div>
+            <div class="machine-actions">
+              <a href="../karl_fischer_twin/software/viewer/index.html" class="btn-act btn-act-primary">Launch 3D</a>
+              <button class="btn-act btn-act-secondary" onclick="copyMachineCopy('Metrohm 901 Titrando', 'https://srephoto.github.io/Twins/karl_fischer_twin/software/viewer/index.html')">📋 Copy Post</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 15. Labconco Freeze Dryer -->
+        <div class="machine-card" data-cat="separation">
+          <div class="machine-thumb-wrap" onclick="openModal('media/showcase/freeze_dryer_iso.png', 'Labconco FreeZone Laboratory Freeze Dryer')">
+            <img class="machine-thumb" src="media/showcase/freeze_dryer_iso.png" alt="Labconco FreeZone" loading="lazy" />
+            <div class="thumb-badge">-50°C Collector · 12-Port Manifold</div>
+            <div class="zoom-hint">🔍 Click to Zoom</div>
+          </div>
+          <div class="machine-content">
+            <div class="machine-header">
+              <div>
+                <h3 class="machine-title">Labconco FreeZone Freeze Dryer</h3>
+                <div class="machine-subtitle">Benchtop Lyophilization System</div>
+              </div>
+            </div>
+            <p class="machine-desc">
+              -50°C / -84°C stainless steel collector, 12-port drying manifold with Quick-Seal valves, Pirani vacuum sensor, and ice sublimation condensing physics.
+            </p>
+            <div class="machine-specs">
+              <div class="spec-item"><span class="spec-lbl">Collector:</span><span class="spec-val">-50°C / -84°C Cascade options</span></div>
+              <div class="spec-item"><span class="spec-lbl">Manifold:</span><span class="spec-val">12 neoprene Quick-Seal valves</span></div>
+              <div class="spec-item"><span class="spec-lbl">Sensor:</span><span class="spec-val">Pirani vacuum gauge &amp; hot gas defrost</span></div>
+            </div>
+            <div class="machine-actions">
+              <a href="../freeze_dryer_twin/software/viewer/index.html" class="btn-act btn-act-primary">Launch 3D</a>
+              <button class="btn-act btn-act-secondary" onclick="copyMachineCopy('Labconco FreeZone', 'https://srephoto.github.io/Twins/freeze_dryer_twin/software/viewer/index.html')">📋 Copy Post</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 16. USP Apparatus 2 Dissolution Tester -->
+        <div class="machine-card" data-cat="pharma">
+          <div class="machine-thumb-wrap" onclick="openModal('media/showcase/dissolution_tester_iso.png', 'USP Apparatus 2 Tablet Dissolution Tester')">
+            <img class="machine-thumb" src="media/showcase/dissolution_tester_iso.png" alt="Dissolution Tester" loading="lazy" />
+            <div class="thumb-badge">USP &lang;711&rang; · 6-Paddle Synchronous Belt</div>
+            <div class="zoom-hint">🔍 Click to Zoom</div>
+          </div>
+          <div class="machine-content">
+            <div class="machine-header">
+              <div>
+                <h3 class="machine-title">Tablet Dissolution Tester</h3>
+                <div class="machine-subtitle">USP Apparatus 2 Paddle Tester</div>
+              </div>
+            </div>
+            <p class="machine-desc">
+              6 hemispherical 1000 mL borosilicate vessels, precision USP 316SS paddle spindles, synchronous belt drive, and 37.0°C thermostatic circulation bath.
+            </p>
+            <div class="machine-specs">
+              <div class="spec-item"><span class="spec-lbl">Standard:</span><span class="spec-val">USP &lang;711&rang; / Ph. Eur. Apparatus 2</span></div>
+              <div class="spec-item"><span class="spec-lbl">Spindles:</span><span class="spec-val">6-station synchronous timing belt</span></div>
+              <div class="spec-item"><span class="spec-lbl">Thermostat:</span><span class="spec-val">37.0 ± 0.5°C circulation bath</span></div>
+            </div>
+            <div class="machine-actions">
+              <a href="../dissolution_tester_twin/software/viewer/index.html" class="btn-act btn-act-primary">Launch 3D</a>
+              <button class="btn-act btn-act-secondary" onclick="copyMachineCopy('USP Dissolution Tester', 'https://srephoto.github.io/Twins/dissolution_tester_twin/software/viewer/index.html')">📋 Copy Post</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 17. Thermo Nicolet iS50 FTIR -->
+        <div class="machine-card" data-cat="analytical">
+          <div class="machine-thumb-wrap" onclick="openModal('media/showcase/ftir_iso.png', 'Thermo Nicolet iS50 Research FTIR Spectrometer')">
+            <img class="machine-thumb" src="media/showcase/ftir_iso.png" alt="FTIR Spectrometer" loading="lazy" />
+            <div class="thumb-badge">Michelson Interferometer · Diamond ATR</div>
+            <div class="zoom-hint">🔍 Click to Zoom</div>
+          </div>
+          <div class="machine-content">
+            <div class="machine-header">
+              <div>
+                <h3 class="machine-title">Thermo Nicolet iS50 FTIR</h3>
+                <div class="machine-subtitle">Research Fourier Transform IR</div>
+              </div>
+            </div>
+            <p class="machine-desc">
+              Michelson interferometer with KBr beam splitter, He-Ne laser reference calibration, diamond ATR crystal module, and voice-coil mirror mechanism.
+            </p>
+            <div class="machine-specs">
+              <div class="spec-item"><span class="spec-lbl">Optics:</span><span class="spec-val">Dynamically aligned Michelson core</span></div>
+              <div class="spec-item"><span class="spec-lbl">Sampling:</span><span class="spec-val">Diamond ATR monolithic module</span></div>
+              <div class="spec-item"><span class="spec-lbl">Detector:</span><span class="spec-val">High-sensitivity DLaTGS detector</span></div>
+            </div>
+            <div class="machine-actions">
+              <a href="../ftir_twin/software/viewer/index.html" class="btn-act btn-act-primary">Launch 3D</a>
+              <button class="btn-act btn-act-secondary" onclick="copyMachineCopy('Thermo Nicolet iS50 FTIR', 'https://srephoto.github.io/Twins/ftir_twin/software/viewer/index.html')">📋 Copy Post</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 18. FEG-SEM Electron Microscope -->
+        <div class="machine-card" data-cat="analytical">
+          <div class="machine-thumb-wrap" onclick="openModal('media/showcase/sem_iso.png', 'Field Emission Scanning Electron Microscope (FEG-SEM)')">
+            <img class="machine-thumb" src="media/showcase/sem_iso.png" alt="Scanning Electron Microscope" loading="lazy" />
+            <div class="thumb-badge">0.5–30 kV Beam · Secondary Electron</div>
+            <div class="zoom-hint">🔍 Click to Zoom</div>
+          </div>
+          <div class="machine-content">
+            <div class="machine-header">
+              <div>
+                <h3 class="machine-title">FEG-SEM Electron Microscope</h3>
+                <div class="machine-subtitle">Field Emission Scanning Electron Scope</div>
+              </div>
+            </div>
+            <p class="machine-desc">
+              Electron optical column, electromagnetic condenser lenses, Everhart-Thornley secondary electron detector, and motorized 5-axis specimen stage.
+            </p>
+            <div class="machine-specs">
+              <div class="spec-item"><span class="spec-lbl">Beam Energy:</span><span class="spec-val">0.5 to 30.0 kV variable acceleration</span></div>
+              <div class="spec-item"><span class="spec-lbl">Detector:</span><span class="spec-val">Everhart-Thornley SE &amp; BSE</span></div>
+              <div class="spec-item"><span class="spec-lbl">Vacuum:</span><span class="spec-val">Turbomolecular high-vacuum column</span></div>
+            </div>
+            <div class="machine-actions">
+              <a href="../sem_twin/software/viewer/index.html" class="btn-act btn-act-primary">Launch 3D</a>
+              <button class="btn-act btn-act-secondary" onclick="copyMachineCopy('FEG-SEM Microscope', 'https://srephoto.github.io/Twins/sem_twin/software/viewer/index.html')">📋 Copy Post</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 19. Formula 1 2026 Car & Brakes -->
+        <div class="machine-card" data-cat="motorsport">
+          <div class="machine-thumb-wrap" onclick="openModal('media/showcase/f1_full_car_iso.png', 'Formula 1 2026 Full Car & Active Aerodynamics')">
+            <img class="machine-thumb" src="media/showcase/f1_full_car_iso.png" alt="F1 2026 Full Car" loading="lazy" />
+            <div class="thumb-badge">FIA 2026 Regs · 350 kW MGU-K Regen</div>
+            <div class="zoom-hint">🔍 Click to Zoom</div>
+          </div>
+          <div class="machine-content">
+            <div class="machine-header">
+              <div>
+                <h3 class="machine-title">FIA Formula 1 2026 Suite</h3>
+                <div class="machine-subtitle">Full Car &amp; 350 kW MGU-K Brake Corner</div>
+              </div>
+            </div>
+            <p class="machine-desc">
+              Active front and rear aerodynamics, 350 kW brake-by-wire MGU-K regenerative braking, carbon-carbon ventilated discs with 6-piston monobloc calipers.
+            </p>
+            <div class="machine-specs">
+              <div class="spec-item"><span class="spec-lbl">Regen:</span><span class="spec-val">350 kW MGU-K Brake-by-Wire</span></div>
+              <div class="spec-item"><span class="spec-lbl">Discs:</span><span class="spec-val">32 mm Carbon-Carbon with 1000+ holes</span></div>
+              <div class="spec-item"><span class="spec-lbl">Aero:</span><span class="spec-val">Active DRS &amp; Low-Drag straight mode</span></div>
+            </div>
+            <div class="machine-actions">
+              <a href="../f1_2026_full_car_twin/software/viewer/index.html" class="btn-act btn-act-primary">Launch Car</a>
+              <a href="../f1_2026_brake_twin/software/viewer/index.html" class="btn-act btn-act-secondary">Launch Brake</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 20. Grand Lab Complex -->
+        <div class="machine-card" data-cat="motorsport">
+          <div class="machine-thumb-wrap" onclick="openModal('media/showcase/lab_overview.png', 'Grand Chemistry & Pharmaceutical Research Complex')">
+            <img class="machine-thumb" src="media/showcase/lab_overview.png" alt="Grand Lab Complex" loading="lazy" />
+            <div class="thumb-badge">14-Zone Facility · Biomedical Campus</div>
+            <div class="zoom-hint">🔍 Click to Zoom</div>
+          </div>
+          <div class="machine-content">
+            <div class="machine-header">
+              <div>
+                <h3 class="machine-title">Grand Biomedical Lab Complex</h3>
+                <div class="machine-subtitle">14-Zone Master Facility Architecture</div>
+              </div>
+            </div>
+            <p class="machine-desc">
+              Executive offices, conference boardroom, chemistry synthesis bays, analytical chromatography suites, QC testing cleanrooms, and exterior grounds.
+            </p>
+            <div class="machine-specs">
+              <div class="spec-item"><span class="spec-lbl">Zones:</span><span class="spec-val">14 Dedicated Architectural Sectors</span></div>
+              <div class="spec-item"><span class="spec-lbl">Instruments:</span><span class="spec-val">All 18 Twins Integrated Live</span></div>
+              <div class="spec-item"><span class="spec-lbl">Navigation:</span><span class="spec-val">First-person walk &amp; quick-station jump</span></div>
+            </div>
+            <div class="machine-actions">
+              <a href="../lab_viewer/index.html" class="btn-act btn-act-primary">Launch Complex</a>
+              <button class="btn-act btn-act-secondary" onclick="copyMachineCopy('SRE Biomedical Complex', 'https://srephoto.github.io/Twins/lab_viewer/index.html')">📋 Copy Post</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Social Media Command Center -->
+    <section id="social" class="social-command">
+      <div class="section-header">
+        <div class="section-title">
+          📱 Multichannel Social Media Command Center <span>(Facebook, Instagram, YouTube, TikTok, X)</span>
+        </div>
+      </div>
+      <p style="font-size: 0.9rem; color: var(--muted); line-height: 1.5;">
+        Deploy these calibrated social campaigns across official channels. Click "Copy Post" on any platform card to load distribution-ready copy directly into your clipboard.
+      </p>
+
+      <div class="platform-grid">
+        <!-- X / Twitter -->
+        <div class="platform-card">
+          <div class="platform-head">
+            <div class="platform-name">X (Twitter)</div>
+            <div class="platform-handle">@SREdigitaltwins</div>
+          </div>
+          <p class="platform-desc">
+            Technical engineering megathreads, CAD teardown gifs, and dual-truth physics demonstrations aimed at #SciComm, #Web3D, and #Threejs devs.
+          </p>
+          <button class="btn-copy-post" onclick="copyToClipboard(TWITTER_COPY, 'X (Twitter) Megathread')">📋 Copy 10-Tweet Launch Thread</button>
+        </div>
+
+        <!-- Instagram -->
+        <div class="platform-card">
+          <div class="platform-head">
+            <div class="platform-name">Instagram</div>
+            <div class="platform-handle">@sredesigns_lab</div>
+          </div>
+          <p class="platform-desc">
+            3-column alternating feed: Isometric beauty shot ➔ Internal exploded teardown ➔ 30-sec active physics Reel with fluid dynamics.
+          </p>
+          <button class="btn-copy-post" onclick="copyToClipboard(INSTAGRAM_COPY, 'Instagram Carousel & Reel Copy')">📋 Copy Instagram Post &amp; Tags</button>
+        </div>
+
+        <!-- YouTube -->
+        <div class="platform-card">
+          <div class="platform-head">
+            <div class="platform-name">YouTube</div>
+            <div class="platform-handle">@SREdigitaltwins</div>
+          </div>
+          <p class="platform-desc">
+            Master 10-chapter 1080p narrated video teardowns, USP standard breakdowns, and vertical YouTube Shorts with word-by-word subtitles.
+          </p>
+          <button class="btn-copy-post" onclick="copyToClipboard(YOUTUBE_COPY, 'YouTube Description & SEO Tags')">📋 Copy YouTube SEO &amp; Desc</button>
+        </div>
+
+        <!-- TikTok -->
+        <div class="platform-card">
+          <div class="platform-head">
+            <div class="platform-name">TikTok</div>
+            <div class="platform-handle">@sredigitaltwins</div>
+          </div>
+          <p class="platform-desc">
+            Sensory viral hooks: "Unplugging a $40k tablet machine", "Zooming into 3D screws", and procedural Web Audio motor whining.
+          </p>
+          <button class="btn-copy-post" onclick="copyToClipboard(TIKTOK_COPY, 'TikTok Video Script & Hashtags')">📋 Copy TikTok Video Hook</button>
+        </div>
+
+        <!-- Facebook -->
+        <div class="platform-card">
+          <div class="platform-head">
+            <div class="platform-name">Facebook</div>
+            <div class="platform-handle">/SREDigitalTwins</div>
+          </div>
+          <p class="platform-desc">
+            Official page &amp; "Scientific 3D Digital Twins &amp; Lab Engineering" group connecting university educators, researchers, and pharma QA managers.
+          </p>
+          <button class="btn-copy-post" onclick="copyToClipboard(FACEBOOK_COPY, 'Facebook Long-Form Post')">📋 Copy Facebook Article</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Official Press Release -->
+    <section id="press" class="press-article">
+      <div class="hero-tag">Wire Service Distribution · PR Newswire / Business Wire</div>
+      <h2>SREdesigns Unveils Groundbreaking Suite of 1:1 Scientific Digital Twins with Genuine Internal Anatomy and Dual-Truth Metrology</h2>
+      <blockquote>
+        "Most 3D models on the web are hollow shells with painted-on textures that misrepresent how laboratory instruments actually function. In our twins, every single screw has real depth. If you pull the power cord from the wall outlet, the machine instantly loses power: the LCD blacks out, the drive motor coasts to zero, and the heaters shut off."
+      </blockquote>
+      <p>
+        <strong>AUSTIN, Texas &amp; CAMBRIDGE, Mass.</strong> — SRE Laboratory Systems (SREdesigns) today announced the open-access release of its next-generation Digital Twin Suite, bringing unprecedented mechanical fidelity, physical circuit continuity, and internal working electromechanical anatomy to web-based simulation.
+      </p>
+      <p>
+        The suite encompasses 18 scientific instruments—spanning tablet disintegration (USP &lang;701&rang;), dissolution (USP &lang;711&rang;), 4-decimal analytical microbalances, 15,000 RPM centrifuges, and research spectrometers—alongside a 2026 Formula 1 hybrid powertrain and regenerative brake corner.
+      </p>
+      <div class="machine-actions">
+        <button class="btn-act btn-act-primary" onclick="copyToClipboard(PRESS_RELEASE_FULL, 'Full Press Release')">📋 Copy Full Press Release</button>
+        <a href="PR_CAMPAIGN_AND_SOCIAL_MEDIA_STRATEGY.md" class="btn-act btn-act-secondary">📄 Read Full PR Dossier (.md)</a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal for Full-Res Image Viewing -->
+  <div id="imageModal" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <img id="modalImg" class="modal-img" src="" alt="Full Resolution Inspection" />
+      <div class="modal-footer">
+        <div id="modalCaption" class="modal-caption"></div>
+        <button class="modal-close" onclick="closeModal()">✕ Close View</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">✅ Text successfully copied to clipboard!</div>
+
+  <!-- Footer -->
+  <footer>
+    <p>SRE Laboratory Systems · Digital Twin Engineering Division · Open Access Scientific Metrology</p>
+    <p style="margin-top: 0.35rem; color: #64748b;">
+      <a href="../index.html" style="color: var(--cyan); text-decoration: none;">Master Lab Portal</a> · 
+      <a href="../presentations.html" style="color: var(--cyan); text-decoration: none;">Video Presentations</a> · 
+      <a href="https://github.com/srephoto/Twins" style="color: var(--cyan); text-decoration: none;">GitHub Repository</a>
+    </p>
+  </footer>
+
+  <script>
+    // Filtering logic
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    const machineCards = document.querySelectorAll('.machine-card');
+
+    filterTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        filterTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const filter = tab.getAttribute('data-filter');
+
+        machineCards.forEach(card => {
+          if (filter === 'all' || card.getAttribute('data-cat') === filter) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    // Modal logic
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImg');
+    const modalCaption = document.getElementById('modalCaption');
+
+    function openModal(imgSrc, caption) {
+      modalImg.src = imgSrc;
+      modalCaption.textContent = caption;
+      modal.classList.add('active');
+    }
+    function closeModal() {
+      modal.classList.remove('active');
+    }
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // Toast helper
+    const toast = document.getElementById('toast');
+    function showToast(msg) {
+      toast.textContent = msg || '✅ Copied to clipboard!';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+
+    function copyToClipboard(text, label) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast(`✅ ${label || 'Text'} copied to clipboard!`);
+      }).catch(() => {
+        showToast('❌ Copy failed. Check permissions.');
+      });
+    }
+
+    function copyMachineCopy(name, url) {
+      const copy = `🔬 Explore the new ${name} 3D Digital Twin by SREdesigns! Engineered procedurally down to genuine 3D screws, physical circuit continuity, and internal electromechanical anatomy. Operate it live in your browser: ${url} #SciComm #Web3D #Threejs #DigitalTwin`;
+      copyToClipboard(copy, name);
+    }
+
+    // Social Media Pre-Packaged Copy
+    const TWITTER_COPY = `🚀 Today, we are releasing the SRE Scientific Digital Twin Suite: 18 hyper-realistic, physically accurate laboratory instruments and 2026 F1 engineering systems—operating 100% in your browser!
+
+No plugins. Zero low-poly tricks. 1:1 genuine CAD with physical circuit continuity and full internal electromechanical anatomy.
+
+• Pull the cord from the bench duplex outlet ➔ instant power blackout
+• Explode assemblies to inspect switching PSUs, drive motors & 45° gold mirrors
+• USP <701> disintegration, 21,130 Gs centrifugation & EMFR force cells
+
+Operate all 18 instruments live now: https://srephoto.github.io/Twins/
+Video Walkthroughs: https://srephoto.github.io/Twins/presentations.html
+
+#Web3D #Threejs #SciComm #Pharma #DigitalTwin #OpenSource #Blender3D`;
+
+    const INSTAGRAM_COPY = `🔬 The Future of Scientific Instrumentation is Live in Your Browser.
+
+Meet the SRE Laboratory Digital Twin Suite—18 hyper-realistic 3D instruments engineered down to every single screw, motor, and wiring harness.
+
+⚡ Physical Circuit Continuity: Unplug the NEMA 5-15P cord from the bench outlet and watch the instrument instantly shut down.
+⚙️ Internal Electromechanical Anatomy: Explode the chassis to reveal switching PSUs, toroidal transformers, and 45° gold optical relay mirrors.
+📊 Dual-Truth Metrology: Built to USP <701>, USP <711>, and ASTM empirical standards.
+
+👉 Tap the link in bio to operate all instruments live or watch full 1080p teardowns at srephoto.github.io/Twins/
+
+#science #laboratory #chemistry #pharmaceutical #biotech #engineering #3dmodeling #threejs #webgl #cad #digitaltwin #centrifuge #spectrophotometer #stem`;
+
+    const YOUTUBE_COPY = `Title: SRE Scientific Digital Twins: 18 Hyper-Realistic Laboratory Instruments in WebGL (1:1 CAD & Internal Anatomy)
+
+Welcome to the official launch of the SRE Laboratory Digital Twin Suite. In this video, we tour the collection of 18 physically accurate scientific instruments and 2026 Formula 1 vehicle systems operating natively in your web browser.
+
+Timestamps:
+00:00 - Introduction & The Metaverse of Metrology
+00:45 - Physical Circuit Continuity (Bench Duplex Outlet)
+01:30 - ERWEKA ZT 322 Tablet Disintegration Tester (USP <701>)
+02:45 - Eppendorf MICRO 5424-R High-Speed Centrifuge (21,130 x g)
+04:00 - METTLER TOLEDO XSE204 Precision Analytical Balance
+05:15 - Internal Electromechanical Anatomy & 5-Motor Suite
+06:30 - Formula 1 2026 Active Aerodynamics & MGU-K Regen Brakes
+07:45 - How to Access & Integrate into University Labs
+
+🌐 Master Interactive Portal: https://srephoto.github.io/Twins/
+🎬 Presentations & Teardown Cinema: https://srephoto.github.io/Twins/presentations.html
+📂 GitHub Repository: https://github.com/srephoto/Twins
+
+Tags: scientific digital twin, three.js webgl, lab equipment 3d, usp 701 disintegration, eppendorf centrifuge teardown, analytical balance emfr, formula 1 2026, chemistry simulation, open source stem`;
+
+    const TIKTOK_COPY = `Watch what happens when you unplug a running $40,000 pharmaceutical machine... ⚡️🔬
+
+We built 18 laboratory instruments in 3D WebGL where EVERY single screw has genuine physical depth, and the power cord is hard-wired into a real bench duplex outlet. Unplug it, and the screen blacks out, the motor coasts to zero, and the sound dies instantly.
+
+Tap the link in bio to test it yourself! 🧪
+
+#satisfying #science #teardown #engineering #stem #pharmacy #3d #tech #laboratory`;
+
+    const FACEBOOK_COPY = `SRE Laboratory Systems is proud to introduce the world's first open-access suite of physically accurate 3D Scientific Digital Twins!
+
+Featuring 18 completed pharmaceutical, analytical, and chemical instruments—as well as the 2026 Formula 1 hybrid powertrain and regenerative brake corner—this platform allows educators, students, and laboratory professionals to inspect and operate world-class machinery without specialized software.
+
+Key highlights:
+1. Physical Circuit Continuity: Every machine connects to a benchtop duplex outlet box. Unplugging cuts power immediately.
+2. Internal Anatomy: Explode panels to view toroidal transformers, 24V switching PSUs, solid-state relays, and color-coded wiring harnesses.
+3. Dual-Truth Physics: Real USP <701> disintegration stroke mechanics, Stokes sedimentation, and Nernstian electrochemistry.
+4. Procedural Audio: Dynamic Web Audio motor whine and switch snaps.
+
+Explore the live platform here: https://srephoto.github.io/Twins/
+Watch 1080p narrated walkthroughs: https://srephoto.github.io/Twins/presentations.html`;
+
+    const PRESS_RELEASE_FULL = `FOR IMMEDIATE RELEASE
+
+SREdesigns Unveils Groundbreaking Suite of 1:1 Scientific Digital Twins with Genuine Internal Anatomy and Dual-Truth Metrology
+
+AUSTIN, Texas & CAMBRIDGE, Mass. — November 9, 2026 — SRE Laboratory Systems (SREdesigns) today announced the open-access release of its next-generation Digital Twin Suite, bringing unprecedented mechanical fidelity, physical circuit continuity, and internal working electromechanical anatomy to web-based simulation. The suite is live today at https://srephoto.github.io/Twins/.
+
+While digital twins in aerospace and manufacturing have historically been locked inside proprietary CAD software or priced out of reach for academic institutions, the SRE Digital Twin Suite operates natively in any modern web browser on desktop, tablet, and mobile with zero plugins. Every instrument is procedurally designed to 1:1 scale down to genuine 3D DIN fasteners, precision internal brushless motors, solid-state relays, color-coded wiring harnesses, and interactive high-DPI LCD displays.
+
+"Most 3D models on the web are hollow shells with painted-on textures that misrepresent how laboratory instruments actually function," said the Lead Systems Architect at SREdesigns. "In our twins, every single screw has real depth. If you pull the power cord from the wall outlet, the machine instantly loses power: the LCD blacks out, the drive motor coasts to zero, and the heaters shut off. Furthermore, with a single click, operators can explode the chassis upward to inspect the internal switching power supply, motor driver linkages, optical encoders, and ARM Cortex-M4 motherboard."
+
+The suite is accompanied by a master multimedia presentation portal at https://srephoto.github.io/Twins/presentations.html featuring 1080p narrated video teardowns, interactive chapter scrubbers, and GLP analytical data audit trail exports.
+
+Media Contact:
+Press Relations Department
+SRE Laboratory Systems
+Email: press@sredesigns.lab
+Web: https://srephoto.github.io/Twins/`;
+  </script>
+</body>
+</html>
