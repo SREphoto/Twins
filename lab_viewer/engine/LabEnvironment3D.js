@@ -2689,46 +2689,536 @@ export class LabEnvironment3D {
       siteGroup.add(evPedestal);
     });
 
-    // 7. Broad Concrete Pedestrian Promenade Walkway (X = 13.0, Z: -14.0 to -9.5, width 3.6m)
-    const walkGeo = new THREE.BoxGeometry(3.6, 0.05, 4.5);
-    const walkway = new THREE.Mesh(walkGeo, this.materials.concreteCurb);
-    walkway.position.set(13.0, 0.025, -11.75);
+    // 7. Executive Granite Paver Pedestrian Promenade & Walkway Network ("Wallks")
+    // Main North-South Axial Promenade (X = 13.0, Z: -14.0 to -9.5, Width: 4.8m)
+    const walkGeo = new THREE.BoxGeometry(4.8, 0.08, 4.5);
+    const walkway = new THREE.Mesh(walkGeo, this.materials.exteriorPaver);
+    walkway.position.set(13.0, 0.04, -11.75);
     walkway.receiveShadow = true;
     siteGroup.add(walkway);
 
-    for (let jz = -13.5; jz <= -10.0; jz += 1.2) {
-      const joint = new THREE.Mesh(
-        new THREE.BoxGeometry(3.58, 0.005, 0.015),
-        this.materials.cabinetBody
+    // Flanking Granite Curbs for Main Promenade (Left & Right)
+    [-2.45, 2.45].forEach((cx) => {
+      const curb = new THREE.Mesh(
+        new THREE.BoxGeometry(0.16, 0.12, 4.5),
+        this.materials.limestonePlinth
       );
-      joint.position.set(13.0, 0.052, jz);
-      siteGroup.add(joint);
-    }
+      curb.position.set(13.0 + cx, 0.06, -11.75);
+      siteGroup.add(curb);
+    });
 
-    // 8. Landscape Mulch Beds Flanking Promenade & Building Front
-    // West Mulch Bed (X: -18.0 to 8.5, Z: -13.9 to -9.6)
+    // ADA Truncated-Dome Tactile Warning Paver Tile Strip at Parking Lot Transition (Z = -13.85)
+    const adaTile = new THREE.Mesh(
+      new THREE.BoxGeometry(4.76, 0.015, 0.60),
+      this.materials.adaTactileYellow
+    );
+    adaTile.position.set(13.0, 0.088, -13.85);
+    siteGroup.add(adaTile);
+
+    // Continuous East-West Executive Sidewalks connecting building perimeter
+    // West Connecting Sidewalk (X: -18.0 to 10.6, Width: 1.4m, Z: -10.3)
+    const westWalk = new THREE.Mesh(
+      new THREE.BoxGeometry(28.6, 0.08, 1.4),
+      this.materials.exteriorPaver
+    );
+    westWalk.position.set(-3.7, 0.04, -10.3);
+    westWalk.receiveShadow = true;
+    siteGroup.add(westWalk);
+
+    // East Connecting Sidewalk (X: 15.4 to 42.0, Width: 1.4m, Z: -10.3)
+    const eastWalk = new THREE.Mesh(
+      new THREE.BoxGeometry(26.6, 0.08, 1.4),
+      this.materials.exteriorPaver
+    );
+    eastWalk.position.set(28.7, 0.04, -10.3);
+    eastWalk.receiveShadow = true;
+    siteGroup.add(eastWalk);
+
+    // Granite Curbs on Landscape Edge of East-West Sidewalks
+    const westCurb = new THREE.Mesh(
+      new THREE.BoxGeometry(28.6, 0.10, 0.14),
+      this.materials.limestonePlinth
+    );
+    westCurb.position.set(-3.7, 0.05, -11.07);
+    siteGroup.add(westCurb);
+
+    const eastCurb = new THREE.Mesh(
+      new THREE.BoxGeometry(26.6, 0.10, 0.14),
+      this.materials.limestonePlinth
+    );
+    eastCurb.position.set(28.7, 0.05, -11.07);
+    siteGroup.add(eastCurb);
+
+    // 8. Architectural Landscape Mulch Beds Flanking Promenade & Building Front
+    // West Deep Mulch Bed (X: -18.0 to 10.5, Z: -14.0 to -11.1)
     const westMulch = new THREE.Mesh(
-      new THREE.BoxGeometry(26.5, 0.06, 4.2),
+      new THREE.BoxGeometry(28.5, 0.06, 2.9),
       this.materials.mulchBed
     );
-    westMulch.position.set(-4.75, 0.01, -11.75);
+    westMulch.position.set(-3.75, 0.02, -12.55);
     westMulch.receiveShadow = true;
     siteGroup.add(westMulch);
 
-    // East Mulch Bed (X: 17.5 to 44.0, Z: -13.9 to -9.6, length 26.5m)
+    // East Deep Mulch Bed (X: 15.5 to 42.0, Z: -14.0 to -11.1)
     const eastMulch = new THREE.Mesh(
-      new THREE.BoxGeometry(26.5, 0.06, 4.2),
+      new THREE.BoxGeometry(26.5, 0.06, 2.9),
       this.materials.mulchBed
     );
-    eastMulch.position.set(30.75, 0.01, -11.75);
+    eastMulch.position.set(28.75, 0.02, -12.55);
     eastMulch.receiveShadow = true;
     siteGroup.add(eastMulch);
 
-    // 9. Sculpted Evergreen Boxwood Globes (14 Shrub Spheres)
+    // 9. Multi-Stem Heritage River Birch Trees (Betula nigra) in Corten Planters with Cast-Iron Grates
+    const birchPositions = [10.2, 15.8, 24.0, 36.0];
+    birchPositions.forEach((tx) => {
+      const birchGroup = new THREE.Group();
+      birchGroup.position.set(tx, 0, -12.4);
+
+      // A. Square Weathered Corten Steel Planter Frame (1.8m x 1.8m)
+      const planterFrame = new THREE.Mesh(
+        new THREE.BoxGeometry(1.8, 0.16, 1.8),
+        this.materials.cortenSteel
+      );
+      planterFrame.position.y = 0.08;
+      birchGroup.add(planterFrame);
+
+      // B. Architectural Slotted Radial Cast-Iron Tree Grate (1.6m x 1.6m)
+      const grate = new THREE.Mesh(
+        new THREE.BoxGeometry(1.6, 0.02, 1.6),
+        this.materials.castIronGrate
+      );
+      grate.position.y = 0.165;
+      birchGroup.add(grate);
+
+      // Center Aeration Soil Core
+      const soilCore = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.35, 0.35, 0.04, 16),
+        this.materials.mulchBed
+      );
+      soilCore.position.y = 0.16;
+      birchGroup.add(soilCore);
+
+      // C. True Multi-Stem Clump Habit (3 Diverging Trunks with Procedural Birch Bark)
+      // Main Arching Trunk
+      const trunk1 = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.065, 0.095, 3.6, 14),
+        this.materials.birchBark
+      );
+      trunk1.position.set(0.02, 1.95, 0.02);
+      trunk1.rotation.set(0.06, 0.04, -0.05);
+      trunk1.castShadow = true;
+      birchGroup.add(trunk1);
+
+      // Secondary Diverging Trunk (Leaning West)
+      const trunk2 = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.048, 0.075, 3.1, 12),
+        this.materials.birchBark
+      );
+      trunk2.position.set(-0.16, 1.70, -0.06);
+      trunk2.rotation.set(-0.10, 0.12, 0.22);
+      trunk2.castShadow = true;
+      birchGroup.add(trunk2);
+
+      // Tertiary Diverging Trunk (Leaning East/South)
+      const trunk3 = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.042, 0.065, 2.7, 12),
+        this.materials.birchBark
+      );
+      trunk3.position.set(0.14, 1.50, 0.10);
+      trunk3.rotation.set(0.16, -0.08, -0.18);
+      trunk3.castShadow = true;
+      birchGroup.add(trunk3);
+
+      // Structural Secondary Boughs & Limbs
+      const boughMat = this.materials.birchBark;
+      [
+        { x: -0.22, y: 3.1, z: 0.15, rx: 0.35, rz: 0.55, len: 1.1, r: 0.032 },
+        { x: 0.18, y: 3.3, z: -0.12, rx: -0.25, rz: -0.45, len: 1.2, r: 0.035 },
+        { x: 0.05, y: 3.7, z: 0.22, rx: 0.40, rz: -0.20, len: 0.95, r: 0.028 }
+      ].forEach((b) => {
+        const bough = new THREE.Mesh(
+          new THREE.CylinderGeometry(b.r * 0.6, b.r, b.len, 8),
+          boughMat
+        );
+        bough.position.set(b.x, b.y, b.z);
+        bough.rotation.set(b.rx, 0, b.rz);
+        bough.castShadow = true;
+        birchGroup.add(bough);
+      });
+
+      // D. Multi-Layered Weeping Birch Canopy (Tiered Natural Foliage Volumes)
+      const leafLayers = [
+        // Lower Weeping Tier
+        { y: 3.0, r: 0.72, xOff: -0.42, zOff: 0.20, scZ: 0.85 },
+        { y: 3.2, r: 0.78, xOff: 0.38, zOff: -0.30, scZ: 0.90 },
+        { y: 3.4, r: 0.85, xOff: 0.10, zOff: 0.45, scZ: 0.95 },
+        // Mid Spreading Canopy
+        { y: 3.9, r: 0.95, xOff: -0.25, zOff: -0.15, scZ: 1.05 },
+        { y: 4.1, r: 1.10, xOff: 0.20, zOff: 0.10, scZ: 1.10 },
+        { y: 4.3, r: 0.90, xOff: -0.35, zOff: 0.30, scZ: 0.95 },
+        // Upper Crown Summit
+        { y: 4.8, r: 0.85, xOff: 0.05, zOff: -0.10, scZ: 0.90 },
+        { y: 5.3, r: 0.65, xOff: 0.02, zOff: 0.05, scZ: 0.80 }
+      ];
+
+      leafLayers.forEach((layer) => {
+        const foliage = new THREE.Mesh(
+          new THREE.DodecahedronGeometry(layer.r, 2),
+          this.materials.treeLeaves
+        );
+        foliage.scale.set(1.0, 0.85, layer.scZ);
+        foliage.position.set(layer.xOff, layer.y, layer.zOff);
+        foliage.rotation.set(
+          (Math.random() - 0.5) * 0.4,
+          Math.random() * Math.PI,
+          (Math.random() - 0.5) * 0.4
+        );
+        foliage.castShadow = true;
+        birchGroup.add(foliage);
+      });
+
+      siteGroup.add(birchGroup);
+    });
+
+    // 10. Sculptural Japanese Bloodgood Red Maples (Acer palmatum 'Bloodgood')
+    // Sited as signature focal specimens in the landscape beds
+    const maplePositions = [
+      { x: -5.0, z: -12.4, sc: 1.0 },
+      { x: 3.5, z: -12.4, sc: 1.05 },
+      { x: 30.0, z: -12.4, sc: 0.95 }
+    ];
+
+    maplePositions.forEach((mp) => {
+      const mapleGroup = new THREE.Group();
+      mapleGroup.position.set(mp.x, 0, mp.z);
+
+      // Gnarled, Sinuous Dark Bark Trunk
+      const trunkMat = this.materials.treeTrunk;
+      const lowerTrunk = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.08, 0.12, 1.1, 10),
+        trunkMat
+      );
+      lowerTrunk.position.set(0, 0.55, 0);
+      lowerTrunk.rotation.z = -0.12;
+      lowerTrunk.castShadow = true;
+      mapleGroup.add(lowerTrunk);
+
+      // Low Scaffold Branches (Sweeping Graceful Horizontal Habitus)
+      [
+        { x: -0.45, y: 1.35, z: 0.15, rx: 0.25, rz: 0.70, len: 1.2, r: 0.05 },
+        { x: 0.50, y: 1.45, z: -0.18, rx: -0.20, rz: -0.65, len: 1.3, r: 0.052 },
+        { x: 0.05, y: 1.80, z: 0.35, rx: 0.60, rz: 0.15, len: 1.0, r: 0.042 }
+      ].forEach((sb) => {
+        const branch = new THREE.Mesh(
+          new THREE.CylinderGeometry(sb.r * 0.5, sb.r, sb.len, 8),
+          trunkMat
+        );
+        branch.position.set(sb.x, sb.y, sb.z);
+        branch.rotation.set(sb.rx, 0, sb.rz);
+        branch.castShadow = true;
+        mapleGroup.add(branch);
+      });
+
+      // Layered Horizontal Foliage Clouds (Crimson/Burgundy Bloodgood Foliage)
+      const mapleLeavesMat = this.materials.japaneseMapleLeaf;
+      const cloudPads = [
+        { x: -0.95, y: 1.8, z: 0.25, rx: 0.75, rz: 0.65, ry: 0.32 },
+        { x: 0.95, y: 1.9, z: -0.30, rx: 0.85, rz: 0.70, ry: 0.34 },
+        { x: -0.40, y: 2.2, z: -0.45, rx: 0.70, rz: 0.60, ry: 0.30 },
+        { x: 0.35, y: 2.4, z: 0.40, rx: 0.80, rz: 0.68, ry: 0.32 },
+        { x: 0.0, y: 2.8, z: 0.0, rx: 0.90, rz: 0.80, ry: 0.36 },
+        { x: 0.1, y: 3.2, z: -0.1, rx: 0.65, rz: 0.55, ry: 0.28 }
+      ];
+
+      cloudPads.forEach((cp) => {
+        const cloud = new THREE.Mesh(
+          new THREE.DodecahedronGeometry(1.0, 2),
+          mapleLeavesMat
+        );
+        // Flattened cloud shape characteristic of Japanese maple niwaki pruning
+        cloud.scale.set(cp.rx * mp.sc, cp.ry * mp.sc, cp.rz * mp.sc);
+        cloud.position.set(cp.x * mp.sc, cp.y * mp.sc, cp.z * mp.sc);
+        cloud.castShadow = true;
+        mapleGroup.add(cloud);
+      });
+
+      siteGroup.add(mapleGroup);
+    });
+
+    // 11. Architectural Contoured Teak Wood & Charcoal Steel Campus Benches (4 Units)
+    const benchPositions = [
+      { x: 11.2, z: -10.8, rotY: Math.PI / 2 },  // West side of promenade facing East
+      { x: 14.8, z: -10.8, rotY: -Math.PI / 2 }, // East side of promenade facing West
+      { x: 20.0, z: -10.2, rotY: 0 },            // East sidewalk alcove facing South
+      { x: 32.0, z: -10.2, rotY: 0 }             // East campus promenade facing South
+    ];
+
+    benchPositions.forEach((bp) => {
+      const bench = new THREE.Group();
+      bench.position.set(bp.x, 0.04, bp.z);
+      bench.rotation.y = bp.rotY;
+
+      const benchL = 1.80; // 6-foot executive park bench
+      const teakMat = this.materials.teakWood;
+      const steelMat = this.materials.architecturalBlackMetal;
+
+      // Solid Teak Wood Contoured Seat Slats (6 Longitudinal Slats)
+      for (let s = 0; s < 6; s++) {
+        const slat = new THREE.Mesh(
+          new THREE.BoxGeometry(benchL, 0.024, 0.055),
+          teakMat
+        );
+        // Subtle ergonomic curve
+        slat.position.set(0, 0.44 + Math.sin(s * 0.3) * 0.02, -0.18 + s * 0.065);
+        slat.castShadow = true;
+        bench.add(slat);
+      }
+
+      // Solid Teak Wood Curved Backrest Slats (5 Slats with Rake)
+      for (let b = 0; b < 5; b++) {
+        const bSlat = new THREE.Mesh(
+          new THREE.BoxGeometry(benchL, 0.055, 0.024),
+          teakMat
+        );
+        bSlat.position.set(0, 0.54 + b * 0.062, -0.22 - b * 0.025);
+        bSlat.rotation.x = -0.22; // Comfortable lumbar rake
+        bSlat.castShadow = true;
+        bench.add(bSlat);
+      }
+
+      // Laser-Cut Charcoal Steel Side Stanchions & Armrests
+      [-benchL / 2 + 0.12, benchL / 2 - 0.12].forEach((sx) => {
+        // Leg Stanchion
+        const leg = new THREE.Mesh(
+          new THREE.BoxGeometry(0.045, 0.45, 0.48),
+          steelMat
+        );
+        leg.position.set(sx, 0.225, 0.0);
+        bench.add(leg);
+
+        // Curved Armrest Loop
+        const arm = new THREE.Mesh(
+          new THREE.BoxGeometry(0.045, 0.24, 0.42),
+          steelMat
+        );
+        arm.position.set(sx, 0.56, -0.05);
+        bench.add(arm);
+
+        // Stainless Anchor Base Foot
+        const foot = new THREE.Mesh(
+          new THREE.BoxGeometry(0.09, 0.015, 0.52),
+          this.materials.cabinetHandle
+        );
+        foot.position.set(sx, 0.008, 0.0);
+        bench.add(foot);
+      });
+
+      siteGroup.add(bench);
+    });
+
+    // 12. Illuminated Marine-Grade Stainless Steel Pathway Bollards (8 Units)
+    const bollardCoords = [
+      { x: 10.4, z: -10.0 }, { x: 15.6, z: -10.0 },
+      { x: 10.4, z: -11.2 }, { x: 15.6, z: -11.2 },
+      { x: 10.4, z: -12.4 }, { x: 15.6, z: -12.4 },
+      { x: 10.4, z: -13.6 }, { x: 15.6, z: -13.6 }
+    ];
+
+    bollardCoords.forEach((bc) => {
+      const bollard = new THREE.Group();
+      bollard.position.set(bc.x, 0.04, bc.z);
+
+      // Stainless Steel Column (H = 0.95m, D = 0.14m)
+      const post = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.07, 0.07, 0.95, 18),
+        this.materials.cabinetHandle
+      );
+      post.position.y = 0.475;
+      post.castShadow = true;
+      bollard.add(post);
+
+      // Recessed 360° Optical Louver Window with Warm Emissive LED Ring
+      const louverRing = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.068, 0.068, 0.08, 18),
+        this.materials.bollardLED
+      );
+      louverRing.position.y = 0.85;
+      bollard.add(louverRing);
+
+      // Flat Marine Cap
+      const cap = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.076, 0.076, 0.025, 18),
+        this.materials.cabinetHandle
+      );
+      cap.position.y = 0.96;
+      bollard.add(cap);
+
+      // Downward Pathway Ground Light Pool
+      const bollardLight = new THREE.PointLight(0xfffaed, 0.35, 3.2, 1.5);
+      bollardLight.position.set(0, 0.84, 0);
+      bollard.add(bollardLight);
+
+      siteGroup.add(bollard);
+    });
+
+    // 13. Commercial Stainless Dual-Stream Recycling & Waste Receptacles (2 Units)
+    [-1, 1].forEach((side) => {
+      const canGroup = new THREE.Group();
+      canGroup.position.set(13.0 + side * 1.9, 0.04, -13.2);
+
+      // Dual Cabinet Body
+      const canBody = new THREE.Mesh(
+        new THREE.BoxGeometry(0.85, 0.95, 0.44),
+        this.materials.cabinetHandle
+      );
+      canBody.position.y = 0.475;
+      canBody.castShadow = true;
+      canGroup.add(canBody);
+
+      // Dual Aperture Bezels (Recycle Blue & Landfill Charcoal)
+      const recLid = new THREE.Mesh(
+        new THREE.BoxGeometry(0.38, 0.04, 0.38),
+        new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.3 })
+      );
+      recLid.position.set(-0.20, 0.96, 0);
+      canGroup.add(recLid);
+
+      const trashLid = new THREE.Mesh(
+        new THREE.BoxGeometry(0.38, 0.04, 0.38),
+        this.materials.architecturalBlackMetal
+      );
+      trashLid.position.set(0.20, 0.96, 0);
+      canGroup.add(trashLid);
+
+      siteGroup.add(canGroup);
+    });
+
+    // 14. Stainless Steel Inverted-U Bicycle Parking Racks (4 Racks)
+    [-1.2, -0.4, 0.4, 1.2].forEach((offsetZ) => {
+      const bikeRack = new THREE.Group();
+      bikeRack.position.set(9.2, 0.04, -12.0 + offsetZ);
+
+      // Inverted-U Stainless Tube
+      const legL = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.025, 0.025, 0.85, 12),
+        this.materials.cabinetHandle
+      );
+      legL.position.set(-0.35, 0.425, 0);
+      bikeRack.add(legL);
+
+      const legR = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.025, 0.025, 0.85, 12),
+        this.materials.cabinetHandle
+      );
+      legR.position.set(0.35, 0.425, 0);
+      bikeRack.add(legR);
+
+      const topBar = new THREE.Mesh(
+        new THREE.BoxGeometry(0.70, 0.05, 0.05),
+        this.materials.cabinetHandle
+      );
+      topBar.position.set(0, 0.85, 0);
+      bikeRack.add(topBar);
+
+      siteGroup.add(bikeRack);
+    });
+
+    // 15. Cantilevered Architectural Glass & Steel Entrance Portico Canopy
+    // Spanning main entrance portal at X = 13.0, Z = -9.5, Y = 3.65m
+    const canopyGroup = new THREE.Group();
+    canopyGroup.name = "Architectural_Portico_Canopy";
+    canopyGroup.position.set(13.0, 3.65, -9.5);
+
+    const canopyW = 5.4;
+    const canopyD = 2.4;
+
+    // Heavy Structural Charcoal Steel Outriggers (3 Cantilever Beams)
+    [-canopyW / 2 + 0.3, 0, canopyW / 2 - 0.3].forEach((bx) => {
+      const outrigger = new THREE.Mesh(
+        new THREE.BoxGeometry(0.10, 0.18, canopyD),
+        this.materials.architecturalBlackMetal
+      );
+      outrigger.position.set(bx, 0, -canopyD / 2);
+      canopyGroup.add(outrigger);
+
+      // High-Tensile Stainless Steel Tension Tie-Back Rod
+      const tieRod = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.012, 0.012, 1.8, 8),
+        this.materials.cabinetHandle
+      );
+      tieRod.position.set(bx, 0.65, -canopyD * 0.7);
+      tieRod.rotation.x = 0.55; // Angled back up to upper brick wall anchor
+      canopyGroup.add(tieRod);
+    });
+
+    // Outer Structural Steel Perimeter Fascia Frame
+    const frameFascia = new THREE.Mesh(
+      new THREE.BoxGeometry(canopyW, 0.12, 0.08),
+      this.materials.architecturalBlackMetal
+    );
+    frameFascia.position.set(0, 0, -canopyD);
+    canopyGroup.add(frameFascia);
+
+    // Laminated Safety Glass Roof Panel
+    const glassRoof = new THREE.Mesh(
+      new THREE.BoxGeometry(canopyW - 0.08, 0.02, canopyD - 0.08),
+      this.materials.reflectiveExteriorGlass
+    );
+    glassRoof.position.set(0, 0.06, -canopyD / 2);
+    canopyGroup.add(glassRoof);
+
+    // 4 Warm Recessed LED Downlight Fixtures illuminating the grand entrance
+    [-1.6, -0.5, 0.5, 1.6].forEach((dx) => {
+      const downlight = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.065, 0.065, 0.02, 16),
+        new THREE.MeshBasicMaterial({ color: 0xfff3e0 })
+      );
+      downlight.position.set(dx, -0.06, -canopyD * 0.5);
+      canopyGroup.add(downlight);
+
+      const dLight = new THREE.PointLight(0xfff1dc, 0.85, 7.5, 1.3);
+      dLight.position.set(dx, -0.15, -canopyD * 0.5);
+      canopyGroup.add(dLight);
+    });
+
+    // Dimensional Architectural Entrance Signage on Brick Wall above Canopy
+    const bldSignGroup = new THREE.Group();
+    bldSignGroup.position.set(0, 0.65, -0.05);
+
+    const bldCanvas = document.createElement("canvas");
+    bldCanvas.width = 1024;
+    bldCanvas.height = 140;
+    const bCtx = bldCanvas.getContext("2d");
+    bCtx.fillStyle = "#1e293b";
+    bCtx.fillRect(0, 0, 1024, 140);
+    bCtx.strokeStyle = "#d4af37";
+    bCtx.lineWidth = 4;
+    bCtx.strokeRect(6, 6, 1012, 128);
+    bCtx.fillStyle = "#f8fafc";
+    bCtx.font = "bold 26px 'IBM Plex Sans', sans-serif";
+    bCtx.textAlign = "center";
+    bCtx.fillText("CHEMMATE BIOTECHNOLOGY RESEARCH CAMPUS", 512, 54);
+    bCtx.fillStyle = "#38bdf8";
+    bCtx.font = "bold 18px 'IBM Plex Mono', monospace";
+    bCtx.fillText("RESEARCH PAVILION 4 · ANALYTICAL SCIENCES & HIGH-THROUGHPUT AUTOMATION", 512, 98);
+
+    const bldTex = new THREE.CanvasTexture(bldCanvas);
+    const bldSignMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(4.2, 0.55),
+      new THREE.MeshBasicMaterial({ map: bldTex })
+    );
+    bldSignMesh.rotation.y = Math.PI;
+    bldSignMesh.position.set(0, 0, -0.02);
+    bldSignGroup.add(bldSignMesh);
+    canopyGroup.add(bldSignGroup);
+
+    siteGroup.add(canopyGroup);
+
+    // 16. Foundation Boxwood Globes in Mulch Beds (Dense Organic Spherical Hedges)
     const boxwoodCoords = [
-      [-16.0, -11.5], [-12.0, -11.0], [-8.0, -11.5], [-4.0, -11.0],
-      [0.0, -11.5], [4.0, -11.0], [18.5, -11.5], [22.0, -11.0],
-      [26.0, -11.5], [30.0, -11.0], [34.0, -11.5], [38.0, -11.0], [42.0, -11.5]
+      [-16.0, -11.5], [-12.0, -11.0], [-8.0, -11.5], [-2.0, -11.5],
+      [1.0, -11.0], [6.0, -11.5], [18.5, -11.5], [21.0, -11.0],
+      [27.0, -11.5], [33.0, -11.0], [39.0, -11.5], [41.5, -11.0]
     ];
     boxwoodCoords.forEach(([bx, bz]) => {
       const boxwood = new THREE.Mesh(
@@ -2738,60 +3228,6 @@ export class LabEnvironment3D {
       boxwood.position.set(bx, 0.40, bz);
       boxwood.castShadow = true;
       siteGroup.add(boxwood);
-    });
-
-    // 10. Clipped Formal Privet Foundation Hedges
-    const hedgeCoords = [
-      [-14.0, -9.8, 5.0], [-5.0, -9.8, 6.0], [3.0, -9.8, 5.0],
-      [20.0, -9.8, 4.5], [28.0, -9.8, 5.5], [36.0, -9.8, 5.5]
-    ];
-    hedgeCoords.forEach(([hx, hz, hw]) => {
-      const hedge = new THREE.Mesh(
-        new THREE.BoxGeometry(hw, 0.85, 0.55),
-        this.materials.boxwoodGreen
-      );
-      hedge.position.set(hx, 0.425, hz);
-      hedge.castShadow = true;
-      siteGroup.add(hedge);
-    });
-
-    // 11. Modern Monolithic Square Tree Planters with Birch Trees
-    [10.2, 15.8, 24.0, 36.0].forEach((tx) => {
-      const planter = new THREE.Mesh(
-        new THREE.BoxGeometry(1.6, 0.65, 1.6),
-        this.materials.concreteCurb
-      );
-      planter.position.set(tx, 0.325, -11.75);
-      siteGroup.add(planter);
-
-      const pSoil = new THREE.Mesh(
-        new THREE.BoxGeometry(1.4, 0.05, 1.4),
-        this.materials.mulchBed
-      );
-      pSoil.position.set(tx, 0.63, -11.75);
-      siteGroup.add(pSoil);
-
-      const trunk = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.06, 0.09, 2.6, 12),
-        this.materials.treeTrunk
-      );
-      trunk.position.set(tx, 1.9, -11.75);
-      trunk.castShadow = true;
-      siteGroup.add(trunk);
-
-      [
-        { y: 2.8, r: 0.65, zOff: 0.0 },
-        { y: 3.3, r: 0.55, zOff: 0.15 },
-        { y: 3.6, r: 0.45, zOff: -0.1 }
-      ].forEach((layer) => {
-        const leaves = new THREE.Mesh(
-          new THREE.DodecahedronGeometry(layer.r, 2),
-          this.materials.treeLeaves
-        );
-        leaves.position.set(tx + (layer.zOff * 0.8), layer.y, -11.75 + layer.zOff);
-        leaves.castShadow = true;
-        siteGroup.add(leaves);
-      });
     });
 
     // 12. Commercial Parking Lot LED Cobra-Head Light Poles (6.5m Height)
