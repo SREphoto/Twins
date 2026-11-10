@@ -477,8 +477,9 @@ function makeSREdesignsBadge() {
 // Dissolution3D Main Class
 // ----------------------------------------------------------------------------
 export class Dissolution3D {
-  constructor(container) {
+  constructor(container, options = {}) {
     this.container = container;
+    this.options = options;
     this.exploded = false;
     this.explodeFactor = 0.0;
     this.targetExplodeFactor = 0.0;
@@ -545,23 +546,31 @@ export class Dissolution3D {
     this.partCatalog = [];
 
     this.initScene();
-    this.initBenchAndRoom();
-    this.initPowerDuplexBox();
+    if (this.options.includeLab !== false) {
+      this.initBenchAndRoom();
+      this.initPowerDuplexBox();
+    }
     this.initLCDCanvas();
     this.initCirculatorCanvas();
     this.buildModel();
     this.setupExplodedNodes();
 
-    this.animate = this.animate.bind(this);
-    requestAnimationFrame(this.animate);
+    if (!this.options.headless && !this.options.skipLoop) {
+      this.animate = this.animate.bind(this);
+      requestAnimationFrame(this.animate);
+    }
   }
 
   initScene() {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x0c1016);
 
-    const width = this.container.clientWidth || window.innerWidth;
-    const height = this.container.clientHeight || window.innerHeight;
+    if (this.options.headless || this.options.skipRenderer) {
+      return;
+    }
+
+    const width = (this.container && this.container.clientWidth) || window.innerWidth;
+    const height = (this.container && this.container.clientHeight) || window.innerHeight;
 
     this.camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
     this.camera.position.set(8.5, 9.8, 14.5);
@@ -573,7 +582,9 @@ export class Dissolution3D {
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.10;
-    this.container.appendChild(this.renderer.domElement);
+    if (this.container) {
+      this.container.appendChild(this.renderer.domElement);
+    }
 
     // Standard 3-Point Studio Lighting Rig + Front Specular Bounce
     this.ambientLight = new THREE.AmbientLight(0xffffff, 0.85);

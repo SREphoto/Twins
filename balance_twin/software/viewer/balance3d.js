@@ -321,14 +321,20 @@ function buildLabRoom(root) {
 /**
  * Creates the complete procedural Analytical Balance with a solid monolithic unibody chassis.
  */
-export function createBalanceModel() {
+export function createBalanceModel(opts = {}) {
+  const includeLab = opts.includeLab !== false;
   balanceRoot = new THREE.Group();
   balanceRoot.name = "Analytical_Balance_XSE204";
   balanceRoot.userData = { label: "METTLER TOLEDO XSE204", type: "instrument" };
 
-  // 1. Build laboratory room and black epoxy instrument bench (900mm standing height, 2.8m ceiling)
-  const { outletPos } = buildLabRoom(balanceRoot);
-  const baseY = BENCH.surfaceY; // 9.00 (Bench top surface)
+  let outletPos = { x: 0, y: 0, z: 0 };
+  let baseY = 0;
+
+  if (includeLab) {
+    const res = buildLabRoom(balanceRoot);
+    outletPos = res.outletPos;
+    baseY = BENCH.surfaceY; // 9.00 (Bench top surface)
+  }
 
   // 2. Monolithic Unibody Chassis Assembly
   // Single seamless piece spanning from rear Z = +1.90 to front nose Z = -2.00
@@ -360,11 +366,13 @@ export function createBalanceModel() {
   balanceRoot.add(draftShieldGroup);
   explodeParts.push({ group: draftShieldGroup, base: new THREE.Vector3(0, baseY + 0.88, 0.40), offset: new THREE.Vector3(0, 1.3, 0) });
 
-  // 6. Lab Bench Accessories (Weigh boats, spatula, weights)
-  createBenchAccessories(balanceRoot, baseY);
+  if (includeLab) {
+    // 6. Lab Bench Accessories (Weigh boats, spatula, weights)
+    createBenchAccessories(balanceRoot, baseY);
 
-  // 7. Power cord from rear IEC inlet to backsplash outlet
-  createPowerCord(balanceRoot, new THREE.Vector3(0.55, baseY + 0.47, 1.90), new THREE.Vector3(outletPos.x, outletPos.y, outletPos.z));
+    // 7. Power cord from rear IEC inlet to backsplash outlet
+    createPowerCord(balanceRoot, new THREE.Vector3(0.55, baseY + 0.47, 1.90), new THREE.Vector3(outletPos.x, outletPos.y, outletPos.z));
+  }
 
   return balanceRoot;
 }

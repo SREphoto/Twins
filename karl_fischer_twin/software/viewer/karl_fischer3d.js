@@ -176,8 +176,9 @@ function makeHexScrew(radius = 0.03, height = 0.04) {
 }
 
 export class KarlFischer3D {
-  constructor(container) {
+  constructor(container, options = {}) {
     this.container = container;
+    this.options = options;
 
     // Exploded view kinematic offsets
     this.exploded = false;
@@ -227,21 +228,29 @@ export class KarlFischer3D {
     this.partCatalog = [];
 
     this.initScene();
-    this.initBenchAndRoom();
-    this.initPowerDuplexBox();
+    if (this.options.includeLab !== false) {
+      this.initBenchAndRoom();
+      this.initPowerDuplexBox();
+    }
     this.initLCDCanvas();
     this.buildModel();
     this.setupExplodedNodes();
-    this.animate = this.animate.bind(this);
-    requestAnimationFrame(this.animate);
+    if (!this.options.headless && !this.options.skipLoop) {
+      this.animate = this.animate.bind(this);
+      requestAnimationFrame(this.animate);
+    }
   }
 
   initScene() {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x0c1016);
 
-    const width = this.container.clientWidth || window.innerWidth;
-    const height = this.container.clientHeight || window.innerHeight;
+    if (this.options.headless || this.options.skipRenderer) {
+      return;
+    }
+
+    const width = (this.container && this.container.clientWidth) || window.innerWidth;
+    const height = (this.container && this.container.clientHeight) || window.innerHeight;
 
     this.camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 100);
     this.camera.position.set(3.8, 3.8, 6.2);
@@ -253,7 +262,9 @@ export class KarlFischer3D {
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.05;
-    this.container.appendChild(this.renderer.domElement);
+    if (this.container) {
+      this.container.appendChild(this.renderer.domElement);
+    }
 
     // Standard 3-Point Studio Lighting Rig
     this.ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
@@ -282,8 +293,8 @@ export class KarlFischer3D {
     this.scene.add(this.rimLight);
 
     window.addEventListener('resize', () => {
-      const w = this.container.clientWidth;
-      const h = this.container.clientHeight;
+      const w = (this.container && this.container.clientWidth) || window.innerWidth;
+      const h = (this.container && this.container.clientHeight) || window.innerHeight;
       this.camera.aspect = w / h;
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(w, h);

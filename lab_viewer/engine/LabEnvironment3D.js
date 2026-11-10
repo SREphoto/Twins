@@ -90,6 +90,7 @@ export class LabEnvironment3D {
     this._initMaterials();
     this._buildFloorsWithGrid();
     this._buildPerimeterWalls();
+    this._buildExteriorBrickFacade();
     this._buildInteriorPartitions();
     this._buildThermalAirlock();
     this._buildStructuralPillars();
@@ -99,6 +100,147 @@ export class LabEnvironment3D {
     this._buildExteriorCampusSite();
 
     this.scene.add(this.root);
+  }
+
+  _generateProceduralBrickTexture() {
+    if (typeof document === "undefined") return null;
+    const canvas = document.createElement("canvas");
+    canvas.width = 1024;
+    canvas.height = 512;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+
+    // Mortar bed (warm sanded cement tone)
+    ctx.fillStyle = "#9e968a";
+    ctx.fillRect(0, 0, 1024, 512);
+
+    // Stipple mortar sand particles
+    for (let i = 0; i < 3500; i++) {
+      ctx.fillStyle = Math.random() > 0.5 ? "rgba(0,0,0,0.10)" : "rgba(255,255,255,0.10)";
+      ctx.fillRect(Math.random() * 1024, Math.random() * 512, 2, 2);
+    }
+
+    // Authentic Danish/Flemish ironspot & red brick palette
+    const brickPalette = [
+      "#9e422c", "#8d3824", "#b24d35", "#782e1e", "#5c2619",
+      "#ab4832", "#6e2f20", "#bf563a", "#84311e", "#4d2016",
+      "#a4452e", "#7a3121", "#943c27"
+    ];
+    const rowH = 32;
+    const brickW = 96;
+    const gap = 4;
+
+    for (let y = 0; y < 512; y += rowH) {
+      const rowIdx = Math.floor(y / rowH);
+      const xOffset = (rowIdx % 2) * ((brickW + gap) / 2);
+      for (let x = -brickW * 2; x < 1024 + brickW * 2; x += brickW + gap) {
+        const bx = x + xOffset;
+        const col = brickPalette[Math.floor(Math.random() * brickPalette.length)];
+        ctx.fillStyle = col;
+        ctx.fillRect(bx, y + gap / 2, brickW, rowH - gap);
+
+        // Brick surface grain / pitting
+        for (let s = 0; s < 12; s++) {
+          ctx.fillStyle = Math.random() > 0.5 ? "rgba(0,0,0,0.14)" : "rgba(255,255,255,0.08)";
+          ctx.fillRect(bx + Math.random() * (brickW - 4), y + gap / 2 + Math.random() * (rowH - gap - 4), 3, 2);
+        }
+
+        // Recessed mortar shadow (bottom & right)
+        ctx.fillStyle = "rgba(0, 0, 0, 0.32)";
+        ctx.fillRect(bx, y + rowH - gap / 2 - 2, brickW, 2);
+        ctx.fillRect(bx + brickW - 2, y + gap / 2, 2, rowH - gap);
+
+        // Light specular catch on top & left lip
+        ctx.fillStyle = "rgba(255, 255, 255, 0.16)";
+        ctx.fillRect(bx, y + gap / 2, brickW, 1.5);
+        ctx.fillRect(bx, y + gap / 2, 1.5, rowH - gap);
+      }
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    return tex;
+  }
+
+  _generateProceduralPaverTexture() {
+    if (typeof document === "undefined") return null;
+    const canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+
+    // Dark polymer joint sand
+    ctx.fillStyle = "#181d24";
+    ctx.fillRect(0, 0, 512, 512);
+
+    const paverColors = ["#485260", "#3a434f", "#556070", "#313842", "#404a56", "#2d343d", "#4b5665"];
+    const pRowH = 32;
+    const pW = 64;
+    const pGap = 3;
+
+    for (let y = 0; y < 512; y += pRowH) {
+      const rowIdx = Math.floor(y / pRowH);
+      const xOffset = (rowIdx % 2) * ((pW + pGap) / 2);
+      for (let x = -pW * 2; x < 512 + pW * 2; x += pW + pGap) {
+        const px = x + xOffset;
+        ctx.fillStyle = paverColors[Math.floor(Math.random() * paverColors.length)];
+        ctx.fillRect(px, y + pGap / 2, pW, pRowH - pGap);
+
+        // Chamfered paver bevel shadow
+        ctx.fillStyle = "rgba(0, 0, 0, 0.38)";
+        ctx.fillRect(px, y + pRowH - pGap / 2 - 2, pW, 2);
+        ctx.fillRect(px + pW - 2, y + pGap / 2, 2, pRowH - pGap);
+
+        // Bevel highlight
+        ctx.fillStyle = "rgba(255, 255, 255, 0.14)";
+        ctx.fillRect(px, y + pGap / 2, pW, 1.5);
+        ctx.fillRect(px, y + pGap / 2, 1.5, pRowH - pGap);
+      }
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    return tex;
+  }
+
+  _generateProceduralBirchBarkTexture() {
+    if (typeof document === "undefined") return null;
+    const canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 1024;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+
+    // White/cream bark base with subtle vertical gradient
+    const bGrad = ctx.createLinearGradient(0, 0, 0, 1024);
+    bGrad.addColorStop(0, "#f6f3ec");
+    bGrad.addColorStop(0.75, "#ebe5da");
+    bGrad.addColorStop(1.0, "#28221c");
+    ctx.fillStyle = bGrad;
+    ctx.fillRect(0, 0, 512, 1024);
+
+    // Lenticels: horizontal dark charcoal dashes
+    for (let l = 0; l < 280; l++) {
+      const lx = Math.random() * 512;
+      const ly = Math.random() * 880;
+      const len = 8 + Math.random() * 48;
+      const thick = 1.5 + Math.random() * 3.5;
+      ctx.fillStyle = Math.random() > 0.35 ? "#1a1613" : "#383029";
+      ctx.fillRect(lx, ly, len, thick);
+
+      if (Math.random() > 0.65) {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.20)";
+        ctx.fillRect(lx - 2, ly + thick, len + 4, 1.5);
+      }
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.ClampToEdgeWrapping;
+    return tex;
   }
 
   _initMaterials() {
@@ -346,6 +488,150 @@ export class LabEnvironment3D {
       roughness: 0.72,
       metalness: 0.02,
       name: "Mat_Tree_Canopy"
+    });
+
+    // High-DPI Procedural Brick, Paver & Foliage Materials
+    const brickTex = this._generateProceduralBrickTexture();
+    if (brickTex) brickTex.repeat.set(4, 3);
+
+    this.materials.exteriorBrick = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      map: brickTex,
+      roughness: 0.82,
+      metalness: 0.05,
+      name: "Mat_Architectural_Exterior_Brick"
+    });
+
+    const paverTex = this._generateProceduralPaverTexture();
+    if (paverTex) paverTex.repeat.set(6, 6);
+
+    this.materials.exteriorPaver = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      map: paverTex,
+      roughness: 0.78,
+      metalness: 0.08,
+      name: "Mat_Architectural_Exterior_Paver"
+    });
+
+    const barkTex = this._generateProceduralBirchBarkTexture();
+    this.materials.birchBark = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      map: barkTex,
+      roughness: 0.75,
+      metalness: 0.02,
+      name: "Mat_Birch_Bark_HighRes"
+    });
+
+    this.materials.limestonePlinth = new THREE.MeshStandardMaterial({
+      color: 0xc4bcaf,
+      roughness: 0.85,
+      metalness: 0.04,
+      name: "Mat_Cast_Stone_Plinth"
+    });
+
+    this.materials.architecturalBlackMetal = new THREE.MeshStandardMaterial({
+      color: 0x1b1f24,
+      roughness: 0.35,
+      metalness: 0.85,
+      name: "Mat_Architectural_Black_Metal"
+    });
+
+    this.materials.teakWood = new THREE.MeshStandardMaterial({
+      color: 0x8a542b,
+      roughness: 0.52,
+      metalness: 0.04,
+      name: "Mat_Oiled_Teak_Wood"
+    });
+
+    this.materials.cortenSteel = new THREE.MeshStandardMaterial({
+      color: 0x7c4125,
+      roughness: 0.72,
+      metalness: 0.45,
+      name: "Mat_Corten_Weathering_Steel"
+    });
+
+    this.materials.castIronGrate = new THREE.MeshStandardMaterial({
+      color: 0x22262c,
+      roughness: 0.65,
+      metalness: 0.82,
+      name: "Mat_Cast_Iron_Tree_Grate"
+    });
+
+    this.materials.reflectiveExteriorGlass = new THREE.MeshPhysicalMaterial({
+      color: 0xd8eaf4,
+      transparent: true,
+      opacity: 0.45,
+      roughness: 0.02,
+      metalness: 0.20,
+      ior: 1.52,
+      name: "Mat_Reflective_Curtain_Glass"
+    });
+
+    this.materials.adaTactileYellow = new THREE.MeshStandardMaterial({
+      color: 0xf5b800,
+      roughness: 0.45,
+      metalness: 0.05,
+      name: "Mat_ADA_Tactile_Yellow"
+    });
+
+    this.materials.bollardLED = new THREE.MeshStandardMaterial({
+      color: 0xfffaea,
+      emissive: 0xfffaea,
+      emissiveIntensity: 1.6,
+      roughness: 0.1,
+      name: "Mat_Bollard_LED_Emitter"
+    });
+
+    this.materials.japaneseMapleLeaf = new THREE.MeshStandardMaterial({
+      color: 0x6e1b24,
+      roughness: 0.45,
+      metalness: 0.03,
+      side: THREE.DoubleSide,
+      name: "Mat_Japanese_Maple_Crimson"
+    });
+
+    this.materials.flutedWalnut = new THREE.MeshStandardMaterial({
+      color: 0x482d1c,
+      roughness: 0.42,
+      metalness: 0.06,
+      name: "Mat_Fluted_Walnut_Acoustic"
+    });
+
+    this.materials.botanicalFernFrond = new THREE.MeshStandardMaterial({
+      color: 0x217332,
+      roughness: 0.38,
+      metalness: 0.02,
+      side: THREE.DoubleSide,
+      name: "Mat_Botanical_Fern_Frond"
+    });
+
+    this.materials.botanicalCalathea = new THREE.MeshStandardMaterial({
+      color: 0x1b572a,
+      roughness: 0.32,
+      metalness: 0.04,
+      side: THREE.DoubleSide,
+      name: "Mat_Botanical_Calathea"
+    });
+
+    this.materials.botanicalVelvetMossDeep = new THREE.MeshStandardMaterial({
+      color: 0x123b18,
+      roughness: 0.98,
+      metalness: 0.0,
+      name: "Mat_Botanical_Velvet_Moss_Deep"
+    });
+
+    this.materials.botanicalVelvetMossChartreuse = new THREE.MeshStandardMaterial({
+      color: 0x5e8f22,
+      roughness: 0.95,
+      metalness: 0.0,
+      name: "Mat_Botanical_Velvet_Moss_Chartreuse"
+    });
+
+    this.materials.botanicalVelvetMossEmerald = new THREE.MeshStandardMaterial({
+      color: 0x1c6630,
+      roughness: 0.96,
+      metalness: 0.0,
+      name: "Mat_Botanical_Velvet_Moss_Emerald"
     });
 
     // Executive Suite, Locker Room & Wellness Materials
@@ -627,6 +913,215 @@ export class LabEnvironment3D {
 
       this.colliders.push(new THREE.Box3().setFromObject(mesh));
     });
+  }
+
+  _buildExteriorBrickFacade() {
+    const facadeGroup = new THREE.Group();
+    facadeGroup.name = "Architectural_Exterior_Brick_Facade";
+
+    const H = 3.8;
+    const baseH = 0.45;        // Cast stone plinth height
+    const brickH = H - baseH;  // 3.35m brick masonry height
+    const extZ = -9.62;        // Outer face coordinate of South facade
+
+    // 1. Continuous Cast Stone Foundation Water Table / Plinth (Y = 0 to 0.45m)
+    // Left segment: X = -16.0 to 11.85 (width 27.85m, center -2.075)
+    const plinthLeft = new THREE.Mesh(
+      new THREE.BoxGeometry(27.85, baseH, 0.16),
+      this.materials.limestonePlinth
+    );
+    plinthLeft.position.set(-2.075, baseH / 2, extZ - 0.03);
+    plinthLeft.receiveShadow = true;
+    facadeGroup.add(plinthLeft);
+
+    // Beveled wash cap atop plinth left
+    const plinthCapLeft = new THREE.Mesh(
+      new THREE.BoxGeometry(27.85, 0.04, 0.18),
+      this.materials.limestonePlinth
+    );
+    plinthCapLeft.position.set(-2.075, baseH + 0.02, extZ - 0.03);
+    facadeGroup.add(plinthCapLeft);
+
+    // Right segment: X = 14.15 to 38.0 (width 23.85m, center 26.075)
+    const plinthRight = new THREE.Mesh(
+      new THREE.BoxGeometry(23.85, baseH, 0.16),
+      this.materials.limestonePlinth
+    );
+    plinthRight.position.set(26.075, baseH / 2, extZ - 0.03);
+    plinthRight.receiveShadow = true;
+    facadeGroup.add(plinthRight);
+
+    // Beveled wash cap atop plinth right
+    const plinthCapRight = new THREE.Mesh(
+      new THREE.BoxGeometry(23.85, 0.04, 0.18),
+      this.materials.limestonePlinth
+    );
+    plinthCapRight.position.set(26.075, baseH + 0.02, extZ - 0.03);
+    facadeGroup.add(plinthCapRight);
+
+    // 2. Main Running-Bond Architectural Brick Masonry Panels
+    // West Segment: X = -16.0 to 11.85
+    const brickLeft = new THREE.Mesh(
+      new THREE.BoxGeometry(27.85, brickH, 0.12),
+      this.materials.exteriorBrick
+    );
+    brickLeft.position.set(-2.075, baseH + brickH / 2, extZ);
+    brickLeft.receiveShadow = true;
+    facadeGroup.add(brickLeft);
+
+    // East Segment: X = 14.15 to 38.0
+    const brickRight = new THREE.Mesh(
+      new THREE.BoxGeometry(23.85, brickH, 0.12),
+      this.materials.exteriorBrick
+    );
+    brickRight.position.set(26.075, baseH + brickH / 2, extZ);
+    brickRight.receiveShadow = true;
+    facadeGroup.add(brickRight);
+
+    // Entrance Header Brick Arch / Lintel above doors: X = 11.85 to 14.15 (width 2.3m, Y = 2.45 to 3.8, height 1.35m)
+    const brickHeader = new THREE.Mesh(
+      new THREE.BoxGeometry(2.3, 1.35, 0.12),
+      this.materials.exteriorBrick
+    );
+    brickHeader.position.set(13.0, 3.125, extZ);
+    facadeGroup.add(brickHeader);
+
+    // 3. Architectural Soldier Course (Vertically set bricks running at Y = 2.65m to 2.87m)
+    [-2.075, 26.075].forEach((cx, idx) => {
+      const w = idx === 0 ? 27.85 : 23.85;
+      const soldier = new THREE.Mesh(
+        new THREE.BoxGeometry(w, 0.22, 0.13),
+        this.materials.exteriorBrick
+      );
+      soldier.position.set(cx, 2.76, extZ - 0.005);
+      facadeGroup.add(soldier);
+    });
+
+    // 4. Projecting Architectural Brick Pilasters / Buttress Piers (Spaced every ~6m)
+    const pilasterX = [-15.5, -9.5, -3.5, 2.5, 8.5, 17.5, 23.5, 29.5, 35.5];
+    pilasterX.forEach((px) => {
+      const pier = new THREE.Mesh(
+        new THREE.BoxGeometry(0.55, H, 0.12),
+        this.materials.exteriorBrick
+      );
+      pier.position.set(px, H / 2, extZ - 0.05);
+      pier.castShadow = true;
+      pier.receiveShadow = true;
+      facadeGroup.add(pier);
+
+      // Pier stone base plinth
+      const pierBase = new THREE.Mesh(
+        new THREE.BoxGeometry(0.62, baseH + 0.04, 0.18),
+        this.materials.limestonePlinth
+      );
+      pierBase.position.set(px, (baseH + 0.04) / 2, extZ - 0.07);
+      facadeGroup.add(pierBase);
+
+      // Pier decorative stone capital trim at top
+      const pierCap = new THREE.Mesh(
+        new THREE.BoxGeometry(0.62, 0.10, 0.18),
+        this.materials.limestonePlinth
+      );
+      pierCap.position.set(px, H - 0.05, extZ - 0.07);
+      facadeGroup.add(pierCap);
+    });
+
+    // 5. Architectural Floor-to-Ceiling Vision Curtain Windows
+    const windowBays = [
+      { cx: -12.5, w: 2.4 },
+      { cx: -6.5, w: 2.4 },
+      { cx: -0.5, w: 2.4 },
+      { cx: 5.5, w: 2.4 },
+      { cx: 20.5, w: 2.4 },
+      { cx: 26.5, w: 2.4 },
+      { cx: 32.5, w: 2.4 }
+    ];
+
+    windowBays.forEach((bay) => {
+      const winH = 2.0;
+      const winY = 1.65; // centered between plinth and soldier course
+      const fThick = 0.06;
+
+      // Dark bronze window frame perimeter
+      const frame = new THREE.Mesh(
+        new THREE.BoxGeometry(bay.w, winH, 0.14),
+        this.materials.bronzeMullion
+      );
+      frame.position.set(bay.cx, winY, extZ - 0.01);
+      facadeGroup.add(frame);
+
+      // Reflective double-glazed acoustic glass pane
+      const glass = new THREE.Mesh(
+        new THREE.PlaneGeometry(bay.w - fThick * 2, winH - fThick * 2),
+        this.materials.reflectiveExteriorGlass
+      );
+      glass.rotation.y = Math.PI;
+      glass.position.set(bay.cx, winY, extZ - 0.03);
+      facadeGroup.add(glass);
+
+      // Interior warm backlight pane so windows glow authentically from within
+      const interiorGlow = new THREE.Mesh(
+        new THREE.PlaneGeometry(bay.w - fThick * 2 - 0.02, winH - fThick * 2 - 0.02),
+        new THREE.MeshBasicMaterial({ color: 0xfff6ea, opacity: 0.15, transparent: true })
+      );
+      interiorGlow.rotation.y = Math.PI;
+      interiorGlow.position.set(bay.cx, winY, extZ - 0.025);
+      facadeGroup.add(interiorGlow);
+
+      // Heavy limestone window sill
+      const sill = new THREE.Mesh(
+        new THREE.BoxGeometry(bay.w + 0.14, 0.08, 0.20),
+        this.materials.limestonePlinth
+      );
+      sill.position.set(bay.cx, winY - winH / 2 - 0.03, extZ - 0.05);
+      facadeGroup.add(sill);
+
+      // Bronze vertical mullion divider
+      const mullion = new THREE.Mesh(
+        new THREE.BoxGeometry(0.04, winH - fThick * 2, 0.08),
+        this.materials.bronzeMullion
+      );
+      mullion.position.set(bay.cx, winY, extZ - 0.02);
+      facadeGroup.add(mullion);
+    });
+
+    // 6. Continuous Limestone Parapet Wall Coping Cap (Y = 3.8m to 3.92m)
+    [-2.075, 26.075].forEach((cx, idx) => {
+      const w = idx === 0 ? 28.2 : 24.2;
+      const coping = new THREE.Mesh(
+        new THREE.BoxGeometry(w, 0.12, 0.24),
+        this.materials.limestonePlinth
+      );
+      coping.position.set(cx, H + 0.06, extZ - 0.04);
+      facadeGroup.add(coping);
+    });
+
+    // 7. South Jog (X = 38.0, Z: -9.5 to -8.0) and East Return Brick Facade
+    const jogBrick = new THREE.Mesh(
+      new THREE.BoxGeometry(0.12, H, 1.62),
+      this.materials.exteriorBrick
+    );
+    jogBrick.position.set(38.06, H / 2, -8.75);
+    facadeGroup.add(jogBrick);
+
+    const eastBrick = new THREE.Mesh(
+      new THREE.BoxGeometry(6.2, H, 0.12),
+      this.materials.exteriorBrick
+    );
+    eastBrick.position.set(41.1, H / 2, -8.06);
+    facadeGroup.add(eastBrick);
+
+    // 8. West Lab Exterior Brick Facade (X = -16.06, Z: -9.5 to +9.5)
+    const westBrick = new THREE.Mesh(
+      new THREE.BoxGeometry(0.12, H, 19.2),
+      this.materials.exteriorBrick
+    );
+    westBrick.position.set(-16.06, H / 2, 0);
+    facadeGroup.add(westBrick);
+
+    this.root.add(facadeGroup);
+    this.colliders.push(new THREE.Box3().setFromObject(brickLeft));
+    this.colliders.push(new THREE.Box3().setFromObject(brickRight));
   }
 
   _buildInteriorPartitions() {
@@ -1466,246 +1961,340 @@ export class LabEnvironment3D {
 
     const wallW = 5.2; // Width along Z
     const wallH = 3.2; // Height from floor to ceiling plenum
-    const wallD = 0.28; // Depth protruding slightly from drywall plane
+    const wallD = 0.32; // Architectural profile depth
+    const wingW = 0.52; // Width of fluted walnut side acoustic panels
+    const bioW = wallW - wingW * 2; // Central botanical living expanse = 4.16m
 
-    // 1. Heavy Extruded Architectural Bronze Frame Enclosure with Shadow Reveal
+    // 1. Heavy Extruded Architectural Bronze Perimeter Frame & Light Canopy
     const frameMat = this.materials.bronzeMullion;
-    const borderThick = 0.10;
+    const borderThick = 0.09;
 
-    // Top Header Beam
+    // Top Header Canopy with Integrated Recessed Grow-Light Trough
     const topBeam = new THREE.Mesh(
-      new THREE.BoxGeometry(wallW, borderThick, wallD),
+      new THREE.BoxGeometry(wallW, borderThick, wallD + 0.08),
       frameMat
     );
-    topBeam.position.set(0, wallH - borderThick / 2, 0);
+    topBeam.position.set(0, wallH - borderThick / 2, 0.04);
     wallGroup.add(topBeam);
 
-    // Left and Right Vertical Jambs
+    // Continuous Recessed Botanical LED Grow-Light Strip along Underside of Header
+    const topGrowLED = new THREE.Mesh(
+      new THREE.BoxGeometry(bioW, 0.015, 0.06),
+      new THREE.MeshBasicMaterial({ color: 0xfff6ea })
+    );
+    topGrowLED.position.set(0, wallH - borderThick - 0.008, 0.12);
+    wallGroup.add(topGrowLED);
+
+    // Left and Right Vertical Architectural Bronze Outer Jambs
     [-wallW / 2 + borderThick / 2, wallW / 2 - borderThick / 2].forEach((jx) => {
       const jamb = new THREE.Mesh(
-        new THREE.BoxGeometry(borderThick, wallH - borderThick * 2, wallD),
+        new THREE.BoxGeometry(borderThick, wallH - borderThick, wallD),
         frameMat
       );
-      jamb.position.set(jx, wallH / 2, 0);
+      jamb.position.set(jx, (wallH - borderThick) / 2, 0);
       wallGroup.add(jamb);
     });
 
-    // 2. Base Irrigation Catch-Basin Trough & Polished River Stone Bed
-    const troughH = 0.22;
-    const troughD = 0.32;
+    // 2. Fluted American Walnut Acoustic Louver Wings (Left and Right Flanking Portals)
+    const walnutMat = this.materials.flutedWalnut;
+    const slatW = 0.038;
+    const slatD = 0.032;
+    const numSlats = 8;
+    const slatSpacing = (wingW - 0.08) / (numSlats - 1);
+
+    [-1, 1].forEach((side) => {
+      const wingCenterX = side * (wallW / 2 - borderThick - wingW / 2);
+      const wingGroup = new THREE.Group();
+      wingGroup.position.set(wingCenterX, 0, 0);
+
+      // Recessed Backing Board in Walnut
+      const wingBack = new THREE.Mesh(
+        new THREE.BoxGeometry(wingW, wallH - borderThick * 2, 0.025),
+        walnutMat
+      );
+      wingBack.position.set(0, wallH / 2, -wallD / 2 + 0.02);
+      wingGroup.add(wingBack);
+
+      // Vertical 3D Fluted Timber Battens creating architectural shadow lines
+      for (let s = 0; s < numSlats; s++) {
+        const sx = -wingW / 2 + 0.04 + s * slatSpacing;
+        const slat = new THREE.Mesh(
+          new THREE.BoxGeometry(slatW, wallH - borderThick * 2 - 0.02, slatD),
+          walnutMat
+        );
+        slat.position.set(sx, wallH / 2, -wallD / 2 + 0.045);
+        slat.castShadow = true;
+        wingGroup.add(slat);
+      }
+
+      // Vertical Grazing Warm LED Light Strip in Shadow Reveal Channel
+      const ledChannel = new THREE.Mesh(
+        new THREE.BoxGeometry(0.012, wallH - borderThick * 2 - 0.10, 0.01),
+        new THREE.MeshBasicMaterial({ color: 0xffeedb })
+      );
+      ledChannel.position.set(side * (wingW / 2 - 0.025), wallH / 2, -wallD / 2 + 0.055);
+      wingGroup.add(ledChannel);
+
+      wallGroup.add(wingGroup);
+    });
+
+    // 3. Base Irrigation Catch-Basin Trough (Charcoal Basalt Stone & Stainless Overflow Rim)
+    const troughH = 0.28;
+    const troughD = 0.42;
     const trough = new THREE.Mesh(
-      new THREE.BoxGeometry(wallW - borderThick * 2, troughH, troughD),
-      this.materials.livingWallDrain
+      new THREE.BoxGeometry(bioW, troughH, troughD),
+      this.materials.charcoalConcrete
     );
     trough.position.set(0, troughH / 2, troughD / 2 - wallD / 2);
     wallGroup.add(trough);
 
-    // Stainless Steel Perimeter Overflow Grate
-    const grate = new THREE.Mesh(
-      new THREE.BoxGeometry(wallW - borderThick * 2 - 0.04, 0.015, troughD - 0.04),
+    // Brushed Stainless Steel Perimeter Rim & Overflow Weir Lip
+    const rim = new THREE.Mesh(
+      new THREE.BoxGeometry(bioW + 0.04, 0.025, troughD + 0.04),
       this.materials.cabinetHandle
     );
-    grate.position.set(0, troughH + 0.008, troughD / 2 - wallD / 2);
-    wallGroup.add(grate);
+    rim.position.set(0, troughH + 0.012, troughD / 2 - wallD / 2);
+    wallGroup.add(rim);
 
-    // 3D Polished River Pebbles in Catch Basin (Basalt, River Slate, Tumbled Granite)
-    const pebbleGeo = new THREE.SphereGeometry(0.038, 8, 6);
-    for (let p = 0; p < 64; p++) {
-      const px = -((wallW - borderThick * 2 - 0.16) / 2) + Math.random() * (wallW - borderThick * 2 - 0.16);
-      const pz = -wallD / 2 + 0.05 + Math.random() * (troughD - 0.10);
+    // Concealed Under-Lip Warm LED Strip illuminating river stones below
+    const underLipLED = new THREE.Mesh(
+      new THREE.BoxGeometry(bioW - 0.06, 0.01, 0.015),
+      new THREE.MeshBasicMaterial({ color: 0xffe8cc })
+    );
+    underLipLED.position.set(0, troughH + 0.005, troughD - wallD / 2 + 0.01);
+    wallGroup.add(underLipLED);
+
+    // 3D Polished River Pebbles Bed (Basalt, River Slate, Tumbled River Quartzite)
+    const pebbleGeo = new THREE.SphereGeometry(0.042, 8, 6);
+    for (let p = 0; p < 75; p++) {
+      const px = -((bioW - 0.20) / 2) + Math.random() * (bioW - 0.20);
+      const pz = -wallD / 2 + 0.08 + Math.random() * (troughD - 0.12);
       const peb = new THREE.Mesh(pebbleGeo, this.materials.riverPebble);
-      peb.position.set(px, troughH + 0.025, pz);
-      peb.scale.set(0.7 + Math.random() * 0.7, 0.45 + Math.random() * 0.3, 0.7 + Math.random() * 0.7);
+      peb.position.set(px, troughH + 0.028, pz);
+      peb.scale.set(0.7 + Math.random() * 0.7, 0.40 + Math.random() * 0.35, 0.7 + Math.random() * 0.7);
       peb.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
       wallGroup.add(peb);
     }
 
-    // 3. Dark Hydroponic Felt Modular Cassette Backing & Continuous Velvet Moss Mattress
+    // 4. Hydroponic Modular Cassette Substrate & Continuous Velvet Moss Understory
     const backPanH = wallH - borderThick - troughH;
+    const substrateY = troughH + backPanH / 2;
+
+    // Dark cellular cassette backing felt
     const backing = new THREE.Mesh(
-      new THREE.BoxGeometry(wallW - borderThick * 2, backPanH, 0.04),
+      new THREE.BoxGeometry(bioW, backPanH, 0.04),
       this.materials.corkBark
     );
-    backing.position.set(0, troughH + backPanH / 2, -wallD / 2 + 0.03);
+    backing.position.set(0, substrateY, -wallD / 2 + 0.03);
     wallGroup.add(backing);
 
-    // Continuous Dense Forest Moss Base Mattress (Eliminating all background gaps)
+    // Continuous Deep Forest Velvet Moss Mattress Base (100% gapless coverage)
     const mossMattress = new THREE.Mesh(
-      new THREE.BoxGeometry(wallW - borderThick * 2, backPanH, 0.06),
-      this.materials.mossDeepForest
+      new THREE.BoxGeometry(bioW, backPanH, 0.06),
+      this.materials.botanicalVelvetMossDeep
     );
-    mossMattress.position.set(0, troughH + backPanH / 2, -wallD / 2 + 0.05);
+    mossMattress.position.set(0, substrateY, -wallD / 2 + 0.05);
     wallGroup.add(mossMattress);
 
-    // 4. Vertical Textured Cork Bark Columns (Creating natural micro-climate zones)
-    [-1.8, -0.6, 0.6, 1.8].forEach((cx, idx) => {
-      const barkW = 0.28 + (idx % 2) * 0.12;
-      const barkGeo = new THREE.BoxGeometry(barkW, backPanH * 0.94, 0.07);
-      const bark = new THREE.Mesh(barkGeo, this.materials.corkBark);
-      bark.position.set(cx, troughH + backPanH / 2, -wallD / 2 + 0.07);
+    // Architectural Natural Virgin Cork Bark Columns (Creating biological habitat niches)
+    [-1.3, 0.0, 1.3].forEach((cx, idx) => {
+      const barkW = 0.32 + (idx % 2) * 0.12;
+      const bark = new THREE.Mesh(
+        new THREE.BoxGeometry(barkW, backPanH * 0.95, 0.08),
+        this.materials.corkBark
+      );
+      bark.position.set(cx, substrateY, -wallD / 2 + 0.08);
       wallGroup.add(bark);
     });
 
-    // 5. Living Foliage Multi-Species Procedural Ecosystem
+    // 5. High-Density Organic Botanical Moss Topography (Interlocking Cushions)
     const mossMats = [
-      this.materials.mossDeepForest,
-      this.materials.mossChartreuse,
-      this.materials.mossEmerald,
-      this.materials.mossSage
+      this.materials.botanicalVelvetMossDeep,
+      this.materials.botanicalVelvetMossEmerald,
+      this.materials.botanicalVelvetMossChartreuse
     ];
-
-    // 5A. 160+ Pillow & Reindeer Moss Hummocks (Dense Interlocking Matrix)
     const baseSphereGeo = new THREE.SphereGeometry(1.0, 10, 8);
-    for (let m = 0; m < 165; m++) {
-      const mx = -((wallW - borderThick * 2 - 0.3) / 2) + Math.random() * (wallW - borderThick * 2 - 0.3);
-      const my = troughH + 0.12 + Math.random() * (backPanH - 0.30);
-      const radius = 0.10 + Math.random() * 0.18;
+
+    // 140 Clustered Organic Moss Hummocks with natural overlapping contours
+    for (let m = 0; m < 140; m++) {
+      const mx = -((bioW - 0.28) / 2) + Math.random() * (bioW - 0.28);
+      const my = troughH + 0.15 + Math.random() * (backPanH - 0.30);
+      const radius = 0.12 + Math.random() * 0.22;
       const mat = mossMats[Math.floor(Math.random() * mossMats.length)];
 
-      const dome = new THREE.Mesh(baseSphereGeo, mat);
-      dome.scale.set(radius, radius * 0.92, radius * 0.42);
-      dome.position.set(mx, my, -wallD / 2 + 0.06 + radius * 0.30);
-      dome.rotation.set(
-        (Math.random() - 0.5) * 0.4,
-        (Math.random() - 0.5) * 0.4,
+      const hummock = new THREE.Mesh(baseSphereGeo, mat);
+      // Flattened organic convex profile hugging the vertical substrate
+      hummock.scale.set(radius, radius * 0.95, radius * 0.38);
+      hummock.position.set(mx, my, -wallD / 2 + 0.07 + radius * 0.25);
+      hummock.rotation.set(
+        (Math.random() - 0.5) * 0.3,
+        (Math.random() - 0.5) * 0.3,
         Math.random() * Math.PI
       );
-      wallGroup.add(dome);
+      wallGroup.add(hummock);
     }
 
-    // 5B. 20 Cascading Boston Fern Frond Clusters (Nephrolepis exaltata)
-    const fernMat = this.materials.fernLeaf;
-    for (let f = 0; f < 20; f++) {
-      const fx = -((wallW - borderThick * 2 - 0.4) / 2) + Math.random() * (wallW - borderThick * 2 - 0.4);
-      const fy = troughH + 0.6 + Math.random() * (backPanH - 0.8);
-      const fernCluster = new THREE.Group();
-      fernCluster.position.set(fx, fy, -wallD / 2 + 0.10);
+    // 6. Architectural Fern Colonies (Nephrolepis exaltata & Polystichum munitum)
+    const fernMat = this.materials.botanicalFernFrond;
+    const fernLocs = [
+      [-1.6, 1.2], [-1.2, 2.1], [-0.8, 0.7], [-0.4, 1.7],
+      [0.0, 2.4], [0.3, 0.9], [0.7, 1.8], [1.1, 1.1],
+      [1.5, 2.3], [1.7, 0.8], [-1.4, 1.6], [0.9, 2.0]
+    ];
 
-      // 5-7 arching frond stems per cluster
-      const numFronds = 5 + Math.floor(Math.random() * 3);
+    fernLocs.forEach(([fx, fy]) => {
+      const fernCluster = new THREE.Group();
+      fernCluster.position.set(fx, troughH + fy, -wallD / 2 + 0.12);
+
+      const numFronds = 6 + Math.floor(Math.random() * 3);
       for (let s = 0; s < numFronds; s++) {
         const frondGroup = new THREE.Group();
-        const spreadAngle = ((s - numFronds / 2) / numFronds) * 1.4;
-        frondGroup.rotation.y = spreadAngle;
-        frondGroup.rotation.x = 0.2 + Math.random() * 0.4; // Arching forward into corridor
+        const spreadAngle = ((s - numFronds / 2) / numFronds) * 1.5;
+        frondGroup.rotation.y = spreadAngle + (Math.random() - 0.5) * 0.3;
+        frondGroup.rotation.x = 0.25 + Math.random() * 0.35; // Arching outward from wall
 
-        // Central rachis stem
-        const stemLen = 0.32 + Math.random() * 0.22;
-        const stem = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.003, 0.005, stemLen, 6),
+        const stemLen = 0.35 + Math.random() * 0.20;
+        // Central tapering rachis
+        const rachis = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.002, 0.005, stemLen, 6),
           fernMat
         );
-        stem.position.set(0, -stemLen / 2, stemLen * 0.3);
-        stem.rotation.x = -Math.PI / 4;
-        frondGroup.add(stem);
+        rachis.position.set(0, -stemLen / 2, stemLen * 0.32);
+        rachis.rotation.x = -Math.PI / 4.2;
+        frondGroup.add(rachis);
 
-        // Pairs of lateral fern pinnae (leaflets)
-        const numPinnae = 7;
+        // Pairs of alternating pinnae (leaflets) along the frond
+        const numPinnae = 9;
         for (let p = 0; p < numPinnae; p++) {
           const frac = p / numPinnae;
-          const pLen = (1.0 - frac * 0.5) * 0.07;
+          const pinnaLen = (1.0 - frac * 0.45) * 0.075;
+          const pinnaW = 0.018;
+
           [-1, 1].forEach((side) => {
             const leaflet = new THREE.Mesh(
-              new THREE.PlaneGeometry(pLen, 0.016),
+              new THREE.PlaneGeometry(pinnaLen, pinnaW),
               fernMat
             );
             leaflet.position.set(
-              side * (pLen / 2 + 0.004),
-              -frac * stemLen * 0.7,
-              frac * stemLen * 0.3
+              side * (pinnaLen / 2 + 0.003),
+              -frac * stemLen * 0.72,
+              frac * stemLen * 0.32
             );
-            leaflet.rotation.z = side * 0.25;
+            leaflet.rotation.z = side * 0.28;
+            leaflet.rotation.y = side * 0.15;
             frondGroup.add(leaflet);
           });
         }
         fernCluster.add(frondGroup);
       }
       wallGroup.add(fernCluster);
-    }
+    });
 
-    // 5C. 18 Trailing Philodendron & Variegated Pothos Clusters
+    // 7. Cascading Golden Pothos & Philodendron Vines (Draping over Catch Basin Lip)
     const pothosMat = this.materials.pothosVariegated;
-    for (let v = 0; v < 18; v++) {
-      const vx = -((wallW - borderThick * 2 - 0.4) / 2) + Math.random() * (wallW - borderThick * 2 - 0.4);
-      const vy = troughH + 0.8 + Math.random() * (backPanH - 1.0);
-      const vineGroup = new THREE.Group();
-      vineGroup.position.set(vx, vy, -wallD / 2 + 0.12);
+    const vineLocs = [
+      [-1.8, 1.8, 0.55], [-1.5, 0.85, 0.75], [-1.0, 1.5, 0.60],
+      [-0.6, 0.55, 0.70], [-0.2, 1.9, 0.50], [0.2, 0.75, 0.85],
+      [0.6, 1.6, 0.60], [1.0, 0.60, 0.75], [1.4, 1.8, 0.55],
+      [1.7, 0.70, 0.80], [-0.9, 2.3, 0.45], [0.8, 2.2, 0.50]
+    ];
 
-      // Trailing vine stem
-      const vineLen = 0.35 + Math.random() * 0.35;
+    vineLocs.forEach(([vx, vy, vineLen]) => {
+      const vineGroup = new THREE.Group();
+      vineGroup.position.set(vx, troughH + vy, -wallD / 2 + 0.14);
+
+      // Main flexible vine stem
       const vineStem = new THREE.Mesh(
         new THREE.CylinderGeometry(0.003, 0.004, vineLen, 6),
         pothosMat
       );
-      vineStem.position.set(0, -vineLen / 2, 0.05);
+      vineStem.position.set(0, -vineLen / 2, 0.06);
       vineGroup.add(vineStem);
 
-      // Broad heart-shaped leaves cascading downward
-      const numLeaves = 6 + Math.floor(Math.random() * 4);
+      // Trailing cordate leaves with natural tilt and alternating phyllotaxy
+      const numLeaves = Math.floor(vineLen * 18);
       for (let l = 0; l < numLeaves; l++) {
         const lf = new THREE.Group();
         const frac = l / numLeaves;
+        const side = l % 2 === 0 ? 1 : -1;
         lf.position.set(
-          (Math.random() - 0.5) * 0.08,
+          side * 0.025,
           -frac * vineLen,
-          0.06 + Math.random() * 0.04
+          0.06 + Math.sin(frac * Math.PI) * 0.04
         );
         lf.rotation.set(
-          0.3 + Math.random() * 0.4,
-          (Math.random() - 0.5) * 0.6,
-          (Math.random() - 0.5) * 0.5
+          0.4 + Math.random() * 0.35,
+          side * 0.35 + (Math.random() - 0.5) * 0.2,
+          (Math.random() - 0.5) * 0.3
         );
 
-        // Cordate (heart-shaped) leaf geometry
+        // Cordate leaf blade geometry
         const leafBlade = new THREE.Mesh(
-          new THREE.ConeGeometry(0.045, 0.085, 4),
+          new THREE.ConeGeometry(0.042, 0.088, 5),
           pothosMat
         );
         leafBlade.rotation.x = Math.PI;
-        leafBlade.scale.set(1.1, 1.0, 0.2); // Flat leaf profile
+        leafBlade.scale.set(1.15, 1.0, 0.18);
         lf.add(leafBlade);
         vineGroup.add(lf);
       }
       wallGroup.add(vineGroup);
-    }
+    });
 
-    // 5D. 12 Spiky Air-Plant (Tillandsia) Rosettes in Bark Crevices
-    const airPlantMat = this.materials.mossSage;
-    for (let a = 0; a < 14; a++) {
-      const ax = -((wallW - borderThick * 2 - 0.5) / 2) + Math.random() * (wallW - borderThick * 2 - 0.5);
-      const ay = troughH + 0.4 + Math.random() * (backPanH - 0.6);
-      const rosette = new THREE.Group();
-      rosette.position.set(ax, ay, -wallD / 2 + 0.11);
+    // 8. Calathea Orbifolia Statement Broadleaf Clumps (Large Exotic Foliage)
+    const calatheaMat = this.materials.botanicalCalathea;
+    const calatheaLocs = [
+      [-1.1, 1.4], [-0.5, 2.0], [0.4, 1.3], [1.2, 1.9], [-0.2, 0.9], [1.6, 1.4]
+    ];
 
-      for (let spike = 0; spike < 12; spike++) {
-        const theta = (spike / 12) * Math.PI * 2;
-        const spikeLeaf = new THREE.Mesh(
-          new THREE.ConeGeometry(0.008, 0.075, 4),
-          airPlantMat
+    calatheaLocs.forEach(([cx, cy]) => {
+      const clump = new THREE.Group();
+      clump.position.set(cx, troughH + cy, -wallD / 2 + 0.13);
+
+      const numLeaves = 4 + Math.floor(Math.random() * 2);
+      for (let i = 0; i < numLeaves; i++) {
+        const leafGrp = new THREE.Group();
+        const ang = ((i - numLeaves / 2) / numLeaves) * 1.8;
+        leafGrp.rotation.y = ang;
+        leafGrp.rotation.x = 0.35 + Math.random() * 0.3;
+
+        // Slender petiole
+        const petiole = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.003, 0.005, 0.22, 6),
+          calatheaMat
         );
-        spikeLeaf.rotation.z = Math.PI / 2 + Math.cos(theta) * 0.4;
-        spikeLeaf.rotation.y = theta;
-        spikeLeaf.scale.set(1.0, 1.0, 0.25);
-        rosette.add(spikeLeaf);
-      }
-      wallGroup.add(rosette);
-    }
+        petiole.position.set(0, 0.10, 0.05);
+        petiole.rotation.x = 0.25;
+        leafGrp.add(petiole);
 
-    // 6. Overhead Architectural Grow-Lighting Track with Articulated Canisters
-    const trackY = wallH + 0.06;
+        // Broad rounded elliptical blade
+        const blade = new THREE.Mesh(
+          new THREE.SphereGeometry(0.09, 8, 6),
+          calatheaMat
+        );
+        blade.scale.set(1.1, 1.4, 0.12);
+        blade.position.set(0, 0.22, 0.09);
+        blade.rotation.x = 0.2;
+        leafGrp.add(blade);
+
+        clump.add(leafGrp);
+      }
+      wallGroup.add(clump);
+    });
+
+    // 9. Overhead Articulated High-CRI LED Spotlight Canisters
+    const trackY = wallH + 0.05;
     const trackRail = new THREE.Mesh(
-      new THREE.BoxGeometry(wallW, 0.03, 0.04),
+      new THREE.BoxGeometry(bioW + 0.6, 0.035, 0.045),
       this.materials.bronzeMullion
     );
-    trackRail.position.set(0, trackY, 0.22);
+    trackRail.position.set(0, trackY, 0.24);
     wallGroup.add(trackRail);
 
-    // 5 Articulated High-CRI LED Spotlight Canisters
-    [-1.8, -0.9, 0, 0.9, 1.8].forEach((lx) => {
+    [-1.6, -0.8, 0, 0.8, 1.6].forEach((lx) => {
       const spotArm = new THREE.Group();
-      spotArm.position.set(lx, trackY - 0.02, 0.22);
+      spotArm.position.set(lx, trackY - 0.02, 0.24);
 
-      // Swivel Knuckle & Cylinder Canister
       const knuckle = new THREE.Mesh(
         new THREE.CylinderGeometry(0.012, 0.012, 0.03, 8),
         this.materials.cabinetHandle
@@ -1713,86 +2302,140 @@ export class LabEnvironment3D {
       spotArm.add(knuckle);
 
       const canister = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.035, 0.042, 0.09, 16),
+        new THREE.CylinderGeometry(0.035, 0.044, 0.10, 16),
         this.materials.bronzeMullion
       );
-      canister.rotation.x = -Math.PI / 3; // Angled down 60° at living wall foliage
+      canister.rotation.x = -Math.PI / 3.2; // Aimed down at living wall foliage
       canister.position.set(0, -0.05, -0.04);
       spotArm.add(canister);
 
-      // Emissive high-CRI LED Lens
       const lens = new THREE.Mesh(
-        new THREE.CircleGeometry(0.033, 16),
+        new THREE.CircleGeometry(0.034, 16),
         new THREE.MeshBasicMaterial({ color: 0xfff6ea })
       );
-      lens.rotation.x = Math.PI / 6;
-      lens.position.set(0, -0.08, -0.06);
+      lens.rotation.x = Math.PI / 5.8;
+      lens.position.set(0, -0.088, -0.065);
       spotArm.add(lens);
 
       wallGroup.add(spotArm);
     });
 
-    // 7. Floating Architectural Brand Plaque on Upper Bronze Canopy
+    // 10. Dedicated Digital Telemetry & IAQ Environmental Monitoring Panel
+    // Mounted in a flush bevel on the right walnut fluted wing (X = 2.15, Y = 1.55)
+    const monitorGroup = new THREE.Group();
+    monitorGroup.position.set(wallW / 2 - borderThick - wingW / 2, 1.55, -wallD / 2 + 0.075);
+
+    const bezel = new THREE.Mesh(
+      new THREE.BoxGeometry(0.36, 0.50, 0.02),
+      this.materials.architecturalBlackMetal
+    );
+    monitorGroup.add(bezel);
+
+    const monCanvas = document.createElement("canvas");
+    monCanvas.width = 360;
+    monCanvas.height = 500;
+    const mCtx = monCanvas.getContext("2d");
+    mCtx.fillStyle = "#0c1017";
+    mCtx.fillRect(0, 0, 360, 500);
+
+    // Bezel accent header
+    mCtx.fillStyle = "#1e293b";
+    mCtx.fillRect(10, 10, 340, 60);
+    mCtx.fillStyle = "#3dd68c";
+    mCtx.font = "bold 16px 'IBM Plex Sans', sans-serif";
+    mCtx.fillText("SRE BIOPHILIC HORTICULTURE", 20, 38);
+    mCtx.fillStyle = "#94a3b8";
+    mCtx.font = "12px 'IBM Plex Mono', monospace";
+    mCtx.fillText("SYSTEM STATUS: ONLINE / HEALTHY", 20, 58);
+
+    // Sensor Telemetry Cards
+    const stats = [
+      { label: "SUBSTRATE MOISTURE", val: "78.4%", stat: "OPTIMAL", col: "#3dd68c" },
+      { label: "AMBIENT HUMIDITY", val: "62.1% RH", stat: "STABLE", col: "#38bdf8" },
+      { label: "IRRIGATION CYCLE", val: "ACTIVE", stat: "2.4 L/DAY", col: "#facc15" },
+      { label: "VOC ABSORPTION", val: "96.2%", stat: "IAQ GRADE A", col: "#a78bfa" }
+    ];
+
+    stats.forEach((st, i) => {
+      const cy = 90 + i * 95;
+      mCtx.fillStyle = "#141a23";
+      mCtx.fillRect(15, cy, 330, 80);
+      mCtx.strokeStyle = "#334155";
+      mCtx.lineWidth = 1;
+      mCtx.strokeRect(15, cy, 330, 80);
+
+      mCtx.fillStyle = "#64748b";
+      mCtx.font = "bold 11px 'IBM Plex Sans', sans-serif";
+      mCtx.fillText(st.label, 26, cy + 24);
+
+      mCtx.fillStyle = st.col;
+      mCtx.font = "bold 24px 'IBM Plex Mono', monospace";
+      mCtx.fillText(st.val, 26, cy + 54);
+
+      mCtx.fillStyle = "#94a3b8";
+      mCtx.font = "11px 'IBM Plex Mono', monospace";
+      mCtx.textAlign = "right";
+      mCtx.fillText(st.stat, 330, cy + 54);
+      mCtx.textAlign = "left";
+    });
+
+    const monTex = new THREE.CanvasTexture(monCanvas);
+    const monScreen = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.33, 0.47),
+      new THREE.MeshBasicMaterial({ map: monTex })
+    );
+    monScreen.position.set(0, 0, 0.012);
+    monitorGroup.add(monScreen);
+
+    wallGroup.add(monitorGroup);
+
+    // 11. Etched Architectural Bronze Plaque Centered on Upper Header
     const plaqueGroup = new THREE.Group();
-    plaqueGroup.position.set(0, wallH - borderThick / 2 - 0.14, 0.16);
+    plaqueGroup.position.set(0, wallH - borderThick / 2 - 0.14, 0.18);
 
     const plaqueBase = new THREE.Mesh(
-      new THREE.BoxGeometry(2.4, 0.28, 0.015),
+      new THREE.BoxGeometry(2.5, 0.26, 0.015),
       this.materials.cabinetHandle
     );
     plaqueGroup.add(plaqueBase);
 
-    // High-DPI Canvas for Plaque Inscription
     const plCanvas = document.createElement("canvas");
     plCanvas.width = 1024;
-    plCanvas.height = 140;
+    plCanvas.height = 130;
     const plCtx = plCanvas.getContext("2d");
     plCtx.fillStyle = "#0c1017";
-    plCtx.fillRect(0, 0, 1024, 140);
+    plCtx.fillRect(0, 0, 1024, 130);
     plCtx.strokeStyle = "#d4af37";
     plCtx.lineWidth = 4;
-    plCtx.strokeRect(8, 8, 1008, 124);
+    plCtx.strokeRect(8, 8, 1008, 114);
     plCtx.fillStyle = "#f1f5f9";
-    plCtx.font = "bold 26px 'IBM Plex Sans', sans-serif";
+    plCtx.font = "bold 24px 'IBM Plex Sans', sans-serif";
     plCtx.textAlign = "center";
-    plCtx.fillText("SRE DESIGNS BIOTECH · LIVING HORTICULTURAL WALL", 512, 54);
-    plCtx.font = "18px 'IBM Plex Mono', monospace";
+    plCtx.fillText("CHEMMATE BIOTECHNOLOGY · ARCHITECTURAL LIVING BIO-WALL", 512, 52);
+    plCtx.font = "17px 'IBM Plex Mono', monospace";
     plCtx.fillStyle = "#3dd68c";
-    plCtx.fillText("CONTINUOUS AIR PURIFICATION · AUTOMATED HYDROPONIC DRIP", 512, 98);
+    plCtx.fillText("MULTI-SPECIES HYDROPONIC ECOSYSTEM · VOC CLEANSING & OXYGENATION", 512, 92);
 
     const plTex = new THREE.CanvasTexture(plCanvas);
     const plScreen = new THREE.Mesh(
-      new THREE.PlaneGeometry(2.36, 0.26),
+      new THREE.PlaneGeometry(2.46, 0.24),
       new THREE.MeshBasicMaterial({ map: plTex })
     );
     plScreen.position.set(0, 0, 0.009);
     plaqueGroup.add(plScreen);
 
-    // Chrome Mounting Standoff Cylinders
-    [-1.12, 1.12].forEach((sx) => {
-      [-0.10, 0.10].forEach((sy) => {
-        const standoff = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.012, 0.012, 0.05, 12),
-          this.materials.cabinetHandle
-        );
-        standoff.rotation.x = Math.PI / 2;
-        standoff.position.set(sx, sy, -0.025);
-        plaqueGroup.add(standoff);
-      });
-    });
     wallGroup.add(plaqueGroup);
 
-    // 8. Drip Irrigation Riser & Brass Manifold with Analog Dial Gauge
+    // 12. Drip Irrigation Riser & Brass Manifold with Analog Dial Gauge
     const irriGroup = new THREE.Group();
-    irriGroup.position.set(wallW / 2 - borderThick - 0.12, troughH / 2 + 0.15, -wallD / 2 + 0.10);
+    irriGroup.position.set(wallW / 2 - borderThick - 0.08, troughH / 2 + 0.18, -wallD / 2 + 0.12);
 
     const riser = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.012, 0.012, 0.45, 12),
+      new THREE.CylinderGeometry(0.012, 0.012, 0.48, 12),
       this.materials.cabinetHandle
     );
     irriGroup.add(riser);
 
-    // Brass Ball Valve
     const valve = new THREE.Mesh(
       new THREE.BoxGeometry(0.035, 0.035, 0.045),
       new THREE.MeshStandardMaterial({ color: 0xb48a3c, roughness: 0.3, metalness: 0.8 })
@@ -1800,7 +2443,6 @@ export class LabEnvironment3D {
     valve.position.y = 0.12;
     irriGroup.add(valve);
 
-    // Analog Pressure Gauge
     const gauge = new THREE.Mesh(
       new THREE.CylinderGeometry(0.028, 0.028, 0.02, 16),
       this.materials.cabinetHandle

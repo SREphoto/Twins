@@ -131,10 +131,14 @@ export class LabPlayerController {
       }
     });
 
-    // Pointer Lock & Mouse Look (Only during Walk Mode)
+    // Pointer Lock & Mouse Look (Only during Walk Mode on desktop)
     this.domElement.addEventListener("click", () => {
       if (this.mode === "walk" && !this.isPointerLocked) {
-        this.domElement.requestPointerLock?.();
+        if (window.matchMedia && window.matchMedia("(pointer: fine)").matches) {
+          try {
+            this.domElement.requestPointerLock?.();
+          } catch (e) {}
+        }
       }
     });
 
@@ -150,6 +154,29 @@ export class LabPlayerController {
         this.pitch = Math.max(-Math.PI / 2.3, Math.min(Math.PI / 2.3, this.pitch));
       }
     });
+
+    // Touch Look (Single-finger touch drag in Walk Mode on mobile devices)
+    let touchStartX = 0;
+    let touchStartY = 0;
+    this.domElement.addEventListener("touchstart", (e) => {
+      if (this.mode === "walk" && e.touches.length === 1) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    this.domElement.addEventListener("touchmove", (e) => {
+      if (this.mode === "walk" && e.touches.length === 1) {
+        const dx = e.touches[0].clientX - touchStartX;
+        const dy = e.touches[0].clientY - touchStartY;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        const sens = 0.0035;
+        this.yaw -= dx * sens;
+        this.pitch -= dy * sens;
+        this.pitch = Math.max(-Math.PI / 2.3, Math.min(Math.PI / 2.3, this.pitch));
+      }
+    }, { passive: true });
   }
 
   // Glide Camera to a Station Pose

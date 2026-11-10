@@ -509,8 +509,9 @@ export const LIGHT_MOODS = {
 // Main Procedural 3D Engine: Disintegration3D
 // ----------------------------------------------------------------------------
 export class Disintegration3D {
-  constructor(canvasContainer) {
+  constructor(canvasContainer, options = {}) {
     this.container = canvasContainer;
+    this.options = options;
     this.scene = new THREE.Scene();
     this.camera = null;
     this.renderer = null;
@@ -595,53 +596,65 @@ export class Disintegration3D {
   }
 
   init() {
-    const w = Math.max(1, this.container.clientWidth || window.innerWidth);
-    const h = Math.max(1, this.container.clientHeight || window.innerHeight);
+    if (!this.options?.headless && !this.options?.skipRenderer) {
+      const w = Math.max(1, (this.container && this.container.clientWidth) || window.innerWidth);
+      const h = Math.max(1, (this.container && this.container.clientHeight) || window.innerHeight);
 
-    this.camera = new THREE.PerspectiveCamera(38, w / h, 0.1, 120);
-    this.camera.position.set(-5.8, 5.2, -9.2);
+      this.camera = new THREE.PerspectiveCamera(38, w / h, 0.1, 120);
+      this.camera.position.set(-5.8, 5.2, -9.2);
 
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    this.renderer.setSize(w, h, false);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-    this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.08;
-    this.container.innerHTML = '';
-    this.container.appendChild(this.renderer.domElement);
+      this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+      this.renderer.setSize(w, h, false);
+      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+      this.renderer.shadowMap.enabled = true;
+      this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      this.renderer.toneMappingExposure = 1.08;
+      if (this.container) {
+        this.container.innerHTML = '';
+        this.container.appendChild(this.renderer.domElement);
+      }
 
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    this.controls.enableDamping = true;
-    this.controls.dampingFactor = 0.06;
-    this.controls.maxPolarAngle = Math.PI / 2 + 0.06;
-    this.controls.minDistance = 1.6;
-    this.controls.maxDistance = 24.0;
-    this.controls.target.set(0.2, 2.9, -0.2);
-    this.controls.update();
+      this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+      this.controls.enableDamping = true;
+      this.controls.dampingFactor = 0.06;
+      this.controls.maxPolarAngle = Math.PI / 2 + 0.06;
+      this.controls.minDistance = 1.6;
+      this.controls.maxDistance = 24.0;
+      this.controls.target.set(0.2, 2.9, -0.2);
+      this.controls.update();
+    }
 
     // Build 3D world
-    this.buildLabRoom();
+    if (this.options?.includeLab !== false) {
+      this.buildLabRoom();
+    }
     this.buildInstrumentChassis();
     this.buildWaterBathAndGlassware();
     this.buildKinematicDrive();
     this.buildApparatusBaskets();
     this.buildOperatorConsole();
     this.buildElectronicsBay();
-    this.buildPowerContinuity();
+    if (this.options?.includeLab !== false) {
+      this.buildPowerContinuity();
+    }
     this.setupExplodedViewTargets();
 
-    this.applyLighting();
-    this.setupInteractiveRaycasting();
+    if (!this.options?.headless && !this.options?.skipRenderer) {
+      this.applyLighting();
+      this.setupInteractiveRaycasting();
 
-    // ResizeObserver for zero-skew layout when right panels collapse/expand
-    this.ro = new ResizeObserver(() => this.onWindowResize());
-    this.ro.observe(this.container);
-    window.addEventListener('resize', () => this.onWindowResize());
+      // ResizeObserver for zero-skew layout when right panels collapse/expand
+      if (this.container) {
+        this.ro = new ResizeObserver(() => this.onWindowResize());
+        this.ro.observe(this.container);
+      }
+      window.addEventListener('resize', () => this.onWindowResize());
 
-    this.animate = this.animate.bind(this);
-    requestAnimationFrame(this.animate);
+      this.animate = this.animate.bind(this);
+      requestAnimationFrame(this.animate);
+    }
   }
 
   // --------------------------------------------------------------------------

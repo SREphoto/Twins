@@ -26,6 +26,13 @@ class GrandLabApp {
     this.width = this.host.clientWidth || window.innerWidth;
     this.height = this.host.clientHeight || window.innerHeight;
 
+    // Detect mobile device profile (smartphones, tablets, touch devices)
+    this.isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+                    (navigator.maxTouchPoints > 1 && window.innerWidth < 1024) ||
+                    window.innerWidth < 768;
+
+    this.isContextLost = false;
+
     // Active Machine context for sidebar
     this.activeMachineId = "dissolution_tester";
 
@@ -47,17 +54,40 @@ class GrandLabApp {
 
     this.camera = new THREE.PerspectiveCamera(65, this.width / this.height, 0.1, 100);
 
+    const rendererOptions = {
+      antialias: !this.isMobile,
+      powerPreference: this.isMobile ? "default" : "high-performance",
+      failIfMajorPerformanceCaveat: false
+    };
+
     try {
-      this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+      this.renderer = new THREE.WebGLRenderer(rendererOptions);
     } catch (e) {
-      console.warn("High-performance WebGL context unavailable, initializing standard WebGL fallback:", e);
+      console.warn("Primary WebGL context unavailable, initializing standard WebGL fallback:", e);
       this.renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "default", failIfMajorPerformanceCaveat: false });
     }
     this.renderer.setSize(this.width, this.height);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // On mobile devices, clamp pixel ratio to 1.25 to prevent VRAM exhaustion and iOS WebKit GPU crash
+    const maxDpr = this.isMobile ? 1.25 : 2.0;
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDpr));
+
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = this.isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    // Handle WebGL context loss gracefully (common during mobile backgrounding / memory pressure)
+    this.renderer.domElement.addEventListener("webglcontextlost", (event) => {
+      event.preventDefault();
+      console.warn("WebGL context lost. Pausing render loop...");
+      this.isContextLost = true;
+    }, false);
+
+    this.renderer.domElement.addEventListener("webglcontextrestored", () => {
+      console.log("WebGL context restored. Resuming...");
+      this.isContextLost = false;
+      this.renderer.setSize(this.width, this.height);
+    }, false);
 
     this.host.innerHTML = "";
     this.host.appendChild(this.renderer.domElement);
@@ -84,7 +114,24 @@ class GrandLabApp {
     // 4. Mount All 17 Instrument Digital Twins
     this.dockManager = new LabDockManager(this.scene);
 
-    // 5. Hybrid Player Navigation Engine (WASD + Click-to-Glide)
+    // 5. Global Transmission Neutralization:
+    // Three.js r160 WebGL2 transmission pass fails on mobile GPUs & WebKit with:
+    // "TypeError: Failed to execute 'texSubImage2D' on 'WebGL2RenderingContext': Overload resolution failed"
+    // Converting transmission to pure alpha-blended physical transparency avoids the pass entirely.
+    this.scene.traverse((child) => {
+      if (child.isMesh && child.material) {
+        const mats = Array.isArray(child.material) ? child.material : [child.material];
+        mats.forEach((m) => {
+          if (m && m.transmission && m.transmission > 0) {
+            m.transmission = 0;
+            m.transparent = true;
+            if (m.opacity === undefined || m.opacity >= 1.0) m.opacity = 0.50;
+          }
+        });
+      }
+    });
+
+    // 6. Hybrid Player Navigation Engine (WASD + Click-to-Glide)
     this.player = new LabPlayerController(
       this.camera,
       this.renderer.domElement,
@@ -117,6 +164,14 @@ class GrandLabApp {
     this.btnDownloadCsv = document.getElementById("btn-download-csv");
     this.btnAudioToggle = document.getElementById("btn-audio-toggle");
     this.quickTravelSelect = document.getElementById("quick-travel-select");
+
+    // On mobile devices, start with the assistant sidebar collapsed to maximize 3D viewport
+    if (this.isMobile && this.sidebar) {
+      this.sidebar.classList.add("is-collapsed");
+      if (this.sidebarToggleIcon) {
+        this.sidebarToggleIcon.textContent = "▶";
+      }
+    }
 
     // Sidebar Toggle Handler
     this.btnSidebarToggle.addEventListener("click", () => {
@@ -442,15 +497,22 @@ class GrandLabApp {
     this.mousePos = new THREE.Vector2(-1000, -1000); // Screen cursor (used during orbit/overview)
     this.hoveredObject = null;
 
+    const updatePointerPos = (clientX, clientY) => {
+      const rect = this.renderer.domElement.getBoundingClientRect();
+      this.mousePos.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      this.mousePos.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+    };
+
     // Track cursor for hover raycasting in overview mode
     this.renderer.domElement.addEventListener("pointermove", (e) => {
-      const rect = this.renderer.domElement.getBoundingClientRect();
-      this.mousePos.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      this.mousePos.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      updatePointerPos(e.clientX, e.clientY);
     });
 
-    // Viewport Click Handler
-    this.renderer.domElement.addEventListener("click", (e) => {
+    // Viewport Click / Tap Handler
+    const handleInteract = (clientX, clientY) => {
+      updatePointerPos(clientX, clientY);
+      this._updateRaycasting();
+
       // If we clicked on an interactive utility (faucet, burner, beaker, bottle)
       if (this.hoveredObject) {
         if (this.hoveredObject.userData?.toggle) {
@@ -467,6 +529,10 @@ class GrandLabApp {
           return;
         }
       }
+    };
+
+    this.renderer.domElement.addEventListener("click", (e) => {
+      handleInteract(e.clientX, e.clientY);
     });
   }
 
@@ -593,6 +659,7 @@ class GrandLabApp {
 
     const animate = (now) => {
       requestAnimationFrame(animate);
+      if (this.isContextLost) return;
       const delta = Math.min(0.08, (now - lastTime) / 1000);
       lastTime = now;
 
@@ -614,6 +681,10 @@ class GrandLabApp {
 }
 
 // Boot Grand Laboratory Application
-window.addEventListener("DOMContentLoaded", () => {
+if (document.readyState === "loading") {
+  window.addEventListener("DOMContentLoaded", () => {
+    new GrandLabApp();
+  });
+} else {
   new GrandLabApp();
-});
+}

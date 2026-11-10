@@ -60,10 +60,10 @@ export class LabDockManager {
       name: "UV-Vis Spectrophotometer",
       tag: "Shimadzu UV-2600i Dual-Beam",
       zone: "Zone 1: Main Analytical & Pharmaceutical QC Hall",
-      pos: new THREE.Vector3(-12.2, BENCH_Y, -4.0),
+      pos: new THREE.Vector3(-11.6, BENCH_Y, -4.15),
       rotY: Math.PI, // Rotated 180° so operator console & sample lid face South aisle (+Z)
       scale: 0.085,
-      camConsole: { pos: new THREE.Vector3(-12.2, 1.25, -3.2), look: new THREE.Vector3(-12.2, 1.05, -4.0) },
+      camConsole: { pos: new THREE.Vector3(-11.6, 1.25, -3.35), look: new THREE.Vector3(-11.6, 1.05, -4.15) },
       builder: () => createSpectrophotometerModel({ includeLab: false })
     });
 
@@ -73,19 +73,13 @@ export class LabDockManager {
       name: "FTIR Spectrometer",
       tag: "Thermo Nicolet iS50 Diamond ATR",
       zone: "Zone 1: Main Analytical & Pharmaceutical QC Hall",
-      pos: new THREE.Vector3(-10.2, BENCH_Y, -4.0),
+      pos: new THREE.Vector3(-8.6, BENCH_Y, -4.15),
       rotY: Math.PI, // Rotated 180° so diamond ATR deck & touchscreen face South aisle (+Z)
       scale: 0.09,
-      camConsole: { pos: new THREE.Vector3(-10.2, 1.25, -3.2), look: new THREE.Vector3(-10.2, 1.05, -4.0) },
+      camConsole: { pos: new THREE.Vector3(-8.6, 1.25, -3.35), look: new THREE.Vector3(-8.6, 1.05, -4.15) },
       builder: () => {
-        const container = createMockContainer();
-        const ftir = new FTIR3D(container, { includeLab: false, headless: true, skipLoop: true });
-        ftir.isDestroyed = true;
-        ftir.animate = () => {};
-        const g = ftir.rootGroup || ftir.scene;
-        ftir.renderer?.dispose();
-        ftir.renderer?.forceContextLoss?.();
-        return g;
+        const ftir = new FTIR3D(null, { includeLab: false, headless: true, skipRenderer: true, skipLoop: true });
+        return ftir.rootGroup || ftir.scene;
       }
     });
 
@@ -95,19 +89,13 @@ export class LabDockManager {
       name: "Karl Fischer Titrator",
       tag: "Metrohm 901 Titrando",
       zone: "Zone 1: Main Analytical & Pharmaceutical QC Hall",
-      pos: new THREE.Vector3(-8.2, BENCH_Y, -4.0),
+      pos: new THREE.Vector3(-7.2, BENCH_Y, -4.15),
       rotY: 0,
       scale: 0.09,
-      camConsole: { pos: new THREE.Vector3(-8.2, 1.25, -3.2), look: new THREE.Vector3(-8.2, 1.05, -4.0) },
+      camConsole: { pos: new THREE.Vector3(-7.2, 1.25, -3.35), look: new THREE.Vector3(-7.2, 1.05, -4.15) },
       builder: () => {
-        const container = createMockContainer();
-        const kf = new KarlFischer3D(container, { includeLab: false, headless: true, skipLoop: true });
-        kf.isDestroyed = true;
-        kf.animate = () => {};
-        const g = kf.root || kf.scene;
-        kf.renderer?.dispose();
-        kf.renderer?.forceContextLoss?.();
-        return g;
+        const kf = new KarlFischer3D(null, { includeLab: false, headless: true, skipRenderer: true, skipLoop: true });
+        return kf.root || kf.scene;
       }
     });
 
@@ -121,19 +109,13 @@ export class LabDockManager {
       name: "USP Dissolution Tester",
       tag: "Agilent 708-DS 8-Vessel Apparatus",
       zone: "Zone 1: Main Analytical & Pharmaceutical QC Hall",
-      pos: new THREE.Vector3(-4.0, BENCH_Y, -4.0),
+      pos: new THREE.Vector3(-4.0, BENCH_Y, -4.15),
       rotY: 0,
       scale: 0.10,
-      camConsole: { pos: new THREE.Vector3(-4.0, 1.35, -3.0), look: new THREE.Vector3(-4.0, 1.15, -4.0) },
+      camConsole: { pos: new THREE.Vector3(-4.0, 1.35, -3.15), look: new THREE.Vector3(-4.0, 1.15, -4.15) },
       builder: () => {
-        const container = createMockContainer();
-        const diss = new Dissolution3D(container, { includeLab: false, headless: true, skipLoop: true });
-        diss.isDestroyed = true;
-        diss.animate = () => {};
-        const g = diss.mainGroup || diss.scene;
-        diss.renderer?.dispose();
-        diss.renderer?.forceContextLoss?.();
-        return g;
+        const diss = new Dissolution3D(null, { includeLab: false, headless: true, skipRenderer: true, skipLoop: true });
+        return diss.mainGroup || diss.scene;
       }
     });
 
@@ -143,15 +125,12 @@ export class LabDockManager {
       name: "Tablet Disintegration Tester",
       tag: "ERWEKA ZT 322 Dual Basket Apparatus",
       zone: "Zone 1: Main Analytical & Pharmaceutical QC Hall",
-      pos: new THREE.Vector3(-2.0, BENCH_Y, -4.0),
+      pos: new THREE.Vector3(-2.0, BENCH_Y, -4.15),
       rotY: Math.PI, // Rotated 180° so water bath, beakers & keypad face South aisle (+Z)
       scale: 0.085,
-      camConsole: { pos: new THREE.Vector3(-2.0, 1.35, -3.0), look: new THREE.Vector3(-2.0, 1.15, -4.0) },
+      camConsole: { pos: new THREE.Vector3(-2.0, 1.35, -3.15), look: new THREE.Vector3(-2.0, 1.15, -4.15) },
       builder: () => {
-        const container = createMockContainer();
-        const disint = new Disintegration3D(container, { includeLab: false, headless: true, skipLoop: true });
-        disint.isDestroyed = true;
-        disint.animate = () => {};
+        const disint = new Disintegration3D(null, { includeLab: false, headless: true, skipRenderer: true, skipLoop: true });
         const g = new THREE.Group();
         if (disint.chassisGroup) g.add(disint.chassisGroup);
         if (disint.bathGroup) g.add(disint.bathGroup);
@@ -159,8 +138,6 @@ export class LabDockManager {
         if (disint.driveHead) g.add(disint.driveHead);
         if (disint.consoleGroup) g.add(disint.consoleGroup);
         if (disint.electronicsGroup) g.add(disint.electronicsGroup);
-        disint.renderer?.dispose();
-        disint.renderer?.forceContextLoss?.();
         return g;
       }
     });
@@ -171,11 +148,11 @@ export class LabDockManager {
       name: "Analytical Microbalance",
       tag: "0.1 mg Precision with Draft Shield",
       zone: "Zone 1: Main Analytical & Pharmaceutical QC Hall",
-      pos: new THREE.Vector3(0.0, 0.00, -4.0), // Base is at Y=9.0 in decimeter scale -> 9.0*0.1=0.90m
+      pos: new THREE.Vector3(0.0, BENCH_Y, -4.15),
       rotY: Math.PI, // Rotated 180° so touchscreen & draft shield doors face South aisle (+Z)
       scale: 0.10,
-      camConsole: { pos: new THREE.Vector3(0.0, 1.25, -3.2), look: new THREE.Vector3(0.0, 1.05, -4.0) },
-      builder: () => createBalanceModel()
+      camConsole: { pos: new THREE.Vector3(0.0, 1.25, -3.35), look: new THREE.Vector3(0.0, 1.05, -4.15) },
+      builder: () => createBalanceModel({ includeLab: false })
     });
 
     // ==========================================
@@ -188,10 +165,10 @@ export class LabDockManager {
       name: "Microcentrifuge",
       tag: "MICRO 5424-R Refrigerated",
       zone: "Zone 3: Sample Prep & Lyophilization Suite",
-      pos: new THREE.Vector3(-2.2, BENCH_Y, 4.4),
+      pos: new THREE.Vector3(-2.2, BENCH_Y, 4.65),
       rotY: 0, // Native front is -Z, facing South aisle (-Z)
       scale: 0.10,
-      camConsole: { pos: new THREE.Vector3(-2.2, 1.30, 3.5), look: new THREE.Vector3(-2.2, 1.05, 4.4) },
+      camConsole: { pos: new THREE.Vector3(-2.2, 1.30, 3.85), look: new THREE.Vector3(-2.2, 1.05, 4.65) },
       builder: () => createCentrifugeModel(null, { includeLab: false })
     });
 
@@ -201,19 +178,13 @@ export class LabDockManager {
       name: "Freeze Dryer (Lyophilizer)",
       tag: "Labconco FreeZone 4.5L Cascade",
       zone: "Zone 3: Sample Prep & Lyophilization Suite",
-      pos: new THREE.Vector3(-0.5, BENCH_Y, 4.4),
+      pos: new THREE.Vector3(-0.5, BENCH_Y, 4.65),
       rotY: Math.PI, // Native front is +Z, rotated 180° to face South aisle (-Z)
       scale: 0.08,
-      camConsole: { pos: new THREE.Vector3(-0.5, 1.35, 3.5), look: new THREE.Vector3(-0.5, 1.15, 4.4) },
+      camConsole: { pos: new THREE.Vector3(-0.5, 1.35, 3.85), look: new THREE.Vector3(-0.5, 1.15, 4.65) },
       builder: () => {
-        const container = createMockContainer();
-        const fd = new FreezeDryer3D(container, { includeLab: false, headless: true, skipLoop: true });
-        fd.isDestroyed = true;
-        fd.animate = () => {};
-        const g = fd.root || fd.scene;
-        fd.renderer?.dispose();
-        fd.renderer?.forceContextLoss?.();
-        return g;
+        const fd = new FreezeDryer3D(null, { includeLab: false, headless: true, skipRenderer: true, skipLoop: true });
+        return fd.root || fd.scene;
       }
     });
 
@@ -223,10 +194,10 @@ export class LabDockManager {
       name: "Ultrasonic Cleaner",
       tag: "Piezo Acoustic Cavitation Bath",
       zone: "Zone 3: Sample Prep & Lyophilization Suite",
-      pos: new THREE.Vector3(1.0, BENCH_Y, 4.4),
+      pos: new THREE.Vector3(1.0, BENCH_Y, 4.65),
       rotY: 0, // Native front is -Z, facing South aisle (-Z)
       scale: 0.10,
-      camConsole: { pos: new THREE.Vector3(1.0, 1.25, 3.5), look: new THREE.Vector3(1.0, 1.05, 4.4) },
+      camConsole: { pos: new THREE.Vector3(1.0, 1.25, 3.85), look: new THREE.Vector3(1.0, 1.05, 4.65) },
       builder: () => createUltrasonicCleanerModel(null, { includeLab: false })
     });
 
@@ -236,17 +207,13 @@ export class LabDockManager {
       name: "Vortex Mixer",
       tag: "Digital Precision Test Tube Mixer",
       zone: "Zone 3: Sample Prep & Lyophilization Suite",
-      pos: new THREE.Vector3(2.0, BENCH_Y, 4.4),
+      pos: new THREE.Vector3(2.0, BENCH_Y, 4.65),
       rotY: Math.PI,
       scale: 0.001, // Modeled in millimeters -> 0.001 converts mm to meters!
-      camConsole: { pos: new THREE.Vector3(2.0, 1.25, 3.5), look: new THREE.Vector3(2.0, 1.05, 4.4) },
+      camConsole: { pos: new THREE.Vector3(2.0, 1.25, 3.85), look: new THREE.Vector3(2.0, 1.05, 4.65) },
       builder: () => {
-        const container = createMockContainer();
-        const vm = new VortexMixer3D(container);
-        const g = vm.root;
-        vm.renderer?.dispose();
-        vm.renderer?.forceContextLoss?.();
-        return g;
+        const vm = new VortexMixer3D(null);
+        return vm.root;
       }
     });
 
@@ -307,7 +274,7 @@ export class LabDockManager {
     });
 
     // ==========================================
-    // WORKSTATION 5: THERMAL & GRAVIMETRIC (X: -13.0, Z: -8.3)
+    // WORKSTATION 5: THERMAL & GRAVIMETRIC (X: -11.8, Z: -8.25)
     // ==========================================
 
     // 15. High-Temperature Muffle Furnace
@@ -316,10 +283,10 @@ export class LabDockManager {
       name: "Muffle Furnace",
       tag: "9L 1200°C High-Temp Ceramic Fibre",
       zone: "Zone 1: Main Analytical & Pharmaceutical QC Hall",
-      pos: new THREE.Vector3(-13.0, BENCH_Y, -8.2),
+      pos: new THREE.Vector3(-11.8, BENCH_Y, -8.25),
       rotY: Math.PI, // Rotated 180° so vertical lift door & Eurotherm PID face North aisle (+Z)
       scale: 0.08,
-      camConsole: { pos: new THREE.Vector3(-13.0, 1.35, -7.2), look: new THREE.Vector3(-13.0, 1.15, -8.2) },
+      camConsole: { pos: new THREE.Vector3(-11.8, 1.35, -7.25), look: new THREE.Vector3(-11.8, 1.15, -8.25) },
       builder: () => createMuffleFurnaceModel({ includeLab: false })
     });
 
@@ -341,7 +308,7 @@ export class LabDockManager {
     });
 
     // ==========================================
-    // WORKSTATION 7: WET CHEMISTRY & TITRATION (X: -7.0, Z: -8.2)
+    // WORKSTATION 7: WET CHEMISTRY & TITRATION (X: -8.2, Z: -8.25)
     // ==========================================
 
     // 17. Benchtop Dual pH/mV Meter with ATC
@@ -350,10 +317,10 @@ export class LabDockManager {
       name: "pH / mV Meter",
       tag: "Precision Benchtop Meter with ATC",
       zone: "Zone 1: Main Analytical & Pharmaceutical QC Hall",
-      pos: new THREE.Vector3(-7.0, BENCH_Y, -8.2),
+      pos: new THREE.Vector3(-8.2, BENCH_Y, -8.25),
       rotY: Math.PI, // Rotated 180° so sloped touchscreen & electrode arm face North aisle (+Z)
       scale: 0.10,
-      camConsole: { pos: new THREE.Vector3(-7.0, 1.25, -7.2), look: new THREE.Vector3(-7.0, 1.05, -8.2) },
+      camConsole: { pos: new THREE.Vector3(-8.2, 1.25, -7.25), look: new THREE.Vector3(-8.2, 1.05, -8.25) },
       builder: () => createPHMeterModel({ includeLab: false })
     });
 

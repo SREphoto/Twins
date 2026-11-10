@@ -571,3 +571,82 @@ body, html {
   font-weight: 600;
   border-color: var(--green);
 }
+
+/* --- Mobile Responsive Optimizations (< 768px) --- */
+@media (max-width: 768px) {
+  .topbar {
+    height: 48px;
+    padding: 0 10px;
+    gap: 8px;
+  }
+
+  .brand-sub {
+    display: none;
+  }
+
+  .brand-title {
+    font-size: 13px;
+  }
+
+  .brand-mark {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+
+  .hud-zone-pill {
+    display: none;
+  }
+
+  .quick-travel-select {
+    font-size: 11px;
+    padding: 4px 8px;
+    max-width: 140px;
+  }
+
+  .btn-icon span:last-child {
+    display: none;
+  }
+
+  .btn-icon {
+    padding: 6px;
+  }
+
+  .smart-sidebar {
+    width: calc(100vw - 20px);
+    max-width: 340px;
+    top: 8px;
+    right: 10px;
+    bottom: 80px;
+  }
+
+  .smart-sidebar.is-collapsed {
+    transform: translateX(calc(100% + 20px));
+  }
+
+  .sidebar-toggle-tab {
+    left: -40px;
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+
+  .hud-nav-dock {
+    bottom: max(12px, env(safe-area-inset-bottom, 12px));
+    max-width: calc(100vw - 16px);
+    padding: 4px 8px;
+    gap: 6px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .nav-pill {
+    padding: 5px 10px;
+    font-size: 11px;
+    gap: 4px;
+  }
+
+  .interaction-prompt-pill {
+    bottom: 74px;
+    font-size: 11px;
+    padding: 6px 14px;
+  }
+}

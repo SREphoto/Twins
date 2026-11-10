@@ -127,6 +127,58 @@ export class LabUtilities {
         name: "Mat_Torque_Wrench_Chrome"
       }),
 
+      cabinetBody: new THREE.MeshStandardMaterial({
+        color: 0x242a34,
+        roughness: 0.55,
+        metalness: 0.2,
+        name: "Mat_SEFA_Slate_Steel"
+      }),
+      cabinetHandle: new THREE.MeshStandardMaterial({
+        color: 0xb8c0ca,
+        roughness: 0.25,
+        metalness: 0.85,
+        name: "Mat_Brushed_Stainless"
+      }),
+      screenBezelMetal: new THREE.MeshStandardMaterial({
+        color: 0x14171d,
+        roughness: 0.28,
+        metalness: 0.82,
+        name: "Mat_Screen_Microbezel"
+      }),
+      leatherBlack: new THREE.MeshStandardMaterial({
+        color: 0x16171a,
+        roughness: 0.65,
+        metalness: 0.1,
+        name: "Mat_Executive_Leather"
+      }),
+      telDigitalGreen: new THREE.MeshStandardMaterial({
+        color: 0x10b981,
+        emissive: 0x10b981,
+        emissiveIntensity: 0.95,
+        roughness: 0.1,
+        name: "Mat_TEL_Digital_Green"
+      }),
+      sashGlass: new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.35,
+        roughness: 0.08,
+        ior: 1.5,
+        name: "Mat_Sash_Acrylic"
+      }),
+      fumeHoodSteel: new THREE.MeshStandardMaterial({
+        color: 0x2a3038,
+        roughness: 0.4,
+        metalness: 0.4,
+        name: "Mat_Fume_Hood_Shell"
+      }),
+      vacuumHoseRed: new THREE.MeshStandardMaterial({
+        color: 0x852e25,
+        roughness: 0.75,
+        metalness: 0.05,
+        name: "Mat_Vacuum_Rubber_Red"
+      }),
+
       chrome: new THREE.MeshStandardMaterial({
         color: 0xe8ecf2,
         roughness: 0.15,
@@ -381,11 +433,11 @@ export class LabUtilities {
 
   // --- Sinks & Running Water ---
   _buildSinksAndFaucets() {
-    // Sink 1: Primary Double Wash Sink in Synthesis Bay (X = -7.0, Z = 5.0)
-    this._createSinkStation(-7.0, 5.0, "Sink_Synthesis");
+    // Sink 1: Primary Double Wash Sink in Synthesis Bay (X = -12.2, Z = 5.0)
+    this._createSinkStation(-12.2, 5.0, "Sink_Synthesis");
 
-    // Sink 2: Secondary Sink in Analytical Hall (X = -13.0, Z = -8.3)
-    this._createSinkStation(-13.0, -8.3, "Sink_Analytical");
+    // Sink 2: Secondary Sink in Analytical Hall (X = -10.0, Z = -8.25)
+    this._createSinkStation(-10.0, -8.25, "Sink_Analytical");
   }
 
   _createSinkStation(cx, cz, id) {
@@ -736,7 +788,7 @@ export class LabUtilities {
 
   // --- Interactive Reagents, Glassware & Chemical Inventory ---
   _buildReagentsAndGlassware() {
-    // 1. Reagent Shelf Bottles on Analytical Island (X: -10.0, Z: -4.5, Y = 1.38m)
+    // 1. Reagent Shelf Bottles on Analytical Island (X: -10.0, Z: -4.5, resting on lower shelf Y = 1.261m)
     const shelfBottles = [
       { name: "0.1M HCl", color: 0xb45309, x: -10.8 },
       { name: "0.1M NaOH", color: 0xb45309, x: -10.3 },
@@ -746,86 +798,86 @@ export class LabUtilities {
 
     shelfBottles.forEach((b) => {
       const bottle = this._createReagentBottle(b.name, b.color);
-      bottle.position.set(b.x, 1.38, -4.5);
+      bottle.position.set(b.x, 1.261, -4.5);
       this.root.add(bottle);
       this.interactiveObjects.push(bottle);
     });
 
-    // 2. Beaker with Colorimetric Acid-Base Neutralization Demo (Analytical Bench Y = 0.90m)
-    this._createTitrationBeaker(-10.2, -4.0);
+    // 2. Beaker with Colorimetric Acid-Base Neutralization Demo (Titration Bench beside Sink)
+    this._createTitrationBeaker(-9.4, -8.25);
 
     // 3. Volumetric Flasks (Analytical Preparation on Island 1 & 2)
-    this._createVolumetricFlask(-11.2, -4.0, "250 mL", this.materials.fluidGreen);
-    this._createVolumetricFlask(-7.5, -4.0, "100 mL", this.materials.fluidAmber);
+    this._createVolumetricFlask(-12.35, -4.15, "250 mL", this.materials.fluidGreen);
+    this._createVolumetricFlask(-7.6, -4.15, "100 mL", this.materials.fluidAmber);
 
     // 4. Graduated Cylinders with Anti-Roll Hexagonal Bases
-    this._createGraduatedCylinder(-1.2, -4.0, "100 mL", this.materials.fluidBlue);
-    this._createGraduatedCylinder(-6.4, -4.0, "250 mL", this.materials.reagentFluidClear);
+    this._createGraduatedCylinder(-1.2, -4.15, "100 mL", this.materials.fluidBlue);
+    this._createGraduatedCylinder(-6.85, -4.15, "250 mL", this.materials.reagentFluidClear);
 
     // 5. Conical Erlenmeyer Reaction Flasks
     this._createErlenmeyerFlask(-11.0, 5.0, "500 mL", this.materials.fluidBlue);
     this._createErlenmeyerFlask(-8.0, 5.0, "250 mL", this.materials.fluidAmber);
-    this._createErlenmeyerFlask(-1.5, 4.4, "125 mL", this.materials.fluidGreen);
+    this._createErlenmeyerFlask(-1.5, 4.65, "125 mL", this.materials.fluidGreen);
 
     // 6. Polypropylene Test Tube Racks with Colorful Analytical Fractions
-    this._createTestTubeRack(-3.2, 4.4, this.materials.ppBlueRack);
-    this._createTestTubeRack(-6.0, -4.0, this.materials.ppOrangeRack);
+    this._createTestTubeRack(-3.2, 4.65, this.materials.ppBlueRack);
+    this._createTestTubeRack(-7.0, -4.35, this.materials.ppOrangeRack);
 
     // 7. Precision 4-Place Micropipettor Carousel Stand in Sample Prep Suite
-    this._createPipettorCarousel(0.2, 4.4);
+    this._createPipettorCarousel(0.2, 4.65);
 
     // 8. Color-Coded LDPE Squeeze Wash Bottles (DI Water, Acetone, Methanol, Isopropanol)
-    this._createWashBottle(-12.5, -4.0, "DI WATER", this.materials.screwCapBlue);
-    this._createWashBottle(-12.3, -4.0, "ACETONE", this.materials.screwCapRed);
-    this._createWashBottle(-6.8, 5.0, "METHANOL", this.materials.screwCapGreen);
-    this._createWashBottle(-12.0, 5.0, "ISOPROPANOL", this.materials.screwCapYellow);
+    this._createWashBottle(-12.0, -4.15, "DI WATER", this.materials.screwCapBlue);
+    this._createWashBottle(-11.8, -4.15, "ACETONE", this.materials.screwCapRed);
+    this._createWashBottle(-7.4, 4.65, "METHANOL", this.materials.screwCapGreen);
+    this._createWashBottle(-11.5, 5.0, "ISOPROPANOL", this.materials.screwCapYellow);
 
     // 9. Wide-Mouth Chemical Storage Jars on Reagent Shelves & Prep Benches
-    this._createChemicalJar(-9.0, 1.38, -4.5, "Sodium Chloride USP", "NaCl");
-    this._createChemicalJar(-8.6, 1.38, -4.5, "Potassium Bromide IR", "KBr");
-    this._createChemicalJar(-2.5, 4.4, "EDTA Disodium 99%", "C10H14N2Na2O8");
+    this._createChemicalJar(-9.0, 1.261, -4.5, "Sodium Chloride USP", "NaCl");
+    this._createChemicalJar(-8.6, 1.261, -4.5, "Potassium Bromide IR", "KBr");
+    this._createChemicalJar(-2.5, 4.65, "EDTA Disodium 99%", "C10H14N2Na2O8");
 
     // 10. Heavy Amber Winchester Solvent Bottles in Synthesis Bay & Chemical Vault
-    this._createWinchesterSolventBottle(-13.0, 5.0, "ACETONITRILE", "HPLC GRADE");
-    this._createWinchesterSolventBottle(-12.7, 5.0, "METHANOL", "OPTIMA LC/MS");
-    this._createWinchesterSolventBottle(-12.4, 5.0, "HEXANES", "ACS REAGENT");
+    this._createWinchesterSolventBottle(-11.2, 5.3, "ACETONITRILE", "HPLC GRADE");
+    this._createWinchesterSolventBottle(-10.9, 5.3, "METHANOL", "OPTIMA LC/MS");
+    this._createWinchesterSolventBottle(-10.6, 5.3, "HEXANES", "ACS REAGENT");
 
-    // 11. Zone 5 Chemical Storage Steel Racking (X = 1.5, Z = 8.3)
+    // 11. Zone 5 Chemical Storage Steel Racking (North Wall X = 4.5, Z = 8.4, Shelves Y = 0.42, 0.97, 1.52)
     const vaultChemicals = [
-      { name: "Sodium Hydroxide ACS", f: "NaOH", shelf: 0, x: 0.8 },
-      { name: "Magnesium Sulfate Anh.", f: "MgSO4", shelf: 0, x: 1.3 },
-      { name: "Potassium Permanganate", f: "KMnO4", shelf: 0, x: 1.8 },
-      { name: "Citric Acid Anhydrous", f: "C6H8O7", shelf: 1, x: 0.8 },
-      { name: "Silver Nitrate 99.9%", f: "AgNO3", shelf: 1, x: 1.3 },
-      { name: "Potassium Iodide USP", f: "KI", shelf: 1, x: 1.8 }
+      { name: "Sodium Hydroxide ACS", f: "NaOH", shelf: 0, x: 3.2 },
+      { name: "Magnesium Sulfate Anh.", f: "MgSO4", shelf: 0, x: 3.8 },
+      { name: "Potassium Permanganate", f: "KMnO4", shelf: 0, x: 4.4 },
+      { name: "Citric Acid Anhydrous", f: "C6H8O7", shelf: 1, x: 3.2 },
+      { name: "Silver Nitrate 99.9%", f: "AgNO3", shelf: 1, x: 3.8 },
+      { name: "Potassium Iodide USP", f: "KI", shelf: 1, x: 4.4 }
     ];
     vaultChemicals.forEach(c => {
       const y = 0.42 + c.shelf * 0.55;
-      this._createChemicalJar(c.x, y, 8.3, c.name, c.f);
+      this._createChemicalJar(c.x, y, 8.4, c.name, c.f);
     });
 
-    // Winchester Solvents on Vault Shelf 2
-    this._createWinchesterSolventBottle(0.9, 0.42 + 2 * 0.55, 8.3, "DICHLOROMETHANE", "HPLC GRADE");
-    this._createWinchesterSolventBottle(1.5, 0.42 + 2 * 0.55, 8.3, "TETRAHYDROFURAN", "ANHYDROUS");
-    this._createWinchesterSolventBottle(2.1, 0.42 + 2 * 0.55, 8.3, "ETHYL ACETATE", "ACS REAGENT");
+    // Winchester Solvents on Vault Shelf 2 (Y = 1.52m, Z = 8.4)
+    this._createWinchesterSolventBottle(3.5, 0.42 + 2 * 0.55, 8.4, "DICHLOROMETHANE", "HPLC GRADE");
+    this._createWinchesterSolventBottle(4.4, 0.42 + 2 * 0.55, 8.4, "TETRAHYDROFURAN", "ANHYDROUS");
+    this._createWinchesterSolventBottle(5.3, 0.42 + 2 * 0.55, 8.4, "ETHYL ACETATE", "ACS REAGENT");
 
     // 12. Griffin Glass Beakers Suite (50 mL to 1000 mL with Dual Menisci & Graduations)
-    this._createGriffinBeaker(-9.8, -4.0, "1000 mL", this.materials.fluidBlue, 0.65);
-    this._createGriffinBeaker(-9.4, -4.0, "600 mL", this.materials.fluidAmber, 0.5);
-    this._createGriffinBeaker(-9.0, -4.0, "250 mL", this.materials.fluidViolet, 0.7);
-    this._createGriffinBeaker(-8.6, -4.0, "100 mL", this.materials.fluidGreen, 0.4);
-    this._createGriffinBeaker(-8.3, -4.0, "50 mL", this.materials.reagentFluidClear, 0.5);
+    this._createGriffinBeaker(-9.8, -4.15, "1000 mL", this.materials.fluidBlue, 0.65);
+    this._createGriffinBeaker(-9.5, -4.15, "600 mL", this.materials.fluidAmber, 0.5);
+    this._createGriffinBeaker(-9.2, -4.15, "250 mL", this.materials.fluidViolet, 0.7);
+    this._createGriffinBeaker(-8.9, -4.15, "100 mL", this.materials.fluidGreen, 0.4);
+    this._createGriffinBeaker(-8.6, -4.15, "50 mL", this.materials.reagentFluidClear, 0.5);
 
-    // 13. Heavy Borosilicate Vacuum Desiccator with Cobalt Silica Gel Beads (Pharma QC X: -3.8, Z: -4.0)
-    this._createVacuumDesiccator(-3.8, -4.0);
+    // 13. Heavy Borosilicate Vacuum Desiccator with Cobalt Silica Gel Beads (Pharma QC X: -3.8, Z: -4.15)
+    this._createVacuumDesiccator(-3.8, -4.15);
 
-    // 14. Culture Media Petri Dishes with Bacterial Isolation Streaks (Sample Prep X: -1.0, Z: 5.0)
-    this._createPetriDishStack(-1.0, 5.0);
-    this._createSinglePetriDish(-0.7, 5.0, "Nutrient Agar · E. coli Streak", this.materials.agarGelNutrient, true);
-    this._createSinglePetriDish(-0.4, 5.0, "Blood Agar · S. aureus Hemolysis", this.materials.agarGelBlood, true);
+    // 14. Culture Media Petri Dishes with Bacterial Isolation Streaks (Sample Prep X: -1.0, Z = 4.65)
+    this._createPetriDishStack(-1.0, 4.65);
+    this._createSinglePetriDish(-0.7, 4.65, "Nutrient Agar · E. coli Streak", this.materials.agarGelNutrient, true);
+    this._createSinglePetriDish(-0.4, 4.65, "Blood Agar · S. aureus Hemolysis", this.materials.agarGelBlood, true);
 
-    // 15. Classical Glass Pipettes with Suction Bulbs & Pipette Fillers (Sample Prep X: -0.1, Z: 5.0)
-    this._createPipetteStand(-0.1, 5.0);
+    // 15. Classical Glass Pipettes with Suction Bulbs & Pipette Fillers (Sample Prep X: -0.1, Z = 4.65)
+    this._createPipetteStand(-0.1, 4.65);
 
     // 16. Büchner Vacuum Filter Flask with Ceramic Perforated Funnel (Synthesis Bench X: -10.2, Z: 5.0)
     this._createBuchnerFilterFlask(-10.2, 5.0);
@@ -1257,14 +1309,14 @@ export class LabUtilities {
     ]);
     const vacHose = new THREE.Mesh(
       new THREE.TubeGeometry(vacHoseCurve, 16, 0.008, 8, false),
-      this.materials.cabinetBody
+      this.materials.vacuumHoseRed
     );
     assembly.add(vacHose);
 
     // Neoprene black adapter gasket collar
     const collar = new THREE.Mesh(
       new THREE.CylinderGeometry(rTop * 1.05, rTop * 0.95, 0.018, 18),
-      this.materials.cabinetBody
+      this.materials.powerCordRubber
     );
     collar.position.y = hCone + hNeck + 0.008;
     assembly.add(collar);
@@ -1994,7 +2046,8 @@ export class LabUtilities {
       [-4.0, -4.5], [-2.0, -4.5], [0.0, -4.5],    // Pharma QC Island
       [-2.0, 5.0], [-0.5, 5.0], [1.0, 5.0], [2.0, 5.0], // Sample Prep Island
       [-12.0, 5.0], [-8.0, 5.0], // Synthesis Island
-      [-13.0, -8.2], [-7.0, -8.2] // Perimeter Wet & Furnace Benches
+      [-11.8, -8.65], [-8.2, -8.65], // Perimeter Wet & Furnace Benches (Flush on Backsplash)
+      [5.5, -3.4] // Electron Microscopy Specimen Prep Bench
     ];
 
     outletPositions.forEach(([ox, oz], i) => {
@@ -2078,117 +2131,117 @@ export class LabUtilities {
   _buildInstrumentWorkstationSurroundings() {
     const BENCH_Y = 0.90;
 
-    // 1. Shimadzu UV-2600i Spectrophotometer Station (X = -12.2, Z = -4.0)
-    // Analytical PC Workstation running UV-Vis LabSolutions
-    this._createAnalyticalPCWorkstation(-13.2, -4.0, 0, "twin-dashboard");
+    // 1. Centralized Analytical PC Workstation (Analytical Island X = -10.0, Z = -4.15)
+    // Mounted directly over the technician kneespace bay with the ergonomic swivel stool!
+    this._createAnalyticalPCWorkstation(-10.0, -4.15, 0, "twin-dashboard");
+
+    // 2. Shimadzu UV-2600i Spectrophotometer Station (Analytical Island X = -11.6, Z = -4.15)
     // Kimwipes Delicate Task Wiper Box
-    this._createKimwipesBox(-11.5, -3.9, 0.15);
+    this._createKimwipesBox(-12.15, -4.0, 0.15);
     // Velvet-Lined Quartz Cuvette Case
-    this._createCuvetteBox(-11.5, -4.18);
+    this._createCuvetteBox(-12.15, -4.28);
     // Calibration Standard Solution Flask
-    this._createVolumetricFlask(-11.2, -4.0, "100 mL", this.materials.fluidBlue);
-    // Power Cord & RS-232 Cable
-    this._createEquipmentPowerCord("spectrophotometer", -12.2, BENCH_Y + 0.12, -4.25, -12.0, 1.05, -4.5);
-    this._createCommunicationCable(-12.2, BENCH_Y + 0.10, -4.25, -13.2, BENCH_Y + 0.20, -4.3, "serial");
+    this._createVolumetricFlask(-12.35, -4.15, "100 mL", this.materials.fluidBlue);
+    // Power Cord & RS-232 Cable to central PC
+    this._createEquipmentPowerCord("spectrophotometer", -11.6, BENCH_Y + 0.12, -4.35, -12.0, 1.05, -4.5);
+    this._createCommunicationCable(-11.6, BENCH_Y + 0.10, -4.35, -10.35, BENCH_Y + 0.20, -4.2, "serial");
 
-    // 2. Thermo Nicolet iS50 FTIR Spectrometer Station (X = -10.2, Z = -4.0)
-    // Analytical PC Workstation running OMNIC Spectra
-    this._createAnalyticalPCWorkstation(-11.1, -4.0, 0, "chromatogram-uv");
+    // 3. Thermo Nicolet iS50 FTIR Spectrometer Station (Analytical Island X = -8.6, Z = -4.15)
     // Polished Agate Mortar & Pestle for Solid Grinding
-    this._createAgateMortarPestle(-9.6, -3.9);
+    this._createAgateMortarPestle(-9.2, -4.0);
     // KBr Pellet Die Press Kit
-    this._createKBrPelletPress(-9.6, -4.2);
+    this._createKBrPelletPress(-9.2, -4.28);
     // Wash Bottle for ATR Diamond Cleaning (Ethanol)
-    this._createWashBottle(-9.3, -4.0, "ETHANOL 99%", this.materials.screwCapGreen);
+    this._createWashBottle(-9.4, -4.15, "ETHANOL 99%", this.materials.screwCapGreen);
     // Kimwipes box
-    this._createKimwipesBox(-9.3, -4.22, 0);
-    // Power Cord & USB Cable
-    this._createEquipmentPowerCord("ftir", -10.2, BENCH_Y + 0.14, -4.25, -10.0, 1.05, -4.5);
-    this._createCommunicationCable(-10.2, BENCH_Y + 0.10, -4.25, -11.1, BENCH_Y + 0.20, -4.3, "cat6");
+    this._createKimwipesBox(-9.4, -4.35, 0);
+    // Power Cord & CAT6 Cable to central PC
+    this._createEquipmentPowerCord("ftir", -8.6, BENCH_Y + 0.14, -4.35, -8.0, 1.05, -4.5);
+    this._createCommunicationCable(-8.6, BENCH_Y + 0.10, -4.35, -9.65, BENCH_Y + 0.20, -4.2, "cat6");
 
-    // 3. Metrohm 901 Karl Fischer Titrator Station (X = -8.2, Z = -4.0)
+    // 4. Metrohm 901 Karl Fischer Titrator Station (Analytical Island X = -7.2, Z = -4.15)
     // Hamilton 100 uL Gastight Microsyringe
-    this._createMicrosyringe(-8.7, -3.9);
+    this._createMicrosyringe(-7.6, -4.0);
     // Hydranal Composite 5 Reagent Bottle with Delivery Tubing
-    this._createKarlFischerReagentBottle(-8.7, -4.2);
+    this._createKarlFischerReagentBottle(-7.6, -4.28);
     // Waste Solvent Bottle with PTFE Discharge Line
-    this._createWinchesterSolventBottle(-7.7, 0.90, -4.2, "KF TITRATION WASTE", "HAZARDOUS");
+    this._createWinchesterSolventBottle(-7.85, 0.90, -4.28, "KF TITRATION WASTE", "HAZARDOUS");
     // Indicating Silica Gel Drying Tube Towers
-    this._createDryingTubesTower(-7.7, -3.9);
+    this._createDryingTubesTower(-7.85, -4.0);
     // Power Cord
-    this._createEquipmentPowerCord("karl_fischer", -8.2, BENCH_Y + 0.12, -4.25, -8.0, 1.05, -4.5);
+    this._createEquipmentPowerCord("karl_fischer", -7.2, BENCH_Y + 0.12, -4.35, -8.0, 1.05, -4.5);
 
-    // 4. Agilent 708-DS USP Dissolution Tester Station (X = -4.0, Z = -4.0)
+    // 5. Agilent 708-DS USP Dissolution Tester Station (Pharma QC Island X = -4.0, Z = -4.15)
     // USP Reference Tablets Blister Pack
-    this._createTabletBlisterPack(-4.7, -3.9);
+    this._createTabletBlisterPack(-4.7, -4.0);
     // Cannulas with Syringe Filters Rack
-    this._createCannulaFilterRack(-4.7, -4.2);
+    this._createCannulaFilterRack(-4.7, -4.3);
     // 1000 mL Dissolution Media Buffer Flask
     this._createVolumetricFlask(-3.3, -4.0, "1000 mL", this.materials.reagentFluidClear);
     // Digital PT100 Immersion Thermometer
-    this._createDigitalThermometer(-3.3, -4.2);
+    this._createDigitalThermometer(-3.3, -4.3);
     // Heavy Power Cord
-    this._createEquipmentPowerCord("dissolution_tester", -4.0, BENCH_Y + 0.22, -4.35, -4.0, 1.05, -4.5);
+    this._createEquipmentPowerCord("dissolution_tester", -4.0, BENCH_Y + 0.22, -4.45, -4.0, 1.05, -4.5);
 
-    // 5. ERWEKA ZT 322 Tablet Disintegration Tester Station (X = -2.0, Z = -4.0)
+    // 6. ERWEKA ZT 322 Tablet Disintegration Tester Station (Pharma QC Island X = -2.0, Z = -4.15)
     // Disintegration Baskets with Wire Mesh Screens
-    this._createDisintegrationBaskets(-2.6, -3.9);
+    this._createDisintegrationBaskets(-2.6, -4.0);
     // Acrylic Disintegration Fluted Guide Disks
-    this._createDisintegrationDisks(-2.6, -4.18);
+    this._createDisintegrationDisks(-2.6, -4.3);
     // Digital Stopwatch / Chronometer
-    this._createDigitalStopwatch(-1.4, -3.9);
+    this._createDigitalStopwatch(-1.4, -4.0);
     // Tall Beakers in Bath
-    this._createGriffinBeaker(-1.4, -4.18, "1000 mL", this.materials.reagentFluidClear, 0.7);
+    this._createGriffinBeaker(-1.4, -4.3, "1000 mL", this.materials.reagentFluidClear, 0.7);
     // Power Cord
-    this._createEquipmentPowerCord("disintegration_tester", -2.0, BENCH_Y + 0.15, -4.3, -2.0, 1.05, -4.5);
+    this._createEquipmentPowerCord("disintegration_tester", -2.0, BENCH_Y + 0.15, -4.45, -2.0, 1.05, -4.5);
 
-    // 6. Mettler Analytical Microbalance Station (X = 0.0, Z = -4.0)
+    // 7. Mettler Analytical Microbalance Station (Pharma QC Island X = 0.0, Z = -4.15)
     // Class E2 Stainless Steel Weights Wooden Box with Ivory Forceps
-    this._createCalibrationWeightsBox(-0.6, -3.9);
+    this._createCalibrationWeightsBox(-0.6, -4.0);
     // Aluminum Fluted Weighing Boats Stack & Spatulas
-    this._createWeighingBoatsStack(-0.6, -4.2);
+    this._createWeighingBoatsStack(-0.6, -4.3);
     // Anti-Static Camel Hair Dusting Brush
-    this._createAntiStaticBrush(0.55, -3.9);
+    this._createAntiStaticBrush(0.55, -4.0);
     // Ground Glass Weighing Bottle
-    this._createWeighingBottle(0.55, -4.18);
+    this._createWeighingBottle(0.55, -4.3);
     // Power Cord
-    this._createEquipmentPowerCord("balance", 0.0, BENCH_Y + 0.10, -4.25, 0.0, 1.05, -4.5);
+    this._createEquipmentPowerCord("balance", 0.0, BENCH_Y + 0.10, -4.45, 0.0, 1.05, -4.5);
 
-    // 7. MICRO 5424-R Microcentrifuge Station (X = -2.2, Z = 4.4)
+    // 8. MICRO 5424-R Microcentrifuge Station (Sample Prep Island X = -2.2, Z = 4.65)
     // 24-Place Tube Rack loaded with 1.5mL and 2.0mL Eppendorf tubes
-    this._createEppendorfRack(-2.8, 4.4, this.materials.ppBlueRack);
+    this._createEppendorfRack(-2.8, 4.65, this.materials.ppBlueRack);
     // Fine-Point Indelible Lab Marker
-    this._createLabMarker(-1.6, 4.3);
+    this._createLabMarker(-1.6, 4.55);
     // Colored Balance Counterweight Tubes
-    this._createTestTubeRack(-1.6, 4.55, this.materials.ppOrangeRack);
+    this._createTestTubeRack(-1.6, 4.8, this.materials.ppOrangeRack);
     // Heavy Power Cord
-    this._createEquipmentPowerCord("centrifuge", -2.2, BENCH_Y + 0.15, 4.75, -2.0, 1.05, 5.0);
+    this._createEquipmentPowerCord("centrifuge", -2.2, BENCH_Y + 0.15, 4.9, -2.0, 1.05, 5.0);
 
-    // 8. Labconco FreeZone 4.5L Freeze Dryer (Lyophilizer) Station (X = -0.5, Z = 4.4)
+    // 9. Labconco FreeZone 4.5L Freeze Dryer (Lyophilizer) Station (Sample Prep Island X = -0.5, Z = 4.65)
     // Borosilicate Freeze-Drying Flasks with Silicone Rubber Adapters
-    this._createFreezeDryerFlask(-1.1, 4.4);
+    this._createFreezeDryerFlask(-1.1, 4.65);
     // 20 mL Serum Vials with Gray Chlorobutyl Split Stoppers
-    this._createSerumVialsTray(0.1, 4.4);
+    this._createSerumVialsTray(0.1, 4.65);
     // Handheld Vial Crimper Tool
-    this._createVialCrimper(0.1, 4.65);
+    this._createVialCrimper(0.1, 4.85);
     // Heavy Power Cord
-    this._createEquipmentPowerCord("freeze_dryer", -0.5, BENCH_Y + 0.22, 4.75, -0.5, 1.05, 5.0);
+    this._createEquipmentPowerCord("freeze_dryer", -0.5, BENCH_Y + 0.22, 4.9, -0.5, 1.05, 5.0);
 
-    // 9. Ultrasonic Cleaner Bath Station (X = 1.0, Z = 4.4)
+    // 10. Ultrasonic Cleaner Bath Station (Sample Prep Island X = 1.0, Z = 4.65)
     // Perforated Stainless Parts Basket
-    this._createUltrasonicBasket(1.6, 4.35);
+    this._createUltrasonicBasket(1.6, 4.6);
     // Squeeze Wash Bottle of Degassing Detergent
-    this._createWashBottle(1.6, 4.65, "SONIC CLEAN", this.materials.screwCapYellow);
+    this._createWashBottle(1.6, 4.85, "SONIC CLEAN", this.materials.screwCapYellow);
     // Power Cord
-    this._createEquipmentPowerCord("ultrasonic_cleaner", 1.0, BENCH_Y + 0.12, 4.75, 1.0, 1.05, 5.0);
+    this._createEquipmentPowerCord("ultrasonic_cleaner", 1.0, BENCH_Y + 0.12, 4.9, 1.0, 1.05, 5.0);
 
-    // 10. Digital Vortex Mixer Station (X = 2.0, Z = 4.4)
-    // 12-Tube Foam Insert Rack with Colored Solution Tubes
-    this._createVortexFoamRack(2.5, 4.4);
+    // 11. Digital Vortex Mixer Station (Sample Prep Island X = 2.0, Z = 4.65)
+    // 12-Tube Foam Insert Rack with Colored Solution Tubes (securely on bench surface)
+    this._createVortexFoamRack(2.2, 4.65);
     // Power Cord
-    this._createEquipmentPowerCord("vortex_mixer", 2.0, BENCH_Y + 0.08, 4.7, 2.0, 1.05, 5.0);
+    this._createEquipmentPowerCord("vortex_mixer", 2.0, BENCH_Y + 0.08, 4.9, 2.0, 1.05, 5.0);
 
-    // 11. Buchi Rotovap R-300 & V-300 Vacuum Pump Station in Fume Hood 1 (X = -13.5, Z = 8.05)
+    // 12. Buchi Rotovap R-300 & V-300 Vacuum Pump Station in Fume Hood 1 (X = -13.5, Z = 8.05)
     // Keck Ground Glass Joint Clips (Green 24/40 and Yellow 14/20)
     this._createKeckClipsSet(-13.0, 8.0);
     // Molded Natural Cork Receiving Flask Support Ring
@@ -2198,7 +2251,7 @@ export class LabUtilities {
     // Vacuum Hose linking Rotovap to V-300 Pump
     this._createVacuumHoseInterconnect(-13.3, BENCH_Y + 0.40, 8.1, -12.8, BENCH_Y + 0.25, 8.05);
 
-    // 12. Digital Ceramic Hotplate Stirrer Station in Fume Hood 2 (X = -9.8, Z = 8.05)
+    // 13. Digital Ceramic Hotplate Stirrer Station in Fume Hood 2 (X = -9.8, Z = 8.05)
     // PT1000 Temperature Probe on Bosshead Clamp Stand
     this._createHotplateClampStand(-9.4, 8.05);
     // Magnetic Stir Bar Acrylic Storage Box with assorted stir bars
@@ -2206,44 +2259,46 @@ export class LabUtilities {
     // Magnetic Stir Bar Retriever Wand
     this._createStirBarRetriever(-10.2, 8.25);
 
-    // 13. Parr 4560 High-Pressure Reactor Station in Fume Hood 2 (X = -9.1, Z = 8.05)
+    // 14. Parr 4560 High-Pressure Reactor Station in Fume Hood 2 (X = -9.1, Z = 8.05)
     // Braided Stainless Flexible Pigtail Hose to Gas Supply
     this._createBraidedPigtailHose(-9.1, BENCH_Y + 0.35, 8.05, -8.6, BENCH_Y + 0.55, 8.3);
     // Calibrated Click-Type Torque Wrench for Head Bolts
     this._createTorqueWrench(-8.7, 7.95);
 
-    // 14. High-Temperature Muffle Furnace Station (X = -13.0, Z = -8.2)
+    // 15. High-Temperature Muffle Furnace Station (Perimeter Bench X = -11.8, Z = -8.25)
     // High-Purity Alumina Ceramic Crucibles with Lids
-    this._createCeramicCrucibles(-12.4, -8.15);
+    this._createCeramicCrucibles(-12.35, -8.15);
     // Heavy 24-inch Stainless Steel Crucible Tongs
-    this._createCrucibleTongs(-12.4, -8.35);
-    // Aluminized Kevlar Heat-Resistant Furnace Gloves
-    this._createFurnaceGloves(-13.6, -8.2);
+    this._createCrucibleTongs(-12.35, -8.35);
+    // Aluminized Kevlar Heat-Resistant Furnace Gloves (seated on bench surface)
+    this._createFurnaceGloves(-12.55, -8.20);
+    // Power Cord
+    this._createEquipmentPowerCord("muffle_furnace", -11.8, BENCH_Y + 0.18, -8.45, -11.8, 1.05, -8.65);
 
-    // 15. MBraun Inert Atmosphere Glove Box Station (X = 5.5, Z = -4.5)
+    // 16. MBraun Inert Atmosphere Glove Box Station (Zone 4 X = 5.5, Z = -4.5)
     // Dual High-Pressure Argon / Nitrogen Gas Cylinders with Wall Safety Chains
     this._createGasCylinderBank(6.5, -4.5);
-    // Antechamber Sliding Sample Transfer Tray
-    this._createAntechamberTray(4.8, -4.5);
 
-    // 16. Benchtop Dual pH / mV Meter Station (X = -7.0, Z = -8.2)
+    // 17. Benchtop Dual pH / mV Meter Station (Perimeter Bench X = -8.2, Z = -8.25)
     // NIST Calibration Buffer Solutions (pH 4.00 Red, pH 7.00 Yellow, pH 10.01 Blue)
-    this._createPHBufferSet(-6.4, -8.15);
+    this._createPHBufferSet(-7.6, -8.15);
     // Electrode Storage Beaker with 3M KCl
-    this._createGriffinBeaker(-6.4, -8.35, "50 mL", this.materials.reagentFluidClear, 0.6);
+    this._createGriffinBeaker(-7.6, -8.35, "50 mL", this.materials.reagentFluidClear, 0.6);
     // DI Water Wash Bottle & Kimwipes Box
-    this._createWashBottle(-7.6, -8.15, "DI WATER", this.materials.screwCapBlue);
-    this._createKimwipesBox(-7.6, -8.35, 0);
+    this._createWashBottle(-8.8, -8.15, "DI WATER", this.materials.screwCapBlue);
+    this._createKimwipesBox(-8.8, -8.35, 0);
+    // Power Cord
+    this._createEquipmentPowerCord("ph_meter", -8.2, BENCH_Y + 0.08, -8.45, -8.2, 1.05, -8.65);
 
-    // 17. Zeiss Gemini FE-SEM Station (X = 5.0, Z = -1.8)
-    // Specimen Stub Box holding 12.7mm aluminum pin stubs
-    this._createSEMStubBox(4.4, -1.6);
-    // Carbon Conductive Adhesive Tape & Colloidal Silver Paint
-    this._createCarbonTapeAndSilverPaint(4.4, -1.9);
-    // Titanium Precision Tweezers
-    this._createPrecisionTweezers(4.4, -2.1);
-    // Gold/Palladium Sputter Coater Chamber Nearby
-    this._createSputterCoaterChamber(5.6, -2.5);
+    // 18. Zeiss Gemini FE-SEM Station & Specimen Prep Suite (Zone 4)
+    // Specimen Stub Box resting directly on SEM structural console desk (Y = 0.82m)
+    this._createSEMStubBox(4.55, -1.6, 0.82);
+    // Carbon Conductive Adhesive Tape & Colloidal Silver Paint on console desk
+    this._createCarbonTapeAndSilverPaint(4.55, -1.85, 0.82);
+    // Titanium Precision Tweezers on console desk
+    this._createPrecisionTweezers(4.55, -2.05, 0.821);
+    // Gold/Palladium Sputter Coater Chamber on dedicated microscopy specimen prep bench (Y = 0.90m)
+    this._createSputterCoaterChamber(5.5, -3.1);
   }
 
   // --- PC Workstation for Analytical Instruments ---
@@ -3220,9 +3275,9 @@ export class LabUtilities {
   }
 
   // --- SEM Stub Box & Preparation Accessories ---
-  _createSEMStubBox(cx, cz) {
+  _createSEMStubBox(cx, cz, cy = 0.90) {
     const group = new THREE.Group();
-    group.position.set(cx, 0.90, cz);
+    group.position.set(cx, cy, cz);
     group.name = "SEM_Stub_Box";
 
     const box = new THREE.Mesh(
@@ -3247,9 +3302,9 @@ export class LabUtilities {
     this.root.add(group);
   }
 
-  _createCarbonTapeAndSilverPaint(cx, cz) {
+  _createCarbonTapeAndSilverPaint(cx, cz, cy = 0.90) {
     const group = new THREE.Group();
-    group.position.set(cx, 0.90, cz);
+    group.position.set(cx, cy, cz);
 
     // Carbon tape roll
     const tape = new THREE.Mesh(
@@ -3270,12 +3325,12 @@ export class LabUtilities {
     this.root.add(group);
   }
 
-  _createPrecisionTweezers(cx, cz) {
+  _createPrecisionTweezers(cx, cz, cy = 0.901) {
     const tweezers = new THREE.Mesh(
       new THREE.BoxGeometry(0.11, 0.002, 0.006),
       this.materials.cabinetHandle
     );
-    tweezers.position.set(cx, 0.901, cz);
+    tweezers.position.set(cx, cy, cz);
     tweezers.rotation.y = 0.35;
     this.root.add(tweezers);
   }

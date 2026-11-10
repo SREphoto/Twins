@@ -124,8 +124,9 @@ function makeHexScrew(radius = 0.025, height = 0.035) {
 }
 
 export class FreezeDryer3D {
-  constructor(container) {
+  constructor(container, options = {}) {
     this.container = container;
+    this.options = options;
 
     // Exploded view kinematic offsets
     this.exploded = false;
@@ -169,21 +170,29 @@ export class FreezeDryer3D {
     this.partCatalog = [];
 
     this.initScene();
-    this.initBenchAndRoom();
-    this.initPowerDuplexBox();
+    if (this.options.includeLab !== false) {
+      this.initBenchAndRoom();
+      this.initPowerDuplexBox();
+    }
     this.initLCDCanvas();
     this.buildModel();
     this.setupExplodedNodes();
-    this.animate = this.animate.bind(this);
-    requestAnimationFrame(this.animate);
+    if (!this.options.headless && !this.options.skipLoop) {
+      this.animate = this.animate.bind(this);
+      requestAnimationFrame(this.animate);
+    }
   }
 
   initScene() {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x0c1016);
 
-    const width = this.container.clientWidth || window.innerWidth;
-    const height = this.container.clientHeight || window.innerHeight;
+    if (this.options.headless || this.options.skipRenderer) {
+      return;
+    }
+
+    const width = (this.container && this.container.clientWidth) || window.innerWidth;
+    const height = (this.container && this.container.clientHeight) || window.innerHeight;
 
     // 1 unit = ~100 mm (0.1 m). Console width 5.71 units, height with drum ~8.8 units
     this.camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 100);
@@ -196,7 +205,9 @@ export class FreezeDryer3D {
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.05;
-    this.container.appendChild(this.renderer.domElement);
+    if (this.container) {
+      this.container.appendChild(this.renderer.domElement);
+    }
 
     // Standard 3-Point Studio Lighting Rig
     this.ambientLight = new THREE.AmbientLight(0xffffff, 0.75);

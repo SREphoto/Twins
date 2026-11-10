@@ -3907,8 +3907,7 @@ export function createSpectrophotometerModel(options = {}) {
   opticsGroup.add(mbGroup);
 
   // Procedural FR-4 Canvas Texture with high-DPI copper bus traces & silkscreen
-  const mbCanvas = createMotherboardCanvasTexture();
-  const mbTex = new THREE.CanvasTexture(mbCanvas);
+  const mbTex = createMotherboardCanvasTexture();
   mbTex.flipY = false;
   const MAT_PCB_CANVAS = new THREE.MeshStandardMaterial({
     map: mbTex,

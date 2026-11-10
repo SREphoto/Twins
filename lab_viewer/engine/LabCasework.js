@@ -377,7 +377,6 @@ export class LabCasework {
         roughness: 0.1,
         metalness: 0.1,
         ior: 1.49,
-        transmission: 0.6,
         name: "Mat_UV_Amber_Shield"
       }),
       uvGlowTube: new THREE.MeshBasicMaterial({
@@ -549,6 +548,9 @@ export class LabCasework {
 
     // 6. Chemical Storage Vault Shelving (Zone 5): North Wall X: 4.5, Z: 8.4, Length: 4.0m, Depth: 0.7m
     this._createStorageRacks(4.5, 8.4, 4.0, 0.7);
+
+    // 7. Electron Microscopy Specimen Prep Bench (Zone 4): X: 5.5, Z: -3.1, Length: 2.0m, Depth: 0.70m
+    this._createSingleSidedBench(5.5, -3.1, 2.0, 0.70, "Microscopy_Specimen_Prep_Bench");
   }
 
 // --- SEFA-8 High-Fidelity Modular Double-Sided Island Casework ---

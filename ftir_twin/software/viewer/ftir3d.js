@@ -1537,31 +1537,37 @@ export class FTIR3D {
     this.camera.lookAt(0.0, 1.15, -0.2);
 
     // 3. WebGL Renderer
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-    this.renderer.setSize(width || 1200, height || 800);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.15;
-    if (this.container) {
-      this.container.appendChild(this.renderer.domElement);
-    }
+    if (!this.options.headless && !this.options.skipRenderer) {
+      this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+      this.renderer.setSize(width || 1200, height || 800);
+      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      this.renderer.shadowMap.enabled = true;
+      this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      this.renderer.toneMappingExposure = 1.15;
+      if (this.container) {
+        this.container.appendChild(this.renderer.domElement);
+      }
 
-    // 4. Lighting
-    this.setupLighting();
+      // 4. Lighting
+      this.setupLighting();
+    }
 
     // 5. Digital Twin Assemblies & Bench
     this.initScene();
-    this.buildLabBench();
+    if (this.options.includeLab !== false) {
+      this.buildLabBench();
+    }
     this.buildInstrumentAssembly();
     this.updatePowerState();
 
-    // 6. Resize listener
-    window.addEventListener('resize', this.onWindowResize.bind(this));
+    if (!this.options.headless && !this.options.skipLoop) {
+      // 6. Resize listener
+      window.addEventListener('resize', this.onWindowResize.bind(this));
 
-    // 7. Start Render Loop
-    this.animate();
+      // 7. Start Render Loop
+      this.animate();
+    }
   }
 
   setupLighting() {
