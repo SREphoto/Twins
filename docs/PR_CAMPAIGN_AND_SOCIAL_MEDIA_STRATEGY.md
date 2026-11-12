@@ -5,14 +5,14 @@
 
 ## Executive Summary: The Metaverse of Metrology
 
-**SRE Laboratory Systems / SREdesigns** announces the public launch of the world's most advanced, physically accurate, and open-access collection of **3D Scientific Digital Twins**. Spanning 18 laboratory instruments and a 2026 Formula 1 engineering suite, every machine is procedurally engineered down to genuine 3D fasteners (hex socket and cross-recess depth), unibody die castings, internal electric motors, solid-state relays, color-coded 3D wiring harnesses, and high-DPI dynamic Canvas LCDs.
+**SRE Laboratory Systems / SREdesigns** announces the public launch of the world's most advanced, physically accurate, and open-access collection of **3D Scientific Digital Twins**. Spanning 18 laboratory instruments and the Grand Research Facility, every machine is procedurally engineered down to genuine 3D fasteners (hex socket and cross-recess depth), unibody die castings, internal electric motors, solid-state relays, color-coded 3D wiring harnesses, and high-DPI dynamic Canvas LCDs.
 
 Unlike traditional 3D models or superficial games, these digital twins enforce **Dual-Truth Physics**:
 1. **Physical Circuit Continuity**: Real laboratory equipment does not operate without electricity. Every twin features a benchtop duplex receptacle (`Power_Receptacle_Duplex`), molded NEMA 5-15P plug, and SJTOW cord. Unplugging cuts power to zero—motors coast to a halt, displays go dark, heaters cool, and sound is silenced.
 2. **Empirical Metrology**: Instruments obey USP &lang;701&rang; tablet disintegration sinusoidal kinematics, Stokes sedimentation settling, Nernstian electrochemistry, Gay-Lussac thermodynamics, and Beer-Lambert spectrophotometry.
 3. **Internal Working Anatomy**: Outer chassis panels can be hidden or vertically exploded to reveal 24V switching PSUs, toroidal transformers, stepper and BLDC motors, optical encoders, 45° gold optical relay mirrors, PT100 RTDs, and ARM Cortex-M4 motherboards with Wi-Fi/BLE antennas.
 
-This PR campaign and social media architecture is designed to capture global attention across **Life Sciences, Pharmaceutical Engineering, WebGL/3D Graphics, STEM Education, and Formula 1 Motorsport**.
+This PR campaign and social media architecture is designed to capture global attention across **Life Sciences, Pharmaceutical Engineering, WebGL/3D Graphics, and STEM Education**.
 
 ---
 
@@ -22,7 +22,7 @@ This PR campaign and social media architecture is designed to capture global att
 
 ### SREdesigns Unveils Groundbreaking Suite of 1:1 Scientific Digital Twins with Genuine Internal Anatomy and Dual-Truth Metrology
 
-*First-of-its-kind open-access WebGL laboratory collection allows scientists, engineers, regulators, and students to operate, inspect, and tear down 18 precision pharmaceutical instruments and 2026 F1 vehicle systems directly in any web browser.*
+*First-of-its-kind open-access WebGL laboratory collection allows scientists, engineers, regulators, and students to operate, inspect, and tear down 18 precision pharmaceutical instruments and the Grand Research Facility directly in any web browser.*
 
 **AUSTIN, Texas & CAMBRIDGE, Mass. — November 9, 2026** — SRE Laboratory Systems (SREdesigns) today announced the open-access release of its next-generation Digital Twin Suite, bringing unprecedented mechanical fidelity, physical circuit continuity, and internal working electromechanical anatomy to web-based simulation. The suite is live today at [https://srephoto.github.io/Twins/](https://srephoto.github.io/Twins/).
 
@@ -66,11 +66,11 @@ Every machine in the fleet has verified 1600×1000 high-resolution showcase imag
    │ • Metrohm 901 Karl Fischer        │ • SRE FEG-SEM Electron Microscope │ • UNI-9000 Pro Inert Glove Box    │
    └───────────────────────────────────┴───────────────────────────────────┴───────────────────────────────────┘
    ┌───────────────────────────────────┬───────────────────────────────────┬───────────────────────────────────┐
-   │      SEPARATION & PROCESSING      │       EQUIPMENT & PUMPS           │       ADVANCED MOTORSPORT         │
+   │      SEPARATION & PROCESSING      │       EQUIPMENT & PUMPS           │       FACILITY & COMPLEX          │
    ├───────────────────────────────────┼───────────────────────────────────┼───────────────────────────────────┤
-   │ • Eppendorf MICRO 5424-R Centrif. │ • KNF Laboport N820 Vacuum Pump   │ • FIA Formula 1 2026 Full Car     │
-   │ • Labconco FreeZone Freeze Dryer  │ • Branson CPX Ultrasonic Cleaner  │ • F1 2026 Brake Corner Assembly   │
-   │ • Vortex-Genie 2 Pro Mixer        │ • THERMO-1200 Muffle Furnace      │ • Grand Lab Complex (14-Zone Hub) │
+   │ • Eppendorf MICRO 5424-R Centrif. │ • KNF Laboport N820 Vacuum Pump   │ • Grand Lab Complex (14-Zone Hub) │
+   │ • Labconco FreeZone Freeze Dryer  │ • Branson CPX Ultrasonic Cleaner  │ • Master Atrium & Executive Bay   │
+   │ • Vortex-Genie 2 Pro Mixer        │ • THERMO-1200 Muffle Furnace      │ • Exterior Grounds & Cleanrooms   │
    └───────────────────────────────────┴───────────────────────────────────┴───────────────────────────────────┘
 ```
 
@@ -240,14 +240,7 @@ Every machine in the fleet has verified 1600×1000 high-resolution showcase imag
 
 ---
 
-### 19. Formula 1 2026 Fleet (Full Car & Brake Assembly)
-- **High-Res Showcase Image**: `docs/media/showcase/f1_full_car_iso.png` (Full Car) | `docs/media/showcase/f1_brake_iso.png` (Brake Corner)
-- **Technical Baseline**: 2026 FIA Formula 1 Technical Regulations: 350 kW MGU-K regenerative braking, active front/rear aerodynamics, carbon-carbon 32 mm ventilated brake discs with 6-piston monobloc calipers, 1.6L V6 turbo hybrid, pushrod suspension.
-- **Direct 3D Link**: [Launch F1 2026 Full Car Twin](https://srephoto.github.io/Twins/f1_2026_full_car_twin/software/viewer/index.html) | [Launch F1 2026 Brake Corner](https://srephoto.github.io/Twins/f1_2026_brake_twin/software/viewer/index.html)
-
----
-
-### 20. Grand Biomedical Research Complex (Master Lab)
+### 19. Grand Biomedical Research Complex (Master Lab)
 - **High-Res Showcase Image**: `docs/media/showcase/lab_overview.png`
 - **Architecture**: A full 14-zone pharmaceutical facility combining executive offices, atrium waiting lounge, synthesis bays, analytical chromatography suites, QC testing rooms, and exterior grounds.
 - **Direct 3D Link**: [Launch Master Lab Complex](https://srephoto.github.io/Twins/lab_viewer/index.html)
@@ -270,20 +263,20 @@ To establish an authoritative and viral presence across Facebook, Instagram, You
 
 #### Profile Bio Copy (Optimized for Each Platform)
 - **X (Twitter)**:  
-  *Hyper-realistic, physically accurate 3D Scientific Digital Twins in your browser. 1:1 genuine CAD, dual-truth metrology, circuit continuity & internal anatomy. 🔬🏎️ Open-access ➔ https://srephoto.github.io/Twins/*
+  *Hyper-realistic, physically accurate 3D Scientific Digital Twins in your browser. 1:1 genuine CAD, dual-truth metrology, circuit continuity & internal anatomy. 🔬⚙️ Open-access ➔ https://srephoto.github.io/Twins/*
 - **Instagram**:  
   *🔬 The World’s Most Advanced Scientific Digital Twins*  
   *⚙️ 1:1 Procedural CAD · Genuine 3D Fasteners & Motors*  
   *⚡ Physical Circuit Continuity & USP Metrology*  
-  *🎬 Teardowns, Guided Tours & 2026 F1 Engineering*  
+  *🎬 Teardowns, Guided Tours & 14-Zone Grand Lab Complex*  
   *👇 Operate in your browser:*  
   *srephoto.github.io/Twins*
 - **YouTube About**:  
-  *Welcome to SRE Laboratory Digital Twins. We build hyper-realistic 3D digital twins of precision pharmaceutical and analytical instruments (ERWEKA, Eppendorf, METTLER TOLEDO, BÜCHI, Parr) and FIA Formula 1 racing systems. Every instrument is procedurally designed down to every screw, internal motor, and wiring harness with dual-truth physical simulation and live Web Audio acoustics.*
+  *Welcome to SRE Laboratory Digital Twins. We build hyper-realistic 3D digital twins of precision pharmaceutical and analytical instruments (ERWEKA, Eppendorf, METTLER TOLEDO, BÜCHI, Parr, Thermo Fisher, Metrohm) and research facilities. Every instrument is procedurally designed down to every screw, internal motor, and wiring harness with dual-truth physical simulation and live Web Audio acoustics.*
 - **TikTok**:  
   *You’ve never seen inside a $30,000 lab instrument like this 🔬 Real 3D physics, internal teardowns & satisfying mechanics. Tap the link to operate! 👇*
 - **Facebook**:  
-  *SRE Laboratory Digital Twins is the premier open-access WebGL platform for interactive scientific instrumentation, pharmaceutical quality control simulation, and advanced electromechanical anatomy. Operate, inspect, and explore 18 full instruments and F1 engineering directly in your browser.*
+  *SRE Laboratory Digital Twins is the premier open-access WebGL platform for interactive scientific instrumentation, pharmaceutical quality control simulation, and advanced electromechanical anatomy. Operate, inspect, and explore 18 full instruments and the Grand Lab Complex directly in your browser.*
 
 ---
 
@@ -300,7 +293,7 @@ Instagram will utilize an alternating 3-column feed aesthetic:
 2. `⚙️ Anatomy` — Close-ups of internal motors, lead screws, and PSUs.
 3. `⚡ Continuity` — The unplugged vs. plugged-in physical continuity demonstration.
 4. `🎬 Walkthroughs` — Clips of narrated tours from `presentations.html`.
-5. `🏎️ F1 2026` — Active aerodynamics, MGU-K regen brakes, and monocoque engineering.
+5. `🏢 Complex` — 14-zone Grand Research Facility, cleanrooms, and analytical bays.
 
 ---
 
@@ -334,7 +327,7 @@ X is ideal for engineering credibility, WebGL developer outreach, and academic v
 
 ```
 [Tweet 1/10]
-🚀 Today, we are releasing the SRE Scientific Digital Twin Suite: 18 hyper-realistic, physically accurate laboratory instruments and 2026 F1 engineering systems—operating 100% in your browser.
+🚀 Today, we are releasing the SRE Scientific Digital Twin Suite: 18 hyper-realistic, physically accurate laboratory instruments and the Grand Lab Complex—operating 100% in your browser.
 
 No plugins. Zero low-poly tricks. 1:1 genuine CAD.
 
@@ -387,7 +380,7 @@ Explore the presentations hub: https://srephoto.github.io/Twins/presentations.ht
 • Parr High-Pressure Reactor
 • Shimadzu UV-Vis Spectro
 • Metrohm Karl Fischer Titrator
-• 2026 Formula 1 Full Car & Brakes
+• Thermo Nicolet iS50 FTIR & FEG-SEM
 
 [Tweet 10/10]
 Experience all 18 instruments live right now on desktop or mobile:
@@ -539,10 +532,10 @@ WEEK 3: SPECTROSCOPY, TESTING & AUTOMATION
 • Day 20 (Sat): Instagram Reel: Branson CPX Heated Ultrasonic Degassing cycle and cavitation physics.
 • Day 21 (Sun): X Spotlight: THERMO-1200 Muffle Furnace 1200°C blackbody thermal glow simulation.
 
-WEEK 4: MOTORSPORT CROSSOVER & MASTER LAB
-• Day 22 (Mon): Feature Drop: Formula 1 2026 Full Car & 350 kW MGU-K Regenerative Brake Corner.
-• Day 23 (Tue): #TeardownTuesday: F1 2026 Carbon-Carbon brake discs & active aerodynamics.
-• Day 24 (Wed): TikTok / Reels Short: "F1 2026 brake corner exploded down to the monobloc titanium pistons".
+WEEK 4: ADVANCED CHARACTERIZATION & MASTER LAB
+• Day 22 (Mon): Feature Drop: Thermo Nicolet iS50 ATR-FTIR Spectrometer with diamond crystal kinematics.
+• Day 23 (Tue): #TeardownTuesday: SRE FEG-SEM Electron Microscope gun, condenser coils & Everhart-Thornley detector.
+• Day 24 (Wed): TikTok / Reels Short: "FEG-SEM high-vacuum electron column exploded down to pole pieces".
 • Day 25 (Thu): YouTube Walkthrough: 14-Zone Grand Chemistry Complex Virtual Tour.
 • Day 26 (Fri): LinkedIn Industry Article: "The Role of Dual-Truth Digital Twins in Pharma 4.0 & GLP Compliance".
 • Day 27 (Sat): Instagram Carousel: The SRE Fleet Mosaic (All 18 Instruments side-by-side).

@@ -150,16 +150,6 @@ const TARGETS = [
     wait: 3000,
   },
   {
-    name: 'f1_full_car_iso',
-    url: '/f1_2026_full_car_twin/software/viewer/index.html',
-    wait: 3500,
-  },
-  {
-    name: 'f1_brake_iso',
-    url: '/f1_2026_brake_twin/software/viewer/index.html',
-    wait: 3000,
-  },
-  {
     name: 'lab_overview',
     url: '/lab_viewer/index.html',
     wait: 3500,

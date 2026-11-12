@@ -139,8 +139,9 @@ A 300 mL 316L stainless steel high-pressure mini-reactor rated for 200 bar MAWP 
 | **13** | **Karl Fischer Titrator** | Metrohm 901 Titrando | Volumetric/coulometric moisture titration, dynamic buret dosing | [Launch ➔](https://srephoto.github.io/Twins/karl_fischer_twin/software/viewer/index.html) |
 | **14** | **Laboratory Freeze Dryer** | Labconco FreeZone | -50°C collector, condenser coil sublimation, Pirani vacuum gauge | [Launch ➔](https://srephoto.github.io/Twins/freeze_dryer_twin/software/viewer/index.html) |
 | **15** | **Tablet Dissolution Tester** | USP Apparatus 2 | 6-station paddle spindle drive, 37°C thermostatic circulation | [Launch ➔](https://srephoto.github.io/Twins/dissolution_tester_twin/software/viewer/index.html) |
-| **16** | **F1 2026 Brake Corner** | FIA Formula 1 | Carbon-carbon rotor, monobloc caliper, brake-by-wire MGU-K | [Launch ➔](https://srephoto.github.io/Twins/f1_2026_brake_twin/software/viewer/index.html) |
+| **16** | **ATR-FTIR Spectrometer** | Thermo Nicolet iS50 | Diamond ATR crystal stage, slip-clutch tower, Michelson interferometer | [Launch ➔](https://srephoto.github.io/Twins/ftir_twin/software/viewer/index.html) |
 | **17** | **Tablet Disintegration Tester** | ERWEKA ZT 322 | Dual-station USP &lang;701&rang;, 55mm harmonic drive, 30 CPM, PT100 bath | [Launch ➔](https://srephoto.github.io/Twins/disintegration_tester_twin/software/viewer/index.html) |
+| **18** | **Scanning Electron Microscope** | FEG-SEM Research Suite | High-vacuum column, secondary electron detector, Schottky field emitter | [Launch ➔](https://srephoto.github.io/Twins/sem_twin/software/viewer/index.html) |
 
 ---
 
