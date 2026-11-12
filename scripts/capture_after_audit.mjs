@@ -80,8 +80,8 @@ async function main() {
         name: 'after_living_wall',
         expr: `
           window.__labApp.player.glideToStation(
-            new window.THREE.Vector3(5.2, 1.7, -4.5),
-            new window.THREE.Vector3(7.92, 1.7, -4.5),
+            new window.THREE.Vector3(4.8, 1.65, -4.5),
+            new window.THREE.Vector3(7.92, 1.65, -4.5),
             "Living Wall Close-up"
           );
         `,
@@ -91,8 +91,8 @@ async function main() {
         name: 'after_living_wall_wide',
         expr: `
           window.__labApp.player.glideToStation(
-            new window.THREE.Vector3(3.8, 1.8, -1.8),
-            new window.THREE.Vector3(7.92, 1.6, -4.5),
+            new window.THREE.Vector3(3.5, 1.75, -2.0),
+            new window.THREE.Vector3(7.92, 1.60, -4.5),
             "Living Wall Oblique"
           );
         `,

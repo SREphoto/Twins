@@ -31,32 +31,57 @@
       <div class="header-center">
         <div id="hud-zone-pill" class="hud-zone-pill">Zone 6: Grand Entrance Atrium & Waiting Lounge</div>
         <select id="quick-travel-select" class="quick-travel-select" aria-label="Jump to Station">
-          <option value="">⚡ Quick Station Jump...</option>
-          <option value="reception">Zone 6: Grand Entrance Atrium & Waiting Lounge</option>
-          <option value="user_office">Zone 9: User's Private Executive Office</option>
-          <option value="conference">Zone 10: Grand Boardroom & Conference Suite</option>
-          <option value="facultysuite">Faculty Suite: Guest, Admin & Instructor Offices</option>
-          <option value="breakroom">Zone 11: Staff Break Room & Kitchenette</option>
-          <option value="menslockers">Zone 13: Men's Locker Room & Showers</option>
-          <option value="womenslockers">Zone 14: Women's Locker Room & Showers</option>
-          <option value="restroom">Zone 12: Executive Restroom & Sanitation</option>
-          <option value="exterior">Exterior: Campus Grounds & Parking</option>
-          <option value="dissolution">Zone 1: Agilent 708-DS Dissolution Tester</option>
-          <option value="spectrophotometer">Zone 1: Shimadzu UV-2600i Spectrophotometer</option>
-          <option value="ftir">Zone 1: Nicolet iS50 FTIR ATR Spectrometer</option>
-          <option value="karl_fischer">Zone 1: Metrohm 901 Karl Fischer Titrator</option>
-          <option value="balance">Zone 1: 0.1 mg Analytical Microbalance</option>
-          <option value="centrifuge">Zone 3: MICRO 5424-R Microcentrifuge</option>
-          <option value="freeze_dryer">Zone 3: Labconco -84°C Freeze Dryer</option>
-          <option value="rotovap">Zone 2: Buchi Rotovap R-300 (Fume Hood)</option>
-          <option value="hotplate">Zone 2: Ceramic Hotplate Magnetic Stirrer</option>
-          <option value="glove_box">Zone 4: MBraun Inert Atmosphere Glove Box</option>
+          <option value="">⚡ Quick Station &amp; Room Jump (18 Twins + Campus)...</option>
+          <optgroup label="🏛️ Campus Exterior &amp; Executive Suites">
+            <option value="exterior">Campus Grounds, Entrance Plaza &amp; Parking</option>
+            <option value="city_street">Biotech Parkway · City Street &amp; Gate Traffic</option>
+            <option value="patio">Outdoor Break Room Staff Patio &amp; Pergola</option>
+            <option value="reception">Zone 6: Grand Entrance Atrium &amp; Waiting Lounge</option>
+            <option value="user_office">Zone 9: Director's Private Executive Office</option>
+            <option value="guest_office">Faculty Suite: Visiting Scientist Office</option>
+            <option value="admin_office">Faculty Suite: Lab Administrator Office</option>
+            <option value="instructor_office">Faculty Suite: Lead Instructor Office</option>
+            <option value="conference">Zone 10: Grand Boardroom &amp; Conference Suite</option>
+            <option value="breakroom">Zone 11: Staff Break Room &amp; Kitchen</option>
+            <option value="restroom">Zone 12: Executive Restroom &amp; Sanitation</option>
+            <option value="menslockers">Zone 13: Men's Locker Room &amp; Spa Showers</option>
+            <option value="womenslockers">Zone 14: Women's Locker Room &amp; Spa Showers</option>
+            <option value="coldrooms">Zone 5: Walk-In 4°C Cold Room &amp; -20°C Freezer</option>
+          </optgroup>
+          <optgroup label="🔬 All 18 Mounted Digital Twin Instruments">
+            <option value="spectrophotometer">01 · Shimadzu UV-2600i Spectrophotometer</option>
+            <option value="ftir">02 · Nicolet iS50 FTIR ATR Spectrometer</option>
+            <option value="balance">03 · 0.1 mg Analytical Microbalance</option>
+            <option value="dissolution_tester">04 · Agilent 708-DS Dissolution Tester</option>
+            <option value="disintegration_tester">05 · ERWEKA ZT 322 Disintegration Tester</option>
+            <option value="karl_fischer">06 · Metrohm 901 Karl Fischer Titrator</option>
+            <option value="centrifuge">07 · MICRO 5424-R Refrigerated Microcentrifuge</option>
+            <option value="freeze_dryer">08 · Labconco -84°C Benchtop Freeze Dryer</option>
+            <option value="ultrasonic_cleaner">09 · Branson Heated Ultrasonic Cleaner</option>
+            <option value="vortex_mixer">10 · Scientific Touch/Cont Vortex Mixer</option>
+            <option value="rotovap">11 · Buchi Rotavapor R-300 (Fume Hood 1)</option>
+            <option value="vacuum_pump">12 · PTFE Diaphragm Vacuum Pump (Fume Hood 1)</option>
+            <option value="high_pressure_reactor">13 · Parr Hastelloy Autoclave Reactor (Fume Hood 2)</option>
+            <option value="hotplate">14 · Ceramic Hotplate Magnetic Stirrer (Fume Hood 2)</option>
+            <option value="muffle_furnace">15 · 1200°C Box Muffle Furnace</option>
+            <option value="ph_meter">16 · Precision Benchtop pH / Ion Meter</option>
+            <option value="glove_box">17 · MBraun Inert Argon Glove Box</option>
+            <option value="sem">18 · Zeiss Gemini Field-Emission SEM</option>
+          </optgroup>
         </select>
       </div>
 
       <div class="header-actions">
+        <div class="mood-switcher" role="group" aria-label="Lighting Atmosphere &amp; Time of Day">
+          <button class="mood-btn active" data-mood="daylight" title="Crisp Physical Daylight &amp; Sky IBL">☀️ Daylight</button>
+          <button class="mood-btn" data-mood="dusk" title="Golden-Hour Sunset Atmosphere">🌅 Dusk</button>
+          <button class="mood-btn" data-mood="night" title="Night Campus &amp; Architectural Lighting">🌙 Night</button>
+        </div>
         <button id="btn-audio-toggle" class="btn-icon" title="Toggle Procedural Audio">
           <span id="audio-icon">🔊</span> AUDIO
+        </button>
+        <button id="btn-mobile-toggle" class="btn-icon mobile-mode-btn" title="Toggle Mobile Eco Mode (No exterior cars, on-demand instrument loading)">
+          <span id="mobile-icon">📱</span> <span id="mobile-toggle-label">ECO MOBILE</span>
         </button>
         <button id="btn-help-controls" class="btn-icon" title="Controls Help">
           <span>⌨️</span> CONTROLS
@@ -75,6 +100,20 @@
       <div id="interaction-prompt-pill" class="interaction-prompt-pill is-hidden">
         <span class="prompt-icon">💡</span>
         <span id="prompt-text">Click to interact</span>
+      </div>
+
+      <!-- Touch Virtual D-Pad for Mobile Walk Navigation -->
+      <div id="mobile-touch-controls" class="mobile-touch-controls is-hidden">
+        <div class="touch-dpad">
+          <button class="touch-btn touch-up" data-dir="forward" title="Walk Forward">▲</button>
+          <div class="touch-row">
+            <button class="touch-btn touch-left" data-dir="left" title="Strafe Left">◀</button>
+            <button class="touch-btn touch-sprint" data-dir="sprint" title="Sprint">⚡</button>
+            <button class="touch-btn touch-right" data-dir="right" title="Strafe Right">▶</button>
+          </div>
+          <button class="touch-btn touch-down" data-dir="backward" title="Walk Backward">▼</button>
+        </div>
+        <button id="btn-exit-touch-walk" class="touch-btn touch-exit-walk" title="Exit Walk Mode">✕ EXIT WALK</button>
       </div>
 
       <!-- Sleek Floating Bottom Navigation Dock -->
@@ -188,6 +227,18 @@
               <span id="telemetry-station-name">Active Instrument</span>
               <span class="status-dot" id="instrument-status-dot"></span>
             </div>
+
+            <!-- Mobile & Eco Power Management Row -->
+            <div class="instrument-power-row" id="instrument-power-row">
+              <div class="power-status-label">
+                <span class="power-indicator is-on" id="power-indicator-dot"></span>
+                <span id="power-state-text">POWERED ON</span>
+              </div>
+              <button class="btn-power-toggle" id="btn-power-toggle" title="Power Instrument On / Off to manage GPU memory">
+                ⚡ TURN OFF
+              </button>
+            </div>
+
             <div class="telemetry-grid" id="telemetry-dynamic-grid">
               <div class="telemetry-item">
                 <div class="telemetry-label">STATUS</div>

@@ -26,10 +26,23 @@ class GrandLabApp {
     this.width = this.host.clientWidth || window.innerWidth;
     this.height = this.host.clientHeight || window.innerHeight;
 
-    // Detect mobile device profile (smartphones, tablets, touch devices)
-    this.isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-                    (navigator.maxTouchPoints > 1 && window.innerWidth < 1024) ||
-                    window.innerWidth < 768;
+    // Detect mobile device profile (URL override, localStorage preference, or user agent)
+    const urlParams = new URLSearchParams(window.location.search);
+    const mobileParam = urlParams.get("mobile");
+    const modeParam = urlParams.get("mode");
+    const storedMobile = localStorage.getItem("sre_lab_mobile_mode");
+
+    if (mobileParam === "1" || modeParam === "mobile") {
+      this.isMobile = true;
+    } else if (mobileParam === "0" || modeParam === "desktop") {
+      this.isMobile = false;
+    } else if (storedMobile !== null) {
+      this.isMobile = storedMobile === "1";
+    } else {
+      this.isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+                      (navigator.maxTouchPoints > 1 && window.innerWidth < 1024) ||
+                      window.innerWidth < 768;
+    }
 
     this.isContextLost = false;
 
@@ -52,7 +65,7 @@ class GrandLabApp {
     this.scene.background = new THREE.Color(0x0a0e14);
     this.scene.fog = new THREE.FogExp2(0x0a0e14, 0.018);
 
-    this.camera = new THREE.PerspectiveCamera(65, this.width / this.height, 0.1, 100);
+    this.camera = new THREE.PerspectiveCamera(65, this.width / this.height, 0.1, 950);
 
     const rendererOptions = {
       antialias: !this.isMobile,
@@ -75,6 +88,8 @@ class GrandLabApp {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = this.isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 1.0;
 
     // Handle WebGL context loss gracefully (common during mobile backgrounding / memory pressure)
     this.renderer.domElement.addEventListener("webglcontextlost", (event) => {
@@ -102,17 +117,29 @@ class GrandLabApp {
   }
 
   _initModules() {
-    // 1. Modern Architectural Shell (Walls, Pillars, Slat Panels, Airlock)
-    this.environment = new LabEnvironment3D(this.scene);
+    // 1. Modern Architectural Shell (Walls, Windows, Roof, Sky IBL & Campus Grounds)
+    // On mobile / low-VRAM devices: skips heavy external car GLBs (~80MB) and dense outer vegetation
+    this.environment = new LabEnvironment3D(this.scene, this.renderer, {
+      loadVehicles: !this.isMobile,
+      isMobile: this.isMobile
+    });
 
-    // 2. SEFA Casework, Fume Hoods & Office/Conference Furniture
+    // 2. SEFA Casework, Fume Hoods & Bespoke Procedural Executive Furniture
     this.casework = new LabCasework(this.scene, this.environment.colliders);
 
     // 3. Interactive Utilities (Running water, Bunsen burners, reagents, power)
     this.utilities = new LabUtilities(this.scene, this.environment.colliders);
 
-    // 4. Mount All 17 Instrument Digital Twins
-    this.dockManager = new LabDockManager(this.scene);
+    // 4. Mount All 18 Instrument Digital Twins
+    // On mobile: lazyLoad = true mounts lightweight procedural standby plinths and instantiates
+    // only active machines on demand (with LRU eviction) to prevent WebGL context loss
+    this.dockManager = new LabDockManager(this.scene, {
+      lazyLoad: this.isMobile,
+      maxActiveMachines: 1,
+      onTwinStateChange: (twinId, isOn) => {
+        this._onTwinStateChanged(twinId, isOn);
+      }
+    });
 
     // 5. Global Transmission Neutralization:
     // Three.js r160 WebGL2 transmission pass fails on mobile GPUs & WebKit with:
@@ -214,6 +241,16 @@ class GrandLabApp {
       e.target.value = "";
     });
 
+    // Lighting Atmosphere & Time-of-Day Mood Switcher (Daylight / Dusk / Night)
+    this.moodButtons = document.querySelectorAll(".mood-btn");
+    this.moodButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const mood = btn.getAttribute("data-mood") || "daylight";
+        this.setMood(mood);
+        labAudio.playButtonClick();
+      });
+    });
+
     // Floating Bottom Navigation Dock
     this.navPills = document.querySelectorAll(".nav-pill");
     this.navPills.forEach((pill) => {
@@ -224,18 +261,142 @@ class GrandLabApp {
       });
     });
 
+    // Mobile Eco Mode Toggle
+    this.btnMobileToggle = document.getElementById("btn-mobile-toggle");
+    this.mobileToggleLabel = document.getElementById("mobile-toggle-label");
+    if (this.btnMobileToggle) {
+      if (this.isMobile) {
+        this.btnMobileToggle.classList.add("is-active");
+        if (this.mobileToggleLabel) this.mobileToggleLabel.textContent = "ECO MOBILE (ON)";
+      } else {
+        this.btnMobileToggle.classList.remove("is-active");
+        if (this.mobileToggleLabel) this.mobileToggleLabel.textContent = "ECO MOBILE";
+      }
+
+      this.btnMobileToggle.addEventListener("click", () => {
+        const nextMode = !this.isMobile;
+        localStorage.setItem("sre_lab_mobile_mode", nextMode ? "1" : "0");
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.set("mobile", nextMode ? "1" : "0");
+        window.location.href = newUrl.toString();
+      });
+    }
+
+    // Active Instrument Power On / Off Toggle (Mobile memory & GPU conservation)
+    this.btnPowerToggle = document.getElementById("btn-power-toggle");
+    this.powerIndicatorDot = document.getElementById("power-indicator-dot");
+    this.powerStateText = document.getElementById("power-state-text");
+    if (this.btnPowerToggle) {
+      this.btnPowerToggle.addEventListener("click", () => {
+        if (!this.activeMachineId) return;
+        this.dockManager.toggleTwin(this.activeMachineId);
+        const isOn = this.dockManager.isTwinOn(this.activeMachineId);
+        this._updatePowerUI(isOn);
+        const dock = this.dockManager.getDockById(this.activeMachineId);
+        if (dock) {
+          this._updateSidebarForInstrument(dock.userData);
+        }
+        labAudio.playButtonClick();
+      });
+    }
+
+    // Virtual Touch Controls for Walk Mode
+    this._initTouchControls();
+
     // Help controls modal alert
     document.getElementById("btn-help-controls").addEventListener("click", () => {
       alert(
         "Grand Laboratory Navigation Controls:\n\n" +
         "• Overview Mode: Left-click drag to orbit/rotate, right-click to pan, scroll wheel to zoom.\n" +
         "• Walk Mode: W, A, S, D or Arrow keys, click viewport to lock pointer.\n" +
-        "• Sprint: Hold Shift while walking.\n" +
+        "• Touch Walk Mode: On-screen virtual D-Pad for forward, reverse, strafe & sprint.\n" +
         "• Click-to-Glide: Click any machine from across the room to inspect it up close.\n" +
+        "• Mobile Mode: Exterior vehicles and idle machines are kept off to save memory.\n" +
         "• Escape / Overview Pill: Return to Grand Overview at any time.\n" +
         "• Assistant Sidebar: Press Tab to collapse/expand."
       );
     });
+  }
+
+  _initTouchControls() {
+    this.touchControls = document.getElementById("mobile-touch-controls");
+    this.btnExitTouchWalk = document.getElementById("btn-exit-touch-walk");
+
+    if (this.btnExitTouchWalk) {
+      this.btnExitTouchWalk.addEventListener("click", () => {
+        this._handleNavDockClick("overview");
+      });
+    }
+
+    const touchButtons = document.querySelectorAll(".touch-btn[data-dir]");
+    touchButtons.forEach((btn) => {
+      const dir = btn.getAttribute("data-dir");
+      const setKey = (val) => {
+        if (this.player && this.player.keys) {
+          if (dir === "forward") this.player.keys.forward = val;
+          else if (dir === "backward") this.player.keys.backward = val;
+          else if (dir === "left") this.player.keys.left = val;
+          else if (dir === "right") this.player.keys.right = val;
+          else if (dir === "sprint") this.player.keys.sprint = val;
+        }
+      };
+
+      btn.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        setKey(true);
+      }, { passive: false });
+
+      btn.addEventListener("touchend", (e) => {
+        e.preventDefault();
+        setKey(false);
+      }, { passive: false });
+
+      btn.addEventListener("mousedown", () => setKey(true));
+      btn.addEventListener("mouseup", () => setKey(false));
+      btn.addEventListener("mouseleave", () => setKey(false));
+    });
+  }
+
+  _updatePowerUI(forceState) {
+    if (!this.activeMachineId) return;
+    const isOn = (forceState !== undefined) ? forceState : this.dockManager.isTwinOn(this.activeMachineId);
+
+    if (this.powerIndicatorDot) {
+      this.powerIndicatorDot.classList.toggle("is-on", isOn);
+    }
+    if (this.powerStateText) {
+      this.powerStateText.textContent = isOn ? "POWERED ON" : "STANDBY (OFF)";
+      this.powerStateText.style.color = isOn ? "var(--green, #00ffaa)" : "#ffaa00";
+    }
+    if (this.btnPowerToggle) {
+      this.btnPowerToggle.classList.toggle("is-off", !isOn);
+      this.btnPowerToggle.textContent = isOn ? "⚡ TURN OFF" : "⚡ TURN ON";
+    }
+    if (this.tStatus) {
+      this.tStatus.textContent = isOn ? "ONLINE" : "STANDBY";
+    }
+  }
+
+  _onTwinStateChanged(twinId, isOn) {
+    if (twinId === this.activeMachineId) {
+      this._updatePowerUI(isOn);
+      const dock = this.dockManager.getDockById(twinId);
+      if (dock) {
+        this._updateSidebarForInstrument(dock.userData);
+      }
+    }
+  }
+
+  setMood(mood = "daylight") {
+    const normalized = ["daylight", "dusk", "night"].includes(mood) ? mood : "daylight";
+    if (this.moodButtons) {
+      this.moodButtons.forEach((b) => {
+        b.classList.toggle("active", b.getAttribute("data-mood") === normalized);
+      });
+    }
+    if (this.environment) {
+      this.environment.setAtmosphereMood(normalized);
+    }
   }
 
   _handleNavDockClick(dest) {
@@ -299,8 +460,8 @@ class GrandLabApp {
       );
     } else if (dest === "menslockers") {
       this.player.glideToStation(
-        new THREE.Vector3(33.5, 1.65, -3.2),
-        new THREE.Vector3(35.5, 1.15, -5.5),
+        new THREE.Vector3(34.85, 1.65, -2.15),
+        new THREE.Vector3(35.10, 1.15, -6.20),
         "Zone 13: Men's Locker Room & Showers"
       );
     } else if (dest === "womenslockers") {
@@ -315,11 +476,47 @@ class GrandLabApp {
         new THREE.Vector3(35.8, 1.15, 5.5),
         "Zone 12: Executive Restroom & Sanitation"
       );
+    } else if (dest === "patio") {
+      this.player.glideToStation(
+        new THREE.Vector3(31.2, 2.35, 18.2),
+        new THREE.Vector3(31.2, 1.25, 11.8),
+        "Outdoor Break Room Staff Patio & Pergola"
+      );
+    } else if (dest === "guest_office") {
+      this.player.glideToStation(
+        new THREE.Vector3(23.25, 1.65, -2.5),
+        new THREE.Vector3(23.25, 1.15, -5.8),
+        "Faculty Suite: Visiting Scientist Office"
+      );
+    } else if (dest === "admin_office") {
+      this.player.glideToStation(
+        new THREE.Vector3(26.75, 1.65, -2.5),
+        new THREE.Vector3(26.75, 1.15, -5.8),
+        "Faculty Suite: Lab Administrator Office"
+      );
+    } else if (dest === "instructor_office") {
+      this.player.glideToStation(
+        new THREE.Vector3(30.25, 1.65, -2.5),
+        new THREE.Vector3(30.25, 1.15, -5.8),
+        "Faculty Suite: Lead Instructor Office"
+      );
+    } else if (dest === "coldrooms") {
+      this.player.glideToStation(
+        new THREE.Vector3(5.2, 1.65, 4.4),
+        new THREE.Vector3(5.2, 1.40, 8.2),
+        "Zone 5: Walk-In +4°C Cold Room & -20°C Cryo Freezer"
+      );
     } else if (dest === "exterior") {
       this.player.glideToStation(
-        new THREE.Vector3(13.0, 4.5, -28.0),
-        new THREE.Vector3(13.0, 1.8, -9.0),
-        "Exterior Campus: Parking Lot & Landscaping"
+        new THREE.Vector3(12.2, 5.4, -29.5),
+        new THREE.Vector3(13.2, 2.0, -9.5),
+        "Exterior Campus: Herringbone Plaza, Portico & Grounds"
+      );
+    } else if (dest === "city_street") {
+      this.player.glideToStation(
+        new THREE.Vector3(2.5, 5.4, -55.8),
+        new THREE.Vector3(14.0, 1.2, -37.0),
+        "Biotech Parkway: 4-Lane City Street & Campus Gate Traffic"
       );
     } else if (dest === "walk") {
       this.player.enterWalkMode();
@@ -342,17 +539,25 @@ class GrandLabApp {
       this.hudZonePill.textContent = zoneName;
     }
 
+    if (this.touchControls) {
+      if (mode === "walk" && this.isMobile) {
+        this.touchControls.classList.remove("is-hidden");
+      } else {
+        this.touchControls.classList.add("is-hidden");
+      }
+    }
+
     // Dynamic Context Switching in Assistant Sidebar & Navigation Dock
     if (mode === "overview" || zoneName.includes("Grand Overview")) {
       this._setActiveNavPill("overview");
       this.sidebarBadge.textContent = "OVERVIEW";
       this.telemetryStationName.textContent = "Grand Complex Overview";
-      this.tStatus.textContent = "17 TWINS READY";
+      this.tStatus.textContent = "18 TWINS READY";
       this.tParam1.textContent = "Casework Online";
       this.tTemp.textContent = "21.0 °C";
       this.tTimer.textContent = "Continuous";
       this.sopTitle.textContent = "Grand Chemistry & Pharma Complex";
-      this.advisorText.textContent = "Grand Architectural Overview: Explore all 17 digital instrument twins, executive conference suite, and private LIMS office. Use the bottom navigation dock or click any machine to inspect up close.";
+      this.advisorText.textContent = "Grand Architectural Overview: Explore all 18 digital instrument twins, executive suites, spa locker rooms, and landscaped biotech campus. Use the mood switcher, bottom dock, or click any machine to inspect up close.";
     } else if (mode === "walk") {
       this._setActiveNavPill("walk");
       this.sidebarBadge.textContent = "WALK MODE";
@@ -443,6 +648,16 @@ class GrandLabApp {
       this.tTimer.textContent = "Active";
       this.sopTitle.textContent = "Sanitary & ADA Compliance";
       this.advisorText.textContent = "Executive Restroom: Floating quartz double vanity with backlit defogger mirrors, automatic sensor faucets, private full-height stalls with commercial wall-hung toilets, and Dyson Airblade dryers.";
+    } else if (zoneName.includes("Staff Patio") || zoneName.includes("Pergola")) {
+      this._setActiveNavPill("breakroom");
+      this.sidebarBadge.textContent = "STAFF PATIO";
+      this.telemetryStationName.textContent = "Outdoor Pergola Terrace";
+      this.tStatus.textContent = "OPEN AIR";
+      this.tParam1.textContent = "Cedar Pergola";
+      this.tTemp.textContent = "19.5 °C";
+      this.tTimer.textContent = "Festoon LED";
+      this.sopTitle.textContent = "Outdoor Break Terrace";
+      this.advisorText.textContent = "Outdoor Staff Patio: Herringbone brick terrace connected directly to the Break Room via French glass doors, featuring a cedar-and-steel pergola, café tables, and shade trees.";
     } else if (zoneName.includes("Exterior Campus") || zoneName.includes("Parking Lot")) {
       this._setActiveNavPill("exterior");
       this.sidebarBadge.textContent = "CAMPUS";
@@ -524,6 +739,9 @@ class GrandLabApp {
         if (this.hoveredObject.userData?.isTwinDock) {
           const cfg = this.hoveredObject.userData;
           this.activeMachineId = cfg.id;
+          if (this.dockManager.lazyLoad && !this.dockManager.isTwinOn(cfg.id)) {
+            this.dockManager.turnOnTwin(cfg.id);
+          }
           this._updateSidebarForInstrument(cfg);
           this.player.glideToStation(cfg.camConsole.pos, cfg.camConsole.look, `${cfg.name} (${cfg.tag})`);
           return;
@@ -537,8 +755,23 @@ class GrandLabApp {
   }
 
   _updateSidebarForInstrument(cfg) {
+    this.activeMachineId = cfg.id;
     this.sidebarBadge.textContent = "OPERATOR";
     this.telemetryStationName.textContent = cfg.name;
+
+    const isOn = this.dockManager.isTwinOn(cfg.id);
+    this._updatePowerUI(isOn);
+
+    if (!isOn) {
+      this.tStatus.textContent = "STANDBY";
+      this.tParam1.textContent = "Power Standby";
+      this.tTemp.textContent = "Ambient";
+      this.tTimer.textContent = "00:00:00";
+      this.sopTitle.textContent = "Instrument Monograph (Standby)";
+      this.advisorText.textContent = `${cfg.name} is currently in Standby / Off mode to preserve GPU memory on mobile. Tap '⚡ TURN ON' to load and run the digital twin.`;
+      return;
+    }
+
     this.tStatus.textContent = "ONLINE";
 
     if (cfg.id === "dissolution_tester") {
@@ -573,25 +806,35 @@ class GrandLabApp {
       this._handleNavDockClick("reception");
     } else if (val === "user_office" || val === "office") {
       this._handleNavDockClick("office");
+    } else if (val === "guest_office" || val === "admin_office" || val === "instructor_office") {
+      this._handleNavDockClick(val);
     } else if (val === "conference") {
       this._handleNavDockClick("conference");
     } else if (val === "facultysuite") {
       this._handleNavDockClick("facultysuite");
     } else if (val === "breakroom") {
       this._handleNavDockClick("breakroom");
+    } else if (val === "patio") {
+      this._handleNavDockClick("patio");
+    } else if (val === "coldrooms") {
+      this._handleNavDockClick("coldrooms");
     } else if (val === "menslockers") {
       this._handleNavDockClick("menslockers");
     } else if (val === "womenslockers") {
       this._handleNavDockClick("womenslockers");
     } else if (val === "restroom") {
       this._handleNavDockClick("restroom");
-    } else if (val === "exterior") {
-      this._handleNavDockClick("exterior");
+    } else if (val === "exterior" || val === "city_street") {
+      this._handleNavDockClick(val);
     } else {
-      const dock = this.dockManager.getDockById(val);
+      const lookupId = val === "dissolution" ? "dissolution_tester" : val;
+      const dock = this.dockManager.getDockById(lookupId);
       if (dock) {
         const cfg = dock.userData;
         this.activeMachineId = cfg.id;
+        if (this.dockManager.lazyLoad && !this.dockManager.isTwinOn(cfg.id)) {
+          this.dockManager.turnOnTwin(cfg.id);
+        }
         this._updateSidebarForInstrument(cfg);
         this.player.glideToStation(cfg.camConsole.pos, cfg.camConsole.look, `${cfg.name} (${cfg.tag})`);
       }
@@ -666,13 +909,16 @@ class GrandLabApp {
       // 1. Update Player Movement & Camera Lerp
       this.player.update(delta);
 
-      // 2. Update Interactive Utilities (Flame flicker, water flow)
+      // 2. Update Smart Auto-Hiding Roof & Environment State
+      this.environment.update(now * 0.001, this.camera, this.player.mode);
+
+      // 3. Update Interactive Utilities (Flame flicker, water flow)
       this.utilities.update(now * 0.001);
 
-      // 3. Update Center Raycasting
+      // 4. Update Center Raycasting
       this._updateRaycasting();
 
-      // 4. Render Scene
+      // 5. Render Scene
       this.renderer.render(this.scene, this.camera);
     };
 

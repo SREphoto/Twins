@@ -4,6 +4,42 @@ Newest first. Template: `templates/troubleshooting_entry.md`.
 
 ---
 
+## 2026-11-12 · OGA-CAD & SRE-TWIN · lab-campus-lighting-terrain-l-wing-cars [DIAG-004] [DIAG-005] [DIAG-022]
+
+| Field    | Value                                                              |
+| -------- | ------------------------------------------------------------------ |
+| Status   | resolved                                                           |
+| Machine  | lab_viewer, workspace                                              |
+| Severity | high                                                               |
+
+**Problem:**
+1. **Night/Dusk Exterior Lighting Artifacts**: Double-arm parking lot light poles used a single shared point light and a single cone mesh centered on the pole instead of two separate rectangular light sources (one per luminaire head). Single-arm streetlamps on Biotech Parkway also used a single point cone instead of a rectangular origin matching the fixture, and `THREE.ConeGeometry` produced a harsh diagonal beam cutoff line and blown-out circular ground puddles.
+2. **Generic Horizon Shapes**: Distant hills were previously approximated with 10 stretched `THREE.SphereGeometry` primitives and a flat `horizonDisc`, which looked artificial.
+3. **High-Poly GLB Vehicle Shadow Stalls**: Loading 4 everyday consumer vehicles (`Audi A4 B8` 171k verts, `2021 Alfa Romeo Giulia` 78k verts, `2012 Dodge Charger R/T` 34k verts, `2024 Ford F-150` 321k verts) with `MeshPhysicalMaterial` (`KHR_materials_transmission` / `clearcoat`) and `castShadow = true` across 17 parked and moving instances caused software WebGL shadow-map passes to stall.
+
+**Symptoms:**
+- Sharp diagonal cone edge visible across Biotech Parkway at night (`03_campus_wide_night.png`).
+- Twin-arm parking lot poles emitted one central cone instead of two distinct rectangular beams.
+- Stretched sphere berms along the horizon lacked natural ridgelines or architectural context.
+
+**Cause:**
+- Using `THREE.ConeGeometry` with uniform `MeshBasicMaterial` opacity creates a hard silhouette discontinuity at the cone boundary, and centering one cone at `x = 0` on a dual-head pole ignores the two physical rectangular luminaire heads at `x = ±1.05m`.
+
+**Fix:**
+1. **Dual & Single Rectangular Diffused Photometric Volumes (`LabEnvironment3D.js`)**:
+   - Created `_createDiffusedRectangularBeamMesh(topWidth, topDepth, bottomWidth, bottomDepth, height, mat)` with a custom `THREE.ShaderMaterial` (`_getDiffusedBeamShaderMaterial()`) that applies smooth cubic top/bottom vertical fade and horizontal edge feathering (`pow(edgeDist, 2.2)`), eliminating all harsh diagonal beam lines.
+   - Equipped every twin-arm pole (`x = ±1.05m`) with **two independent rectangular light sources**, two separate rectangular-origin diffused beams, and two separate elongated ground washes (`_getDiffusedRectangularWashTexture()`).
+   - Equipped every single-arm Biotech Parkway streetlamp with a large rectangular emitter (`0.98m × 0.40m`), rectangular-origin diffused volume, and soft elliptical road wash.
+2. **1,400m × 1,400m Topographical Terrain & Roadside Research Park Buildings**:
+   - Removed all 10 `SphereGeometry` berms and `horizonDisc`. Built `_buildTopographicalSurroundingTerrain()` (`PlaneGeometry(1400, 1400, 220, 220)` with multi-octave FBM ridges, valley carve, vertex-colored strata, and stratified limestone outcrops) and `_buildNeighboringRoadsideBuildings()` (6 detailed architectural neighbor buildings along Biotech Parkway).
+3. **L-Shaped Lab Expansion, Sculpted Jutting Entrance Roof & Everyday Fleet Optimization**:
+   - Expanded West Main Lab (`X: -16.0m → -22.0m`) and added the stepped-up High-Bay Rear North L-Wing (`X: -22.0..8.0m, Z: 9.5..27.5m, H = 5.60m` rising to `6.35m` mono-pitch cedar-soffit wing roof + `7.1m` terracotta corner tower) and `4.85m` jutting entrance roof (`Y = 4.65m`).
+   - Integrated `car_audi_a4_b8.glb`, `car_alfa_romeo_giulia.glb`, `car_dodge_charger.glb`, and `car_ford_f150.glb`, converting high-poly car submeshes to `MeshStandardMaterial` with `castShadow = false` + grounded ambient occlusion contact shadow planes for 60 FPS performance.
+
+**Prevention:** Never use `THREE.SphereGeometry` for terrain or `THREE.ConeGeometry` with flat opacity for light beams; always match volumetric emitter geometry to physical luminaire dimensions (2 rectangular sources for twin-arm poles, 1 large rectangular source for single-arm streetlamps) with feathered shader falloff.
+
+---
+
 ## 2026-10-18 · OGA-UI & SRE-TWIN · view-chooser-modern-retro-night [DIAG-031] [DIAG-030]
 
 | Field    | Value                                                              |

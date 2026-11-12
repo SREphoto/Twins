@@ -4,6 +4,32 @@ Newest first. Template: `templates/change_log_entry.md`.
 
 ---
 
+## 2026-11-12 · OGA-CAD · lab-campus-lighting-terrain-l-wing-and-everyday-vehicles
+
+| Field   | Value                                                                                                                                                                                                                                                            |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | OGA-CAD (Master Orchestration) / Digital Twin Architecture Team                                                                                                                                                                                                 |
+| Machine | `lab_viewer`, `workspace`                                                                                                                                                                                                                                        |
+| Intent  | Remediate all user visual annotations on the campus night view (`03_campus_wide_night.png`) and overhaul the campus architecture, distant landscape, and vehicle fleet: (1) Replace single-point `ConeGeometry` light poles with **dual independent rectangular light sources** per twin-arm parking lot pole (`2x` rectangular LED panels `0.34m x 0.78m`, `2x` Fresnel-diffused rectangular-origin volumetric beams, `2x` wide-penumbra `SpotLight`s, and `2x` elongated Gaussian ground washes) and **large rectangular light sources** on single-arm Biotech Parkway streetlamps with soft edge-feathered shader falloff (zero harsh diagonal beam lines); (2) Expand the West Main Lab to `X = -22.0m` and construct a stepped-up high-bay (`H = 5.60m`) **Rear North L-Wing** (`X = -22.0m..8.0m, Z = 9.5m..27.5m`, $540\text{ m}^2$) connected via an open interior walkthrough portal along `Z = 9.5m`, paired with a **Sculpted Modern Jutting Entrance Roof** (`4.85m` cantilever, Western Red Cedar soffit, exposed glulam rafters, angled V-columns, and double-height louvered clerestory); (3) Eliminate all generic `SphereGeometry` landscape berms and `horizonDisc`, replacing them with a continuous $1400\text{ m} \times 1400\text{ m}$ vertex-displaced 3D topographical terrain mesh, stratified limestone rock outcrops, and 4 detailed modern research park buildings along Biotech Parkway; (4) Add 4 everyday vehicles (`Audi A4 B8`, `2021 Alfa Romeo Giulia`, `2012 Dodge Charger R/T`, `2024 Ford F-150`) from `/Users/Samuel/Desktop/Cars` to replace several supercars in the parking lot and street traffic. |
+
+### Created
+
+- `lab_viewer/assets/models/car_audi_a4_b8.glb`: 2010 Audi A4 B8 sedan GLB asset.
+- `lab_viewer/assets/models/car_alfa_romeo_giulia.glb`: 2021 Alfa Romeo Giulia sedan GLB asset.
+- `lab_viewer/assets/models/car_dodge_charger.glb`: 2012 Dodge Charger R/T sedan GLB asset.
+- `lab_viewer/assets/models/car_ford_f150.glb`: 2024 Ford F-150 pickup GLB asset.
+- `.master/logs/report_cards/2026-11-12_OGA_lab-campus-lighting-terrain-l-wing-cars.md`: Session self-report card.
+
+### Changed
+
+- `lab_viewer/engine/LabEnvironment3D.js`: Added `_getDiffusedRectangularWashTexture()`, `_getDiffusedBeamShaderMaterial()`, and `_createDiffusedRectangularBeamMesh()`; rebuilt twin-arm parking lot poles with 2 independent rectangular sources/beams/washes and single-arm streetlamps with rectangular sources/beams; expanded West Lab to `X = -22.0m` and added the `H = 5.60m` Rear North L-Wing (`Z = 9.5..27.5m`), Sculpted Modern Jutting Entrance Roof, `_buildTopographicalSurroundingTerrain()`, `_buildNeighboringRoadsideBuildings()`, and everyday GLB vehicle fleet.
+- `lab_viewer/engine/LabCasework.js`: Added modular research islands in the expanded West bay and Rear North L-Wing, relocated the 2 Labconco Fume Hoods to `Z = 26.1m` on the Rear L-Wing North wall, and shifted `UV_Cabinet_Synthesis` to `X = -21.84m`.
+- `lab_viewer/engine/LabDockManager.js`: Relocated the 4 synthesis fume hood twins (`rotovap`, `vacuum_pump`, `hotplate`, `high_pressure_reactor`) to `Z = 26.05m` inside the Rear L-Wing fume hoods.
+- `lab_viewer/engine/LabUtilities.js`: Added benchtop duplex outlets, PC workstations, pipettor carousels, and glassware on the new L-Wing islands, and updated fume hood accessory coordinates to `Z = 26.05m`.
+- `lab_viewer/engine/LabPlayerController.js`: Updated default overview camera pose and `_detectZone()` for the expanded West Lab and Rear North L-Wing.
+
+---
+
 ## 2026-10-26 · OGA · disintegration-tester-industrial-cad-and-centrifuge-ui-parity
 
 | Field   | Value                                                                                                                                                                                                                                                            |

@@ -123,7 +123,42 @@ body, html {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+}
+
+.mood-switcher {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.mood-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 4px 9px;
+  border-radius: 5px;
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.mood-btn:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.mood-btn.active {
+  background: rgba(0, 212, 232, 0.16);
+  color: var(--cyan);
+  box-shadow: inset 0 0 0 1px rgba(0, 212, 232, 0.45);
 }
 
 .btn-icon {
@@ -570,6 +605,163 @@ body, html {
   color: #000;
   font-weight: 600;
   border-color: var(--green);
+}
+
+/* --- Mobile Eco Mode & Power Controls --- */
+.mobile-mode-btn {
+  border-color: rgba(0, 240, 255, 0.3);
+  transition: all 0.2s ease;
+}
+
+.mobile-mode-btn.is-active {
+  background: rgba(0, 255, 170, 0.18);
+  border-color: var(--green, #00ffaa);
+  color: var(--green, #00ffaa);
+  box-shadow: 0 0 10px rgba(0, 255, 170, 0.3);
+}
+
+.instrument-power-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  background: rgba(14, 22, 33, 0.85);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  border-radius: 6px;
+}
+
+.power-status-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #8fa3b8;
+}
+
+.power-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff5555;
+  box-shadow: 0 0 6px #ff5555;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.power-indicator.is-on {
+  background: var(--green, #00ffaa);
+  box-shadow: 0 0 8px var(--green, #00ffaa);
+}
+
+.btn-power-toggle {
+  background: rgba(0, 240, 255, 0.15);
+  border: 1px solid #00f0ff;
+  color: #00f0ff;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-power-toggle:hover {
+  background: rgba(0, 240, 255, 0.3);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+}
+
+.btn-power-toggle.is-off {
+  background: rgba(255, 170, 0, 0.18);
+  border-color: #ffaa00;
+  color: #ffaa00;
+}
+
+/* --- Virtual Touch Controls for Mobile Walk Navigation --- */
+.mobile-touch-controls {
+  position: absolute;
+  bottom: 84px;
+  left: 20px;
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: auto;
+}
+
+.mobile-touch-controls.is-hidden {
+  display: none !important;
+}
+
+.touch-dpad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: rgba(10, 16, 24, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  padding: 8px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.touch-row {
+  display: flex;
+  gap: 4px;
+}
+
+.touch-btn {
+  width: 46px;
+  height: 46px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+  cursor: pointer;
+  transition: background 0.1s, transform 0.1s;
+}
+
+.touch-btn:active {
+  background: rgba(0, 240, 255, 0.35);
+  border-color: #00f0ff;
+  color: #00f0ff;
+  transform: scale(0.92);
+}
+
+.touch-sprint {
+  color: #ffaa00;
+  font-size: 18px;
+}
+
+.touch-exit-walk {
+  width: auto;
+  height: 32px;
+  padding: 0 14px;
+  font-size: 11px;
+  font-family: var(--font-mono, monospace);
+  font-weight: 700;
+  background: rgba(255, 85, 85, 0.2);
+  border: 1px solid rgba(255, 85, 85, 0.5);
+  color: #ff8888;
+  border-radius: 6px;
+}
+
+.touch-exit-walk:active {
+  background: rgba(255, 85, 85, 0.4);
 }
 
 /* --- Mobile Responsive Optimizations (< 768px) --- */

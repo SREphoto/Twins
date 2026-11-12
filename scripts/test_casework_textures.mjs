@@ -23,6 +23,7 @@ if (typeof document === "undefined") {
             stroke: () => {},
             arc: () => {},
             fill: () => {},
+            closePath: () => {},
             createLinearGradient: () => ({ addColorStop: () => {} }),
             createRadialGradient: () => ({ addColorStop: () => {} })
           })

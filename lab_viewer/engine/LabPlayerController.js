@@ -27,13 +27,13 @@ export class LabPlayerController {
     this.orbitControls.dampingFactor = 0.08;
     this.orbitControls.maxPolarAngle = Math.PI / 2 - 0.02; // Prevent clipping through floor
     this.orbitControls.minDistance = 1.0;
-    this.orbitControls.maxDistance = 45.0;
+    this.orbitControls.maxDistance = 220.0;
 
-    // Default Overview Pose (High Angle Isometric Sightline across Grand Lab)
+    // Default Overview Pose (Grand Campus & L-Wing Complex Sightline)
     this.mode = "overview"; // "overview", "station_focus", or "walk"
-    this.position = new THREE.Vector3(7.2, 3.4, -7.2);
+    this.position = new THREE.Vector3(-22.0, 24.5, -62.0);
     this.camera.position.copy(this.position);
-    this.cameraTarget = new THREE.Vector3(-6.0, 1.1, 0.5);
+    this.cameraTarget = new THREE.Vector3(8.0, 1.8, -10.0);
     this.orbitControls.target.copy(this.cameraTarget);
     this.camera.lookAt(this.cameraTarget);
 
@@ -202,8 +202,8 @@ export class LabPlayerController {
   // Glide to Grand Overview
   glideToOverview() {
     this.glideToStation(
-      new THREE.Vector3(14.0, 15.0, -22.0),
-      new THREE.Vector3(14.0, 1.5, 0.0),
+      new THREE.Vector3(-22.0, 24.5, -62.0),
+      new THREE.Vector3(8.0, 1.8, -10.0),
       "Grand Overview · Architectural Complex",
       "overview"
     );
@@ -352,7 +352,11 @@ export class LabPlayerController {
   }
 
   _detectZone(x, z) {
-    if (z < -9.5) return "Exterior Campus: Parking Lot & Landscaping";
+    if (z > 9.5 && x >= 25.0 && x <= 36.0) return "Outdoor Break Room Staff Patio & Pergola";
+    if (z > 9.5 && z <= 27.5 && x >= -22.0 && x <= 8.0) return "Zone 2B: North High-Bay Research L-Wing";
+    if (z < -9.5 || (z > 9.5 && (x < -22.0 || x > 8.0 || z > 27.5)) || x < -22.0 || x > 44.0 || (x > 38.0 && Math.abs(z) > 8.0)) {
+      return "Exterior Campus: Biotech Grounds & Parking";
+    }
     if (x >= 38.0 && x <= 44.0 && z >= -8.0 && z <= 8.0) return "Zone 14: Women's Locker Room, Changing Suite & Showers";
     if (x >= 16.0 && x <= 27.0 && z > 1.5) return "Zone 10: Grand Boardroom & Conference Suite";
     if (x > 27.0 && x <= 33.5 && z > 1.5) return "Zone 11: Staff Break Room & Kitchenette";
