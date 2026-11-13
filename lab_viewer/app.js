@@ -19,6 +19,7 @@ import { LabDockManager } from "./engine/LabDockManager.js";
 import { LabPlayerController } from "./engine/LabPlayerController.js";
 import { physicalDataBus } from "./engine/PhysicalDataBus.js";
 import { labAudio } from "./engine/LabSFXMixer.js";
+import { MobilePerfBudget } from "./engine/MobilePerfBudget.js";
 
 class GrandLabApp {
   constructor() {
@@ -36,12 +37,33 @@ class GrandLabApp {
       this.isMobile = true;
     } else if (mobileParam === "0" || modeParam === "desktop") {
       this.isMobile = false;
-    } else if (storedMobile !== null) {
-      this.isMobile = storedMobile === "1";
     } else {
-      this.isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-                      (navigator.maxTouchPoints > 1 && window.innerWidth < 1024) ||
-                      window.innerWidth < 768;
+      // Phones/tablets: mobile user agent, iPadOS (reports as Mac but has touch), touch + small
+      // screen, or touch + low device memory. A stored "desktop" choice is ignored on phones,
+      // because the full desktop scene does not fit in a phone's memory and crashes the tab.
+      const ua = navigator.userAgent || "";
+      const touch = navigator.maxTouchPoints > 1 || "ontouchstart" in window;
+      const smallScreen = Math.min(window.screen?.width || 9999, window.screen?.height || 9999) < 900 ||
+                          window.innerWidth < 1024;
+      const lowMemory = typeof navigator.deviceMemory === "number" && navigator.deviceMemory <= 4;
+      const isPhone = /Android.+Mobile|iPhone|iPod|Windows Phone|Mobi/i.test(ua) || (touch && smallScreen && window.innerWidth < 768);
+      const detected = isPhone ||
+                       /Android|iPad/i.test(ua) ||
+                       (/Macintosh/i.test(ua) && touch) ||
+                       (touch && smallScreen) ||
+                       (touch && lowMemory) ||
+                       window.innerWidth < 768;
+      if (storedMobile !== null && !isPhone) {
+        this.isMobile = storedMobile === "1";
+      } else {
+        this.isMobile = detected;
+      }
+    }
+    document.documentElement.classList.toggle("is-mobile-lab", this.isMobile);
+
+    // Mobile: no audio at all (no AudioContext, no generated sound buffers)
+    if (this.isMobile) {
+      labAudio.disable();
     }
 
     this.isContextLost = false;
@@ -82,10 +104,12 @@ class GrandLabApp {
     this.renderer.setSize(this.width, this.height);
 
     // On mobile devices, clamp pixel ratio to 1.25 to prevent VRAM exhaustion and iOS WebKit GPU crash
-    const maxDpr = this.isMobile ? 1.25 : 2.0;
+    const lowMem = typeof navigator.deviceMemory === "number" && navigator.deviceMemory <= 4;
+    const maxDpr = this.isMobile ? (lowMem ? 1.0 : 1.25) : 2.0;
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDpr));
 
-    this.renderer.shadowMap.enabled = true;
+    // Mobile: no shadow maps (saves a 4096px shadow texture and a second pass over ~1,400 meshes)
+    this.renderer.shadowMap.enabled = !this.isMobile;
     this.renderer.shadowMap.type = this.isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -125,7 +149,7 @@ class GrandLabApp {
     });
 
     // 2. SEFA Casework, Fume Hoods & Bespoke Procedural Executive Furniture
-    this.casework = new LabCasework(this.scene, this.environment.colliders);
+    this.casework = new LabCasework(this.scene, this.environment.colliders, { isMobile: this.isMobile });
 
     // 3. Interactive Utilities (Running water, Bunsen burners, reagents, power)
     this.utilities = new LabUtilities(this.scene, this.environment.colliders);
@@ -137,6 +161,7 @@ class GrandLabApp {
       lazyLoad: this.isMobile,
       maxActiveMachines: 1,
       onTwinStateChange: (twinId, isOn) => {
+        if (this.mobilePerf) this.mobilePerf.refresh();
         this._onTwinStateChanged(twinId, isOn);
       }
     });
@@ -165,6 +190,17 @@ class GrandLabApp {
       this.environment.colliders,
       (zoneName, mode) => this._onZoneOrModeChange(zoneName, mode)
     );
+
+    // 7. Mobile-only memory & GPU budget (texture cap, 4 nearest point lights, small far detail culling)
+    if (this.isMobile) {
+      this.mobilePerf = new MobilePerfBudget(this.scene, this.camera, {
+        maxTextureSize: 1024,
+        maxPointLights: 4
+      });
+      if (this.casework.assetsReadyPromise) {
+        this.casework.assetsReadyPromise.then(() => this.mobilePerf.refresh());
+      }
+    }
   }
 
   _initUI() {
@@ -917,6 +953,8 @@ class GrandLabApp {
 
       // 4. Update Center Raycasting
       this._updateRaycasting();
+
+      if (this.mobilePerf) this.mobilePerf.update();
 
       // 5. Render Scene
       this.renderer.render(this.scene, this.camera);

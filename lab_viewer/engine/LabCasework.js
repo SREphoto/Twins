@@ -18,8 +18,10 @@ import { Reflector } from "three/addons/objects/Reflector.js";
 import { labAudio } from "./LabSFXMixer.js";
 
 export class LabCasework {
-  constructor(scene, colliders = []) {
+  constructor(scene, colliders = [], options = {}) {
     this.scene = scene;
+    // Mobile: skip the 4.5 MB compound microscope GLB (three 4096px textures, ~250 MB of GPU memory)
+    this.isMobile = Boolean(options.isMobile);
     this.colliders = colliders;
     this.root = new THREE.Group();
     this.root.name = "Modern_Lab_Casework_Root";
@@ -2082,7 +2084,7 @@ export class LabCasework {
     this.assetsReadyPromise = Promise.all([
       loadGLB("./assets/models/imac_27.glb"),
       loadGLB("./assets/models/medical_washcloths.glb"),
-      loadGLB("./assets/models/compound_microscope.glb")
+      this.isMobile ? Promise.resolve(null) : loadGLB("./assets/models/compound_microscope.glb")
     ]).then(([imacTpl, washclothTpl, microscopeTpl]) => {
       // 1. Mount 27" iMacs on all queued Office, Reception & Admin Desks
       if (imacTpl) {
