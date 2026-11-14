@@ -31,7 +31,7 @@ async function runTest() {
   const chrome = spawn(chromePath, [
     '--headless=new',
     `--remote-debugging-port=${CDP_PORT}`,
-    '--window-size=390,844',
+    '--window-size=844,844',
     '--disable-gpu-sandbox',
     '--no-sandbox',
     `http://127.0.0.1:${PORT}/lab_viewer/index.html?mobile=1`
@@ -83,13 +83,17 @@ async function runTest() {
     await send('Runtime.enable');
     await send('Network.enable');
 
-    // Emulate iPhone 14 Pro mobile viewport
+    // Emulate iPhone 14 Pro mobile viewport + multi-touch
     await send('Emulation.setDeviceMetricsOverride', {
       width: 390,
       height: 844,
       deviceScaleFactor: 2,
       mobile: true,
       hasTouch: true
+    });
+    await send('Emulation.setTouchEmulationEnabled', {
+      enabled: true,
+      maxTouchPoints: 5
     });
 
     console.log('📱 Navigating to mobile lab: /lab_viewer/index.html?mobile=1 ...');
@@ -229,8 +233,8 @@ async function runTest() {
     fs.writeFileSync(shot4Path, Buffer.from(shotStandby.data, 'base64'));
     console.log(`📸 Saved: ${shot4Path}`);
 
-    // Step 5: Test Walk Mode and Virtual D-Pad Touch Controls
-    console.log('🚶 Testing Walk Mode and Virtual Touch Controls visibility...');
+    // Step 5: Test Walk Mode, Walking Speed Zone & Aim Controls (Portrait + Landscape)
+    console.log('🚶 Testing Walk Mode, Walking Speed Zone & Remainder-of-Screen Aim...');
     await send('Runtime.evaluate', {
       expression: `
         (() => {
@@ -239,26 +243,254 @@ async function runTest() {
         })()
       `
     });
-    await sleep(1500);
+    await sleep(1600);
 
     const walkTouchState = await send('Runtime.evaluate', {
       expression: `
         (() => {
-          const dpad = document.getElementById('mobile-touch-controls');
+          const container = document.getElementById('mobile-touch-controls');
+          const wsz = document.getElementById('walking-speed-zone');
+          const track = document.getElementById('wsz-track');
+          const rect = track ? track.getBoundingClientRect() : null;
           return {
-            dpadExists: !!dpad,
-            dpadVisible: dpad && !dpad.classList.contains('is-hidden')
+            dpadExists: !!container,
+            dpadVisible: container && !container.classList.contains('is-hidden'),
+            wszExists: !!wsz,
+            trackRect: rect ? { left: rect.left, top: rect.top, width: rect.width, height: rect.height } : null
           };
         })()
       `,
       returnByValue: true
     });
-    console.log('🎮 Virtual D-Pad State in Walk Mode:', walkTouchState.result?.value);
+    console.log('🎮 Walking Speed Zone State (Portrait):', walkTouchState.result?.value);
+    if (!walkTouchState.result?.value?.dpadVisible || !walkTouchState.result?.value?.trackRect) {
+      throw new Error('FAIL: Walking Speed Zone not visible in Walk Mode!');
+    }
 
     const shotWalk = await send('Page.captureScreenshot', { format: 'png' });
     const shot5Path = path.join(OUT_DIR, '05_mobile_touch_walk_controls.png');
     fs.writeFileSync(shot5Path, Buffer.from(shotWalk.data, 'base64'));
     console.log(`📸 Saved: ${shot5Path}`);
+
+    // Step 5b: Switch to Landscape Mobile (844x390, matching user's device layout) & Test Real Touch Drags
+    console.log('📱 Switching to Landscape Mobile (844x390) to verify Walking Speed Zone + Screen Aim + Zero Pinch Zoom...');
+    await send('Emulation.setDeviceMetricsOverride', {
+      width: 844,
+      height: 390,
+      deviceScaleFactor: 2,
+      mobile: true,
+      hasTouch: true
+    });
+    await send('Page.navigate', { url: `http://127.0.0.1:${PORT}/lab_viewer/index.html?mobile=1` });
+    await sleep(4000);
+
+    const landscapeMetrics = await send('Runtime.evaluate', {
+      expression: `
+        (() => {
+          const app = window.__labApp;
+          const track = document.getElementById('wsz-track');
+          const r = track.getBoundingClientRect();
+          return {
+            mode: app.player.mode,
+            isContextLost: app.isContextLost,
+            camPos: app.camera.position.toArray(),
+            yaw: app.player.yaw,
+            pitch: app.player.pitch,
+            trackCenterX: r.left + r.width / 2,
+            trackCenterY: r.top + r.height / 2,
+            trackHeight: r.height
+          };
+        })()
+      `,
+      returnByValue: true
+    });
+    const lm = landscapeMetrics.result?.value;
+    console.log('📐 Landscape Overview Metrics:', lm);
+    if (lm.isContextLost) {
+      throw new Error('FAIL: WebGL context was lost in landscape mobile mode!');
+    }
+
+    // 1) Drag finger UP in Walking Speed Zone to move forward
+    const startX = Math.round(lm.trackCenterX);
+    const startY = Math.round(lm.trackCenterY + 25);
+    await send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [{ x: startX, y: startY, id: 1 }]
+    });
+    for (let step = 1; step <= 6; step++) {
+      await send('Input.dispatchTouchEvent', {
+        type: 'touchMove',
+        touchPoints: [{ x: startX, y: Math.round(startY - step * 11), id: 1 }]
+      });
+      await sleep(90);
+    }
+    await sleep(600);
+
+    const afterForward = await send('Runtime.evaluate', {
+      expression: `
+        (() => {
+          const app = window.__labApp;
+          return {
+            pos: app.camera.position.toArray(),
+            throttle: app.player.walkThrottle,
+            targetThrottle: app.player.targetWalkThrottle,
+            readout: document.getElementById('wsz-speed-readout')?.textContent
+          };
+        })()
+      `,
+      returnByValue: true
+    });
+
+    // Capture active forward screenshot in landscape
+    const shotLandscapeForward = await send('Page.captureScreenshot', { format: 'png' });
+    const shot6Path = path.join(OUT_DIR, '06_mobile_landscape_walking_speed_zone.png');
+    fs.writeFileSync(shot6Path, Buffer.from(shotLandscapeForward.data, 'base64'));
+    console.log(`📸 Saved: ${shot6Path}`);
+
+    // 2) Drag finger DOWN past start to slow down and reverse (backup)
+    for (let step = 1; step <= 11; step++) {
+      await send('Input.dispatchTouchEvent', {
+        type: 'touchMove',
+        touchPoints: [{ x: startX, y: Math.round((startY - 66) + step * 13), id: 1 }]
+      });
+      await sleep(80);
+    }
+    await sleep(600);
+
+    const afterReverse = await send('Runtime.evaluate', {
+      expression: `
+        (() => {
+          const app = window.__labApp;
+          return {
+            pos: app.camera.position.toArray(),
+            throttle: app.player.walkThrottle,
+            targetThrottle: app.player.targetWalkThrottle,
+            readout: document.getElementById('wsz-speed-readout')?.textContent
+          };
+        })()
+      `,
+      returnByValue: true
+    });
+
+    await send('Input.dispatchTouchEvent', {
+      type: 'touchEnd',
+      touchPoints: []
+    });
+    await sleep(450);
+
+    // 3) Drag on the remainder of the screen (left/center) to aim direction
+    await send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [{ x: 240, y: 200, id: 2 }]
+    });
+    for (let step = 1; step <= 6; step++) {
+      await send('Input.dispatchTouchEvent', {
+        type: 'touchMove',
+        touchPoints: [{ x: 240 + step * 25, y: 200 - step * 10, id: 2 }]
+      });
+      await sleep(60);
+    }
+    await send('Input.dispatchTouchEvent', {
+      type: 'touchEnd',
+      touchPoints: []
+    });
+    await sleep(300);
+
+    // 4) Attempt two-finger pinch on canvas -> must NOT zoom camera
+    const beforePinch = await send('Runtime.evaluate', {
+      expression: `window.__labApp.camera.position.toArray()`,
+      returnByValue: true
+    });
+    await send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [{ x: 200, y: 180, id: 3 }, { x: 350, y: 180, id: 4 }]
+    });
+    await send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: [{ x: 140, y: 180, id: 3 }, { x: 410, y: 180, id: 4 }]
+    });
+    await sleep(250);
+    await send('Input.dispatchTouchEvent', {
+      type: 'touchEnd',
+      touchPoints: []
+    });
+    await sleep(250);
+
+    const afterAimAndPinch = await send('Runtime.evaluate', {
+      expression: `
+        (() => {
+          const app = window.__labApp;
+          return {
+            yaw: app.player.yaw,
+            pitch: app.player.pitch,
+            pos: app.camera.position.toArray(),
+            orbitZoomEnabled: app.player.orbitControls.enableZoom
+          };
+        })()
+      `,
+      returnByValue: true
+    });
+
+    // 5) Test Cruise Lock, Ground Floor Walk & Controls Help Modal
+    await send('Runtime.evaluate', {
+      expression: `
+        (() => {
+          document.getElementById('btn-wsz-cruise')?.click();
+          document.getElementById('btn-help-controls')?.click();
+        })()
+      `
+    });
+    await sleep(300);
+    const modalAndCruise = await send('Runtime.evaluate', {
+      expression: `
+        (() => {
+          const app = window.__labApp;
+          const modal = document.getElementById('controls-help-modal');
+          const res = {
+            cruiseLocked: app.player.cruiseLocked,
+            modalOpen: modal && !modal.classList.contains('is-hidden')
+          };
+          document.getElementById('btn-close-controls-modal')?.click();
+          document.getElementById('btn-wsz-cruise')?.click();
+          return res;
+        })()
+      `,
+      returnByValue: true
+    });
+    console.log('🔒 Cruise & Modal Check:', modalAndCruise.result?.value);
+
+    const fwdDist = Math.hypot(
+      afterForward.result.value.pos[0] - lm.camPos[0],
+      afterForward.result.value.pos[1] - lm.camPos[1],
+      afterForward.result.value.pos[2] - lm.camPos[2]
+    );
+    const revDelta = afterReverse.result.value.throttle;
+    const yawDelta = Math.abs(afterAimAndPinch.result.value.yaw - lm.yaw);
+    const pinchDist = Math.hypot(
+      afterAimAndPinch.result.value.pos[0] - beforePinch.result.value[0],
+      afterAimAndPinch.result.value.pos[1] - beforePinch.result.value[1],
+      afterAimAndPinch.result.value.pos[2] - beforePinch.result.value[2]
+    );
+
+    console.log('🏃 Speed Zone Forward Check:', { fwdDist, throttle: afterForward.result.value.throttle, readout: afterForward.result.value.readout });
+    console.log('🔙 Speed Zone Reverse Check:', { throttle: revDelta, readout: afterReverse.result.value.readout });
+    console.log('🎯 Screen Aim & Anti-Pinch Check:', { yawDelta, pinchDist, orbitZoomEnabled: afterAimAndPinch.result.value.orbitZoomEnabled });
+
+    if (fwdDist < 0.3 || afterForward.result.value.throttle <= 0) {
+      throw new Error('FAIL: Dragging up in Walking Speed Zone did not move camera forward!');
+    }
+    if (revDelta >= 0) {
+      throw new Error('FAIL: Dragging down in Walking Speed Zone did not engage reverse!');
+    }
+    if (yawDelta < 0.05) {
+      throw new Error('FAIL: Dragging remainder of screen did not aim camera!');
+    }
+    if (afterAimAndPinch.result.value.orbitZoomEnabled || pinchDist > 0.05) {
+      throw new Error('FAIL: Pinch-to-zoom should be disabled in mobile walk tool!');
+    }
+    if (!modalAndCruise.result?.value?.cruiseLocked || !modalAndCruise.result?.value?.modalOpen) {
+      throw new Error('FAIL: Cruise lock or Controls help modal failed to toggle!');
+    }
 
     // Step 6: Console Error Verification
     console.log(`\n🔍 Browser Console Error Audit:`);

@@ -9,6 +9,7 @@
  * - Benchtop Duplex Outlets (Power_Receptacle_Duplex) with NEMA 5-15P plugs & circuit continuity
  */
 import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { labAudio } from "./LabSFXMixer.js";
 
 export class LabUtilities {
@@ -20,6 +21,7 @@ export class LabUtilities {
     this.interactiveObjects = []; // Clickable items (valves, burners, bottles, beakers)
     this.activeWaterStreams = [];
     this.activeFlames = [];
+    this.pcPropQueue = [];
 
     this._initMaterials();
     this._buildSinksAndFaucets();
@@ -27,6 +29,7 @@ export class LabUtilities {
     this._buildReagentsAndGlassware();
     this._buildDuplexPowerOutlets();
     this._buildInstrumentWorkstationSurroundings();
+    this._populatePCPropGLBs();
 
     this.scene.add(this.root);
   }
@@ -2065,7 +2068,7 @@ export class LabUtilities {
       [-16.5, 0.965, 15.02, 0, true], [-12.5, 0.965, 15.02, 0, true], [-6.2, 0.965, 15.02, 0, true], [-2.2, 0.965, 15.02, 0, true], // Rear L-Wing Row A/B
       [-16.5, 0.965, 21.52, 0, true], [-12.5, 0.965, 21.52, 0, true], [-6.2, 0.965, 21.52, 0, true], [-2.2, 0.965, 21.52, 0, true], // Rear L-Wing Row C/D
       [-11.8, 0.99, -8.63, 0, false], [-8.2, 0.99, -8.63, 0, false], // Perimeter Wet & Furnace Benches (Flush on Backsplash)
-      [5.0, 0.45, -2.52, 0, false] // Dedicated FE-SEM Floor Pedestal Receptacle (+Z face toward SEM rear)
+      [5.4, 0.45, 15.0, -Math.PI / 2, false] // Dedicated FE-SEM Floor Pedestal Receptacle in Rear L-Wing Microscopy Bay
     ];
 
     outletSpecs.forEach(([ox, oy, oz, rotY, hasBenchPedestal], i) => {
@@ -2328,8 +2331,6 @@ export class LabUtilities {
     this._createCeramicCrucibles(-12.35, -8.15);
     // Heavy 24-inch Stainless Steel Crucible Tongs
     this._createCrucibleTongs(-12.35, -8.35);
-    // Aluminized Kevlar Heat-Resistant Furnace Gloves (seated on bench surface)
-    this._createFurnaceGloves(-12.55, -8.20);
     // Power Cord
     this._createEquipmentPowerCord("muffle_furnace", -11.8, BENCH_Y + 0.18, -8.45, -11.8, 0.99, -8.63);
 
@@ -2348,15 +2349,58 @@ export class LabUtilities {
     // Power Cord
     this._createEquipmentPowerCord("ph_meter", -8.2, BENCH_Y + 0.08, -8.45, -8.2, 0.99, -8.63);
 
-    // 18. Zeiss Gemini FE-SEM Station & Specimen Prep Suite (Zone 4, rotated Math.PI so front faces +Z)
-    // Specimen Stub Box, Carbon Tape & Tweezers resting cleanly on open rear-left SEM console deck (clear of +Z trackball!)
-    this._createSEMStubBox(4.46, -2.06, 0.82);
-    this._createCarbonTapeAndSilverPaint(4.65, -2.10, 0.82);
-    this._createPrecisionTweezers(4.82, -2.04, 0.821);
-    // Dedicated FE-SEM Heavy Power Cord into floor conduit receptacle
-    this._createEquipmentPowerCord("sem", 5.0, 0.52, -2.26, 5.0, 0.45, -2.52);
-    // Gold/Palladium Sputter Coater Chamber on dedicated microscopy specimen prep bench (Y = 0.90m)
-    this._createSputterCoaterChamber(5.5, -3.1);
+    // 18. Zeiss Gemini FE-SEM Station & Specimen Prep Suite (Relocated to Rear North L-Wing East Microscopy Bay)
+    // Prep supplies & Sputter Coater rest cleanly on top of Microscopy_Specimen_Prep_Bench (4.8, 0.90, 10.1)
+    this._createSEMStubBox(4.35, 10.05, 0.90);
+    this._createCarbonTapeAndSilverPaint(4.55, 10.05, 0.90);
+    this._createPrecisionTweezers(4.75, 10.10, 0.901);
+    // Dedicated FE-SEM Heavy Power Cord into floor conduit receptacle in Rear L-Wing
+    this._createEquipmentPowerCord("sem", 4.65, 0.52, 15.0, 5.4, 0.45, 15.0);
+    // Gold/Palladium Sputter Coater Chamber on relocated prep bench (Y = 0.90m)
+    this._createSputterCoaterChamber(5.25, 10.05);
+  }
+
+  _populatePCPropGLBs() {
+    if (this.pcPropQueue.length === 0) return;
+    const loader = new GLTFLoader();
+    const loadGLB = (url) =>
+      new Promise((resolve) => {
+        loader.load(
+          url,
+          (gltf) => {
+            gltf.scene.traverse((n) => {
+              if (n.isMesh) {
+                n.castShadow = true;
+                n.receiveShadow = true;
+                const ms = Array.isArray(n.material) ? n.material : [n.material];
+                ms.forEach((m) => {
+                  if (m && m.transmission && m.transmission > 0) {
+                    m.transmission = 0;
+                    m.transparent = true;
+                  }
+                });
+              }
+            });
+            resolve(gltf.scene);
+          },
+          undefined,
+          () => resolve(null)
+        );
+      });
+
+    Promise.all([
+      loadGLB("./assets/models/apple_magic_keyboard.glb"),
+      loadGLB("./assets/models/apple_magic_mouse.glb")
+    ]).then(([kbdTpl, mouseTpl]) => {
+      this.pcPropQueue.forEach(({ parent, type, x, y, z }) => {
+        const tpl = type === "keyboard" ? kbdTpl : mouseTpl;
+        if (!tpl) return;
+        const inst = tpl.clone(true);
+        inst.position.set(x, y, z);
+        if (type === "keyboard") inst.scale.set(1.12, 1.4, 2.1);
+        parent.add(inst);
+      });
+    });
   }
 
   // --- PC Workstation for Analytical Instruments ---
@@ -2396,28 +2440,9 @@ export class LabUtilities {
     screenFace.position.set(0, 0.26, -0.019);
     pcGroup.add(screenFace);
 
-    // Full-Size Slim Keyboard with Chiclet Keys
-    const kbd = new THREE.Mesh(
-      new THREE.BoxGeometry(0.42, 0.012, 0.14),
-      this.materials.screenBezelMetal
-    );
-    kbd.position.set(0, 0.006, 0.12);
-    pcGroup.add(kbd);
-
-    // Laser Optical Mouse on Textured Neoprene Mousepad
-    const pad = new THREE.Mesh(
-      new THREE.BoxGeometry(0.20, 0.002, 0.18),
-      this.materials.leatherBlack
-    );
-    pad.position.set(0.28, 0.001, 0.12);
-    pcGroup.add(pad);
-
-    const mouse = new THREE.Mesh(
-      new THREE.BoxGeometry(0.06, 0.02, 0.10),
-      this.materials.screenBezelMetal
-    );
-    mouse.position.set(0.28, 0.01, 0.12);
-    pcGroup.add(mouse);
+    // Authentic Apple Magic Keyboard + Right-Hand Magic Mouse (+X for -Z facing operator)
+    this.pcPropQueue.push({ parent: pcGroup, type: "keyboard", x: -0.02, y: 0.002, z: 0.12 });
+    this.pcPropQueue.push({ parent: pcGroup, type: "mouse", x: 0.25, y: 0.002, z: 0.12 });
 
     // Small Form Factor (SFF) Laboratory Desktop PC Tower
     const tower = new THREE.Mesh(

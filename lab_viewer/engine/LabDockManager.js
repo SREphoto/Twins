@@ -340,15 +340,16 @@ export class LabDockManager {
     // ==========================================
 
     // 18. Field Emission Scanning Electron Microscope (FE-SEM)
+    // Relocated to spacious Rear North L-Wing East Microscopy Bay (Z = 15.0m) clear of front entrance clutter
     this._mountTwin({
       id: "sem",
       name: "Scanning Electron Microscope",
       tag: "Zeiss Gemini FE-SEM (0.8nm UHV Resolution)",
-      zone: "Zone 4: High-Resolution Microscopy & Nanomaterials Suite",
-      pos: new THREE.Vector3(5.0, 0.0, -1.8), // Dedicated vibration-isolated station
-      rotY: Math.PI, // Rotated 180° so FE-SEM chamber door, dual 4K screens & trackball console (-Z native) face North (+Z) towards operator
+      zone: "Zone 8: High-Bay Electron Microscopy & Cryo Suite",
+      pos: new THREE.Vector3(4.2, 0.0, 15.0),
+      rotY: -Math.PI / 2, // Faces West (-X) into open Rear L-Wing microscopy bay
       scale: 1.0,
-      camConsole: { pos: new THREE.Vector3(5.0, 1.45, -0.6), look: new THREE.Vector3(5.0, 1.25, -1.8) },
+      camConsole: { pos: new THREE.Vector3(1.8, 1.45, 15.0), look: new THREE.Vector3(4.2, 1.25, 15.0) },
       builder: (group) => buildSEMModel(null, { includeLab: false })
     });
   }
@@ -480,83 +481,10 @@ export class LabDockManager {
   }
 
   _createStandbyPlinth(dockGroup, cfg) {
+    // Keep bench & floor stations 100% visually clean when idle (no floating STANDBY plaques,
+    // glowing pads, pins, or oversized spheres). Retain empty standbyGroup + invisible click hitBox.
     const plinthGroup = new THREE.Group();
     plinthGroup.name = `Plinth_${cfg.id}`;
-
-    // 1. Sleek chamfered SEFA mounting pad (dark graphite with subtle metallic luster)
-    const padMat = new THREE.MeshStandardMaterial({
-      color: 0x181e28,
-      roughness: 0.35,
-      metalness: 0.8
-    });
-    const pad = new THREE.Mesh(new THREE.BoxGeometry(5.0, 0.12, 4.2), padMat);
-    pad.position.y = 0.06;
-    pad.castShadow = true;
-    pad.receiveShadow = true;
-    plinthGroup.add(pad);
-
-    // 2. Cyan illuminated perimeter accent glow strip
-    const borderMat = new THREE.MeshBasicMaterial({
-      color: 0x00ffff,
-      transparent: true,
-      opacity: 0.6
-    });
-    const border = new THREE.Mesh(new THREE.BoxGeometry(5.06, 0.04, 4.26), borderMat);
-    border.position.y = 0.06;
-    plinthGroup.add(border);
-
-    // 3. Four corner locator pins / brackets
-    const bracketMat = new THREE.MeshStandardMaterial({
-      color: 0x4a5568,
-      roughness: 0.2,
-      metalness: 0.9
-    });
-    const bracketGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.25, 12);
-    [
-      [-2.3, -1.9], [2.3, -1.9],
-      [-2.3, 1.9], [2.3, 1.9]
-    ].forEach(([bx, bz]) => {
-      const b = new THREE.Mesh(bracketGeo, bracketMat);
-      b.position.set(bx, 0.12, bz);
-      plinthGroup.add(b);
-    });
-
-    // 4. Standby Status LED indicator
-    const ledMat = new THREE.MeshBasicMaterial({ color: 0xffaa00 }); // amber standby
-    const led = new THREE.Mesh(new THREE.SphereGeometry(0.15, 12, 12), ledMat);
-    led.position.set(-2.0, 0.2, 1.7);
-    plinthGroup.add(led);
-
-    // 5. Tilted Holographic Acrylic Monograph Display Plate (faces operator at +Z)
-    const signGroup = new THREE.Group();
-    signGroup.position.set(0, 0.2, 1.5);
-    signGroup.rotation.x = -Math.PI * 0.18; // 32° tilt toward operator
-
-    // Acrylic plate backing
-    const acrylicMat = new THREE.MeshStandardMaterial({
-      color: 0x0a121c,
-      roughness: 0.1,
-      metalness: 0.3,
-      transparent: true,
-      opacity: 0.85
-    });
-    const plate = new THREE.Mesh(new THREE.BoxGeometry(4.0, 2.0, 0.06), acrylicMat);
-    plate.position.y = 1.0;
-    signGroup.add(plate);
-
-    // Dynamic Canvas Badge Decal
-    const badgeTexture = this._createStandbyCanvasTexture(cfg.name, cfg.tag);
-    const badgeMat = new THREE.MeshBasicMaterial({
-      map: badgeTexture,
-      transparent: true,
-      opacity: 0.95
-    });
-    const badgeQuad = new THREE.Mesh(new THREE.PlaneGeometry(3.9, 1.9), badgeMat);
-    badgeQuad.position.set(0, 1.0, 0.035);
-    signGroup.add(badgeQuad);
-
-    plinthGroup.add(signGroup);
-
     dockGroup.add(plinthGroup);
     dockGroup.userData.standbyMesh = plinthGroup;
     return plinthGroup;

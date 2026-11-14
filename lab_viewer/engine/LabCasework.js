@@ -18,14 +18,21 @@ import { Reflector } from "three/addons/objects/Reflector.js";
 import { labAudio } from "./LabSFXMixer.js";
 
 export class LabCasework {
-  constructor(scene, colliders = []) {
+  constructor(scene, colliders = [], environment = null) {
     this.scene = scene;
     this.colliders = colliders;
+    this.environment = environment;
     this.root = new THREE.Group();
     this.root.name = "Modern_Lab_Casework_Root";
     this.fumeHoodSashes = [];
     this.interactiveObjects = [];
+    this.caseworkDoors = [];
+    this.lockerDoors = [];
+    this.conferenceProjector = null;
+    this.conferencePhone = null;
+    this.officeDeskLight = null;
     this.imacMountQueue = [];
+    this.glbMountQueue = [];
 
     this._initMaterials();
     this._buildLabIslands();
@@ -40,8 +47,10 @@ export class LabCasework {
     this._buildWomensLockerRoom();
     this._buildSafetyCore();
     this._buildUVGoggleCabinets();
-    this._buildGloveDispenserStations();
+    // Glove wall caddies disabled per visual audit (Photo 4 clutter removal)
+    // this._buildGloveDispenserStations();
     this._populateCaseworkGLBAssets();
+    this.environment?.onStateChange((state) => this._syncRoomState(state));
 
     this.scene.add(this.root);
   }
@@ -330,11 +339,12 @@ export class LabCasework {
         name: "Mat_Oak_Butcher_Bench"
       }),
       frostedShowerDoor: new THREE.MeshPhysicalMaterial({
-        color: 0xe2e8f0,
+        color: 0xdcf0f2,
         transparent: true,
-        opacity: 0.65,
-        roughness: 0.42,
-        metalness: 0.05,
+        opacity: 0.88,
+        roughness: 0.62,
+        metalness: 0.02,
+        transmission: 0,
         ior: 1.48,
         name: "Mat_Frosted_Shower_Door"
       }),
@@ -801,112 +811,189 @@ export class LabCasework {
     return group;
   }
 
-  // --- Architectural Framed Gallery Artwork (faces local +Z) ---
-  _createFramedGalleryArt(w = 1.6, h = 1.05, palette = "warm") {
+  // --- Architectural Framed Chemistry Gallery Artwork (faces local +Z) ---
+  _createFramedGalleryArt(w = 1.6, h = 1.05, palette = "molecule") {
     const group = new THREE.Group();
     const frame = new THREE.Mesh(
-      new THREE.BoxGeometry(w, h, 0.045),
+      new THREE.BoxGeometry(w, h, 0.05),
       this.materials.walnutDesk
     );
+    frame.castShadow = true;
     group.add(frame);
 
     const brassInlay = new THREE.Mesh(
-      new THREE.BoxGeometry(w - 0.04, h - 0.04, 0.048),
+      new THREE.BoxGeometry(w - 0.045, h - 0.045, 0.054),
       this.materials.brassAccent
     );
     group.add(brassInlay);
 
     const canvas = document.createElement("canvas");
-    canvas.width = 512;
-    canvas.height = 340;
+    canvas.width = 1024;
+    canvas.height = 680;
     const ctx = canvas.getContext("2d");
-    ctx.fillStyle = palette === "warm" ? "#f4efe6" : "#eef2f6";
-    ctx.fillRect(0, 0, 512, 340);
 
-    // Abstract geometric biotech / molecular motif
-    ctx.fillStyle = palette === "warm" ? "#c26d3a" : "#1e3a5f";
-    ctx.beginPath();
-    ctx.arc(175, 175, 96, 0, Math.PI * 2);
-    ctx.fill();
+    // Archival Cream Museum Mat + Gallery Background
+    ctx.fillStyle = "#f4efe6";
+    ctx.fillRect(0, 0, 1024, 680);
+    ctx.strokeStyle = "#d6cec0";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(42, 42, 940, 596);
 
-    ctx.fillStyle = palette === "warm" ? "#2d4a43" : "#0ea5e9";
-    ctx.fillRect(235, 72, 195, 195);
+    const mode = palette === "warm" ? "molecule" : palette === "cool" ? "orbital" : palette;
 
-    ctx.strokeStyle = "#1c1917";
-    ctx.lineWidth = 5;
-    ctx.beginPath();
-    ctx.moveTo(70, 265);
-    ctx.bezierCurveTo(180, 90, 320, 280, 450, 95);
-    ctx.stroke();
+    if (mode === "orbital" || mode === "periodic") {
+      // Minimalist Architectural Periodic Table & Quantum Orbital Plate
+      ctx.fillStyle = "#161514";
+      ctx.font = "700 28px Georgia, serif";
+      ctx.fillText("PERIODIC ARCHIVE · D-BLOCK TRANSITION SERIES", 76, 98);
+      ctx.fillStyle = "#8a7a68";
+      ctx.font = "600 16px monospace";
+      ctx.fillText("CHEMMATE ANALYTICAL INSTITUTE · PLATE IV", 76, 128);
+
+      const elements = [
+        ["26", "Fe", "55.845", "#1d4d4f"],
+        ["27", "Co", "58.933", "#c26d3a"],
+        ["28", "Ni", "58.693", "#2b303a"],
+        ["29", "Cu", "63.546", "#d62828"],
+        ["44", "Ru", "101.07", "#1d4d4f"],
+        ["45", "Rh", "102.91", "#2b303a"],
+        ["46", "Pd", "106.42", "#c26d3a"],
+        ["78", "Pt", "195.08", "#161514"],
+      ];
+      elements.forEach(([num, sym, mass, col], i) => {
+        const colIdx = i % 4;
+        const rowIdx = Math.floor(i / 4);
+        const bx = 76 + colIdx * 224;
+        const by = 165 + rowIdx * 215;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(bx, by, 200, 190);
+        ctx.strokeStyle = col;
+        ctx.lineWidth = 4;
+        ctx.strokeRect(bx, by, 200, 190);
+        ctx.fillStyle = col;
+        ctx.fillRect(bx, by, 200, 14);
+        ctx.font = "700 22px monospace";
+        ctx.fillText(num, bx + 18, by + 48);
+        ctx.font = "700 68px Georgia, serif";
+        ctx.fillText(sym, bx + 54, by + 125);
+        ctx.fillStyle = "#525252";
+        ctx.font = "600 18px monospace";
+        ctx.fillText(mass, bx + 58, by + 166);
+      });
+    } else {
+      // Organic / Supramolecular Structural Schematic Print (Purine / Porphyrin Synthesis)
+      ctx.fillStyle = "#161514";
+      ctx.fillRect(64, 64, 896, 552);
+      ctx.strokeStyle = "#c29b4a";
+      ctx.lineWidth = 3;
+      ctx.strokeRect(82, 82, 860, 516);
+
+      ctx.fillStyle = "#f4efe6";
+      ctx.font = "700 28px Georgia, serif";
+      ctx.fillText("SUPRAMOLECULAR LIGAND TOPOLOGY", 112, 134);
+      ctx.fillStyle = "#c29b4a";
+      ctx.font = "600 17px monospace";
+      ctx.fillText("C20H14N4 · PORPHYRIN MACROCYCLE RESONANCE", 112, 164);
+
+      // Draw crisp geometric benzene & heterocyclic rings
+      const drawHex = (cx, cy, r, accent = "#f4efe6") => {
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        for (let k = 0; k < 6; k++) {
+          const a = (k * Math.PI) / 3 + Math.PI / 6;
+          const px = cx + Math.cos(a) * r;
+          const py = cy + Math.sin(a) * r;
+          if (k === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * 0.56, 0, Math.PI * 2);
+        ctx.strokeStyle = "#c26d3a";
+        ctx.lineWidth = 3.5;
+        ctx.stroke();
+      };
+
+      drawHex(280, 345, 92, "#f4efe6");
+      drawHex(438, 255, 92, "#f4efe6");
+      drawHex(596, 345, 92, "#c29b4a");
+      drawHex(754, 435, 76, "#2dd4bf");
+
+      // Connecting covalent bonds & atom nodes
+      const nodes = [
+        [280, 345, "#d62828", "N"],
+        [438, 255, "#c26d3a", "C"],
+        [596, 345, "#2dd4bf", "Fe"],
+        [754, 435, "#f4efe6", "O"],
+      ];
+      nodes.forEach(([nx, ny, col, lbl]) => {
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        ctx.arc(nx, ny, 22, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#161514";
+        ctx.font = "700 18px monospace";
+        ctx.fillText(lbl, nx - (lbl.length > 1 ? 11 : 6), ny + 6);
+      });
+
+      // Chromatogram baseline trace along bottom
+      ctx.strokeStyle = "#38bdf8";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(112, 540);
+      for (let x = 112; x <= 900; x += 6) {
+        const p1 = 42 * Math.exp(-Math.pow((x - 310) / 22, 2));
+        const p2 = 74 * Math.exp(-Math.pow((x - 520) / 18, 2));
+        const p3 = 36 * Math.exp(-Math.pow((x - 730) / 26, 2));
+        ctx.lineTo(x, 540 - p1 - p2 - p3);
+      }
+      ctx.stroke();
+    }
 
     const tex = new THREE.CanvasTexture(canvas);
     tex.colorSpace = THREE.SRGBColorSpace;
     const artPlane = new THREE.Mesh(
       new THREE.PlaneGeometry(w - 0.09, h - 0.09),
-      new THREE.MeshStandardMaterial({ map: tex, roughness: 0.72 })
+      new THREE.MeshStandardMaterial({ map: tex, roughness: 0.45 })
     );
-    artPlane.position.z = 0.026;
+    artPlane.position.z = 0.028;
     group.add(artPlane);
+
+    // Subtle real SpotLight cone illuminating gallery print
+    const spotTarget = new THREE.Object3D();
+    spotTarget.position.set(0, 0, 0.03);
+    group.add(spotTarget);
+    const spotLight = new THREE.SpotLight(0xfff1d6, 1.35, 3.8, Math.PI / 4, 0.65, 1.4);
+    spotLight.position.set(0, h * 0.55 + 0.25, 0.55);
+    spotLight.target = spotTarget;
+    group.add(spotLight);
 
     return group;
   }
 
-  // --- Sculpted Indoor Architectural Planter (Fluted Ceramic Pot + Layered Foliage) ---
-  _createArchitecturalPlanter(scale = 1.0) {
+  _queueGLBProp(parent, type, opts = {}) {
+    const holder = new THREE.Group();
+    holder.name = `Prop_${type}`;
+    holder.position.set(opts.x || 0, opts.y || 0, opts.z || 0);
+    if (opts.rotY) holder.rotation.y = opts.rotY;
+    if (opts.rotX) holder.rotation.x = opts.rotX;
+    if (opts.scale) holder.scale.setScalar(opts.scale);
+    parent.add(holder);
+    this.glbMountQueue.push({ group: holder, type });
+    return holder;
+  }
+
+  // --- Sculpted Indoor Architectural Planter (Replaced with Real Botanical Sketchfab .GLB!) ---
+  _createArchitecturalPlanter(scale = 1.0, species = "monstera") {
     const group = new THREE.Group();
-    const potPts = [
-      new THREE.Vector2(0.0, 0.0),
-      new THREE.Vector2(0.15, 0.0),
-      new THREE.Vector2(0.21, 0.18),
-      new THREE.Vector2(0.20, 0.42),
-      new THREE.Vector2(0.175, 0.42),
-      new THREE.Vector2(0.175, 0.36),
-      new THREE.Vector2(0.0, 0.36)
-    ];
-    const pot = new THREE.Mesh(
-      new THREE.LatheGeometry(potPts, 20),
-      this.materials.spaTileTravertine
-    );
-    pot.castShadow = true;
-    group.add(pot);
-
-    const soil = new THREE.Mesh(
-      new THREE.CircleGeometry(0.175, 18),
-      new THREE.MeshStandardMaterial({ color: 0x291d14, roughness: 0.95 })
-    );
-    soil.rotation.x = -Math.PI / 2;
-    soil.position.y = 0.37;
-    group.add(soil);
-
-    // Stem cluster + arched botanical leaves
-    for (let i = 0; i < 9; i++) {
-      const ang = (i / 9) * Math.PI * 2 + (i % 2) * 0.2;
-      const h = 0.52 + (i % 3) * 0.16;
-      const spread = 0.18 + (i % 3) * 0.08;
-      const stemCurve = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(0, 0.36, 0),
-        new THREE.Vector3(Math.cos(ang) * spread * 0.45, 0.36 + h * 0.6, Math.sin(ang) * spread * 0.45),
-        new THREE.Vector3(Math.cos(ang) * spread, 0.36 + h, Math.sin(ang) * spread)
-      ]);
-      const stem = new THREE.Mesh(
-        new THREE.TubeGeometry(stemCurve, 8, 0.007, 6, false),
-        this.materials.plantFoliage
-      );
-      group.add(stem);
-
-      const leaf = new THREE.Mesh(
-        new THREE.SphereGeometry(0.11, 10, 8),
-        this.materials.plantFoliage
-      );
-      leaf.scale.set(1.35, 0.12, 0.78);
-      leaf.position.set(Math.cos(ang) * spread, 0.36 + h, Math.sin(ang) * spread);
-      leaf.rotation.y = -ang;
-      leaf.rotation.z = -0.35;
-      leaf.castShadow = true;
-      group.add(leaf);
-    }
-
+    group.name = `Botanical_Planter_${species}`;
     group.scale.setScalar(scale);
+    this.glbMountQueue.push({
+      group,
+      type: `plant_${species}`
+    });
     return group;
   }
 
@@ -1046,8 +1133,8 @@ export class LabCasework {
     // 8. Chemical Storage Vault Shelving (Zone 5): Flush against Solid North Wall Section (X = 3.5, Z = 9.08) — 100% Clear of L-Wing Portal!
     this._createStorageRacks(3.5, 9.08, 2.00, 0.56, 0);
 
-    // 9. Electron Microscopy Specimen Prep Bench (Zone 4): X: 5.5, Z: -3.1, Length: 2.0m, Depth: 0.70m
-    this._createSingleSidedBench(5.5, -3.1, 2.0, 0.70, "Microscopy_Specimen_Prep_Bench");
+    // 9. Electron Microscopy Specimen Prep Bench (Relocated to Rear North L-Wing Bay: X = 4.8, Z = 10.1, facing +Z North toward FE-SEM at Z = 15.0)
+    this._createSingleSidedBench(4.8, 10.1, 2.0, 0.70, "Microscopy_Specimen_Prep_Bench");
   }
 
 // --- SEFA-8 High-Fidelity Modular Double-Sided Island Casework ---
@@ -1927,6 +2014,121 @@ export class LabCasework {
 
     _createDefaultMonitorCanvas(uiType = "default") {
     const canvas = document.createElement("canvas");
+    if (uiType === "reception_kiosk") {
+      canvas.width = 600;
+      canvas.height = 1080;
+      const ctx = canvas.getContext("2d");
+
+      // Warm Archival Cream Card Surface (ChemMate + Aesthetic)
+      ctx.fillStyle = "#F2ECE1";
+      ctx.fillRect(0, 0, 600, 1080);
+
+      // Top Dark Charcoal Header Band
+      ctx.fillStyle = "#161514";
+      ctx.fillRect(0, 0, 600, 152);
+
+      // Swiss Red + Emblem Square Badge
+      ctx.fillStyle = "#D62828";
+      ctx.fillRect(34, 34, 84, 84);
+      ctx.fillStyle = "#F2ECE1";
+      ctx.fillRect(70, 50, 12, 52);
+      ctx.fillRect(50, 70, 52, 12);
+
+      // Brand & Kiosk Title
+      ctx.fillStyle = "#F2ECE1";
+      ctx.font = "bold 30px 'Helvetica Neue', Arial, sans-serif";
+      ctx.fillText("CHEMMATE", 138, 72);
+      ctx.fillStyle = "#D62828";
+      ctx.fillText("+", 306, 72);
+      ctx.fillStyle = "#C7BFB0";
+      ctx.font = "bold 17px monospace";
+      ctx.fillText("BIOMEDICAL RESEARCH COMPLEX", 138, 106);
+
+      // Red Technical Accent Rule
+      ctx.fillStyle = "#D62828";
+      ctx.fillRect(0, 152, 600, 6);
+
+      // Sub-Header Section
+      ctx.fillStyle = "#161514";
+      ctx.font = "bold 28px 'Helvetica Neue', Arial, sans-serif";
+      ctx.fillText("VISITOR CHECK-IN &", 36, 214);
+      ctx.fillText("SECURITY BADGE", 36, 248);
+
+      ctx.fillStyle = "#4A4640";
+      ctx.font = "bold 18px monospace";
+      ctx.fillText("ACTIVE VISITORS: 4  |  NDA: VERIFIED", 36, 290);
+      ctx.fillText("SECURITY GATE: OPEN  |  PRINTER: READY", 36, 320);
+
+      // Structured Visitor Table Container
+      ctx.fillStyle = "#E6DEC8";
+      ctx.fillRect(28, 352, 544, 520);
+      ctx.strokeStyle = "#161514";
+      ctx.lineWidth = 3;
+      ctx.strokeRect(28, 352, 544, 520);
+
+      // Table Header
+      ctx.fillStyle = "#161514";
+      ctx.fillRect(28, 352, 544, 54);
+      ctx.fillStyle = "#F2ECE1";
+      ctx.font = "bold 18px monospace";
+      ctx.fillText("VISITOR LOG · TODAY", 46, 386);
+      ctx.fillStyle = "#D62828";
+      ctx.fillText("STATUS", 442, 386);
+
+      const visitors = [
+        ["08:15 AM", "Dr. Elena Rostova", "Novartis Biotech", "CHECKED IN", "#15803d"],
+        ["09:30 AM", "Marcus Vance", "FDA Inspector", "ESCORTED", "#D62828"],
+        ["10:00 AM", "Sarah Jenkins", "USP Compliance", "IN LAB QC", "#0f766e"],
+        ["11:15 AM", "Alexander Thorne", "Genentech Clinical", "PRE-REG", "#4A4640"]
+      ];
+
+      visitors.forEach(([time, name, org, status, badgeColor], idx) => {
+        const y0 = 420 + idx * 112;
+        if (idx > 0) {
+          ctx.strokeStyle = "#C7BFB0";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(44, y0 - 12);
+          ctx.lineTo(556, y0 - 12);
+          ctx.stroke();
+        }
+        ctx.fillStyle = "#4A4640";
+        ctx.font = "bold 16px monospace";
+        ctx.fillText(time, 46, y0 + 18);
+
+        ctx.fillStyle = "#161514";
+        ctx.font = "bold 22px 'Helvetica Neue', Arial, sans-serif";
+        ctx.fillText(name, 46, y0 + 50);
+
+        ctx.fillStyle = "#4A4640";
+        ctx.font = "18px 'Helvetica Neue', Arial, sans-serif";
+        ctx.fillText(org, 46, y0 + 78);
+
+        ctx.fillStyle = badgeColor;
+        ctx.fillRect(408, y0 + 22, 146, 38);
+        ctx.fillStyle = "#F2ECE1";
+        ctx.font = "bold 16px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText(status, 481, y0 + 47);
+        ctx.textAlign = "left";
+      });
+
+      // Bottom Callout Action Bar
+      ctx.fillStyle = "#161514";
+      ctx.fillRect(28, 904, 544, 134);
+      ctx.fillStyle = "#D62828";
+      ctx.fillRect(28, 904, 14, 134);
+      ctx.fillStyle = "#F2ECE1";
+      ctx.font = "bold 22px 'Helvetica Neue', Arial, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("TAP BADGE OR SCAN QR TO REGISTER", 304, 964);
+      ctx.fillStyle = "#C7BFB0";
+      ctx.font = "16px monospace";
+      ctx.fillText("RECEPTION DESK · 21 CFR PART 11 KIOSK", 304, 1002);
+      ctx.textAlign = "left";
+      return canvas;
+    }
+
     canvas.width = 1024;
     canvas.height = 640;
     const ctx = canvas.getContext("2d");
@@ -1957,7 +2159,7 @@ export class LabCasework {
       ctx.fillStyle = "#f8fafc";
       ctx.font = "16px monospace";
       ctx.fillText("08:15 AM    Dr. Elena Rostova  Novartis Biotech   CHECKED IN", 44, 305);
-      ctx.fillText("09:30 AM    Marcus Vance       FDA Inspector      ESCORTEED", 44, 345);
+      ctx.fillText("09:30 AM    Marcus Vance       FDA Inspector      ESCORTED", 44, 345);
       ctx.fillText("10:00 AM    Sarah Jenkins      USP Compliance     IN LAB QC", 44, 385);
       ctx.fillText("11:15 AM    Alexander Thorne   Genentech Clinical PRE-REGISTERED", 44, 425);
     } else if (uiType === "lims_admin") {
@@ -2082,8 +2284,51 @@ export class LabCasework {
     this.assetsReadyPromise = Promise.all([
       loadGLB("./assets/models/imac_27.glb"),
       loadGLB("./assets/models/medical_washcloths.glb"),
-      loadGLB("./assets/models/compound_microscope.glb")
-    ]).then(([imacTpl, washclothTpl, microscopeTpl]) => {
+      loadGLB("./assets/models/compound_microscope.glb"),
+      loadGLB("./assets/models/apple_magic_keyboard.glb"),
+      loadGLB("./assets/models/apple_magic_mouse.glb"),
+      loadGLB("./assets/models/iphone_14_pro.glb"),
+      loadGLB("./assets/models/macbook_pro.glb"),
+      loadGLB("./assets/models/pen_holder.glb"),
+      loadGLB("./assets/models/coffee_mug.glb"),
+      loadGLB("./assets/models/office_folders.glb"),
+      loadGLB("./assets/models/desk_lamp.glb"),
+      loadGLB("./assets/models/plant_monstera.glb"),
+      loadGLB("./assets/models/plant_snake.glb"),
+      loadGLB("./assets/models/plant_pothos.glb"),
+      loadGLB("./assets/models/plant_palm.glb")
+    ]).then(([
+      imacTpl, washclothTpl, microscopeTpl,
+      kbdTpl, mouseTpl, iphoneTpl, macbookTpl,
+      penTpl, mugTpl, foldersTpl, lampTpl,
+      monsteraTpl, snakeTpl, pothosTpl, palmTpl
+    ]) => {
+      const propTemplates = {
+        keyboard: kbdTpl,
+        mouse: mouseTpl,
+        iphone: iphoneTpl,
+        macbook: macbookTpl,
+        pen_holder: penTpl,
+        coffee_mug: mugTpl,
+        office_folders: foldersTpl,
+        desk_lamp: lampTpl,
+        plant_monstera: monsteraTpl,
+        plant_snake: snakeTpl,
+        plant_pothos: pothosTpl,
+        plant_palm: palmTpl
+      };
+
+      // Mount all queued GLB plants, Apple peripherals, and office supplies (Desktop & Mobile)
+      this.glbMountQueue.forEach(({ group, type }) => {
+        const tpl = propTemplates[type];
+        if (!tpl) return;
+        const inst = tpl.clone(true);
+        if (type === "plant_palm") inst.scale.setScalar(0.65);
+        else if (type === "plant_pothos") inst.scale.setScalar(0.78);
+        else if (type === "keyboard") inst.scale.set(1.12, 1.4, 2.1); // Natural Magic Keyboard proportions (~32 x 11cm)
+        group.add(inst);
+      });
+
       // 1. Mount 27" iMacs on all queued Office, Reception & Admin Desks
       if (imacTpl) {
         this.imacMountQueue.forEach(({ group, scaleFactor }) => {
@@ -2092,13 +2337,11 @@ export class LabCasework {
           group.add(imac);
         });
 
-        // Also mount 2 dedicated 27" iMac LIMS Data Workstations (+ Aluminum Wireless Keyboard & Magic Mouse) on Lab Islands!
+        // Also mount 2 dedicated 27" iMac LIMS Data Workstations (+ GLB Magic Keyboard & Magic Mouse) on Lab Islands!
         const labImacStations = [
           { x: -10.15, y: 0.90, z: -4.12, rotY: 0, name: "Lab_Analytical_iMac_Station" }, // Facing South QC aisle (+Z)
           { x: -1.35,  y: 0.90, z: 5.35,  rotY: 0, name: "Lab_SamplePrep_iMac_Station" }  // Facing North Sample Prep aisle (+Z)
         ];
-        const aluMat = new THREE.MeshStandardMaterial({ color: 0xdbe2ea, roughness: 0.24, metalness: 0.86 });
-        const keyMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.35, metalness: 0.05 });
 
         labImacStations.forEach((st) => {
           const stGrp = new THREE.Group();
@@ -2109,21 +2352,23 @@ export class LabCasework {
           const imac = imacTpl.clone(true);
           stGrp.add(imac);
 
-          // Apple Wireless Aluminum Wedge Keyboard + Magic Mouse in front (+Z) of iMac
-          const kbdDeck = new THREE.Mesh(new THREE.BoxGeometry(0.285, 0.009, 0.115), aluMat);
-          kbdDeck.position.set(-0.04, 0.005, 0.22);
-          kbdDeck.rotation.x = 0.07;
-          stGrp.add(kbdDeck);
-
-          const kbdKeys = new THREE.Mesh(new THREE.BoxGeometry(0.268, 0.004, 0.096), keyMat);
-          kbdKeys.position.set(-0.04, 0.009, 0.222);
-          kbdKeys.rotation.x = 0.07;
-          stGrp.add(kbdKeys);
-
-          const magicMouse = new THREE.Mesh(new THREE.SphereGeometry(0.032, 16, 12), keyMat);
-          magicMouse.scale.set(0.92, 0.36, 1.75);
-          magicMouse.position.set(0.18, 0.008, 0.22);
-          stGrp.add(magicMouse);
+          if (kbdTpl) {
+            const kbd = kbdTpl.clone(true);
+            kbd.scale.set(1.10, 1.4, 2.0);
+            kbd.position.set(-0.04, 0.002, 0.22);
+            stGrp.add(kbd);
+          }
+          if (mouseTpl) {
+            // Operator faces -Z toward iMac -> Operator RIGHT hand is +X
+            const mouse = mouseTpl.clone(true);
+            mouse.position.set(0.20, 0.002, 0.22);
+            stGrp.add(mouse);
+          }
+          if (penTpl) {
+            const pens = penTpl.clone(true);
+            pens.position.set(-0.34, 0.001, 0.14);
+            stGrp.add(pens);
+          }
 
           this.root.add(stGrp);
         });
@@ -2170,25 +2415,26 @@ export class LabCasework {
     const fab = fabricMat || this.materials.boucleFabric;
     const legM = legMat || this.materials.screenBezelMetal;
 
-    // 1. Four Tapered Architectural Splayed Steel Legs (Front Left, Front Right, Rear Left, Rear Right)
+    // 1. Four Tapered Architectural Splayed Steel Legs tucked cleanly inside shell footprint
     const legPositions = [
-      { fx: -0.36, fz: 0.34, sx: -0.26, sz: 0.24 },  // FL
-      { fx: 0.36, fz: 0.34, sx: 0.26, sz: 0.24 },   // FR
-      { fx: -0.34, fz: -0.36, sx: -0.24, sz: -0.26 }, // RL
-      { fx: 0.34, fz: -0.36, sx: 0.24, sz: -0.26 }   // RR
+      { fx: -0.28, fz: 0.27, sx: -0.22, sz: 0.21 },  // FL
+      { fx: 0.28, fz: 0.27, sx: 0.22, sz: 0.21 },   // FR
+      { fx: -0.27, fz: -0.28, sx: -0.21, sz: -0.22 }, // RL
+      { fx: 0.27, fz: -0.28, sx: 0.21, sz: -0.22 }   // RR
     ];
     legPositions.forEach(pos => {
-      const legGeo = new THREE.CylinderGeometry(0.012, 0.018, 0.26, 12);
+      const bottomPt = new THREE.Vector3(pos.fx, 0.006, pos.fz);
+      const topPt = new THREE.Vector3(pos.sx, 0.255, pos.sz);
+      const dir = new THREE.Vector3().subVectors(topPt, bottomPt);
+      const len = dir.length();
+      const legGeo = new THREE.CylinderGeometry(0.016, 0.011, len, 12);
       const leg = new THREE.Mesh(legGeo, legM);
-      const dx = pos.fx - pos.sx;
-      const dz = pos.fz - pos.sz;
-      leg.position.set((pos.fx + pos.sx) / 2, 0.13, (pos.fz + pos.sz) / 2);
-      leg.rotation.z = Math.atan2(-dx, 0.26);
-      leg.rotation.x = Math.atan2(dz, 0.26);
+      leg.position.addVectors(bottomPt, topPt).multiplyScalar(0.5);
+      leg.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
       chair.add(leg);
 
       const glide = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.018, 0.018, 0.012, 12),
+        new THREE.CylinderGeometry(0.015, 0.015, 0.012, 12),
         this.materials.brassAccent
       );
       glide.position.set(pos.fx, 0.006, pos.fz);
@@ -2197,7 +2443,7 @@ export class LabCasework {
 
     // Steel Sub-Frame Ring
     const subFrame = new THREE.Mesh(
-      new THREE.BoxGeometry(0.60, 0.02, 0.58),
+      new THREE.BoxGeometry(0.56, 0.02, 0.54),
       legM
     );
     subFrame.position.set(0, 0.25, 0);
@@ -2213,15 +2459,15 @@ export class LabCasework {
     cushion.position.set(0, 0.41, 0.02);
     chair.add(cushion);
 
-    // 4. Wrap-Around Curved Tub Backrest & Contoured Armrests
-    const backrest = this._createContouredCushionMesh(0.80, 0.42, 0.16, 0.09, 0.026, fab);
-    backrest.position.set(0, 0.58, -0.31);
-    backrest.rotation.x = -0.06;
+    // 4. High Wrap-Around Curved Barrel Backrest Raised Flush with Arms
+    const backrest = this._createContouredCushionMesh(0.82, 0.48, 0.16, 0.09, 0.026, fab);
+    backrest.position.set(0, 0.62, -0.31);
+    backrest.rotation.x = -0.04;
     chair.add(backrest);
 
     [-0.36, 0.36].forEach(ax => {
-      const arm = this._createContouredCushionMesh(0.13, 0.33, 0.64, 0.05, 0.02, fab);
-      arm.position.set(ax, 0.50, 0.02);
+      const arm = this._createContouredCushionMesh(0.13, 0.34, 0.66, 0.05, 0.02, fab);
+      arm.position.set(ax, 0.51, 0.01);
       chair.add(arm);
     });
 
@@ -3137,7 +3383,7 @@ export class LabCasework {
     return fridge;
   }
 
-  // --- Helper: Modular Louvered Steel Locker Bank ---
+  // --- Helper: Interactive Louvered Steel Locker Bank with Hollow Interiors, Shelves & Coat Hooks ---
   _createLockerBank(numBays = 12, isChampagne = false) {
     const bank = new THREE.Group();
     const bayW = 0.35;
@@ -3145,6 +3391,7 @@ export class LabCasework {
     const h = 1.95;
     const d = 0.55;
     const steelMat = isChampagne ? this.materials.lockerChampagne : this.materials.lockerSteel;
+    const innerMat = this.materials.cabinetBody;
 
     const toe = new THREE.Mesh(
       new THREE.BoxGeometry(totalW - 0.04, 0.10, d - 0.06),
@@ -3153,12 +3400,23 @@ export class LabCasework {
     toe.position.y = 0.05;
     bank.add(toe);
 
-    const body = new THREE.Mesh(
-      new THREE.BoxGeometry(totalW, h - 0.10, d),
-      steelMat
-    );
-    body.position.y = 0.10 + (h - 0.10) / 2;
-    bank.add(body);
+    // Hollow Perimeter Shell (back, top, bottom, mid-tier shelf, vertical bay dividers) so opening reveals interior!
+    const backWall = new THREE.Mesh(new THREE.BoxGeometry(totalW, h - 0.10, 0.02), steelMat);
+    backWall.position.set(0, 0.10 + (h - 0.10) / 2, -d / 2 + 0.01);
+    bank.add(backWall);
+
+    [0.10 + 0.01, 0.10 + (h - 0.10) / 2, h - 0.01].forEach((py) => {
+      const deck = new THREE.Mesh(new THREE.BoxGeometry(totalW, 0.02, d), steelMat);
+      deck.position.set(0, py, 0);
+      bank.add(deck);
+    });
+
+    for (let b = 0; b <= numBays; b++) {
+      const divX = -totalW / 2 + b * bayW;
+      const divider = new THREE.Mesh(new THREE.BoxGeometry(0.014, h - 0.10, d), steelMat);
+      divider.position.set(divX, 0.10 + (h - 0.10) / 2, 0);
+      bank.add(divider);
+    }
 
     const slopedCap = new THREE.Mesh(
       new THREE.BoxGeometry(totalW + 0.02, 0.12, d + 0.02),
@@ -3169,18 +3427,67 @@ export class LabCasework {
     bank.add(slopedCap);
 
     const doorH = (h - 0.14) / 2;
+    const doorW = bayW - 0.018;
     for (let b = 0; b < numBays; b++) {
       const bx = -totalW / 2 + (b + 0.5) * bayW;
 
       [0, 1].forEach(tier => {
         const dy = 0.10 + (tier + 0.5) * doorH;
 
+        // Interior Locker Shelf + Brushed Brass Coat Hook inside each compartment
+        const innerShelf = new THREE.Mesh(
+          new THREE.BoxGeometry(bayW - 0.02, 0.012, d - 0.08),
+          innerMat
+        );
+        innerShelf.position.set(bx, dy + doorH * 0.22, -0.02);
+        bank.add(innerShelf);
+
+        const hookStem = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.005, 0.005, 0.04, 8),
+          this.materials.brassAccent
+        );
+        hookStem.rotation.x = Math.PI / 2;
+        hookStem.position.set(bx, dy + doorH * 0.10, -d / 2 + 0.04);
+        bank.add(hookStem);
+
+        const hookTip = new THREE.Mesh(
+          new THREE.SphereGeometry(0.009, 8, 8),
+          this.materials.brassAccent
+        );
+        hookTip.position.set(bx, dy + doorH * 0.115, -d / 2 + 0.06);
+        bank.add(hookTip);
+
+        // Hinged Interactive Locker Door Pivot at left jamb edge
+        const doorPivot = new THREE.Group();
+        doorPivot.position.set(bx - doorW / 2, dy, d / 2 + 0.005);
+        const startOpen = (b === 2 && tier === 1) || (b === 6 && tier === 0);
+        const openAngle = -1.25;
+        doorPivot.rotation.y = startOpen ? openAngle : 0;
+
+        const doorMeta = {
+          isLockerDoor: true,
+          isOpen: startOpen,
+          targetAngle: startOpen ? openAngle : 0,
+          openAngle,
+          pivot: doorPivot,
+          label: `Locker #${b * 2 + tier + 1} (Click to ${startOpen ? "Close" : "Open"})`,
+          toggle: null
+        };
+        doorMeta.toggle = () => {
+          doorMeta.isOpen = !doorMeta.isOpen;
+          doorMeta.targetAngle = doorMeta.isOpen ? doorMeta.openAngle : 0;
+          doorMeta.label = `Locker #${b * 2 + tier + 1} (Click to ${doorMeta.isOpen ? "Close" : "Open"})`;
+          labAudio.playButtonClick();
+        };
+        doorPivot.userData = doorMeta;
+
         const door = new THREE.Mesh(
-          new THREE.BoxGeometry(bayW - 0.015, doorH - 0.01, 0.02),
+          new THREE.BoxGeometry(doorW, doorH - 0.012, 0.02),
           steelMat
         );
-        door.position.set(bx, dy, d / 2 + 0.005);
-        bank.add(door);
+        door.position.set(doorW / 2, 0, 0);
+        door.userData = doorMeta;
+        doorPivot.add(door);
 
         [-doorH * 0.35, doorH * 0.35].forEach(ly => {
           for (let s = 0; s < 3; s++) {
@@ -3188,8 +3495,8 @@ export class LabCasework {
               new THREE.BoxGeometry(bayW * 0.55, 0.008, 0.006),
               this.materials.screenBezelMetal
             );
-            slot.position.set(bx, dy + ly + s * 0.016, d / 2 + 0.016);
-            bank.add(slot);
+            slot.position.set(doorW / 2, ly + s * 0.016, 0.011);
+            doorPivot.add(slot);
           }
         });
 
@@ -3197,23 +3504,29 @@ export class LabCasework {
           new THREE.BoxGeometry(0.045, 0.10, 0.015),
           this.materials.screenBezelMetal
         );
-        lockPocket.position.set(bx + bayW / 2 - 0.05, dy, d / 2 + 0.012);
-        bank.add(lockPocket);
+        lockPocket.position.set(doorW - 0.038, 0, 0.007);
+        lockPocket.userData = doorMeta;
+        doorPivot.add(lockPocket);
 
         const lockDial = new THREE.Mesh(
           new THREE.CylinderGeometry(0.012, 0.012, 0.01, 12),
           this.materials.cabinetHandle
         );
         lockDial.rotation.x = Math.PI / 2;
-        lockDial.position.set(bx + bayW / 2 - 0.05, dy + 0.02, d / 2 + 0.02);
-        bank.add(lockDial);
+        lockDial.position.set(doorW - 0.038, 0.02, 0.015);
+        lockDial.userData = doorMeta;
+        doorPivot.add(lockDial);
 
         const numPlate = new THREE.Mesh(
           new THREE.BoxGeometry(0.05, 0.025, 0.006),
           this.materials.brassAccent
         );
-        numPlate.position.set(bx, dy + doorH * 0.22, d / 2 + 0.016);
-        bank.add(numPlate);
+        numPlate.position.set(doorW / 2, doorH * 0.22, 0.011);
+        doorPivot.add(numPlate);
+
+        this.interactiveObjects.push(door);
+        this.lockerDoors.push(doorMeta);
+        bank.add(doorPivot);
       });
     }
 
@@ -3354,8 +3667,8 @@ export class LabCasework {
         chair.add(post);
       });
 
-      const headrest = this._createContouredCushionMesh(0.30, 0.16, 0.075, 0.04, 0.018, this.materials.cognacLeather);
-      headrest.position.set(0, 1.12, -seatD / 2 - 0.02);
+      const headrest = this._createContouredCushionMesh(0.50, 0.16, 0.075, 0.04, 0.018, this.materials.cognacLeather);
+      headrest.position.set(0, 1.13, -seatD / 2 - 0.015);
       chair.add(headrest);
     }
 
@@ -3423,35 +3736,13 @@ export class LabCasework {
     recMonitor2.position.set(0.37, 0.76, 0.12);
     deskGroup.add(recMonitor2);
 
-    // Slim wireless keyboard & mouse
-    const keyboard = new THREE.Mesh(
-      new THREE.BoxGeometry(0.42, 0.012, 0.13),
-      this.materials.screenBezelMetal
-    );
-    keyboard.position.set(0, 0.766, 0.35);
-    deskGroup.add(keyboard);
-
-    const mouse = new THREE.Mesh(
-      new THREE.BoxGeometry(0.06, 0.02, 0.10),
-      this.materials.screenBezelMetal
-    );
-    mouse.position.set(0.28, 0.77, 0.35);
-    deskGroup.add(mouse);
-
-    // Brushed brass desk lamp
-    const lampStem = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.012, 0.012, 0.38, 12),
-      this.materials.brassAccent
-    );
-    lampStem.position.set(-1.4, 0.95, 0.10);
-    deskGroup.add(lampStem);
-
-    const lampShade = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.12, 0.18, 0.12, 16),
-      this.materials.brassAccent
-    );
-    lampShade.position.set(-1.4, 1.14, 0.10);
-    deskGroup.add(lampShade);
+    // Authentic Apple Magic Keyboard, Magic Mouse (right side +X for -Z facing receptionist), & supplies
+    this._queueGLBProp(deskGroup, "keyboard", { x: 0.0, y: 0.76, z: 0.35, rotY: Math.PI });
+    this._queueGLBProp(deskGroup, "mouse", { x: 0.27, y: 0.76, z: 0.35, rotY: Math.PI });
+    this._queueGLBProp(deskGroup, "pen_holder", { x: -0.48, y: 0.76, z: 0.28 });
+    this._queueGLBProp(deskGroup, "coffee_mug", { x: 0.56, y: 0.76, z: 0.32, rotY: -0.4 });
+    this._queueGLBProp(deskGroup, "iphone", { x: 0.42, y: 0.76, z: 0.38, rotY: Math.PI + 0.15, scale: 0.85 });
+    this._queueGLBProp(deskGroup, "desk_lamp", { x: -1.35, y: 0.76, z: 0.12, rotY: 0.3 });
 
     // Guest sign-in tablet on angled stand facing visitor (-Z)
     const tabletStand = new THREE.Mesh(
@@ -3499,8 +3790,8 @@ export class LabCasework {
     areaRug.position.set(0, 0.004, 0);
     loungeGroup.add(areaRug);
 
-    // Contoured Contemporary Cognac & Emerald Sofa (Facing +Z toward Coffee Tables & Reception)
-    const sofaMain = this._createContouredCushionMesh(3.22, 0.24, 0.96, 0.10, 0.025, this.materials.walnutDesk);
+    // Contoured Contemporary Cognac & Emerald Sofa (Plinth widened to 3.44 x 1.06 so armrests never overhang!)
+    const sofaMain = this._createContouredCushionMesh(3.44, 0.24, 1.06, 0.10, 0.025, this.materials.walnutDesk);
     sofaMain.position.set(0, 0.16, -0.92);
     loungeGroup.add(sofaMain);
 
@@ -3688,30 +3979,31 @@ export class LabCasework {
 
     reception.add(dnaGroup);
 
-    // 4. Interactive Campus Directory Totem (X = 2.4, Z = -7.2, angled toward South Entrance Portal!)
+    // 4. Interactive Campus Directory Totem (X = 3.30, Z = -8.35 -> world (15.30, 0, -8.35), clear of entry rug & angled toward doorway!)
     const totem = new THREE.Group();
-    totem.position.set(2.4, 0, -7.2);
-    totem.rotation.y = -Math.PI * 0.78;
+    totem.name = "Reception_Visitor_CheckIn_Kiosk";
+    totem.position.set(3.30, 0, -8.35);
+    totem.rotation.y = -Math.PI * 0.72;
 
     const totemBase = new THREE.Mesh(
-      new THREE.BoxGeometry(0.85, 0.05, 0.45),
+      new THREE.BoxGeometry(0.76, 0.05, 0.42),
       this.materials.standAnodized
     );
     totemBase.position.y = 0.025;
     totem.add(totemBase);
 
     const totemPillar = new THREE.Mesh(
-      new THREE.BoxGeometry(0.70, 1.85, 0.14),
+      new THREE.BoxGeometry(0.64, 1.85, 0.14),
       this.materials.screenBezelMetal
     );
     totemPillar.position.y = 0.95;
     totem.add(totemPillar);
 
     const totemScreen = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.58, 1.05),
-      new THREE.MeshBasicMaterial({ map: this._createDefaultMonitorTexture("reception_lims") })
+      new THREE.PlaneGeometry(0.54, 0.97),
+      new THREE.MeshBasicMaterial({ map: this._createDefaultMonitorTexture("reception_kiosk") })
     );
-    totemScreen.position.set(0, 1.25, 0.073);
+    totemScreen.position.set(0, 1.18, 0.073);
     totem.add(totemScreen);
 
     reception.add(totem);
@@ -3730,9 +4022,13 @@ export class LabCasework {
     artGroup.add(picLight);
     reception.add(artGroup);
 
-    // Sculpted Architectural Planters flanking Reception Desk & Lounge
-    [[-2.5, 1.2], [2.5, 1.2], [-2.8, -7.6]].forEach(([px, pz]) => {
-      const pl = this._createArchitecturalPlanter(1.1);
+    // Distinct Sketchfab Botanical Planters flanking Reception Desk & Lounge
+    [
+      [-2.5, 1.2, "monstera", 1.05],
+      [2.5, 1.2, "palm", 0.95],
+      [-2.8, -7.6, "pothos", 1.0]
+    ].forEach(([px, pz, species, sc]) => {
+      const pl = this._createArchitecturalPlanter(sc, species);
       pl.position.set(px, 0, pz);
       reception.add(pl);
     });
@@ -3743,7 +4039,7 @@ export class LabCasework {
     this._addFurnitureCollider(10.3, 13.7, -6.5, -5.3, 1.0);   // Lounge sofa
     this._addFurnitureCollider(11.1, 13.0, -5.3, -4.2, 0.7);   // Coffee tables
     this._addFurnitureCollider(11.0, 13.0, 4.2, 6.2, 2.8);     // DNA pedestal
-    this._addFurnitureCollider(14.0, 14.8, -7.6, -6.8, 2.0);   // Directory totem
+    this._addFurnitureCollider(14.9, 15.7, -8.8, -7.9, 2.0);   // Directory totem
   }
 
   // --- Doubled Executive User Office (Zone 9: X = 16.0 to 21.5, Z = -9.5 to -1.5) ---
@@ -3827,66 +4123,20 @@ export class LabCasework {
     mon2.position.set(0.38, 0.775, 0.12);
     deskGroup.add(mon2);
 
-    // Executive Desk Accessories seated on USER side (-Z) in front of monitors!
-    const leatherMat = new THREE.Mesh(
-      new THREE.BoxGeometry(0.92, 0.008, 0.42),
-      this.materials.leatherMat
-    );
-    leatherMat.position.set(0, 0.779, -0.26);
-    deskGroup.add(leatherMat);
-
-    const kbd = new THREE.Mesh(
-      new THREE.BoxGeometry(0.38, 0.014, 0.13),
-      this.materials.screenBezelMetal
-    );
-    kbd.position.set(-0.05, 0.79, -0.24);
-    deskGroup.add(kbd);
-
-    const mouse = new THREE.Mesh(
-      new THREE.BoxGeometry(0.065, 0.022, 0.10),
-      this.materials.screenBezelMetal
-    );
-    mouse.position.set(0.24, 0.795, -0.24);
-    deskGroup.add(mouse);
-
-    // Leather-bound lab notebook & brass pen cup on right side
-    const notebook = new THREE.Mesh(
-      new THREE.BoxGeometry(0.18, 0.018, 0.25),
-      this.materials.cognacLeather
-    );
-    notebook.position.set(0.78, 0.785, -0.22);
-    notebook.rotation.y = -0.15;
-    deskGroup.add(notebook);
-
-    // Warm Architectural Brass Task Lamp
-    const lampBase = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.08, 0.09, 0.018, 16),
-      this.materials.brassAccent
-    );
-    lampBase.position.set(-0.98, 0.784, 0.18);
-    deskGroup.add(lampBase);
-
-    const lampStem = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.01, 0.01, 0.42, 12),
-      this.materials.brassAccent
-    );
-    lampStem.position.set(-0.98, 0.99, 0.18);
-    deskGroup.add(lampStem);
-
-    const lampBar = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.014, 0.014, 0.46, 12),
-      this.materials.brassAccent
-    );
-    lampBar.rotation.z = Math.PI / 2;
-    lampBar.position.set(-0.82, 1.19, 0.02);
-    deskGroup.add(lampBar);
-
-    const lampGlow = new THREE.Mesh(
-      new THREE.BoxGeometry(0.40, 0.008, 0.02),
-      this.materials.warmLedGlow
-    );
-    lampGlow.position.set(-0.82, 1.175, 0.02);
-    deskGroup.add(lampGlow);
+    // Executive Desk Peripherals seated on USER side (-Z facing +Z -> User's RIGHT hand is -X!)
+    this._queueGLBProp(deskGroup, "keyboard", { x: 0.02, y: 0.776, z: -0.24 });
+    this._queueGLBProp(deskGroup, "mouse", { x: -0.25, y: 0.776, z: -0.24 });
+    this._queueGLBProp(deskGroup, "iphone", { x: -0.44, y: 0.776, z: -0.22, rotY: 0.18, scale: 0.85 });
+    this._queueGLBProp(deskGroup, "desk_lamp", { x: -0.92, y: 0.775, z: 0.14, rotY: 0.45 });
+    const deskTaskLight = new THREE.PointLight(0xffe7c2, 0.55, 2.4, 1.4);
+    deskTaskLight.position.set(-0.92, 1.18, 0.14);
+    deskTaskLight.userData.baseIntensity = 0.55;
+    deskGroup.add(deskTaskLight);
+    this.officeDeskLight = deskTaskLight;
+    this._queueGLBProp(deskGroup, "pen_holder", { x: 0.42, y: 0.775, z: -0.18 });
+    this._queueGLBProp(deskGroup, "coffee_mug", { x: -0.58, y: 0.775, z: -0.16, rotY: -0.4 });
+    this._queueGLBProp(deskGroup, "macbook", { x: 0.78, y: 0.775, z: -0.18, rotY: Math.PI - 0.35 });
+    this._queueGLBProp(deskGroup, "office_folders", { x: -0.82, y: 0.775, z: -0.22, rotY: Math.PI / 2 - 0.2 });
 
     // Executive Cognac Swivel Chair with Headrest (at z = -0.88 facing +Z toward desk & monitors!)
     const execChair = this._createExecutiveSwivelChair(true);
@@ -3928,13 +4178,13 @@ export class LabCasework {
     }
     office.add(slatWall);
 
-    // Framed Artwork on East Interior Wall + Architectural Planter
-    const officeArt = this._createFramedGalleryArt(1.75, 1.1, "warm");
+    // Framed Chemistry Periodic Artwork on East Interior Wall + Snake Plant
+    const officeArt = this._createFramedGalleryArt(1.75, 1.1, "periodic");
     officeArt.position.set(2.66, 1.75, -0.4);
     officeArt.rotation.y = -Math.PI / 2;
     office.add(officeArt);
 
-    const officePlant = this._createArchitecturalPlanter(1.05);
+    const officePlant = this._createArchitecturalPlanter(1.08, "snake");
     officePlant.position.set(2.25, 0, -3.35);
     office.add(officePlant);
 
@@ -4048,6 +4298,22 @@ export class LabCasework {
       tableGroup.add(pBox);
     });
 
+    // Centered Enterprise VoIP Conference Phone on Boardroom Table
+    this._buildConferencePhone(tableGroup);
+
+    // Executive Boardroom Table Laptops, Mugs, Phones & Meeting Binders (Tabletop Y = 0.772m)
+    [
+      { x: -1.35, z: 0.62, rotY: Math.PI + 0.08 },
+      { x: 0.45,  z: 0.62, rotY: Math.PI - 0.12 },
+      { x: -0.45, z: -0.62, rotY: 0.10 }
+    ].forEach((lp, idx) => {
+      this._queueGLBProp(tableGroup, "macbook", { x: lp.x, y: 0.772, z: lp.z, rotY: lp.rotY });
+      this._queueGLBProp(tableGroup, "coffee_mug", { x: lp.x + 0.28, y: 0.772, z: lp.z + (idx === 2 ? -0.05 : 0.05) });
+    });
+    this._queueGLBProp(tableGroup, "iphone", { x: 1.50, y: 0.772, z: -0.58, rotY: -0.35, scale: 0.85 });
+    this._queueGLBProp(tableGroup, "pen_holder", { x: 1.85, y: 0.772, z: 0.56 });
+    this._queueGLBProp(tableGroup, "office_folders", { x: 2.25, y: 0.772, z: 0.52, rotY: Math.PI / 2 });
+
     // Heavy fluted marble plinth pedestals (3 support bases)
     [-2.2, 0, 2.2].forEach((bx) => {
       const plinth = new THREE.Mesh(
@@ -4144,40 +4410,8 @@ export class LabCasework {
 
     conf.add(daisGroup);
 
-    // 4. 110" Laser Video Wall Display (West Wall: X = -5.35)
-    const videoWall = new THREE.Group();
-    videoWall.position.set(-5.35, 1.85, 0);
-
-    const screenBezel = new THREE.Mesh(
-      new THREE.BoxGeometry(0.06, 1.75, 3.2),
-      this.materials.screenBezelMetal
-    );
-    videoWall.add(screenBezel);
-
-    const screenFace = new THREE.Mesh(
-      new THREE.BoxGeometry(0.02, 1.68, 3.12),
-      new THREE.MeshBasicMaterial({ map: this._createDefaultMonitorTexture("twin-dashboard") })
-    );
-    screenFace.position.x = 0.035;
-    videoWall.add(screenFace);
-
-    // Conference Soundbar & 4K PTZ Camera
-    const soundbar = new THREE.Mesh(
-      new THREE.BoxGeometry(0.08, 0.10, 1.2),
-      this.materials.screenBezelMetal
-    );
-    soundbar.position.set(0.05, -0.95, 0);
-    videoWall.add(soundbar);
-
-    const cameraLens = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.03, 0.03, 0.06, 16),
-      this.materials.screenBezelMetal
-    );
-    cameraLens.rotation.z = Math.PI / 2;
-    cameraLens.position.set(0.08, 0.95, 0);
-    videoWall.add(cameraLens);
-
-    conf.add(videoWall);
+    // 4. Ceiling-Mounted 4K Laser Projector Aimed West onto Bare Drywall Wall (TV Removed per User Request)
+    this._buildConferenceProjector(conf);
 
     // 5. Refreshment Buffet Credenza (North Wall: Z = 3.82, facing -Z into Boardroom)
     const credenza = this._createExecutiveCredenza(4.2, 0.85, 0.60);
@@ -4313,13 +4547,13 @@ export class LabCasework {
 
     conf.add(boardGroup);
 
-    // Gallery Art on East Wall & Architectural Planter in NE Corner
-    const confArt = this._createFramedGalleryArt(1.50, 0.95, "warm");
+    // Gallery Chemistry Art on East Wall & Tall Botanical Palm Planter in NE Corner
+    const confArt = this._createFramedGalleryArt(1.50, 0.95, "molecule");
     confArt.position.set(5.38, 1.72, 1.45);
     confArt.rotation.y = -Math.PI / 2;
     conf.add(confArt);
 
-    const confPlanter = this._createArchitecturalPlanter(1.0);
+    const confPlanter = this._createArchitecturalPlanter(0.95, "palm");
     confPlanter.position.set(4.85, 0, 3.25);
     conf.add(confPlanter);
 
@@ -4328,52 +4562,16 @@ export class LabCasework {
     [tableGroup, podiumBody, credenza, boardGroup, confPlanter].forEach((obj) => this._addFurnitureCollider(obj));
   }
 
-  // --- Helper: Executive Office Desk Accessories (Facing -Z User) ---
+  // --- Helper: Executive Office Desk Peripherals & Supplies (Facing -Z User -> Right hand is -X!) ---
   _addExecutiveDeskAccessories(parentGroup, deskX = 0, deskY = 0.765, deskZ = -0.5) {
-    // Stitched Cognac/Charcoal Desk Blotter on -Z User Side
-    const mat = this._createContouredCushionMesh(0.76, 0.006, 0.34, 0.02, 0.002, this.materials.leatherBlack);
-    mat.position.set(deskX, deskY + 0.003, deskZ - 0.18);
-    parentGroup.add(mat);
-
-    // Low-Profile Mechanical Keyboard & Sculpted Wireless Mouse
-    const kbd = new THREE.Mesh(
-      new THREE.BoxGeometry(0.34, 0.014, 0.12),
-      this.materials.screenBezelMetal
-    );
-    kbd.position.set(deskX - 0.05, deskY + 0.012, deskZ - 0.18);
-    parentGroup.add(kbd);
-
-    const mouse = this._createContouredCushionMesh(0.062, 0.026, 0.105, 0.028, 0.008, this.materials.screenBezelMetal);
-    mouse.position.set(deskX + 0.22, deskY + 0.015, deskZ - 0.18);
-    parentGroup.add(mouse);
-
-    // Warm Spun-Brass & Opal Glass Architectural Task Lamp
-    const lamp = new THREE.Group();
-    lamp.position.set(deskX - 0.72, deskY, deskZ + 0.18);
-    const lBase = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.095, 0.018, 20), this.materials.carraraMarble);
-    lBase.position.y = 0.009;
-    lamp.add(lBase);
-    const lStem = new THREE.Mesh(new THREE.CylinderGeometry(0.009, 0.011, 0.42, 12), this.materials.brassAccent);
-    lStem.position.y = 0.22;
-    lamp.add(lStem);
-    const lArm = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.22, 10), this.materials.brassAccent);
-    lArm.rotation.z = Math.PI / 2 - 0.18;
-    lArm.position.set(0.09, 0.41, 0);
-    lamp.add(lArm);
-    const lShade = new THREE.Mesh(new THREE.SphereGeometry(0.075, 20, 16, 0, Math.PI * 2, 0, Math.PI * 0.65), this.materials.warmLedGlow);
-    lShade.position.set(0.18, 0.38, 0);
-    lamp.add(lShade);
-    parentGroup.add(lamp);
-
-    // Ceramic Espresso Cup & Bound Research Notebook
-    const mug = new THREE.Mesh(new THREE.CylinderGeometry(0.036, 0.030, 0.085, 16), this.materials.porcelainWhite);
-    mug.position.set(deskX + 0.56, deskY + 0.042, deskZ - 0.12);
-    parentGroup.add(mug);
-
-    const pad = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.016, 0.24), this.materials.cognacLeather);
-    pad.position.set(deskX + 0.74, deskY + 0.008, deskZ - 0.14);
-    pad.rotation.y = -0.14;
-    parentGroup.add(pad);
+    // Authentic Apple Magic Keyboard + Right-Hand Magic Mouse (-X from seated user facing +Z)
+    this._queueGLBProp(parentGroup, "keyboard", { x: deskX + 0.02, y: deskY, z: deskZ - 0.18 });
+    this._queueGLBProp(parentGroup, "mouse", { x: deskX - 0.24, y: deskY, z: deskZ - 0.18 });
+    this._queueGLBProp(parentGroup, "iphone", { x: deskX - 0.42, y: deskY, z: deskZ - 0.18, rotY: 0.2, scale: 0.82 });
+    this._queueGLBProp(parentGroup, "desk_lamp", { x: deskX - 0.72, y: deskY, z: deskZ + 0.16, rotY: 0.35 });
+    this._queueGLBProp(parentGroup, "coffee_mug", { x: deskX + 0.46, y: deskY, z: deskZ - 0.14 });
+    this._queueGLBProp(parentGroup, "pen_holder", { x: deskX + 0.62, y: deskY, z: deskZ - 0.16 });
+    this._queueGLBProp(parentGroup, "office_folders", { x: deskX + 0.76, y: deskY, z: deskZ + 0.05, rotY: Math.PI / 2 - 0.12 });
   }
 
   // --- Faculty & Administration Suite: Guest, Admin & Instructor Offices ---
@@ -4462,7 +4660,7 @@ export class LabCasework {
     gArt.rotation.y = -Math.PI / 2;
     guestOff.add(gArt);
 
-    const gPlanter = this._createArchitecturalPlanter(0.92);
+    const gPlanter = this._createArchitecturalPlanter(0.95, "pothos");
     gPlanter.position.set(1.25, 0, -3.35);
     guestOff.add(gPlanter);
     colliderTargets.push(gPlanter);
@@ -4618,7 +4816,7 @@ export class LabCasework {
     aArt.rotation.y = -Math.PI / 2;
     adminOff.add(aArt);
 
-    const aPlanter = this._createArchitecturalPlanter(0.92);
+    const aPlanter = this._createArchitecturalPlanter(0.95, "monstera");
     aPlanter.position.set(1.25, 0, -3.35);
     adminOff.add(aPlanter);
     colliderTargets.push(aPlanter);
@@ -4714,7 +4912,7 @@ export class LabCasework {
     board.position.set(1.66, 1.45, -0.5);
     instOff.add(board);
 
-    const iPlanter = this._createArchitecturalPlanter(0.92);
+    const iPlanter = this._createArchitecturalPlanter(0.95, "snake");
     iPlanter.position.set(1.25, 0, -3.35);
     instOff.add(iPlanter);
     colliderTargets.push(iPlanter);
@@ -5033,7 +5231,7 @@ export class LabCasework {
     tvGroup.add(tvScreen);
     breakroom.add(tvGroup);
 
-    const brPlanter = this._createArchitecturalPlanter(0.95);
+    const brPlanter = this._createArchitecturalPlanter(0.95, "pothos");
     brPlanter.position.set(2.85, 0, 3.35);
     breakroom.add(brPlanter);
     colliderTargets.push(brPlanter);
@@ -5041,6 +5239,150 @@ export class LabCasework {
     this.root.add(breakroom);
     breakroom.updateMatrixWorld(true);
     colliderTargets.forEach((obj) => this._addFurnitureCollider(obj));
+  }
+
+  // --- Helper: Brushed-Brass Two-Sided Stall Lever Handle + Escutcheon Rose ---
+  _addStallLeverHandles(parentGroup, doorX, doorY, doorZ, mat) {
+    const m = mat || this.materials.brassAccent;
+    const spindle = new THREE.Mesh(new THREE.CylinderGeometry(0.010, 0.010, 0.068, 12), m);
+    spindle.rotation.z = Math.PI / 2;
+    spindle.position.set(doorX, doorY, doorZ);
+    parentGroup.add(spindle);
+
+    [-0.024, 0.024].forEach((side) => {
+      const rose = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.008, 16), m);
+      rose.rotation.z = Math.PI / 2;
+      rose.position.set(doorX + side, doorY, doorZ);
+      parentGroup.add(rose);
+
+      const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.009, 0.009, 0.028, 10), m);
+      neck.rotation.z = Math.PI / 2;
+      neck.position.set(doorX + side * 1.5, doorY, doorZ);
+      parentGroup.add(neck);
+
+      const lever = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.018, 0.115), m);
+      lever.position.set(doorX + side * 2.0, doorY, doorZ + 0.048);
+      parentGroup.add(lever);
+    });
+  }
+
+  // --- Helper: Architectural Shower Glass Metal Channel Frame + Ceiling Escutcheon + Toggleable Water Spray ---
+  _buildShowerFrameAndWater(parentGroup, cfg) {
+    const {
+      x, z, width, alongZ, matFrame,
+      pipeX, pipeZ, pipeMat, valveObj, headObj, defaultOn = false
+    } = cfg;
+    const frameMat = matFrame || this.materials.screenBezelMetal;
+    const h = 2.13;
+    const barT = 0.032;
+
+    // 4-sided perimeter channel frame + center door hinge mullion
+    const mkBar = (sx, sy, sz, px, py, pz) => {
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), frameMat);
+      mesh.position.set(px, py, pz);
+      parentGroup.add(mesh);
+    };
+    if (alongZ) {
+      mkBar(barT, 0.032, width + 0.02, x, h, z);
+      mkBar(barT, 0.024, width + 0.02, x, 0.012, z);
+      mkBar(barT, h, 0.032, x, h / 2, z - width / 2);
+      mkBar(barT, h, 0.032, x, h / 2, z + width / 2);
+      mkBar(barT, h, 0.028, x, h / 2, z + width * 0.08);
+    } else {
+      mkBar(width + 0.02, 0.032, barT, x, h, z);
+      mkBar(width + 0.02, 0.024, barT, x, 0.012, z);
+      mkBar(0.032, h, barT, x - width / 2, h / 2, z);
+      mkBar(0.032, h, barT, x + width / 2, h / 2, z);
+      mkBar(0.028, h, barT, x + width * 0.08, h / 2, z);
+    }
+
+    // Ceiling Escutcheon Collar sealing brass riser pipe cleanly into 3.80m ceiling slab
+    const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.052, 0.022, 20), pipeMat);
+    collar.position.set(pipeX, 3.79, pipeZ);
+    parentGroup.add(collar);
+
+    // Interactive Water Spray Jets + Floor Mist Ring
+    const sprayGroup = new THREE.Group();
+    sprayGroup.name = "Shower_Water_Spray";
+    sprayGroup.position.set(pipeX, 0, pipeZ);
+    sprayGroup.visible = defaultOn;
+    const waterMat = new THREE.MeshBasicMaterial({
+      color: 0xdbeafe,
+      transparent: true,
+      opacity: 0.42,
+      depthWrite: false
+    });
+    for (let ring = 0; ring < 2; ring++) {
+      const nJets = ring === 0 ? 8 : 14;
+      const radTop = ring === 0 ? 0.05 : 0.11;
+      const radBot = ring === 0 ? 0.12 : 0.25;
+      for (let j = 0; j < nJets; j++) {
+        const ang = (j / nJets) * Math.PI * 2 + ring * 0.22;
+        const dx = (radBot - radTop) * Math.cos(ang);
+        const dz = (radBot - radTop) * Math.sin(ang);
+        const stream = new THREE.Mesh(new THREE.CylinderGeometry(0.0022, 0.0045, 2.02, 6), waterMat);
+        stream.position.set(
+          Math.cos(ang) * (radTop + radBot) * 0.5,
+          1.05,
+          Math.sin(ang) * (radTop + radBot) * 0.5
+        );
+        stream.rotation.z = -Math.atan2(dx, 2.02);
+        stream.rotation.x = Math.atan2(dz, 2.02);
+        sprayGroup.add(stream);
+      }
+    }
+    const mistRing = new THREE.Mesh(
+      new THREE.RingGeometry(0.06, 0.28, 24),
+      new THREE.MeshBasicMaterial({ color: 0xe0f2fe, transparent: true, opacity: 0.35, side: THREE.DoubleSide })
+    );
+    mistRing.rotation.x = -Math.PI / 2;
+    mistRing.position.y = 0.015;
+    sprayGroup.add(mistRing);
+    parentGroup.add(sprayGroup);
+
+    const showerMeta = {
+      isShowerToggle: true,
+      isOn: defaultOn,
+      sprayGroup,
+      label: `Rainfall Shower (${defaultOn ? "Running" : "Off"} · Click to Toggle)`,
+      toggle: null
+    };
+    showerMeta.toggle = () => {
+      showerMeta.isOn = !showerMeta.isOn;
+      sprayGroup.visible = showerMeta.isOn;
+      showerMeta.label = `Rainfall Shower (${showerMeta.isOn ? "Running" : "Off"} · Click to Toggle)`;
+      labAudio.playButtonClick();
+    };
+    if (valveObj) {
+      valveObj.userData = showerMeta;
+      this.interactiveObjects.push(valveObj);
+    }
+    if (headObj) {
+      headObj.userData = showerMeta;
+      this.interactiveObjects.push(headObj);
+    }
+  }
+
+  // --- Helper: Diagonal Wall Brackets + Front Legs Supporting Teak Shower Seat ---
+  _addTeakSeatSupports(parentGroup, seatX, seatY, seatZ, legs, wallOffsets, mat) {
+    const m = mat || this.materials.brassAccent;
+    legs.forEach(([lx, lz]) => {
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, seatY - 0.02, 10), m);
+      leg.position.set(lx, (seatY - 0.02) / 2, lz);
+      parentGroup.add(leg);
+      const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.026, 0.014, 12), m);
+      foot.position.set(lx, 0.007, lz);
+      parentGroup.add(foot);
+    });
+    wallOffsets.forEach(([bx, bz, wallZ]) => {
+      const dz = Math.abs(bz - wallZ);
+      const dy = 0.22;
+      const diagLen = Math.hypot(dz, dy);
+      const brace = new THREE.Mesh(new THREE.BoxGeometry(0.024, diagLen, 0.024), m);
+      brace.position.set(bx, seatY - 0.02 - dy / 2, (bz + wallZ) / 2);
+      brace.rotation.x = Math.atan2(dz, dy) * (bz > wallZ ? 1 : -1);
+      parentGroup.add(brace);
+    });
   }
 
   // --- Executive & ADA Restroom Fixtures (Zone 7: X = 33.5 to 38.0, Z = 1.5 to 9.5) ---
@@ -5119,20 +5461,18 @@ export class LabCasework {
       pilaster.position.set(-0.70, 1.06, 0.88);
       stall.add(pilaster);
 
+      const stallDoorPivot = new THREE.Group();
+      stallDoorPivot.position.set(-0.70, 0, 0.78);
+
       const stallDoor = new THREE.Mesh(
         new THREE.BoxGeometry(0.03, 1.92, 1.56),
         this.materials.walnutDesk
       );
-      stallDoor.position.set(-0.70, 1.08, 0.0);
-      stall.add(stallDoor);
+      stallDoor.position.set(0, 1.08, -0.78);
+      stallDoorPivot.add(stallDoor);
 
-      const latch = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.018, 0.018, 0.05, 12),
-        this.materials.brassAccent
-      );
-      latch.rotation.z = Math.PI / 2;
-      latch.position.set(-0.71, 1.02, -0.68);
-      stall.add(latch);
+      this._addStallLeverHandles(stallDoorPivot, 0, 1.02, -1.44, this.materials.brassAccent);
+      stall.add(stallDoorPivot);
 
       // Sculpted Curved Porcelain Toilet Mounted on East Wall Facing -X!
       const toilet = this._createSculptedPorcelainToilet();
@@ -5151,7 +5491,17 @@ export class LabCasework {
       stall.add(grabBar);
 
       restroom.add(stall);
-      colliderTargets.push(stallDoor);
+      restroom.updateMatrixWorld(true);
+      this._registerCaseworkDoor({
+        id: `Restroom_Stall_${sy > 0 ? "North" : "South"}`,
+        label: "Restroom Stall Door",
+        group: stallDoorPivot,
+        pivot: stallDoorPivot,
+        closedAngle: 0,
+        openAngle: 1.25,
+        isOpen: false,
+        colliderMesh: stallDoor
+      });
     });
 
     // 3. Sculpted Vitreous China Urinal Mounted Flush on West Wall (X = -2.16, facing +X!)
@@ -5210,15 +5560,15 @@ export class LabCasework {
     mens.add(lockerBankIslandS);
     colliderTargets.push(lockerBankIslandS);
 
-    // 2. Heavy Solid Oak Butcher-Block Dressing Benches
-    [1.82, -1.15].forEach((bz) => {
+    // 2. Heavy Solid Oak Butcher-Block Dressing Benches (Shortened to 2.0m & spaced for easy walkway)
+    [1.82, -0.92].forEach((bz) => {
       const benchGroup = new THREE.Group();
       benchGroup.position.set(0.15, 0, bz);
-      const benchTop = this._createContouredCushionMesh(2.6, 0.055, 0.42, 0.03, 0.008, this.materials.benchOakButcher);
+      const benchTop = this._createContouredCushionMesh(2.0, 0.055, 0.42, 0.03, 0.008, this.materials.benchOakButcher);
       benchTop.position.y = 0.44;
       benchGroup.add(benchTop);
 
-      [-1.05, 0, 1.05].forEach((lx) => {
+      [-0.78, 0, 0.78].forEach((lx) => {
         const benchLeg = new THREE.Mesh(
           new THREE.CylinderGeometry(0.022, 0.022, 0.42, 12),
           this.materials.screenBezelMetal
@@ -5252,19 +5602,40 @@ export class LabCasework {
       const showerStall = new THREE.Group();
       showerStall.position.set(sx, 0, -3.25);
 
-      const glassDoor = new THREE.Mesh(
-        new THREE.BoxGeometry(1.34, 2.12, 0.016),
+      const fixedGlass = new THREE.Mesh(
+        new THREE.BoxGeometry(0.78, 2.12, 0.016),
         this.materials.frostedShowerDoor
       );
-      glassDoor.position.set(0, 1.06, 0.52);
-      showerStall.add(glassDoor);
+      fixedGlass.position.set(-0.28, 1.06, 0.52);
+      showerStall.add(fixedGlass);
+
+      const showerDoorPivot = new THREE.Group();
+      showerDoorPivot.position.set(0.11, 0, 0.52);
+
+      const glassDoor = new THREE.Mesh(
+        new THREE.BoxGeometry(0.55, 2.12, 0.016),
+        this.materials.frostedShowerDoor
+      );
+      glassDoor.position.set(0.275, 1.06, 0);
+      showerDoorPivot.add(glassDoor);
 
       const dPull = new THREE.Mesh(
         new THREE.CylinderGeometry(0.009, 0.009, 0.36, 12),
         this.materials.chromeFaucet
       );
-      dPull.position.set(0.48, 1.08, 0.545);
-      showerStall.add(dPull);
+      dPull.position.set(0.37, 1.08, 0.025);
+      showerDoorPivot.add(dPull);
+      showerStall.add(showerDoorPivot);
+
+      this._registerCaseworkDoor({
+        id: `Mens_Shower_Door_${sx}`,
+        label: "Shower Glass Door",
+        group: showerDoorPivot,
+        pivot: showerDoorPivot,
+        closedAngle: 0,
+        openAngle: -1.35,
+        isOpen: false
+      });
 
       const trench = new THREE.Mesh(
         new THREE.BoxGeometry(1.10, 0.01, 0.12),
@@ -5273,20 +5644,26 @@ export class LabCasework {
       trench.position.set(0, 0.005, -0.15);
       showerStall.add(trench);
 
-      // Slatted Teak Corner Bench inside Shower
+      // Slatted Teak Corner Bench inside Shower + Diagonal Wall Brackets & Front Support Legs
       const teakBench = new THREE.Mesh(
         new THREE.BoxGeometry(0.46, 0.04, 0.32),
         this.materials.teakWood
       );
       teakBench.position.set(0.38, 0.44, -0.42);
       showerStall.add(teakBench);
-
-      // Ceiling Supply Drop Pipe (Anchored to Ceiling Y = 3.80m -> Rain Head Y = 2.12m, Zero Floating!)
-      const dropPipe = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.013, 0.013, 1.68, 12),
+      this._addTeakSeatSupports(
+        showerStall, 0.38, 0.44, -0.42,
+        [[0.20, -0.30], [0.56, -0.30]],
+        [[0.22, -0.32, -0.58], [0.54, -0.32, -0.58]],
         this.materials.chromeFaucet
       );
-      dropPipe.position.set(0, 2.96, -0.18);
+
+      // Ceiling Supply Drop Pipe (Anchored cleanly into 3.80m 3D ceiling slab)
+      const dropPipe = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.013, 0.013, 1.73, 12),
+        this.materials.chromeFaucet
+      );
+      dropPipe.position.set(0, 2.985, -0.18);
       showerStall.add(dropPipe);
 
       const head = new THREE.Mesh(
@@ -5303,6 +5680,20 @@ export class LabCasework {
       valve.rotation.x = Math.PI / 2;
       valve.position.set(0, 1.12, -0.61);
       showerStall.add(valve);
+
+      this._buildShowerFrameAndWater(showerStall, {
+        x: 0,
+        z: 0.52,
+        width: 1.34,
+        alongZ: false,
+        matFrame: this.materials.screenBezelMetal,
+        pipeX: 0,
+        pipeZ: -0.18,
+        pipeMat: this.materials.chromeFaucet,
+        valveObj: valve,
+        headObj: head,
+        defaultOn: sx === 0
+      });
 
       const slideBar = new THREE.Mesh(
         new THREE.CylinderGeometry(0.008, 0.008, 0.70, 8),
@@ -5409,15 +5800,15 @@ export class LabCasework {
     ottomanBase.position.set(-0.15, 0.04, 0);
     womens.add(ottomanBase);
 
-    // Oak Butcher Dressing Benches WITH Brass/Steel Legs (No longer floating!)
-    [-3.8, 3.8].forEach((bz) => {
+    // Oak Butcher Dressing Benches Shortened (2.05m) & Shifted (+0.55 X) for >1.05m Clear WC Stall Door Swing!
+    [-3.7, 3.7].forEach((bz) => {
       const bGroup = new THREE.Group();
-      bGroup.position.set(0, 0, bz);
-      const bench = this._createContouredCushionMesh(3.2, 0.055, 0.44, 0.03, 0.008, this.materials.benchOakButcher);
+      bGroup.position.set(0.55, 0, bz);
+      const bench = this._createContouredCushionMesh(2.05, 0.055, 0.44, 0.03, 0.008, this.materials.benchOakButcher);
       bench.position.y = 0.44;
       bGroup.add(bench);
 
-      [-1.30, 0, 1.30].forEach((lx) => {
+      [-0.80, 0, 0.80].forEach((lx) => {
         const bLeg = new THREE.Mesh(
           new THREE.CylinderGeometry(0.022, 0.022, 0.42, 12),
           this.materials.brassAccent
@@ -5503,19 +5894,40 @@ export class LabCasework {
       const suite = new THREE.Group();
       suite.position.set(2.22, 0, sz);
 
-      const glassFront = new THREE.Mesh(
-        new THREE.BoxGeometry(0.016, 2.12, 1.78),
+      const fixedFront = new THREE.Mesh(
+        new THREE.BoxGeometry(0.016, 2.12, 1.03),
         this.materials.frostedShowerDoor
       );
-      glassFront.position.set(-0.56, 1.06, 0);
-      suite.add(glassFront);
+      fixedFront.position.set(-0.56, 1.06, -0.375);
+      suite.add(fixedFront);
+
+      const suiteDoorPivot = new THREE.Group();
+      suiteDoorPivot.position.set(-0.56, 0, 0.15);
+
+      const glassFront = new THREE.Mesh(
+        new THREE.BoxGeometry(0.016, 2.12, 0.73),
+        this.materials.frostedShowerDoor
+      );
+      glassFront.position.set(0, 1.06, 0.365);
+      suiteDoorPivot.add(glassFront);
 
       const dPull = new THREE.Mesh(
         new THREE.CylinderGeometry(0.009, 0.009, 0.38, 12),
         this.materials.brassAccent
       );
-      dPull.position.set(-0.585, 1.08, 0.55);
-      suite.add(dPull);
+      dPull.position.set(-0.025, 1.08, 0.40);
+      suiteDoorPivot.add(dPull);
+      suite.add(suiteDoorPivot);
+
+      this._registerCaseworkDoor({
+        id: `Womens_Shower_Door_${sh}`,
+        label: "Shower Suite Door",
+        group: suiteDoorPivot,
+        pivot: suiteDoorPivot,
+        closedAngle: 0,
+        openAngle: -1.35,
+        isOpen: false
+      });
 
       const trench = new THREE.Mesh(
         new THREE.BoxGeometry(0.12, 0.01, 1.45),
@@ -5524,20 +5936,26 @@ export class LabCasework {
       trench.position.set(0.32, 0.005, 0);
       suite.add(trench);
 
-      // Slatted Teak Bench inside Drying Cubicle
+      // Slatted Teak Bench inside Drying Cubicle + Diagonal Wall Brackets & Front Support Legs
       const teakBench = new THREE.Mesh(
         new THREE.BoxGeometry(0.34, 0.04, 0.56),
         this.materials.teakWood
       );
       teakBench.position.set(-0.28, 0.44, -0.52);
       suite.add(teakBench);
-
-      // Ceiling Drop Supply Pipe (Y = 3.80 -> 2.12m, Zero Floating!) & Brass/Chrome Rainfall Head
-      const dropPipe = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.013, 0.013, 1.68, 12),
+      this._addTeakSeatSupports(
+        suite, -0.28, 0.44, -0.52,
+        [[-0.41, -0.28], [-0.14, -0.28]],
+        [[-0.38, -0.60, -0.88], [-0.18, -0.60, -0.88]],
         this.materials.brassAccent
       );
-      dropPipe.position.set(0.16, 2.96, 0.12);
+
+      // Ceiling Drop Supply Pipe (Embedded cleanly into 3.80m 3D ceiling slab) & Rainfall Head
+      const dropPipe = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.013, 0.013, 1.73, 12),
+        this.materials.brassAccent
+      );
+      dropPipe.position.set(0.16, 2.985, 0.12);
       suite.add(dropPipe);
 
       const rainHead = new THREE.Mesh(
@@ -5555,6 +5973,20 @@ export class LabCasework {
       valve.rotation.z = Math.PI / 2;
       valve.position.set(0.62, 1.12, 0.12);
       suite.add(valve);
+
+      this._buildShowerFrameAndWater(suite, {
+        x: -0.56,
+        z: 0,
+        width: 1.78,
+        alongZ: true,
+        matFrame: this.materials.screenBezelMetal,
+        pipeX: 0.16,
+        pipeZ: 0.12,
+        pipeMat: this.materials.brassAccent,
+        valveObj: valve,
+        headObj: rainHead,
+        defaultOn: sh === 2
+      });
 
       const slideBar = new THREE.Mesh(
         new THREE.CylinderGeometry(0.008, 0.008, 0.70, 8),
@@ -5604,21 +6036,18 @@ export class LabCasework {
       const wc = new THREE.Group();
       wc.position.set(-2.25, 0, wz);
 
+      const wcDoorPivot = new THREE.Group();
+      wcDoorPivot.position.set(0.66, 0, -0.80);
+
       const wcDoor = new THREE.Mesh(
         new THREE.BoxGeometry(0.03, 1.92, 1.65),
         this.materials.walnutDesk
       );
-      wcDoor.position.set(0.66, 1.08, 0);
-      wc.add(wcDoor);
-      colliderTargets.push(wcDoor);
+      wcDoor.position.set(0, 1.08, 0.825);
+      wcDoorPivot.add(wcDoor);
 
-      const latch = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.018, 0.018, 0.05, 12),
-        this.materials.brassAccent
-      );
-      latch.rotation.z = Math.PI / 2;
-      latch.position.set(0.67, 1.02, 0.70);
-      wc.add(latch);
+      this._addStallLeverHandles(wcDoorPivot, 0, 1.02, 1.505, this.materials.brassAccent);
+      wc.add(wcDoorPivot);
 
       const toilet = this._createSculptedPorcelainToilet();
       toilet.position.set(-0.32, 0, 0);
@@ -5627,6 +6056,17 @@ export class LabCasework {
       colliderTargets.push(toilet);
 
       womens.add(wc);
+      womens.updateMatrixWorld(true);
+      this._registerCaseworkDoor({
+        id: `Womens_Stall_${wz < -4 ? "South" : "North"}`,
+        label: "Water Closet Door",
+        group: wcDoorPivot,
+        pivot: wcDoorPivot,
+        closedAngle: 0,
+        openAngle: 1.28,
+        isOpen: false,
+        colliderMesh: wcDoor
+      });
     });
 
     // 6. Open-Front Architectural Walnut Towel & Linen Shelving along East Wall (X = 2.62, Z = -4.8, Facing -X — Towels Clearly Visible!)
@@ -6216,5 +6656,509 @@ export class LabCasework {
 
     this.interactiveObjects.push(group);
     this.root.add(group);
+  }
+
+  // ============================================================================
+  // CONFERENCE ROOM 4K CEILING PROJECTOR, CONFERENCE PHONE & CASEWORK DOORS
+  // ============================================================================
+
+  _buildConferenceProjector(conf) {
+    // 1. Ceiling-Suspended 4K Laser Projector Chassis (conf local X=-1.25, Y=2.88, Z=0 -> clears luminaire & podium!)
+    const projGroup = new THREE.Group();
+    projGroup.name = "Conference_Ceiling_Projector_4K";
+    projGroup.position.set(-1.25, 2.88, 0);
+
+    const chassisMat = new THREE.MeshStandardMaterial({ color: 0x1b222d, roughness: 0.34, metalness: 0.72 });
+    const chromeMat = this.materials.chromeFaucet || this.materials.cabinetHandle;
+
+    // Dual brushed-aluminum ceiling drop columns straddling luminaire width (Z = ±0.11 vs luminaire ±0.07)
+    [-0.11, 0.11].forEach((rz) => {
+      const col = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.90, 12), chromeMat);
+      col.position.set(0.05, 0.48, rz);
+      projGroup.add(col);
+    });
+    const ceilPlate = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.025, 0.30), chassisMat);
+    ceilPlate.position.set(0.05, 0.91, 0);
+    projGroup.add(ceilPlate);
+
+    const mountBracket = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.04, 0.28), chassisMat);
+    mountBracket.position.set(0.05, 0.09, 0);
+    projGroup.add(mountBracket);
+
+    // Main sculpted laser projector housing
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.145, 0.42), chassisMat);
+    projGroup.add(body);
+
+    // Top anodized brushed aluminum trim plate & cooling exhaust fins
+    const topCap = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.012, 0.40), this.materials.screenBezelMetal);
+    topCap.position.y = 0.075;
+    projGroup.add(topCap);
+
+    for (let f = -0.14; f <= 0.14; f += 0.035) {
+      [-0.212, 0.212].forEach((fz) => {
+        const fin = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.08, 0.008), chromeMat);
+        fin.position.set(f, -0.01, fz);
+        projGroup.add(fin);
+      });
+    }
+
+    // Precision telephoto glass lens barrel facing -X (West drywall wall!)
+    const lensHousing = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.068, 0.074, 0.08, 24),
+      this.materials.screenBezelMetal
+    );
+    lensHousing.rotation.z = Math.PI / 2;
+    lensHousing.position.set(-0.24, -0.012, 0);
+    projGroup.add(lensHousing);
+
+    const lensGlassMat = new THREE.MeshStandardMaterial({
+      color: 0x0ea5e9,
+      emissive: 0x0284c7,
+      emissiveIntensity: 0.08,
+      roughness: 0.08,
+      metalness: 0.2
+    });
+    const lensGlass = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.052, 0.02, 24), lensGlassMat);
+    lensGlass.rotation.z = Math.PI / 2;
+    lensGlass.position.set(-0.275, -0.012, 0);
+    projGroup.add(lensGlass);
+
+    const statusLedMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
+    const statusLed = new THREE.Mesh(new THREE.SphereGeometry(0.009, 10, 10), statusLedMat);
+    statusLed.position.set(-0.232, 0.046, 0.14);
+    projGroup.add(statusLed);
+
+    conf.add(projGroup);
+
+    // 2. Borderless 16:9 Projected Wall Display Plane on West Drywall Wall (conf local X = -5.418, Y = 2.00, Z = 0)
+    const projW = 2.95;
+    const projH = 1.66;
+    const wallX = -5.418;
+    const wallY = 2.00;
+
+    const projCanvas = document.createElement("canvas");
+    projCanvas.width = 1024;
+    projCanvas.height = 576;
+    const projTex = new THREE.CanvasTexture(projCanvas);
+    projTex.colorSpace = THREE.SRGBColorSpace;
+    this._drawProjectorCanvas(projCanvas);
+    projTex.needsUpdate = true;
+
+    const wallScreenMat = new THREE.MeshBasicMaterial({
+      map: projTex,
+      transparent: true,
+      opacity: 0.96
+    });
+    const wallScreen = new THREE.Mesh(new THREE.PlaneGeometry(projW, projH), wallScreenMat);
+    wallScreen.name = "Conference_Projected_Wall_Display";
+    wallScreen.rotation.y = Math.PI / 2; // Faces +X into Boardroom!
+    wallScreen.position.set(wallX, wallY, 0);
+    wallScreen.visible = false;
+    conf.add(wallScreen);
+
+    // Subtle volumetric projection light frustum pyramid from lens (-1.53, 2.868, 0) to 4 screen corners
+    const lx = -1.53, ly = 2.868, lz = 0;
+    const hw = projW * 0.5, hh = projH * 0.5;
+    const verts = new Float32Array([
+      // Top beam face
+      lx, ly, lz,   wallX, wallY + hh, -hw,   wallX, wallY + hh, hw,
+      // Bottom beam face
+      lx, ly, lz,   wallX, wallY - hh, hw,    wallX, wallY - hh, -hw,
+      // Left (-Z) beam face
+      lx, ly, lz,   wallX, wallY - hh, -hw,   wallX, wallY + hh, -hw,
+      // Right (+Z) beam face
+      lx, ly, lz,   wallX, wallY + hh, hw,    wallX, wallY - hh, hw
+    ]);
+    const colors = new Float32Array(12 * 3);
+    for (let v = 0; v < 12; v++) {
+      const isLens = v % 3 === 0;
+      const b = isLens ? 1.0 : 0.12;
+      colors[v * 3] = 0.55 * b;
+      colors[v * 3 + 1] = 0.88 * b;
+      colors[v * 3 + 2] = 1.0 * b;
+    }
+    const frustumGeo = new THREE.BufferGeometry();
+    frustumGeo.setAttribute("position", new THREE.BufferAttribute(verts, 3));
+    frustumGeo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    const frustumMat = new THREE.MeshBasicMaterial({
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.14,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      side: THREE.DoubleSide
+    });
+    const beamFrustum = new THREE.Mesh(frustumGeo, frustumMat);
+    beamFrustum.name = "Conference_Projector_Light_Beam";
+    beamFrustum.visible = false;
+    conf.add(beamFrustum);
+
+    const wallWashLight = new THREE.PointLight(0xdbeafe, 0.0, 5.2, 1.3);
+    wallWashLight.position.set(wallX + 0.85, wallY, 0);
+    conf.add(wallWashLight);
+
+    // Clickable projector chassis + click area on projection wall
+    const wallHitbox = new THREE.Mesh(
+      new THREE.PlaneGeometry(projW, projH),
+      new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.0, depthWrite: false, colorWrite: false })
+    );
+    wallHitbox.rotation.y = Math.PI / 2;
+    wallHitbox.position.set(wallX + 0.01, wallY, 0);
+    conf.add(wallHitbox);
+
+    const projMeta = {
+      isProjector: true,
+      getLabel: () => {
+        const on = this.environment?.roomControls?.conference?.projectorOn;
+        return `4K Laser Projector (${on ? "ON · Click to Power Off" : "Standby · Click to Project"})`;
+      },
+      label: "4K Ceiling Laser Projector",
+      toggle: () => this.environment?.toggleProjector()
+    };
+    projGroup.userData = { ...projMeta };
+    wallHitbox.userData = { ...projMeta };
+    this.interactiveObjects.push(projGroup, wallHitbox);
+
+    this.conferenceProjector = {
+      projGroup,
+      wallScreen,
+      beamFrustum,
+      wallWashLight,
+      lensGlassMat,
+      statusLedMat,
+      projCanvas,
+      projTex
+    };
+  }
+
+  _drawProjectorCanvas(canvas) {
+    const ctx = canvas.getContext("2d");
+    const w = canvas.width;
+    const h = canvas.height;
+
+    const bg = ctx.createLinearGradient(0, 0, w, h);
+    bg.addColorStop(0, "#0b1322");
+    bg.addColorStop(1, "#111c2e");
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, w, h);
+
+    // Subtle crisp architectural header
+    ctx.fillStyle = "#0ea5e9";
+    ctx.fillRect(0, 0, w, 6);
+    ctx.fillStyle = "#f8fafc";
+    ctx.font = "bold 34px 'IBM Plex Sans', sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("CHEMMATE PAVILION 4 · Q3 ANALYTICAL BRIEFING", 46, 62);
+    ctx.fillStyle = "#38bdf8";
+    ctx.font = "bold 18px 'IBM Plex Mono', monospace";
+    ctx.fillText("LIVE GMP BATCH TELEMETRY · DISSOLUTION & CHROMATOGRAPHY", 46, 94);
+
+    // Left KPI cards
+    const cards = [
+      { label: "USP II DISSOLUTION", val: "99.4%", sub: "Q30 PASSED · 37.0°C", col: "#34d399" },
+      { label: "HPLC PURITY ASSAY", val: "99.82%", sub: "0.03% IMPURITY MAX", col: "#38bdf8" },
+      { label: "HVAC CLEANROOM ΔP", val: "+18.4 Pa", sub: "ISO CLASS 7 NOMINAL", col: "#fbbf24" }
+    ];
+    cards.forEach((c, i) => {
+      const cy = 128 + i * 134;
+      ctx.fillStyle = "#162235";
+      ctx.beginPath();
+      ctx.roundRect(46, cy, 340, 114, 12);
+      ctx.fill();
+      ctx.strokeStyle = "#263a57";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "bold 15px 'IBM Plex Mono', monospace";
+      ctx.fillText(c.label, 66, cy + 32);
+
+      ctx.fillStyle = c.col;
+      ctx.font = "bold 40px 'IBM Plex Mono', monospace";
+      ctx.fillText(c.val, 66, cy + 78);
+
+      ctx.fillStyle = "#cbd5e1";
+      ctx.font = "14px sans-serif";
+      ctx.fillText(c.sub, 66, cy + 100);
+    });
+
+    // Right chart panel: Dual Dissolution Release Curve
+    ctx.fillStyle = "#121d2e";
+    ctx.beginPath();
+    ctx.roundRect(418, 128, 560, 382, 14);
+    ctx.fill();
+    ctx.strokeStyle = "#273b59";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.fillStyle = "#e2e8f0";
+    ctx.font = "bold 20px 'IBM Plex Sans', sans-serif";
+    ctx.fillText("API RELEASE PROFILE (%) vs TARGET MONOGRAPH", 446, 168);
+
+    // Gridlines
+    ctx.strokeStyle = "#1e2e47";
+    ctx.lineWidth = 1;
+    for (let gy = 210; gy <= 450; gy += 60) {
+      ctx.beginPath();
+      ctx.moveTo(456, gy);
+      ctx.lineTo(946, gy);
+      ctx.stroke();
+    }
+
+    // Curve 1 (Primary Cyan)
+    ctx.strokeStyle = "#38bdf8";
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    for (let i = 0; i <= 40; i++) {
+      const t = i / 40;
+      const x = 456 + t * 488;
+      const pct = 1 - Math.exp(-4.4 * t);
+      const y = 460 - pct * 242;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Curve 2 (Emerald Reference)
+    ctx.strokeStyle = "#34d399";
+    ctx.lineWidth = 3;
+    ctx.setLineDash([8, 6]);
+    ctx.beginPath();
+    for (let i = 0; i <= 40; i++) {
+      const t = i / 40;
+      const x = 456 + t * 488;
+      const pct = 1 - Math.exp(-3.9 * t);
+      const y = 460 - pct * 238;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = "#64748b";
+    ctx.font = "15px 'IBM Plex Mono', monospace";
+    ctx.fillText("PROJECTION SOURCE: 4K LASER CEILING-MOUNTED · 16:9 · CH-01", 446, 540);
+  }
+
+  _buildConferencePhone(tableGroup) {
+    const phone = new THREE.Group();
+    phone.name = "Conference_VoIP_Speakerphone";
+    phone.position.set(0, 0.783, 0);
+
+    const chassisMat = new THREE.MeshStandardMaterial({ color: 0x181f29, roughness: 0.36, metalness: 0.55 });
+    const trimMat = this.materials.hardwareChrome || this.materials.cabinetHandle;
+
+    // 1. Acoustic Star / Circular Base Hub
+    const baseHub = new THREE.Mesh(new THREE.CylinderGeometry(0.115, 0.135, 0.024, 24), chassisMat);
+    baseHub.position.y = 0.012;
+    phone.add(baseHub);
+
+    // Speaker Acoustic Grille Crown
+    const grille = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.088, 0.095, 0.014, 24),
+      new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.75, metalness: 0.3 })
+    );
+    grille.position.y = 0.028;
+    phone.add(grille);
+
+    const trimRing = new THREE.Mesh(new THREE.TorusGeometry(0.092, 0.004, 10, 32), trimMat);
+    trimRing.rotation.x = Math.PI / 2;
+    trimRing.position.y = 0.032;
+    phone.add(trimRing);
+
+    // 2. Three Beamforming Corner Acoustic Lobes + Tri-Color Mute/Call LEDs
+    const ledMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+    [0, (Math.PI * 2) / 3, (Math.PI * 4) / 3].forEach((ang) => {
+      const pod = new THREE.Group();
+      pod.rotation.y = ang;
+
+      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.072, 0.020, 0.165), chassisMat);
+      arm.position.set(0, 0.010, 0.105);
+      pod.add(arm);
+
+      const podTip = new THREE.Mesh(new THREE.CylinderGeometry(0.036, 0.042, 0.020, 16), chassisMat);
+      podTip.position.set(0, 0.010, 0.185);
+      pod.add(podTip);
+
+      const micLED = new THREE.Mesh(new THREE.BoxGeometry(0.044, 0.005, 0.012), ledMat);
+      micLED.position.set(0, 0.022, 0.168);
+      pod.add(micLED);
+
+      phone.add(pod);
+    });
+
+    // 3. Angled Front OLED Dialer Console (Oriented along Z=0 facing both +Z and -Z presenters cleanly)
+    const consoleBezel = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.024, 0.078), trimMat);
+    consoleBezel.position.set(-0.075, 0.034, 0);
+    consoleBezel.rotation.z = 0.36;
+    phone.add(consoleBezel);
+
+    const screenCanvas = document.createElement("canvas");
+    screenCanvas.width = 256;
+    screenCanvas.height = 160;
+    const screenTex = new THREE.CanvasTexture(screenCanvas);
+    screenTex.colorSpace = THREE.SRGBColorSpace;
+    const screenMat = new THREE.MeshBasicMaterial({ map: screenTex });
+    const oled = new THREE.Mesh(new THREE.PlaneGeometry(0.095, 0.064), screenMat);
+    oled.position.set(-0.079, 0.047, 0);
+    oled.rotation.order = "YXZ";
+    oled.rotation.y = -Math.PI / 2;
+    oled.rotation.x = -Math.PI / 2 + 0.36;
+    phone.add(oled);
+
+    // PoE armored pigtail tucking neatly into cable trough
+    const cable = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, 0.12, 8), chassisMat);
+    cable.rotation.z = Math.PI / 2;
+    cable.position.set(0.16, 0.006, 0);
+    phone.add(cable);
+
+    tableGroup.add(phone);
+
+    this.conferencePhone = {
+      group: phone,
+      ledMat,
+      screenCanvas,
+      screenTex
+    };
+    this._updateConfPhoneScreen(false);
+
+    phone.userData = {
+      isConfPhone: true,
+      getLabel: () => {
+        const active = this.environment?.roomControls?.conference?.phoneActive;
+        return `Boardroom Conference Phone (${active ? "In Call · Click to End" : "Ready · Click to Dial"})`;
+      },
+      label: "Enterprise VoIP Conference Phone",
+      toggle: () => this.environment?.toggleConfPhone()
+    };
+    this.interactiveObjects.push(phone);
+  }
+
+  _updateConfPhoneScreen(active) {
+    if (!this.conferencePhone) return;
+    const { screenCanvas, screenTex, ledMat } = this.conferencePhone;
+    const ctx = screenCanvas.getContext("2d");
+
+    ctx.fillStyle = active ? "#052e1e" : "#0b1320";
+    ctx.fillRect(0, 0, 256, 160);
+    ctx.strokeStyle = active ? "#34d399" : "#38bdf8";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(4, 4, 248, 152);
+
+    ctx.fillStyle = active ? "#34d399" : "#38bdf8";
+    ctx.font = "bold 20px monospace";
+    ctx.textAlign = "center";
+    ctx.fillText(active ? "IN CALL · HD VOIP" : "POLY TRIO · READY", 128, 44);
+
+    ctx.fillStyle = "#f8fafc";
+    ctx.font = "bold 26px sans-serif";
+    ctx.fillText(active ? "04:18 · LIVE" : "+1 800 LAB SYNC", 128, 92);
+
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "16px monospace";
+    ctx.fillText(active ? "360° MIC BEAMFORM ACTIVE" : "TAP TO CONNECT LINE 1", 128, 134);
+
+    screenTex.needsUpdate = true;
+    ledMat.color.setHex(active ? 0x10b981 : 0x38bdf8);
+  }
+
+  _syncRoomState(state) {
+    if (!state) return;
+
+    // 1. Conference 4K Laser Projector
+    if (this.conferenceProjector && state.conference) {
+      const on = Boolean(state.conference.projectorOn);
+      this.conferenceProjector.wallScreen.visible = on;
+      this.conferenceProjector.beamFrustum.visible = on;
+      this.conferenceProjector.wallWashLight.intensity = on ? 1.45 : 0.0;
+      this.conferenceProjector.lensGlassMat.emissiveIntensity = on ? 2.1 : 0.08;
+      this.conferenceProjector.statusLedMat.color.setHex(on ? 0x22c55e : 0xf59e0b);
+    }
+
+    // 2. Conference VoIP Phone
+    if (this.conferencePhone && state.conference) {
+      this._updateConfPhoneScreen(Boolean(state.conference.phoneActive));
+    }
+
+    // 3. Executive User Office Desk Lamp Sync
+    if (this.officeDeskLight && state.office) {
+      const lvl = state.office.lightLevel;
+      const base = this.officeDeskLight.userData.baseIntensity || 0.55;
+      this.officeDeskLight.intensity = lvl === "off" ? 0.0 : (lvl === "dim" ? base * 0.35 : base);
+    }
+  }
+
+  _registerCaseworkDoor(cfg) {
+    const colliderBox = new THREE.Box3();
+    let closedMin = null;
+    let closedMax = null;
+    if (cfg.colliderMesh) {
+      cfg.colliderMesh.updateWorldMatrix(true, true);
+      const box = new THREE.Box3().setFromObject(cfg.colliderMesh);
+      if (!box.isEmpty()) {
+        closedMin = box.min.clone();
+        closedMax = box.max.clone();
+        if (!cfg.isOpen) colliderBox.set(closedMin, closedMax);
+        else colliderBox.makeEmpty();
+        this.colliders.push(colliderBox);
+      }
+    }
+
+    const entry = {
+      id: cfg.id,
+      label: cfg.label || "Door",
+      pivot: cfg.pivot,
+      closedAngle: cfg.closedAngle ?? 0,
+      openAngle: cfg.openAngle ?? 1.25,
+      isOpen: Boolean(cfg.isOpen),
+      animProgress: cfg.isOpen ? 1 : 0,
+      targetProgress: cfg.isOpen ? 1 : 0,
+      colliderBox,
+      closedMin,
+      closedMax
+    };
+    entry.pivot.rotation.y = entry.isOpen ? entry.openAngle : entry.closedAngle;
+
+    cfg.group.userData = {
+      ...cfg.group.userData,
+      isCaseworkDoor: true,
+      getLabel: () => `${entry.label} (${entry.isOpen ? "Open · Click to Close" : "Closed · Click to Open"})`,
+      label: `${entry.label} (Click to Open / Close)`,
+      toggle: () => this.toggleCaseworkDoor(entry)
+    };
+    this.interactiveObjects.push(cfg.group);
+    this.caseworkDoors.push(entry);
+    return entry;
+  }
+
+  toggleCaseworkDoor(entry) {
+    entry.isOpen = !entry.isOpen;
+    entry.targetProgress = entry.isOpen ? 1 : 0;
+    if (entry.closedMin && entry.closedMax) {
+      if (entry.isOpen) entry.colliderBox.makeEmpty();
+      else entry.colliderBox.set(entry.closedMin, entry.closedMax);
+    }
+    labAudio.playDoorSwing(entry.isOpen, false);
+  }
+
+  update(dt = 0.016) {
+    const speed = 5.2;
+    for (let i = 0; i < this.caseworkDoors.length; i++) {
+      const d = this.caseworkDoors[i];
+      if (Math.abs(d.animProgress - d.targetProgress) > 0.0005) {
+        const step = Math.min(1, dt * speed);
+        d.animProgress += (d.targetProgress - d.animProgress) * step;
+        if (Math.abs(d.animProgress - d.targetProgress) <= 0.002) {
+          d.animProgress = d.targetProgress;
+        }
+        d.pivot.rotation.y = d.closedAngle + (d.openAngle - d.closedAngle) * d.animProgress;
+      }
+    }
+    for (let i = 0; i < this.lockerDoors.length; i++) {
+      const ld = this.lockerDoors[i];
+      if (ld.pivot && Math.abs(ld.pivot.rotation.y - ld.targetAngle) > 0.001) {
+        ld.pivot.rotation.y += (ld.targetAngle - ld.pivot.rotation.y) * Math.min(1, dt * 8.0);
+      }
+    }
   }
 }

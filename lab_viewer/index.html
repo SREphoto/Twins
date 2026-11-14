@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20261101-grand" />
+  <link rel="stylesheet" href="style.css?v=20261114-walktool2" />
 
   <script type="importmap">
   {
@@ -73,18 +73,21 @@
 
       <div class="header-actions">
         <div class="mood-switcher" role="group" aria-label="Lighting Atmosphere &amp; Time of Day">
-          <button class="mood-btn active" data-mood="daylight" title="Crisp Physical Daylight &amp; Sky IBL">☀️ Daylight</button>
-          <button class="mood-btn" data-mood="dusk" title="Golden-Hour Sunset Atmosphere">🌅 Dusk</button>
-          <button class="mood-btn" data-mood="night" title="Night Campus &amp; Architectural Lighting">🌙 Night</button>
+          <button class="mood-btn active" data-mood="daylight" title="Crisp Physical Daylight &amp; Sky IBL">☀️ <span class="mood-label">Daylight</span></button>
+          <button class="mood-btn" data-mood="dusk" title="Golden-Hour Sunset Atmosphere">🌅 <span class="mood-label">Dusk</span></button>
+          <button class="mood-btn" data-mood="night" title="Night Campus &amp; Architectural Lighting">🌙 <span class="mood-label">Night</span></button>
         </div>
         <button id="btn-audio-toggle" class="btn-icon" title="Toggle Procedural Audio">
-          <span id="audio-icon">🔊</span> AUDIO
+          <span id="audio-icon">🔊</span> <span class="btn-label">AUDIO</span>
+        </button>
+        <button id="btn-walk-tool-toggle" class="btn-icon walk-tool-btn" title="Toggle Walking Speed Zone & Aim Tool (Replaces Pinch-to-Zoom)">
+          <span id="walk-tool-icon">🚶</span> <span id="walk-tool-label" class="btn-label">WALK TOOL</span>
         </button>
         <button id="btn-mobile-toggle" class="btn-icon mobile-mode-btn" title="Toggle Mobile Eco Mode (No exterior cars, on-demand instrument loading)">
-          <span id="mobile-icon">📱</span> <span id="mobile-toggle-label">ECO MOBILE</span>
+          <span id="mobile-icon">📱</span> <span id="mobile-toggle-label" class="btn-label">ECO MOBILE</span>
         </button>
         <button id="btn-help-controls" class="btn-icon" title="Controls Help">
-          <span>⌨️</span> CONTROLS
+          <span>⌨️</span> <span class="btn-label">CONTROLS</span>
         </button>
       </div>
     </header>
@@ -100,20 +103,6 @@
       <div id="interaction-prompt-pill" class="interaction-prompt-pill is-hidden">
         <span class="prompt-icon">💡</span>
         <span id="prompt-text">Click to interact</span>
-      </div>
-
-      <!-- Touch Virtual D-Pad for Mobile Walk Navigation -->
-      <div id="mobile-touch-controls" class="mobile-touch-controls is-hidden">
-        <div class="touch-dpad">
-          <button class="touch-btn touch-up" data-dir="forward" title="Walk Forward">▲</button>
-          <div class="touch-row">
-            <button class="touch-btn touch-left" data-dir="left" title="Strafe Left">◀</button>
-            <button class="touch-btn touch-sprint" data-dir="sprint" title="Sprint">⚡</button>
-            <button class="touch-btn touch-right" data-dir="right" title="Strafe Right">▶</button>
-          </div>
-          <button class="touch-btn touch-down" data-dir="backward" title="Walk Backward">▼</button>
-        </div>
-        <button id="btn-exit-touch-walk" class="touch-btn touch-exit-walk" title="Exit Walk Mode">✕ EXIT WALK</button>
       </div>
 
       <!-- Sleek Floating Bottom Navigation Dock -->
@@ -146,7 +135,7 @@
           <span class="nav-icon">💼</span>
           <span class="nav-label">User's Office</span>
         </button>
-        <button class="nav-pill" data-nav="conference" title="Doubled Grand Boardroom with 16 Chairs & 110 Laser Wall">
+        <button class="nav-pill" data-nav="conference" title="Doubled Grand Boardroom with 16 Chairs, 4K Laser Projector & Smart Wall Panel">
           <span class="nav-icon">👥</span>
           <span class="nav-label">Boardroom</span>
         </button>
@@ -290,6 +279,44 @@
             </div>
           </div>
 
+          <!-- Card 3B: Room & Wall Automation Controls (Blinds, Lights, Projector, Phone, Privacy & Doors) -->
+          <div class="sidebar-card" id="card-room-automation">
+            <div class="card-title">
+              <span>Room &amp; Wall Controls</span>
+              <span class="room-ctrl-zone-tag" id="room-ctrl-zone-tag">FACILITY</span>
+            </div>
+
+            <div class="room-ctrl-group" id="room-ctrl-conference">
+              <div class="room-ctrl-subtitle">Boardroom Wall Panel</div>
+              <div class="room-ctrl-grid">
+                <button class="room-ctrl-btn" id="ctrl-conf-blinds" type="button">🪟 Blinds: Open</button>
+                <button class="room-ctrl-btn" id="ctrl-conf-lights" type="button">💡 Lights: Full</button>
+                <button class="room-ctrl-btn" id="ctrl-conf-projector" type="button">📽️ Projector: Off</button>
+                <button class="room-ctrl-btn" id="ctrl-conf-phone" type="button">📞 Phone: Ready</button>
+                <button class="room-ctrl-btn room-ctrl-wide" id="ctrl-conf-privacy" type="button">🔒 Privacy &amp; Frost: Off</button>
+                <button class="room-ctrl-btn room-ctrl-wide" id="ctrl-conf-door" type="button">🚪 Boardroom Doors: Open</button>
+              </div>
+            </div>
+
+            <div class="room-ctrl-group" id="room-ctrl-office">
+              <div class="room-ctrl-subtitle">User's Office Wall Panel</div>
+              <div class="room-ctrl-grid">
+                <button class="room-ctrl-btn" id="ctrl-office-blinds" type="button">🪟 Blinds: Open</button>
+                <button class="room-ctrl-btn" id="ctrl-office-lights" type="button">💡 Lights: Full</button>
+                <button class="room-ctrl-btn room-ctrl-wide" id="ctrl-office-privacy" type="button">🔒 Privacy &amp; Frost: Off</button>
+                <button class="room-ctrl-btn room-ctrl-wide" id="ctrl-office-door" type="button">🚪 Office Door: Open</button>
+              </div>
+            </div>
+
+            <div class="room-ctrl-group" id="room-ctrl-entrance">
+              <div class="room-ctrl-subtitle">Entrance Atrium &amp; Doors</div>
+              <div class="room-ctrl-grid">
+                <button class="room-ctrl-btn" id="ctrl-entrance-blinds" type="button">🪟 Atrium Blinds: Open</button>
+                <button class="room-ctrl-btn" id="ctrl-entrance-door" type="button">🚪 Front Doors: Closed</button>
+              </div>
+            </div>
+          </div>
+
           <!-- Card 4: Smart AI Lab Advisor Guidance -->
           <div class="sidebar-card">
             <div class="card-title">
@@ -302,8 +329,41 @@
         </div>
       </aside>
     </main>
+
+    <!-- Navigation Controls & 3D Methodologies Help Modal -->
+    <div id="controls-help-modal" class="lab-modal-backdrop is-hidden" role="dialog" aria-modal="true" aria-labelledby="controls-modal-title">
+      <div class="controls-modal-card">
+        <div class="controls-modal-header">
+          <div>
+            <div class="controls-modal-eyebrow">3D NAVIGATION ARCHITECTURE</div>
+            <h2 id="controls-modal-title">Navigation Controls &amp; Walking Tool</h2>
+          </div>
+          <button id="btn-close-controls-modal" class="controls-modal-close" type="button" aria-label="Close Controls">✕</button>
+        </div>
+        <div class="controls-modal-body">
+          <div class="controls-section">
+            <h3>📱 Mobile Walking Tool (Zero Pinch-to-Zoom)</h3>
+            <ul>
+              <li><strong>Right Side (~27% of Screen) — Walking Speed Zone:</strong> Touch and drag your finger <strong>UP</strong> to move forward &amp; accelerate; drag <strong>DOWN</strong> to slow down, stop, and back up. Lift your finger to stop smoothly.</li>
+              <li><strong>Left &amp; Center (~73% of Screen) — Aim Direction:</strong> Drag with your thumb or finger anywhere outside the right edge zone to smoothly aim yaw &amp; pitch. Both touch zones work simultaneously with zero UI boxes on screen.</li>
+              <li><strong>No Pinch-to-Zoom Movement:</strong> Pinch zooming is disabled on mobile so multi-touch speed + aim never conflict.</li>
+              <li><strong>Tap Any Machine or Room Pill:</strong> Tap any room pill along the bottom dock or tap any 3D instrument to glide directly into eye-level or operator view; drag UP/DOWN on the right side anytime to walk away.</li>
+            </ul>
+          </div>
+          <div class="controls-section">
+            <h3>🖥️ Desktop Controls</h3>
+            <ul>
+              <li><strong>Walk Mode:</strong> <code>W A S D</code> or Arrow keys (hold <code>Shift</code> to sprint), click viewport to lock mouse look, <code>ESC</code> to reset.</li>
+              <li><strong>Interactive Architecture:</strong> Click any door to open/close, click vertical walnut blinds, or tap the 3D wall control panels (blinds, lights, 4K projector, conference phone &amp; privacy frosting).</li>
+              <li><strong>Overview / Orbit Mode:</strong> Left-drag to orbit, right-drag to pan, scroll wheel to zoom, click any instrument to glide in.</li>
+              <li><strong>Sidebar:</strong> Press <code>Tab</code> or tap the arrow tab to collapse/expand the Lab Director panel.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <script type="module" src="app.js?v=20261101-matrixfix"></script>
+  <script type="module" src="app.js?v=20261114-walktool2"></script>
 </body>
 </html>

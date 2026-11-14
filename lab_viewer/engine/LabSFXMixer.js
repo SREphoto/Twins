@@ -355,6 +355,151 @@ class LabSFXMixer {
     oscSnap.start(now + 0.01);
     oscSnap.stop(now + 0.04);
   }
+
+  // --- Architectural Door Latch & Swing ---
+  playDoorSwing(isOpen, isHeavy = false) {
+    this.ensureContext();
+    if (this.isMuted || !this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    // Brass latch / magnetic strike release
+    const latch = this.ctx.createOscillator();
+    const latchGain = this.ctx.createGain();
+    latch.type = "triangle";
+    latch.frequency.setValueAtTime(isOpen ? 1320 : 760, now);
+    latch.frequency.exponentialRampToValueAtTime(isOpen ? 340 : 180, now + 0.035);
+    latchGain.gain.setValueAtTime(0.11, now);
+    latchGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+    latch.connect(latchGain);
+    latchGain.connect(this.masterGain);
+    latch.start(now);
+    latch.stop(now + 0.045);
+
+    // Door mass seal thud on close or soft air sweep on open
+    const body = this.ctx.createOscillator();
+    const bodyGain = this.ctx.createGain();
+    body.type = "sine";
+    if (isOpen) {
+      body.frequency.setValueAtTime(isHeavy ? 140 : 190, now + 0.02);
+      body.frequency.exponentialRampToValueAtTime(75, now + 0.16);
+      bodyGain.gain.setValueAtTime(0.05, now + 0.02);
+      bodyGain.gain.exponentialRampToValueAtTime(0.001, now + 0.17);
+      body.start(now + 0.02);
+      body.stop(now + 0.18);
+    } else {
+      body.frequency.setValueAtTime(isHeavy ? 125 : 165, now + 0.05);
+      body.frequency.exponentialRampToValueAtTime(48, now + 0.17);
+      bodyGain.gain.setValueAtTime(isHeavy ? 0.18 : 0.12, now + 0.05);
+      bodyGain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+      body.start(now + 0.05);
+      body.stop(now + 0.19);
+    }
+    body.connect(bodyGain);
+    bodyGain.connect(this.masterGain);
+  }
+
+  // --- Motorized 24V Vertical Wood Blinds Actuator ---
+  playBlindsMotor(isClosed) {
+    this.ensureContext();
+    if (this.isMuted || !this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    const motor = this.ctx.createOscillator();
+    const motorHarm = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    motor.type = "triangle";
+    motorHarm.type = "sine";
+    const baseHz = isClosed ? 132 : 148;
+    motor.frequency.setValueAtTime(baseHz, now);
+    motor.frequency.linearRampToValueAtTime(baseHz * 0.94, now + 0.30);
+    motorHarm.frequency.setValueAtTime(baseHz * 2.0, now);
+
+    gain.gain.setValueAtTime(0.001, now);
+    gain.gain.linearRampToValueAtTime(0.075, now + 0.05);
+    gain.gain.setValueAtTime(0.07, now + 0.24);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.34);
+
+    motor.connect(gain);
+    motorHarm.connect(gain);
+    gain.connect(this.masterGain);
+    motor.start(now);
+    motorHarm.start(now);
+    motor.stop(now + 0.35);
+    motorHarm.stop(now + 0.35);
+
+    // End-of-travel optical limit click
+    const tick = this.ctx.createOscillator();
+    const tickGain = this.ctx.createGain();
+    tick.type = "square";
+    tick.frequency.setValueAtTime(1650, now + 0.31);
+    tickGain.gain.setValueAtTime(0.05, now + 0.31);
+    tickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.335);
+    tick.connect(tickGain);
+    tickGain.connect(this.masterGain);
+    tick.start(now + 0.31);
+    tick.stop(now + 0.34);
+  }
+
+  // --- PDLC Privacy Smart Glass & Corridor Beacon Toggle ---
+  playPrivacyToggle(isPrivate) {
+    this.ensureContext();
+    if (this.isMuted || !this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(isPrivate ? 520 : 780, now);
+    osc.frequency.exponentialRampToValueAtTime(isPrivate ? 860 : 420, now + 0.16);
+    gain.gain.setValueAtTime(0.07, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+    osc.connect(gain);
+    gain.connect(this.masterGain);
+    osc.start(now);
+    osc.stop(now + 0.19);
+  }
+
+  // --- 4K Laser Projector Power Chime ---
+  playProjectorPower(isOn) {
+    this.ensureContext();
+    if (this.isMuted || !this.ctx) return;
+    const now = this.ctx.currentTime;
+    const notes = isOn ? [523.25, 659.25, 783.99] : [659.25, 440.0];
+    notes.forEach((freq, idx) => {
+      const t0 = now + idx * 0.065;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, t0);
+      gain.gain.setValueAtTime(0.085, t0);
+      gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.15);
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(t0);
+      osc.stop(t0 + 0.16);
+    });
+  }
+
+  // --- Enterprise VoIP Conference Phone Connect / End Tone ---
+  playConfPhoneTone(isActive) {
+    this.ensureContext();
+    if (this.isMuted || !this.ctx) return;
+    const now = this.ctx.currentTime;
+    const freqs = isActive ? [587.33, 880.0] : [480.0, 360.0];
+    freqs.forEach((f, i) => {
+      const t0 = now + i * 0.08;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(f, t0);
+      gain.gain.setValueAtTime(0.09, t0);
+      gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.11);
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(t0);
+      osc.stop(t0 + 0.12);
+    });
+  }
 }
 
 export const labAudio = new LabSFXMixer();
