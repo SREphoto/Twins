@@ -77,7 +77,10 @@ class GrandLabApp {
     this._initThree();
     this._initModules();
     this._initUI();
-    this._onZoneOrModeChange("Grand Overview · Architectural Complex", "overview");
+    this._onZoneOrModeChange(
+      "Grand Overview · Architectural Complex",
+      this.player ? this.player.mode : "overview"
+    );
     this._initRaycasting();
     this._startLoop();
   }
@@ -183,12 +186,17 @@ class GrandLabApp {
       }
     });
 
-    // 6. Hybrid Player Navigation Engine (WASD + Click-to-Glide)
+    // 6. Hybrid Player Navigation Engine (WASD + Mobile Walking Speed Zone + Aim + Click-to-Glide)
     this.player = new LabPlayerController(
       this.camera,
       this.renderer.domElement,
       this.environment.colliders,
-      (zoneName, mode) => this._onZoneOrModeChange(zoneName, mode)
+      (zoneName, mode) => this._onZoneOrModeChange(zoneName, mode),
+      {
+        isMobile: this.isMobile,
+        walkToolEnabled: this.isMobile,
+        onWalkStateChange: () => this._syncWalkToolToggleUI()
+      }
     );
 
     // 7. Mobile-only memory & GPU budget (texture cap, 4 nearest point lights, small far detail culling)
@@ -297,6 +305,18 @@ class GrandLabApp {
       });
     });
 
+    // Walk Tool Toggle (Invisible Right-Side Walking Speed Zone + Remainder of Screen Aim)
+    this.btnWalkToolToggle = document.getElementById("btn-walk-tool-toggle");
+    this.walkToolLabel = document.getElementById("walk-tool-label");
+    if (this.btnWalkToolToggle) {
+      this.btnWalkToolToggle.addEventListener("click", () => {
+        if (!this.player) return;
+        this.player.setWalkToolEnabled(!this.player.walkToolEnabled);
+        this._syncWalkToolToggleUI();
+        labAudio.playButtonClick();
+      });
+    }
+
     // Mobile Eco Mode Toggle
     this.btnMobileToggle = document.getElementById("btn-mobile-toggle");
     this.mobileToggleLabel = document.getElementById("mobile-toggle-label");
@@ -336,61 +356,45 @@ class GrandLabApp {
       });
     }
 
-    // Virtual Touch Controls for Walk Mode
-    this._initTouchControls();
+    this._syncWalkToolToggleUI();
 
-    // Help controls modal alert
+    // Navigation Controls & Methodology Modal
+    this.controlsHelpModal = document.getElementById("controls-help-modal");
+    const btnCloseControls = document.getElementById("btn-close-controls-modal");
+    const setHelpModalOpen = (open) => {
+      if (!this.controlsHelpModal) return;
+      this.controlsHelpModal.classList.toggle("is-hidden", !open);
+    };
+
     document.getElementById("btn-help-controls").addEventListener("click", () => {
-      alert(
-        "Grand Laboratory Navigation Controls:\n\n" +
-        "• Overview Mode: Left-click drag to orbit/rotate, right-click to pan, scroll wheel to zoom.\n" +
-        "• Walk Mode: W, A, S, D or Arrow keys, click viewport to lock pointer.\n" +
-        "• Touch Walk Mode: On-screen virtual D-Pad for forward, reverse, strafe & sprint.\n" +
-        "• Click-to-Glide: Click any machine from across the room to inspect it up close.\n" +
-        "• Mobile Mode: Exterior vehicles and idle machines are kept off to save memory.\n" +
-        "• Escape / Overview Pill: Return to Grand Overview at any time.\n" +
-        "• Assistant Sidebar: Press Tab to collapse/expand."
-      );
+      setHelpModalOpen(true);
+      labAudio.playButtonClick();
+    });
+    if (btnCloseControls) {
+      btnCloseControls.addEventListener("click", () => {
+        setHelpModalOpen(false);
+        labAudio.playButtonClick();
+      });
+    }
+    if (this.controlsHelpModal) {
+      this.controlsHelpModal.addEventListener("click", (e) => {
+        if (e.target === this.controlsHelpModal) setHelpModalOpen(false);
+      });
+    }
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "Escape" && this.controlsHelpModal && !this.controlsHelpModal.classList.contains("is-hidden")) {
+        setHelpModalOpen(false);
+      }
     });
   }
 
-  _initTouchControls() {
-    this.touchControls = document.getElementById("mobile-touch-controls");
-    this.btnExitTouchWalk = document.getElementById("btn-exit-touch-walk");
-
-    if (this.btnExitTouchWalk) {
-      this.btnExitTouchWalk.addEventListener("click", () => {
-        this._handleNavDockClick("overview");
-      });
+  _syncWalkToolToggleUI() {
+    if (!this.btnWalkToolToggle || !this.player) return;
+    const active = !!this.player.walkToolEnabled;
+    this.btnWalkToolToggle.classList.toggle("is-active", active);
+    if (this.walkToolLabel) {
+      this.walkToolLabel.textContent = active ? "WALK TOOL (ON)" : "WALK TOOL";
     }
-
-    const touchButtons = document.querySelectorAll(".touch-btn[data-dir]");
-    touchButtons.forEach((btn) => {
-      const dir = btn.getAttribute("data-dir");
-      const setKey = (val) => {
-        if (this.player && this.player.keys) {
-          if (dir === "forward") this.player.keys.forward = val;
-          else if (dir === "backward") this.player.keys.backward = val;
-          else if (dir === "left") this.player.keys.left = val;
-          else if (dir === "right") this.player.keys.right = val;
-          else if (dir === "sprint") this.player.keys.sprint = val;
-        }
-      };
-
-      btn.addEventListener("touchstart", (e) => {
-        e.preventDefault();
-        setKey(true);
-      }, { passive: false });
-
-      btn.addEventListener("touchend", (e) => {
-        e.preventDefault();
-        setKey(false);
-      }, { passive: false });
-
-      btn.addEventListener("mousedown", () => setKey(true));
-      btn.addEventListener("mouseup", () => setKey(false));
-      btn.addEventListener("mouseleave", () => setKey(false));
-    });
   }
 
   _updatePowerUI(forceState) {
@@ -440,123 +444,103 @@ class GrandLabApp {
 
     if (dest === "overview") {
       this.player.glideToOverview();
-    } else if (dest === "reception") {
-      this.player.glideToStation(
-        new THREE.Vector3(12.0, 1.65, -6.5),
-        new THREE.Vector3(12.0, 1.25, 1.2),
-        "Zone 6: Grand Entrance Atrium & Waiting Lounge"
-      );
-    } else if (dest === "analytical") {
-      this.player.glideToStation(
-        new THREE.Vector3(-6.0, 1.65, -1.8),
-        new THREE.Vector3(-10.2, 1.15, -4.0),
-        "Zone 1: Main Analytical & QC Hall (UV-Vis & FTIR)"
-      );
-    } else if (dest === "pharma") {
-      this.player.glideToStation(
-        new THREE.Vector3(1.8, 1.65, -1.8),
-        new THREE.Vector3(-2.5, 1.2, -4.0),
-        "Zone 1: Pharmaceutical Testing Suite (Dissolution & Disintegration)"
-      );
-    } else if (dest === "synthesis") {
-      this.player.glideToStation(
-        new THREE.Vector3(-10.0, 1.65, 3.5),
-        new THREE.Vector3(-11.5, 1.35, 8.0),
-        "Zone 2: Synthesis & Reaction Bay (Fume Hoods & Rotovap)"
-      );
-    } else if (dest === "sampleprep") {
-      this.player.glideToStation(
-        new THREE.Vector3(0.5, 1.65, 3.5),
-        new THREE.Vector3(-1.0, 1.25, 7.5),
-        "Zone 3: Sample Prep & Lyophilization (Centrifuge & Freeze Dryer)"
-      );
-    } else if (dest === "office") {
-      this.player.glideToStation(
-        new THREE.Vector3(17.5, 1.65, -3.2),
-        new THREE.Vector3(18.75, 1.15, -5.5),
-        "Zone 9: User's Private Executive Office (LIMS Studio)"
-      );
-    } else if (dest === "conference") {
-      this.player.glideToStation(
-        new THREE.Vector3(18.5, 1.65, 3.2),
-        new THREE.Vector3(22.0, 1.15, 5.5),
-        "Zone 10: Grand Boardroom & Conference Suite"
-      );
-    } else if (dest === "facultysuite") {
-      this.player.glideToStation(
-        new THREE.Vector3(26.75, 1.65, -2.5),
-        new THREE.Vector3(26.75, 1.15, -5.5),
-        "Faculty Suite: Guest, Admin & Instructor Offices"
-      );
-    } else if (dest === "breakroom") {
-      this.player.glideToStation(
-        new THREE.Vector3(28.5, 1.65, 3.2),
-        new THREE.Vector3(30.5, 1.15, 5.5),
-        "Zone 11: Staff Break Room & Kitchenette"
-      );
-    } else if (dest === "menslockers") {
-      this.player.glideToStation(
-        new THREE.Vector3(34.85, 1.65, -2.15),
-        new THREE.Vector3(35.10, 1.15, -6.20),
-        "Zone 13: Men's Locker Room & Showers"
-      );
-    } else if (dest === "womenslockers") {
-      this.player.glideToStation(
-        new THREE.Vector3(39.0, 1.65, 0.0),
-        new THREE.Vector3(42.0, 1.15, 0.0),
-        "Zone 14: Women's Locker Room, Changing Suite & Showers"
-      );
-    } else if (dest === "restroom") {
-      this.player.glideToStation(
-        new THREE.Vector3(34.8, 1.65, 3.2),
-        new THREE.Vector3(35.8, 1.15, 5.5),
-        "Zone 12: Executive Restroom & Sanitation"
-      );
-    } else if (dest === "patio") {
-      this.player.glideToStation(
-        new THREE.Vector3(31.2, 2.35, 18.2),
-        new THREE.Vector3(31.2, 1.25, 11.8),
-        "Outdoor Break Room Staff Patio & Pergola"
-      );
-    } else if (dest === "guest_office") {
-      this.player.glideToStation(
-        new THREE.Vector3(23.25, 1.65, -2.5),
-        new THREE.Vector3(23.25, 1.15, -5.8),
-        "Faculty Suite: Visiting Scientist Office"
-      );
-    } else if (dest === "admin_office") {
-      this.player.glideToStation(
-        new THREE.Vector3(26.75, 1.65, -2.5),
-        new THREE.Vector3(26.75, 1.15, -5.8),
-        "Faculty Suite: Lab Administrator Office"
-      );
-    } else if (dest === "instructor_office") {
-      this.player.glideToStation(
-        new THREE.Vector3(30.25, 1.65, -2.5),
-        new THREE.Vector3(30.25, 1.15, -5.8),
-        "Faculty Suite: Lead Instructor Office"
-      );
-    } else if (dest === "coldrooms") {
-      this.player.glideToStation(
-        new THREE.Vector3(5.2, 1.65, 4.4),
-        new THREE.Vector3(5.2, 1.40, 8.2),
-        "Zone 5: Walk-In +4°C Cold Room & -20°C Cryo Freezer"
-      );
-    } else if (dest === "exterior") {
-      this.player.glideToStation(
-        new THREE.Vector3(12.2, 5.4, -29.5),
-        new THREE.Vector3(13.2, 2.0, -9.5),
-        "Exterior Campus: Herringbone Plaza, Portico & Grounds"
-      );
-    } else if (dest === "city_street") {
-      this.player.glideToStation(
-        new THREE.Vector3(2.5, 5.4, -55.8),
-        new THREE.Vector3(14.0, 1.2, -37.0),
-        "Biotech Parkway: 4-Lane City Street & Campus Gate Traffic"
-      );
-    } else if (dest === "walk") {
-      this.player.enterWalkMode();
+      return;
     }
+    if (dest === "walk") {
+      this.player.enterWalkMode();
+      return;
+    }
+
+    const roomPresets = {
+      reception: {
+        pos: [12.0, 1.65, -6.5], look: [12.0, 1.25, 1.2],
+        label: "Zone 6: Grand Entrance Atrium & Waiting Lounge"
+      },
+      analytical: {
+        pos: [-6.0, 1.65, -1.8], look: [-10.2, 1.15, -4.0],
+        label: "Zone 1: Main Analytical & QC Hall (UV-Vis & FTIR)"
+      },
+      pharma: {
+        pos: [1.8, 1.65, -1.8], look: [-2.5, 1.2, -4.0],
+        label: "Zone 1: Pharmaceutical Testing Suite (Dissolution & Disintegration)"
+      },
+      synthesis: {
+        pos: [-10.0, 1.65, 3.5], look: [-11.5, 1.35, 8.0],
+        label: "Zone 2: Synthesis & Reaction Bay (Fume Hoods & Rotovap)"
+      },
+      sampleprep: {
+        pos: [0.5, 1.65, 3.5], look: [-1.0, 1.25, 7.5],
+        label: "Zone 3: Sample Prep & Lyophilization (Centrifuge & Freeze Dryer)"
+      },
+      office: {
+        pos: [17.5, 1.65, -3.2], look: [18.75, 1.15, -5.5],
+        label: "Zone 9: User's Private Executive Office (LIMS Studio)"
+      },
+      conference: {
+        pos: [18.5, 1.65, 3.2], look: [22.0, 1.15, 5.5],
+        label: "Zone 10: Grand Boardroom & Conference Suite"
+      },
+      facultysuite: {
+        pos: [26.75, 1.65, -2.5], look: [26.75, 1.15, -5.5],
+        label: "Faculty Suite: Guest, Admin & Instructor Offices"
+      },
+      breakroom: {
+        pos: [28.5, 1.65, 3.2], look: [30.5, 1.15, 5.5],
+        label: "Zone 11: Staff Break Room & Kitchenette"
+      },
+      menslockers: {
+        pos: [34.85, 1.65, -2.15], look: [35.10, 1.15, -6.20],
+        label: "Zone 13: Men's Locker Room & Showers"
+      },
+      womenslockers: {
+        pos: [39.0, 1.65, 0.0], look: [42.0, 1.15, 0.0],
+        label: "Zone 14: Women's Locker Room, Changing Suite & Showers"
+      },
+      restroom: {
+        pos: [34.8, 1.65, 3.2], look: [35.8, 1.15, 5.5],
+        label: "Zone 12: Executive Restroom & Sanitation"
+      },
+      patio: {
+        pos: [31.2, 2.35, 18.2], look: [31.2, 1.25, 11.8],
+        label: "Outdoor Break Room Staff Patio & Pergola"
+      },
+      guest_office: {
+        pos: [23.25, 1.65, -2.5], look: [23.25, 1.15, -5.8],
+        label: "Faculty Suite: Visiting Scientist Office"
+      },
+      admin_office: {
+        pos: [26.75, 1.65, -2.5], look: [26.75, 1.15, -5.8],
+        label: "Faculty Suite: Lab Administrator Office"
+      },
+      instructor_office: {
+        pos: [30.25, 1.65, -2.5], look: [30.25, 1.15, -5.8],
+        label: "Faculty Suite: Lead Instructor Office"
+      },
+      coldrooms: {
+        pos: [5.2, 1.65, 4.4], look: [5.2, 1.40, 8.2],
+        label: "Zone 5: Walk-In +4°C Cold Room & -20°C Cryo Freezer"
+      },
+      exterior: {
+        pos: [12.2, 5.4, -29.5], look: [13.2, 2.0, -9.5],
+        label: "Exterior Campus: Herringbone Plaza, Portico & Grounds"
+      },
+      city_street: {
+        pos: [2.5, 5.4, -55.8], look: [14.0, 1.2, -37.0],
+        label: "Biotech Parkway: 4-Lane City Street & Campus Gate Traffic"
+      }
+    };
+
+    const preset = roomPresets[dest];
+    if (!preset) return;
+    const targetMode = this.player.walkToolEnabled
+      ? (preset.pos[1] > 2.4 ? "free_walk" : "walk")
+      : "station_focus";
+    this.player.glideToStation(
+      new THREE.Vector3(...preset.pos),
+      new THREE.Vector3(...preset.look),
+      preset.label,
+      targetMode
+    );
   }
 
   _setActiveNavPill(dest) {
@@ -575,14 +559,6 @@ class GrandLabApp {
       this.hudZonePill.textContent = zoneName;
     }
 
-    if (this.touchControls) {
-      if (mode === "walk" && this.isMobile) {
-        this.touchControls.classList.remove("is-hidden");
-      } else {
-        this.touchControls.classList.add("is-hidden");
-      }
-    }
-
     // Dynamic Context Switching in Assistant Sidebar & Navigation Dock
     if (mode === "overview" || zoneName.includes("Grand Overview")) {
       this._setActiveNavPill("overview");
@@ -594,16 +570,18 @@ class GrandLabApp {
       this.tTimer.textContent = "Continuous";
       this.sopTitle.textContent = "Grand Chemistry & Pharma Complex";
       this.advisorText.textContent = "Grand Architectural Overview: Explore all 18 digital instrument twins, executive suites, spa locker rooms, and landscaped biotech campus. Use the mood switcher, bottom dock, or click any machine to inspect up close.";
-    } else if (mode === "walk") {
+    } else if (mode === "walk" || mode === "free_walk") {
       this._setActiveNavPill("walk");
-      this.sidebarBadge.textContent = "WALK MODE";
+      this.sidebarBadge.textContent = mode === "walk" ? "WALK MODE" : "FREE-AIM";
       this.telemetryStationName.textContent = zoneName;
       this.tStatus.textContent = "NAVIGATING";
-      this.tParam1.textContent = "Eye-Level 1.65m";
+      this.tParam1.textContent = mode === "walk" ? "Eye-Level 1.65m" : "3D Free-Roam";
       this.tTemp.textContent = "21.0 °C";
-      this.tTimer.textContent = "WASD Active";
+      this.tTimer.textContent = this.isMobile ? "Speed Zone" : "WASD Active";
       this.sopTitle.textContent = "Laboratory Floor Walk";
-      this.advisorText.textContent = "Walk freely using W, A, S, D or Arrow keys. Hold Shift to sprint. Click anywhere on a machine to focus, or press ESC to return to Grand Overview.";
+      this.advisorText.textContent = this.isMobile
+        ? "Drag UP/DOWN along the right side of the screen to move forward or back up. Drag anywhere else to aim."
+        : "Walk freely using W, A, S, D or Arrow keys. Hold Shift to sprint. Click anywhere on a machine to focus, or press ESC to return to Grand Overview.";
     } else if (zoneName.includes("Grand Entrance") || zoneName.includes("Waiting Lounge")) {
       this._setActiveNavPill("reception");
       this.sidebarBadge.textContent = "RECEPTION";
@@ -786,6 +764,7 @@ class GrandLabApp {
     };
 
     this.renderer.domElement.addEventListener("click", (e) => {
+      if (this.player && this.player.wasRecentlyDragging()) return;
       handleInteract(e.clientX, e.clientY);
     });
   }
@@ -878,7 +857,9 @@ class GrandLabApp {
   }
 
   _updateRaycasting() {
-    const coords = (this.player && this.player.isPointerLocked) ? this.centerMouse : this.mousePos;
+    const coords = (this.player && (this.player.isPointerLocked || (this.isMobile && (this.player.mode === "walk" || this.player.mode === "free_walk"))))
+      ? this.centerMouse
+      : this.mousePos;
     this.raycaster.setFromCamera(coords, this.camera);
 
     // Objects to test: interactive utilities + casework interactive objects + clickable instrument dock hitboxes
@@ -938,12 +919,13 @@ class GrandLabApp {
 
     const animate = (now) => {
       requestAnimationFrame(animate);
-      if (this.isContextLost) return;
       const delta = Math.min(0.08, (now - lastTime) / 1000);
       lastTime = now;
 
       // 1. Update Player Movement & Camera Lerp
       this.player.update(delta);
+
+      if (this.isContextLost) return;
 
       // 2. Update Smart Auto-Hiding Roof & Environment State
       this.environment.update(now * 0.001, this.camera, this.player.mode);
