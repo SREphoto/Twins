@@ -731,6 +731,7 @@ export class LabPlayerController {
 
   _detectZone(x, z) {
     if (z > 9.5 && x >= 25.0 && x <= 36.0) return "Outdoor Break Room Staff Patio & Pergola";
+    if (x <= -14.5 && x >= -22.0 && z >= 22.0 && z <= 27.5) return "Cold Storage Suite: Walk-In Refrigerator (+4°C) & Freezer (-20°C)";
     if (z > 9.5 && z <= 27.5 && x >= -22.0 && x <= 8.0) return "Zone 2B: North High-Bay Research L-Wing";
     if (z < -9.5 || (z > 9.5 && (x < -22.0 || x > 8.0 || z > 27.5)) || x < -22.0 || x > 44.0 || (x > 38.0 && Math.abs(z) > 8.0)) {
       return "Exterior Campus: Biotech Grounds & Parking";
@@ -746,7 +747,6 @@ export class LabPlayerController {
     if (x >= 28.5 && x < 32.0 && z < -1.5) return "Faculty Suite: Instructor's Office";
     if (x >= 32.0 && x < 38.0 && z < -1.5) return "Zone 13: Men's Locker Room & Showers";
     if (x >= 8.0 && x < 16.0) return "Zone 6: Grand Entrance Atrium & Waiting Lounge";
-    if (x <= -14.5 && x >= -22.0 && z >= 22.0) return "Cold Storage Suite: Walk-In Refrigerator (+4°C) & Freezer (-20°C)";
     if (x <= 8.0 && x > 2.0 && z > 1.0) return "Zone 5: Chemical & Reagent Storage Vault";
     if (x <= 8.0 && x > 2.0 && z <= 1.0) return "Zone 4: Controlled Atmosphere & Glove Box Bay";
     if (x <= 2.0 && x > -5.0 && z > 1.0) return "Zone 3: Sample Prep & Lyophilization Suite";
