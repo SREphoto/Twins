@@ -18,10 +18,13 @@ import { Reflector } from "three/addons/objects/Reflector.js";
 import { labAudio } from "./LabSFXMixer.js";
 
 export class LabCasework {
-  constructor(scene, colliders = [], environment = null) {
+  constructor(scene, colliders = [], envOrOptions = null) {
     this.scene = scene;
+    const isEnvObj = Boolean(envOrOptions && (envOrOptions.root || envOrOptions.doors));
+    this.environment = isEnvObj ? envOrOptions : (envOrOptions?.environment || null);
+    // Mobile: skip the 4.5 MB compound microscope GLB (three 4096px textures, ~250 MB of GPU memory)
+    this.isMobile = Boolean(isEnvObj ? envOrOptions?.options?.isMobile : envOrOptions?.isMobile);
     this.colliders = colliders;
-    this.environment = environment;
     this.root = new THREE.Group();
     this.root.name = "Modern_Lab_Casework_Root";
     this.fumeHoodSashes = [];
@@ -2284,7 +2287,7 @@ export class LabCasework {
     this.assetsReadyPromise = Promise.all([
       loadGLB("./assets/models/imac_27.glb"),
       loadGLB("./assets/models/medical_washcloths.glb"),
-      loadGLB("./assets/models/compound_microscope.glb"),
+      this.isMobile ? Promise.resolve(null) : loadGLB("./assets/models/compound_microscope.glb"),
       loadGLB("./assets/models/apple_magic_keyboard.glb"),
       loadGLB("./assets/models/apple_magic_mouse.glb"),
       loadGLB("./assets/models/iphone_14_pro.glb"),

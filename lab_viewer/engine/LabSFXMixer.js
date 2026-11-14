@@ -18,10 +18,17 @@ class LabSFXMixer {
     this.masterGain = null;
     this.activeNodes = new Map();
     this.initialized = false;
+    // When disabled (mobile), no AudioContext is ever created and no sound buffers are generated
+    this.disabled = false;
+  }
+
+  disable() {
+    this.disabled = true;
+    this.isMuted = true;
   }
 
   init() {
-    if (this.initialized) return;
+    if (this.initialized || this.disabled) return;
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (!AudioCtx) return;
@@ -43,6 +50,7 @@ class LabSFXMixer {
   }
 
   toggleMute() {
+    if (this.disabled) return true;
     this.isMuted = !this.isMuted;
     if (this.masterGain && this.ctx) {
       this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : 0.35, this.ctx.currentTime);
