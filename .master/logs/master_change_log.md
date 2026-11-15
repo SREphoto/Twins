@@ -4,6 +4,33 @@ Newest first. Template: `templates/change_log_entry.md`.
 
 ---
 
+## 2026-11-15 · OGA · zeiss-geminisem-500-vc-e-suite-progressive-scan-and-5-gate-gold
+
+| Field   | Value                                                                                                                                                                                                                                                            |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | OGA (Organizational Governance Agent) / Digital Twin Architecture Team                                                                                                                                                                                           |
+| Machine | `sem_twin`, `lab_viewer`, `workspace`                                                                                                                                                                                                                            |
+| Intent  | Upgrade the ZEISS GeminiSEM 500 Field-Emission Scanning Electron Microscope (`sem_twin`) to 100% 5-Gate OGA Gold Standard ("Centrifuge Standard") with its own dedicated `VC-E` Electron Microscopy Suite room in both `lab_viewer` and standalone `sem_twin`, interactive progressive line-by-line raster scanning across 4 detector channels (`InLens_Secondary`, `SE2_Everhart_Thornley`, `BSE_Backscatter`, `EDS_Silicon_Drift`) and 6 specimen monographs, zero generic geometry, complete point-to-point 3D wiring/plumbing harnesses, genuine 3D DIN 912 hex socket cap screws, and a 1080p 10-chapter narrated walkthrough video (`SEM_GEMINI_Social_Walkthrough.mp4`). |
+
+### Created
+
+- `sem_twin/AGENTS.md`, `sem_twin/README.md`, `sem_twin/scripts/serve.sh`, `sem_twin/scripts/test.sh`
+- `sem_twin/research/sources.md`: OEM ZEISS GeminiSEM 500 (`349500-8038-000`), 105-mm 5-Axis Stage (`349347-9013-000`), Pfeiffer HiPace 300/HiScroll 6, and Oxford Ultim Max 100 specifications.
+- `sem_twin/docs/dimensions.md`, `sem_twin/docs/BOM.md`, `sem_twin/docs/control_spec.md`, `sem_twin/docs/STANDARD.md`, `sem_twin/docs/ARCHITECTURE.md`, `sem_twin/docs/presentation_voiceover_script.md`, `sem_twin/docs/walkthrough.md`.
+- `sem_twin/docs/SEM_GEMINI_Social_Walkthrough.mp4` & `sem_twin/docs/audio/vo_0..9.mp3`: 10-chapter 1080p narrated walkthrough video.
+- `sem_twin/docs/qa/*.png`: 17 high-resolution closed-loop visual QA and Stage 1–7D internal anatomy renders.
+- `.master/registry/sem_twin_manifest.md` & `.master/logs/report_cards/2026-11-15_oga_sem_twin_upgrade.md`.
+
+### Changed
+
+- `sem_twin/software/controller/sem_controller.py`, `test_controller.py`, `test_samples.py`: Upgraded dual-truth Python controller with relativistic de Broglie wavelength, mean free path, UHV door/vent interlocks, 5-axis stage, 6 specimens, and 12/12 passing unit tests.
+- `sem_twin/software/viewer/sem3d.js`: Rebuilt 3,145-line 1:1 procedural CAD assembly (`Body_ColumnGemini`, `Body_GunHeadFEG`, `Body_ChamberUHV`, `Pivot_Stage5Axis`, `Body_DetectorSE2/BSE/EDS`, `Body_Mirror_OpticalRelay_45Deg`, `Body_Sensor_PT100_Probe`, `Body_Motor_DriveTurboPump`, `Body_Motor_BackingScrollPump`, `Body_HVTank_30kV`, `Body_Assembly_PowerSupply`, `Body_Part_ToroidalTransformer`, `Body_PCB_Motherboard`, `Body_Part_MCU_Core`, `Body_Part_RAM_Chip`, `Body_Part_SSD_Module`, `Body_Part_WiFi_BLE_Module`, `Body_Antenna_WiFi_External`, `Body_Port_RS232/USB_B/USB_A/RJ45`, `Body_Power_Receptacle_Duplex`, `Body_Power_Plug_NEMA`, `Body_Power_Cord_SJTOW`, `Badge_SREdesigns`) and standalone `VC-E` room.
+- `sem_twin/software/viewer/sfx.js`, `app.js`, `index.html`, `style.css`: Implemented progressive line-by-line raster scanning, 4-detector switching, sputter coater simulation, micrograph filmstrip, PNG/CSV export, and 10-chapter guided tour.
+- `lab_viewer/engine/LabEnvironment3D.js`, `LabCasework.js`, `LabDockManager.js`, `LabPlayerController.js`, `PhysicalDataBus.js`, `lab_viewer/index.html`, `lab_viewer/app.js`: Constructed dedicated `VC-E` Electron Microscopy Suite room (`X: 1.0..8.0, Z: 9.5..18.3`) with PDLC airlock doors (`SEM_SUITE_DOOR`), seismic inertia slab, and `🔬 SEM Suite` quick-teleport button.
+- `index.html`, `presentations.html`, `.master/registry/machines.md`, `scripts/generate_walkthrough_video.mjs`: Registered `sem_twin` as Gold Standard #18 and added Linux `espeak-ng`/`ffmpeg`/`google-chrome` support.
+
+---
+
 ## 2026-11-12 · OGA-CAD · lab-campus-lighting-terrain-l-wing-and-everyday-vehicles
 
 | Field   | Value                                                                                                                                                                                                                                                            |

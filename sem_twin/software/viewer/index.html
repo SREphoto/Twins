@@ -2,119 +2,397 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zeiss Gemini FE-SEM · Digital Twin & Micrograph Gallery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ZEISS GeminiSEM 500 · Field-Emission SEM Digital Twin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=20261115-oga" />
   <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-      }
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
     }
+  }
   </script>
 </head>
 <body>
   <div id="app">
-    <!-- Top Bar -->
     <header class="topbar">
       <div class="brand-cluster">
-        <span class="brand-badge">SREdesigns</span>
-        <div class="brand-title">
-          <span class="brand-primary">Zeiss Gemini Ultra FE-SEM</span>
-          <span class="brand-sub">Field Emission Scanning Electron Microscope · 0.8nm UHV</span>
+        <div class="cm-brand-dropdown-container">
+          <button type="button" class="cm-brand cm-brand-trigger" id="cm-brand-menu-btn" aria-expanded="false" aria-haspopup="true" title="ChemMate Suite Menu">
+            <span class="cm-cross-box" aria-hidden="true">+</span>
+            <span class="cm-brand-text">ChemMate</span>
+            <span class="cm-dropdown-chevron" aria-hidden="true">▾</span>
+          </button>
+          <div class="cm-dropdown-menu" id="cm-brand-dropdown" role="menu" aria-label="ChemMate Navigation">
+            <div class="cm-dropdown-header">CHEMMATE EDUCATIONAL SUITE</div>
+            <a href="../../index.html" class="cm-dropdown-item" role="menuitem">
+              <span class="cm-dropdown-icon">🏛</span>
+              <span class="cm-dropdown-text">Instrument Suite Portal</span>
+            </a>
+            <a href="../../lab_viewer/index.html" class="cm-dropdown-item is-active" role="menuitem">
+              <span class="cm-dropdown-icon">🔬</span>
+              <span class="cm-dropdown-text">3D VC-E SEM Suite Room</span>
+              <span class="cm-dropdown-tag">SUITE</span>
+            </a>
+            <a href="../../presentations.html" class="cm-dropdown-item" role="menuitem">
+              <span class="cm-dropdown-icon">🎥</span>
+              <span class="cm-dropdown-text">Video Presentations</span>
+            </a>
+          </div>
+          <span class="cm-brand-divider" aria-hidden="true">|</span>
+        </div>
+        <div class="brand">
+          <span class="brand-num">13</span>
+          <span class="brand-name-group">
+            <span class="brand-mark">ZEISS</span>
+            <span class="brand-model">GeminiSEM 500 · UHV FE-SEM</span>
+          </span>
         </div>
       </div>
-      <div class="topbar-actions">
-        <span class="badge badge-vac" id="badge-vac">UHV READY · 2.4×10⁻⁴ Pa</span>
-        <span class="badge badge-eht" id="badge-eht">EHT: 5.00 kV</span>
-        <span class="badge badge-mag" id="badge-mag">MAG: 15,000×</span>
-        <button id="btn-power" class="btn btn-power is-active">PWR ON</button>
+
+      <div class="topbar-right" style="display:flex; align-items:center; gap:0.55rem;">
+        <span class="pill run" id="pillVacState" title="UHV Chamber &amp; FEG Gun Vacuum Telemetry">UHV READY · 1.4×10⁻⁶ mbar</span>
+        <span class="pill" id="pillEhtState" title="Electron High Tension Accelerating Voltage">EHT: 15.00 kV</span>
+        <button type="button" class="pill" id="btnGuidedTour" style="cursor:pointer;" title="Launch 10-Chapter Narrated Guided Tour">🎬 GUIDED TOUR</button>
+        <button type="button" class="pill run" id="btnPowerPlug" style="cursor:pointer;" title="Plug / Unplug NEMA 5-15P Mains Cord">⚡ CORD PLUGGED IN</button>
+
+        <div class="view-chooser" role="group" aria-label="Visual view style">
+          <span class="view-chooser-label">VIEW:</span>
+          <div class="view-chooser-group">
+            <button type="button" class="view-choice-btn active" id="btn-view-modern" title="Modern View (Default high-tech instrument theme)">
+              <span class="view-choice-text">MODERN</span>
+            </button>
+            <button type="button" class="view-choice-btn" id="btn-view-retro" title="Retro View (ChemMate warm archival paper &amp; Swiss red educational style)">
+              <span class="view-choice-text retro"><span class="cm-mini-plus">+</span> RETRO</span>
+            </button>
+            <button type="button" class="view-choice-btn" id="btn-view-night" title="Night View (Dark greys, deep blacks, and precision Swiss reds)">
+              <span class="view-choice-text night"><span class="night-glyph">☾</span> NIGHT</span>
+            </button>
+          </div>
+        </div>
       </div>
     </header>
 
-    <!-- Main Workspace -->
-    <main class="workspace">
-      <!-- 3D Viewport Host -->
-      <div id="viewport-container" class="viewport-host">
-        <canvas id="c3d"></canvas>
-        <div class="view-controls">
-          <button class="btn-cam" data-cam="iso">ISO 3/4</button>
-          <button class="btn-cam" data-cam="column">COLUMN</button>
-          <button class="btn-cam" data-cam="chamber">CHAMBER</button>
-          <button class="btn-cam" data-cam="console">CONSOLE</button>
-        </div>
-      </div>
+    <div class="workspace">
+      <!-- 3D Viewport Stage -->
+      <section class="stage">
+        <div class="view-toolbar">
+          <!-- Camera Presets -->
+          <div class="toolbar-group">
+            <button type="button" class="view-btn active" data-cam-preset="CAM_ISO" title="3/4 Isometric Suite Overview">ISO 3/4</button>
+            <button type="button" class="view-btn" data-cam-preset="CAM_FRONT" title="Front Elevation">Front</button>
+            <button type="button" class="view-btn" data-cam-preset="CAM_CONSOLE" title="Operator Console &amp; Dual Monitors">Console</button>
+            <button type="button" class="view-btn" data-cam-preset="CAM_CHAMBER" title="UHV Chamber &amp; 5-Axis Stage">Chamber</button>
+            <button type="button" class="view-btn" data-cam-preset="CAM_COLUMN" title="Gemini II Column &amp; FEG Head">Column</button>
+          </div>
 
-      <!-- Interactive Micrograph Gallery & Telemetry HUD -->
-      <aside class="gallery-panel">
-        <div class="panel-header">
-          <h3>🔬 LIVE SEM MICROGRAPH EXHIBITION</h3>
-          <span class="pill-detector" id="pill-detector">InLens SE</span>
+          <!-- Inspection Modes -->
+          <div class="toolbar-group">
+            <button type="button" class="view-btn" id="btn-explode" title="Separate major assemblies">Exploded</button>
+            <button type="button" class="view-btn" id="btn-cutaway" title="Cutaway Column &amp; Service Bay">Cutaway</button>
+            <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe">Wireframe</button>
+            <button type="button" class="view-btn" id="btn-view-reset" title="Reset camera to default">Reset</button>
+          </div>
+
+          <!-- Camera & Orbit Controls -->
+          <div class="toolbar-group">
+            <button type="button" class="view-btn" id="btn-auto-rotate" title="Orbit camera automatically">Auto-rotate</button>
+            <label class="orbit-speed-ctrl" title="Auto-orbit speed">
+              <span>Orbit</span>
+              <input type="range" id="orbit-speed" min="0.2" max="4" step="0.1" value="1.0" />
+              <span id="orbit-speed-val">1.0×</span>
+            </label>
+            <label class="orbit-speed-ctrl" title="Camera zoom">
+              <span>Zoom</span>
+              <input type="range" id="camera-zoom" min="0" max="100" step="1" value="45" />
+              <span id="camera-zoom-val">45%</span>
+            </label>
+          </div>
+
+          <!-- Lighting & Atmosphere -->
+          <div class="toolbar-group">
+            <label class="orbit-speed-ctrl light-ctrl" title="Overall VC-E Suite brightness">
+              <span>Light</span>
+              <input type="range" id="lab-light" min="0.15" max="2.2" step="0.05" value="1.0" />
+              <span id="lab-light-val">1.0×</span>
+            </label>
+            <label class="orbit-speed-ctrl light-ctrl" title="Lighting mood">
+              <span>Mood</span>
+              <select id="lab-light-mood" aria-label="Lighting mood">
+                <option value="neutral" selected>Neutral</option>
+                <option value="bright">Bright</option>
+                <option value="dim">Dim</option>
+                <option value="cool">Cool</option>
+                <option value="warm">Warm</option>
+                <option value="chemmate">ChemMate Paper</option>
+                <option value="night">Night Red</option>
+              </select>
+            </label>
+          </div>
         </div>
 
-        <!-- Micrograph Display Canvas -->
-        <div class="micrograph-stage">
-          <canvas id="micrograph-canvas" width="640" height="480"></canvas>
-          <div class="micrograph-hud">
-            <div class="hud-left">
-              <span id="hud-specimen">SPECIMEN: Drosophila melanogaster (Compound Eye)</span>
-              <span id="hud-params">EHT = 5.00 kV · WD = 8.5 mm · Signal A = InLens</span>
+        <div id="viewport3d" class="viewport"></div>
+
+        <!-- Broadcast Cinema Lower-Third Voiceover & Chapter Overlay -->
+        <div id="tourOverlay" class="tour-overlay hidden">
+          <div class="tour-header">
+            <span id="tourBadge" class="tour-badge">STAGE 0 / 10</span>
+            <span id="tourTitle" class="tour-title">VC-E Electron Microscopy Suite &amp; System Architecture</span>
+          </div>
+          <p id="tourCaption" class="tour-caption">
+            Welcome to the dedicated VC-E Electron Microscopy Suite housing our ZEISS GeminiSEM 500 digital twin.
+          </p>
+        </div>
+
+        <p id="viewport-status" class="viewport-caption">ZEISS GeminiSEM 500 Ready · VC-E Suite Active</p>
+        <div class="stage-hint">Drag to orbit · Click 3D rotary knobs &amp; buttons · Use Control Panel to run live raster scans</div>
+      </section>
+
+      <!-- 01: Instrument Control & Progressive Raster Scan Panel -->
+      <aside class="instrument panel-collapsible" id="panel-instrument" data-panel="instrument">
+        <div class="panel-head">
+          <div class="panel-head-title-wrap">
+            <span class="cm-panel-num">01</span>
+            <h2 class="panel-title">SmartSEM Scan Console</h2>
+          </div>
+          <button type="button" class="panel-collapse-btn" data-collapse="instrument" title="Collapse panel" aria-expanded="true">▾</button>
+        </div>
+        <div class="panel-body">
+          <div class="instrument-frame">
+            <!-- Primary Live SEM Micrograph Canvas (synced 1:1 with 3D UI_LCD) -->
+            <canvas id="lcd" width="1024" height="768" class="lcd" aria-label="Live SEM Micrograph Display"></canvas>
+
+            <div class="sem-telemetry-badges">
+              <span class="sem-mini-pill ok" id="hudResolution">Res: 0.8 nm</span>
+              <span class="sem-mini-pill ok" id="hudMeanFreePath">MFP: 84.2 m</span>
+              <span class="sem-mini-pill" id="hudScanLine">Scan: TV 512px</span>
             </div>
-            <div class="hud-right">
-              <span id="hud-mag">15,000 ×</span>
-              <div class="scale-bar-container">
-                <div class="scale-bar-line" id="scale-line"></div>
-                <span id="scale-label">1.0 µm</span>
+
+            <!-- Detector Channel Selector -->
+            <div class="keypad-section">
+              <div class="keypad-section-header">
+                <span class="section-kicker">DETECTOR SIGNAL CHANNEL</span>
+                <span class="section-hint">LIVE SWITCHING</span>
+              </div>
+              <div class="sem-detector-grid" role="group" aria-label="SEM Detector Selection">
+                <button type="button" class="sem-det-btn is-active" data-detector="InLens_Secondary">InLens SE (Surface)</button>
+                <button type="button" class="sem-det-btn" data-detector="SE2_Everhart_Thornley">SE2 (Topography)</button>
+                <button type="button" class="sem-det-btn" data-detector="BSE_Backscatter">4Q-BSE (Atomic Z)</button>
+                <button type="button" class="sem-det-btn" data-detector="EDS_Silicon_Drift">SDD EDS (X-Ray Map)</button>
+              </div>
+            </div>
+
+            <!-- Electron Optics Sliders (Synced with 3D Rotary Knobs) -->
+            <div class="keypad-section">
+              <div class="keypad-section-header">
+                <span class="section-kicker">GEMINI II ELECTRON OPTICS</span>
+                <span class="section-hint">ROTARY ENCODERS</span>
+              </div>
+              <div class="sem-slider-grid">
+                <div class="sem-slider-row">
+                  <div class="sem-slider-head">
+                    <span>MAGNIFICATION (M)</span>
+                    <span class="sem-slider-val" id="valMag">15,000 ×</span>
+                  </div>
+                  <input type="range" id="sliderMag" min="100" max="500000" step="100" value="15000" />
+                </div>
+
+                <div class="sem-slider-row">
+                  <div class="sem-slider-head">
+                    <span>ACCEL VOLTAGE (EHT)</span>
+                    <span class="sem-slider-val" id="valEht">15.00 kV</span>
+                  </div>
+                  <input type="range" id="sliderEht" min="0.5" max="30.0" step="0.5" value="15.0" />
+                </div>
+
+                <div class="sem-slider-row">
+                  <div class="sem-slider-head">
+                    <span>WORKING DISTANCE / FOCUS (WD)</span>
+                    <span class="sem-slider-val" id="valWd">8.50 mm</span>
+                  </div>
+                  <input type="range" id="sliderWd" min="2.0" max="20.0" step="0.05" value="8.50" />
+                </div>
+
+                <div class="sem-slider-row">
+                  <div class="sem-slider-head">
+                    <span>STIGMATOR X / Y</span>
+                    <span class="sem-slider-val" id="valStig">0.0% / 0.0%</span>
+                  </div>
+                  <div style="display:flex; gap:6px;">
+                    <input type="range" id="sliderStigX" min="-50" max="50" step="1" value="0" title="Stigmator X" />
+                    <input type="range" id="sliderStigY" min="-50" max="50" step="1" value="0" title="Stigmator Y" />
+                  </div>
+                </div>
+
+                <div class="sem-slider-row">
+                  <div class="sem-slider-head">
+                    <span>BRIGHTNESS &amp; CONTRAST</span>
+                    <span class="sem-slider-val" id="valBC">B: 50% · C: 68%</span>
+                  </div>
+                  <div style="display:flex; gap:6px;">
+                    <input type="range" id="sliderBrightness" min="10" max="95" step="1" value="50" title="Brightness" />
+                    <input type="range" id="sliderContrast" min="15" max="98" step="1" value="68" title="Contrast" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tactile Pushbuttons (Synced with 3D ZEISS Control Panel) -->
+            <div class="keypad-section">
+              <div class="keypad-section-header">
+                <span class="section-kicker">CONSOLE PUSHBUTTONS</span>
+                <span class="section-hint">INTERLOCKED</span>
+              </div>
+              <div class="keypad-membrane-grid" role="group" aria-label="ZEISS Console Keys">
+                <button type="button" class="key key-power" id="btnConsolePower" title="Main System Power Switch">
+                  <span class="key-glyph">⏻</span>
+                  <span class="key-label">POWER</span>
+                </button>
+                <button type="button" class="key key-primary" id="btnToggleEht" title="Toggle Electron High Tension Beam">
+                  <span class="key-glyph">⚡</span>
+                  <span class="key-label" id="lblToggleEht">EHT ON</span>
+                </button>
+                <button type="button" class="key key-cool" id="btnAutoFocus" title="Run Automatic Objective Lens Focus &amp; Stigmator Alignment">
+                  <span class="key-glyph">◎</span>
+                  <span class="key-label">AUTO WD/STIG</span>
+                </button>
+                <button type="button" class="key key-mode" id="btnAutoBC" title="Auto Brightness &amp; Contrast Normalization">
+                  <span class="key-glyph">◐</span>
+                  <span class="key-label">AUTO B/C</span>
+                </button>
+                <button type="button" class="key" id="btnScanSpeed" title="Cycle Scan Speed (TV 512px / Slow Photo 1024px / Line Profile)">
+                  <span class="key-glyph">▤</span>
+                  <span class="key-label" id="lblScanSpeed">FAST SCAN</span>
+                </button>
+                <button type="button" class="key key-open" id="btnFreezeScan" title="Freeze / Unfreeze Raster Frame">
+                  <span class="key-glyph">❄</span>
+                  <span class="key-label" id="lblFreezeScan">FREEZE</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Scan Capture & GLP Export Actions -->
+            <div class="action-suite">
+              <div class="action-suite-group">
+                <div class="action-suite-title">SCAN ACQUISITION &amp; GLP AUDIT EXPORT</div>
+                <div class="action-suite-grid grid-2">
+                  <button type="button" class="btn btn-demo" id="btnPhotoScan" title="Run High-SNR Slow Photo Scan &amp; Capture to Filmstrip">
+                    <span class="btn-glyph">📸</span> Capture Scan
+                  </button>
+                  <button type="button" class="btn btn-demo" id="btnSavePng" title="Download Captured High-Resolution Micrograph PNG with ZEISS Datazone">
+                    <span class="btn-glyph">💾</span> Save PNG
+                  </button>
+                  <button type="button" class="btn btn-demo" id="btnExportCsv" title="Export 21 CFR Part 11 GLP Analytical &amp; EDS CSV Log">
+                    <span class="btn-glyph">📊</span> Export GLP CSV
+                  </button>
+                  <button type="button" class="btn btn-demo" id="btnToggleMute" title="Mute / Unmute Procedural Web Audio Synthesizer">
+                    <span class="btn-glyph" id="glyphMute">🔊</span> <span id="lblMute">Audio ON</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
+      </aside>
 
-        <!-- Specimen Selector Carousel -->
-        <div class="specimen-selector">
-          <label>SELECT SPECIMEN GALLERY MONOGRAPH:</label>
-          <div class="specimen-buttons">
-            <button class="btn-specimen is-active" data-idx="0">1. Insect Eye (Ommatidia)</button>
-            <button class="btn-specimen" data-idx="1">2. Ragweed Pollen (Exine)</button>
-            <button class="btn-specimen" data-idx="2">3. Morpho Butterfly Wing</button>
-            <button class="btn-specimen" data-idx="3">4. 7nm FinFET Silicon Gate</button>
-            <button class="btn-specimen" data-idx="4">5. ZnO Nanorod Tetrapods</button>
+      <!-- 02: Part Explorer -->
+      <aside class="parts panel-collapsible" id="parts-panel" data-panel="parts">
+        <div class="panel-head">
+          <div class="panel-head-title-wrap">
+            <span class="cm-panel-num">02</span>
+            <h2 class="panel-title">Part Explorer</h2>
           </div>
+          <button type="button" class="panel-collapse-btn" data-collapse="parts" title="Collapse panel" aria-expanded="true">▾</button>
         </div>
-
-        <!-- Live Electron Optics Tuning Controls -->
-        <div class="optics-controls">
-          <h4>ELECTRON OPTICS & DETECTOR CONTROLS</h4>
-          <div class="ctrl-row">
-            <label>MAGNIFICATION:</label>
-            <input type="range" id="slider-mag" min="500" max="150000" step="500" value="15000">
-            <span id="val-mag">15,000×</span>
-          </div>
-          <div class="ctrl-row">
-            <label>ACCEL VOLTAGE (EHT):</label>
-            <input type="range" id="slider-eht" min="1.0" max="30.0" step="0.5" value="5.0">
-            <span id="val-eht">5.0 kV</span>
-          </div>
-          <div class="ctrl-row">
-            <label>CONTRAST & BRIGHTNESS:</label>
-            <input type="range" id="slider-contrast" min="10" max="100" value="65">
-            <input type="range" id="slider-brightness" min="10" max="100" value="50">
-          </div>
-          <div class="detector-buttons">
-            <button class="btn-det is-active" data-det="InLens_Secondary">InLens SE (Topography)</button>
-            <button class="btn-det" data-det="SE2_Everhart_Thornley">SE2 (Chamber)</button>
-            <button class="btn-det" data-det="BSE_Backscatter">BSE (Z-Contrast)</button>
-            <button class="btn-det" data-det="EDS_Silicon_Drift">EDS Spectrum</button>
-          </div>
+        <div class="panel-body">
+          <p class="hint">
+            Inspect every 1:1 assembly of the ZEISS GeminiSEM 500. Click any subsystem to isolate in 3D.
+          </p>
+          <button type="button" class="btn" id="btn-parts-clear">Show All Assemblies</button>
+          <p id="parts-focus-status" class="lab-status muted">Showing complete instrument (10 subsystems)</p>
+          <p id="parts-count" class="hint">10 Major Assemblies · 180+ Fasteners &amp; Harnesses</p>
+          <div id="parts-list" class="parts-list" role="list"></div>
         </div>
       </aside>
-    </main>
+
+      <!-- 03: Specimen Prep Bench, Vacuum Interlocks, 5-Axis Stage & Filmstrip -->
+      <aside class="lab panel-collapsible" id="panel-lab" data-panel="lab">
+        <div class="panel-head">
+          <div class="panel-head-title-wrap">
+            <span class="cm-panel-num">03</span>
+            <h2 class="panel-title">Stage, Prep &amp; Filmstrip</h2>
+          </div>
+          <button type="button" class="panel-collapse-btn" data-collapse="lab" title="Collapse panel" aria-expanded="true">▾</button>
+        </div>
+        <div class="panel-body">
+          <!-- 9-Stub Specimen Carousel Selector -->
+          <div class="keypad-section-header">
+            <span class="section-kicker">9-STUB CAROUSEL SPECIMENS</span>
+            <span class="section-hint">CLICK TO ROTATE</span>
+          </div>
+          <div id="specimenCarouselGrid" class="sem-carousel-grid"></div>
+          <p id="specimenDesc" class="hint"></p>
+
+          <!-- Specimen Conductive Au/Pd Sputter Coater & Vacuum Interlocks -->
+          <div class="keypad-section-header" style="margin-top:8px;">
+            <span class="section-kicker">PREP BENCH &amp; UHV CHAMBER INTERLOCK</span>
+            <span class="section-hint" id="lblChamberPressure">1.40e-6 mbar</span>
+          </div>
+          <div class="lab-btns" style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px;">
+            <button type="button" class="btn" id="btnSputterCoat" title="Apply 5 nm Au/Pd Conductive Sputter Coating to Prevent Dielectric Charging">
+              ✨ Au/Pd Coat: ON
+            </button>
+            <button type="button" class="btn" id="btnVentPump" title="Vent Chamber with Dry N2 or Pump Down to UHV">
+              🌀 Vent Chamber (N₂)
+            </button>
+            <button type="button" class="btn" id="btnChamberDoor" title="Open / Close UHV Specimen Chamber Door (Requires Venting First)">
+              🚪 Open Chamber Door
+            </button>
+            <button type="button" class="btn" id="btnCenterStage" title="Home 5-Axis Stage to Eucentric Position (WD = 8.50 mm)">
+              🎯 Eucentric Home
+            </button>
+          </div>
+          <p id="lab-status" class="lab-status" style="margin-top:6px;">UHV Ready · Door Sealed · Au/Pd Grounded</p>
+
+          <!-- 5-Axis Motorized Eucentric Stage Controls -->
+          <div class="keypad-section-header" style="margin-top:10px;">
+            <span class="section-kicker">5-AXIS EUCENTRIC STAGE (X/Y/Z/T/R)</span>
+            <span class="section-hint">PAN LIVE SCAN</span>
+          </div>
+          <div class="sem-stage-grid">
+            <div class="sem-stage-box">
+              <label><span>Stage X</span><span id="valStageX">0.0 mm</span></label>
+              <input type="range" id="sliderStageX" min="-40" max="40" step="0.5" value="0" />
+            </div>
+            <div class="sem-stage-box">
+              <label><span>Stage Y</span><span id="valStageY">0.0 mm</span></label>
+              <input type="range" id="sliderStageY" min="-40" max="40" step="0.5" value="0" />
+            </div>
+            <div class="sem-stage-box">
+              <label><span>Tilt (T)</span><span id="valStageTilt">0°</span></label>
+              <input type="range" id="sliderStageTilt" min="-4" max="70" step="1" value="0" />
+            </div>
+            <div class="sem-stage-box">
+              <label><span>Rotation (R)</span><span id="valStageRot">0°</span></label>
+              <input type="range" id="sliderStageRot" min="0" max="360" step="1" value="0" />
+            </div>
+          </div>
+
+          <!-- Captured Micrographs Filmstrip Gallery -->
+          <div class="keypad-section-header" style="margin-top:12px;">
+            <span class="section-kicker">CAPTURED MICROGRAPHS FILMSTRIP</span>
+            <span class="section-hint" id="lblFilmstripCount">0 Scans</span>
+          </div>
+          <div id="filmstripGallery" class="sem-filmstrip"></div>
+        </div>
+      </aside>
+    </div>
   </div>
 
-  <script type="module" src="app.js"></script>
+  <script type="module" src="app.js?v=20261115-oga"></script>
 </body>
 </html>

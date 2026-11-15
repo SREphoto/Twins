@@ -139,6 +139,10 @@
           <span class="nav-icon">❄️</span>
           <span class="nav-label">Sample Prep</span>
         </button>
+        <button class="nav-pill" data-nav="semsuite" id="btn-nav-sem" title="Dedicated VC-E Electron Microscopy Suite (ZEISS GeminiSEM 500)">
+          <span class="nav-icon">🔬</span>
+          <span class="nav-label">SEM Suite</span>
+        </button>
         <button class="nav-pill" data-nav="office" title="Doubled Executive Office, LIMS Desk, Dual 4K Curved Displays">
           <span class="nav-icon">💼</span>
           <span class="nav-label">User's Office</span>
@@ -292,6 +296,17 @@
             <div class="card-title">
               <span>Room &amp; Wall Controls</span>
               <span class="room-ctrl-zone-tag" id="room-ctrl-zone-tag">FACILITY</span>
+            </div>
+
+            <div class="room-ctrl-group" id="room-ctrl-sem">
+              <div class="room-ctrl-subtitle">Zone 8 · VC-E SEM Suite Panel</div>
+              <div class="room-ctrl-grid">
+                <button class="room-ctrl-btn is-active" id="ctrl-sem-blinds" type="button">🪟 Blinds: Closed</button>
+                <button class="room-ctrl-btn is-active" id="ctrl-sem-lights" type="button">💡 Lights: Dim</button>
+                <button class="room-ctrl-btn room-ctrl-wide" id="ctrl-sem-privacy" type="button">🔒 Airlock Privacy: Off</button>
+                <button class="room-ctrl-btn room-ctrl-wide" id="ctrl-sem-door" type="button">🚪 SEM Airlock Doors: Open</button>
+                <a class="room-ctrl-btn room-ctrl-wide" href="../sem_twin/software/viewer/index.html" style="text-decoration:none; text-align:center; color:#38bdf8; border-color:#0284c7;">🔬 Open Interactive SEM Scan Console</a>
+              </div>
             </div>
 
             <div class="room-ctrl-group" id="room-ctrl-conference">

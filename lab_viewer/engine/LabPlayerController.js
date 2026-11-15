@@ -732,6 +732,7 @@ export class LabPlayerController {
   _detectZone(x, z) {
     if (z > 9.5 && x >= 25.0 && x <= 36.0) return "Outdoor Break Room Staff Patio & Pergola";
     if (x <= -14.5 && x >= -22.0 && z >= 22.0 && z <= 27.5) return "Cold Storage Suite: Walk-In Refrigerator (+4°C) & Freezer (-20°C)";
+    if (z > 9.5 && z <= 18.3 && x >= 1.0 && x <= 8.0) return "Zone 8: VC-E Electron Microscopy Suite (ZEISS GeminiSEM 500)";
     if (z > 9.5 && z <= 27.5 && x >= -22.0 && x <= 8.0) return "Zone 2B: North High-Bay Research L-Wing";
     if (z < -9.5 || (z > 9.5 && (x < -22.0 || x > 8.0 || z > 27.5)) || x < -22.0 || x > 44.0 || (x > 38.0 && Math.abs(z) > 8.0)) {
       return "Exterior Campus: Biotech Grounds & Parking";

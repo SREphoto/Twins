@@ -73,6 +73,25 @@ export class PhysicalDataBus {
       ],
       conclusion: "Moisture content meets USP specification."
     });
+
+    this.activeRunData.set("sem", {
+      title: "ZEISS GeminiSEM 500 Field-Emission SEM",
+      standard: "ASTM E1508 / ISO 16700 (FE-SEM & EDS Microanalysis)",
+      date: new Date().toISOString().split("T")[0],
+      method: "GEMINI_II_INLENS_SE2_EDS_15KV",
+      sample: "Drosophila melanogaster Ommatidia (5nm Au/Pd Coated)",
+      columns: ["Element / Parameter", "X-Ray Line / Mode", "Measured Value", "Uncertainty / Spec"],
+      rows: [
+        ["Accelerating Voltage (EHT)", "Beam Booster +8kV", "15.00 kV", "±0.01 kV"],
+        ["Working Distance (WD)", "Eucentric Focus", "8.50 mm", "0.8 nm Resolution"],
+        ["Chamber Vacuum", "HiPace 300 Turbo", "1.40e-6 mbar", "<= 5.0e-6 mbar PASS"],
+        ["FEG Gun UHV", "25 L/s Ion Getter", "2.00e-10 mbar", "<= 5.0e-10 mbar PASS"],
+        ["Carbon (C)", "K-alpha (0.277 keV)", "51.4 wt% (64.8 at%)", "±0.4 wt%"],
+        ["Oxygen (O)", "K-alpha (0.525 keV)", "26.2 wt% (24.8 at%)", "±0.3 wt%"],
+        ["Gold (Au Coating)", "M-alpha (2.120 keV)", "11.2 wt% (0.9 at%)", "5.0 nm Sputtered"]
+      ],
+      conclusion: "Sub-nanometer InLens SE + SDD EDS spectrum verified at 15,000x magnification."
+    });
   }
 
   _injectModalContainers() {

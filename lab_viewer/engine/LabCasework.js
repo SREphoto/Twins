@@ -1131,7 +1131,7 @@ export class LabCasework {
     this._createDoubleSidedBench(-4.2, 15.0, 7.2, 1.5, "North_Wing_Genomics_Island_B");
     this._createDoubleSidedBench(-14.5, 21.5, 7.2, 1.5, "North_Wing_High_Throughput_Island_C");
     this._createDoubleSidedBench(-4.2, 21.5, 7.2, 1.5, "North_Wing_Automation_Island_D");
-    this._createSingleSidedBench(3.8, 18.5, 6.0, 0.85, "North_Wing_East_Calibration_Bench");
+    this._createSingleSidedBench(4.3, 19.1, 5.4, 0.85, "North_Wing_East_Calibration_Bench");
 
     // 8. Chemical Storage Vault Shelving (Zone 5): Flush against Solid North Wall Section (X = 3.5, Z = 9.08) — 100% Clear of L-Wing Portal!
     this._createStorageRacks(3.5, 9.08, 2.00, 0.56, 0);

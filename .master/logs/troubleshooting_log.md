@@ -4,6 +4,34 @@ Newest first. Template: `templates/troubleshooting_entry.md`.
 
 ---
 
+## 2026-11-15 · OGA · sem-twin-vc-e-partition-door-and-cdp-proxy-flags [DIAG-005] [DIAG-014] [DIAG-020]
+
+| Field    | Value                                                              |
+| -------- | ------------------------------------------------------------------ |
+| Status   | resolved                                                           |
+| Machine  | sem_twin, lab_viewer, workspace                                    |
+| Severity | medium                                                             |
+
+**Problem:**
+1. Enclosing the dedicated `VC-E` Electron Microscopy Suite (`X: 1.0..8.0, Z: 9.5..18.3`) inside `lab_viewer` required sealing the eastern segment of the `North Main Elevation` (`Z = 9.5`) without blocking the main L-Wing walkthrough portal (`X = -15.5..1.0`).
+2. Launching headless Google Chrome on Linux inside the `exebox` proxy environment failed to load ESM `importmap` URLs (`https://unpkg.com/three@0.160.0/...`) unless explicit proxy and local CA flags were passed to `/usr/bin/google-chrome`.
+
+**Symptoms:**
+- `North Main Elevation` wall opening in `LabEnvironment3D.js` previously spanned `uEnd: 8.8`, leaving the South boundary of the SEM Suite open to the Main Analytical Hall.
+- Headless Chrome exited with `window.app === undefined` when launched without `--proxy-server` and `--ignore-certificate-errors`.
+
+**Cause:**
+- `North Main Elevation` portal `uEnd` was set to `8.8` before the East-North bay was partitioned into the dedicated `VC-E` Electron Microscopy Suite.
+- Headless Chrome on Linux does not automatically inherit `HTTPS_PROXY` and local proxy CA trust for ESM module fetches unless `--proxy-server`, `--proxy-bypass-list=localhost;127.0.0.1`, and `--ignore-certificate-errors` are passed on the CLI.
+
+**Fix:**
+1. Updated `North Main Elevation` opening `uStart` to `8.0` (`X = +1.0m`) in `LabEnvironment3D.js` so `X = 1.0..8.0m` forms the solid RF-shielded South wall of the `VC-E` SEM Suite, and added `_buildVCESEMSuite()` with double sliding PDLC airlock doors (`SEM_SUITE_DOOR`), seismic inertia slab, and room lighting group (`sem`).
+2. Updated `scripts/generate_walkthrough_video.mjs` and the CDP visual QA harness to detect Linux `/usr/bin/google-chrome` and `/home/antigravity/.local/bin/espeak-ng` and pass `--proxy-server`, `--proxy-bypass-list=localhost;127.0.0.1`, and `--ignore-certificate-errors`.
+
+**Prevention:** Always pass explicit proxy bypass for `localhost;127.0.0.1` alongside `--proxy-server` when running headless Chrome CDP in proxied Linux environments.
+
+---
+
 ## 2026-11-12 · OGA-CAD & SRE-TWIN · lab-campus-lighting-terrain-l-wing-cars [DIAG-004] [DIAG-005] [DIAG-022]
 
 | Field    | Value                                                              |

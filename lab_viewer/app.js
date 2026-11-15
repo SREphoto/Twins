@@ -410,6 +410,11 @@ class GrandLabApp {
     const btnEntBlinds = document.getElementById("ctrl-entrance-blinds");
     const btnEntDoor = document.getElementById("ctrl-entrance-door");
 
+    const btnSemBlinds = document.getElementById("ctrl-sem-blinds");
+    const btnSemLights = document.getElementById("ctrl-sem-lights");
+    const btnSemPrivacy = document.getElementById("ctrl-sem-privacy");
+    const btnSemDoor = document.getElementById("ctrl-sem-door");
+
     btnConfBlinds?.addEventListener("click", () => env.toggleZoneBlinds("conference"));
     btnConfLights?.addEventListener("click", () => env.cycleRoomLights("conference"));
     btnConfProj?.addEventListener("click", () => env.toggleProjector());
@@ -425,14 +430,39 @@ class GrandLabApp {
     btnEntBlinds?.addEventListener("click", () => env.toggleZoneBlinds("entrance"));
     btnEntDoor?.addEventListener("click", () => env.toggleDoor("EXTERIOR_AIRLOCK"));
 
+    btnSemBlinds?.addEventListener("click", () => env.toggleZoneBlinds("sem"));
+    btnSemLights?.addEventListener("click", () => env.cycleRoomLights("sem"));
+    btnSemPrivacy?.addEventListener("click", () => env.toggleRoomPrivacy("sem"));
+    btnSemDoor?.addEventListener("click", () => env.toggleDoor("SEM_SUITE_DOOR"));
+
     env.onStateChange((snap) => {
       if (!snap) return;
       const conf = snap.conference;
       const off = snap.office;
       const ent = snap.entrance;
+      const sem = snap.sem;
       const confDoorOpen = env.doors.get("CONF_HALLWAY_DOOR")?.isOpen;
       const offDoorOpen = env.doors.get("USER_OFFICE_DOOR")?.isOpen;
       const entDoorOpen = env.doors.get("EXTERIOR_AIRLOCK")?.isOpen;
+      const semDoorOpen = env.doors.get("SEM_SUITE_DOOR")?.isOpen;
+
+      if (btnSemBlinds && sem) {
+        btnSemBlinds.textContent = `🪟 Blinds: ${sem.blindsClosed ? "Closed" : "Open"}`;
+        btnSemBlinds.classList.toggle("is-active", sem.blindsClosed);
+      }
+      if (btnSemLights && sem) {
+        const lbl = sem.lightLevel === "dim" ? "Dim" : (sem.lightLevel === "off" ? "Off" : "Full");
+        btnSemLights.textContent = `💡 Lights: ${lbl}`;
+        btnSemLights.classList.toggle("is-active", sem.lightLevel !== "off");
+      }
+      if (btnSemPrivacy && sem) {
+        btnSemPrivacy.textContent = `🔒 Airlock Privacy: ${sem.privacy ? "ON" : "Off"}`;
+        btnSemPrivacy.classList.toggle("is-privacy", sem.privacy);
+      }
+      if (btnSemDoor) {
+        btnSemDoor.textContent = `🚪 SEM Airlock Doors: ${semDoorOpen ? "Open" : "Closed"}`;
+        btnSemDoor.classList.toggle("is-active", !semDoorOpen);
+      }
 
       if (btnConfBlinds) {
         btnConfBlinds.textContent = `🪟 Blinds: ${conf.blindsClosed ? "Closed" : "Open"}`;
@@ -557,6 +587,10 @@ class GrandLabApp {
     }
 
     const roomPresets = {
+      semsuite: {
+        pos: [2.2, 1.45, 15.0], look: [4.5, 1.15, 15.0],
+        label: "Zone 8: VC-E Electron Microscopy Suite (ZEISS GeminiSEM 500)"
+      },
       reception: {
         pos: [12.0, 1.65, -6.5], look: [12.0, 1.25, 1.2],
         label: "Zone 6: Grand Entrance Atrium & Waiting Lounge"

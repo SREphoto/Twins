@@ -343,14 +343,14 @@ export class LabDockManager {
     // Relocated to spacious Rear North L-Wing East Microscopy Bay (Z = 15.0m) clear of front entrance clutter
     this._mountTwin({
       id: "sem",
-      name: "Scanning Electron Microscope",
-      tag: "Zeiss Gemini FE-SEM (0.8nm UHV Resolution)",
-      zone: "Zone 8: High-Bay Electron Microscopy & Cryo Suite",
-      pos: new THREE.Vector3(4.2, 0.0, 15.0),
-      rotY: -Math.PI / 2, // Faces West (-X) into open Rear L-Wing microscopy bay
-      scale: 1.0,
-      camConsole: { pos: new THREE.Vector3(1.8, 1.45, 15.0), look: new THREE.Vector3(4.2, 1.25, 15.0) },
-      builder: (group) => buildSEMModel(null, { includeLab: false })
+      name: "ZEISS GeminiSEM 500 FE-SEM",
+      tag: "Zeiss GeminiSEM 500 (0.8nm UHV · InLens/SE2/BSE/EDS)",
+      zone: "Zone 8: VC-E Electron Microscopy Suite (ZEISS GeminiSEM 500)",
+      pos: new THREE.Vector3(4.5, 0.0, 15.0),
+      rotY: Math.PI / 2, // Rotates -Z front face to -X (West) toward the X=1.0 suite double doors
+      scale: 0.10,
+      camConsole: { pos: new THREE.Vector3(2.2, 1.45, 15.0), look: new THREE.Vector3(4.5, 1.15, 15.0) },
+      builder: () => buildSEMModel(null, { includeLab: false })
     });
   }
 
@@ -476,6 +476,7 @@ export class LabDockManager {
     ctx.fillText("⚡ TAP TO POWER ON", 256, 209);
 
     const tex = new THREE.CanvasTexture(canvas);
+    tex.flipY = false;
     tex.colorSpace = THREE.SRGBColorSpace;
     return tex;
   }

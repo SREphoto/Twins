@@ -57,10 +57,21 @@ if (!CUSTOM_AUDIO_DIR) {
 
 const defaultOutName = TWIN_DIR === 'disintegration_tester_twin'
   ? 'ERWEKA_ZT322_Social_Walkthrough.mp4'
-  : (TWIN_DIR === 'centrifuge_twin' ? 'CENTRIFUGE_Social_Walkthrough.mp4' : `${TWIN_DIR.toUpperCase()}_Social_Walkthrough.mp4`);
+  : (TWIN_DIR === 'centrifuge_twin'
+    ? 'CENTRIFUGE_Social_Walkthrough.mp4'
+    : (TWIN_DIR === 'sem_twin' ? 'SEM_GEMINI_Social_Walkthrough.mp4' : `${TWIN_DIR.toUpperCase()}_Social_Walkthrough.mp4`));
 const OUT_MP4 = path.join(ROOT, TWIN_DIR, 'docs', defaultOutName);
 const PORT = 8772;
 const CDP_PORT = 9229;
+
+const FFMPEG_BIN = fs.existsSync('/usr/local/bin/ffmpeg') ? '/usr/local/bin/ffmpeg' : (fs.existsSync('/usr/bin/ffmpeg') ? '/usr/bin/ffmpeg' : 'ffmpeg');
+const FFPROBE_BIN = fs.existsSync('/usr/local/bin/ffprobe') ? '/usr/local/bin/ffprobe' : (fs.existsSync('/usr/bin/ffprobe') ? '/usr/bin/ffprobe' : 'ffprobe');
+const CHROME_BIN = fs.existsSync('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome')
+  ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+  : (fs.existsSync('/usr/bin/google-chrome') ? '/usr/bin/google-chrome' : '/usr/bin/chromium');
+const ESPEAK_BIN = fs.existsSync('/home/antigravity/.local/bin/espeak-ng')
+  ? '/home/antigravity/.local/bin/espeak-ng'
+  : 'espeak-ng';
 
 const MIME = {
   '.html': 'text/html',
@@ -69,7 +80,8 @@ const MIME = {
   '.css': 'text/css',
   '.json': 'application/json',
   '.png': 'image/png',
-  '.svg': 'image/svg+xml'
+  '.svg': 'image/svg+xml',
+  '.mp3': 'audio/mpeg'
 };
 
 function startServer() {
@@ -106,7 +118,7 @@ async function getWsUrl() {
 }
 
 function getAudioDurationSec(audioPath) {
-  const out = execFileSync('/usr/local/bin/ffprobe', [
+  const out = execFileSync(FFPROBE_BIN, [
     '-v', 'error',
     '-show_entries', 'format=duration',
     '-of', 'default=noprint_wrappers=1:nokey=1',
@@ -120,14 +132,24 @@ async function main() {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'oga-video-'));
   const server = await startServer();
 
-  const chromePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-  const chrome = spawn(chromePath, [
+  const chrome = spawn(CHROME_BIN, [
     '--headless=new',
     `--user-data-dir=${tmpDir}`,
     `--remote-debugging-port=${CDP_PORT}`,
     '--window-size=1600,900',
+    '--use-gl=angle',
+    '--use-angle=swiftshader',
+    '--enable-webgl',
+    '--ignore-gpu-blocklist',
     '--disable-gpu-sandbox',
     '--no-sandbox',
+    '--ignore-certificate-errors',
+    ...(process.env.HTTPS_PROXY || process.env.HTTP_PROXY
+      ? [
+          `--proxy-server=${process.env.HTTPS_PROXY || process.env.HTTP_PROXY}`,
+          '--proxy-bypass-list=localhost;127.0.0.1'
+        ]
+      : []),
     '--disable-frame-rate-limit',
     '--disable-gpu-vsync',
     `http://127.0.0.1:${PORT}/${TWIN_DIR}/software/viewer/index.html`
@@ -515,10 +537,19 @@ async function main() {
 
       if (audioPath) {
         console.log(`  🎙️  [Gemini Flash 3.8 Voice: ${VOICE_ID}] Using audio stem for [${ch.badge}]: ${path.basename(audioPath)}`);
-      } else {
+      } else if (fs.existsSync('/usr/bin/say')) {
         console.log(`  🎙️  [Local Synthesis Fallback /usr/bin/say] Synthesizing voiceover for [${ch.badge}]...`);
         audioPath = path.join(tmpDir, `vo_${ch.idx}.aiff`);
         execFileSync('/usr/bin/say', ['-r', '185', '-o', audioPath, ch.voiceover]);
+      } else {
+        console.log(`  🎙️  [Local Synthesis Fallback espeak-ng] Synthesizing voiceover for [${ch.badge}]...`);
+        const wavPath = path.join(tmpDir, `vo_${ch.idx}.wav`);
+        execFileSync(ESPEAK_BIN, ['-s', '175', '-w', wavPath, ch.voiceover]);
+        const docsAudioDir = path.join(ROOT, TWIN_DIR, 'docs', 'audio');
+        fs.mkdirSync(docsAudioDir, { recursive: true });
+        const mp3Path = path.join(docsAudioDir, `vo_${ch.idx}.mp3`);
+        execFileSync(FFMPEG_BIN, ['-y', '-i', wavPath, '-codec:a', 'libmp3lame', '-qscale:a', '2', mp3Path], { stdio: 'ignore' });
+        audioPath = mp3Path;
       }
       const durSec = getAudioDurationSec(audioPath) + 0.25;
 
@@ -528,13 +559,13 @@ async function main() {
       });
       await sleep(150);
 
-      // High-density frame capture (30 FPS, fast JPEG 80) for silky-smooth 30p 3D motion
-      const TARGET_FPS = 30;
+      // High-density frame capture (configurable FPS, fast JPEG 80) for smooth 3D motion
+      const TARGET_FPS = Number(process.env.OGA_VIDEO_FPS) || 12;
       const numFrames = Math.ceil(durSec * TARGET_FPS);
       const frameDir = path.join(tmpDir, `frames_${ch.idx}`);
       fs.mkdirSync(frameDir);
 
-      console.log(`  📸 Capturing ${numFrames} frames at 30 FPS for [${ch.badge}]...`);
+      console.log(`  📸 Capturing ${numFrames} frames at ${TARGET_FPS} FPS for [${ch.badge}]...`);
       for (let f = 0; f < numFrames; f++) {
         const p = f / Math.max(1, numFrames - 1);
         const timeSec = f / TARGET_FPS;
@@ -544,20 +575,20 @@ async function main() {
         const shot = await send('Page.captureScreenshot', { format: 'jpeg', quality: 80 });
         const framePath = path.join(frameDir, `f_${String(f).padStart(5, '0')}.jpg`);
         fs.writeFileSync(framePath, Buffer.from(shot.data, 'base64'));
-        if (f % 150 === 0 || f === numFrames - 1) {
+        if (f % 60 === 0 || f === numFrames - 1) {
           process.stdout.write(`    ... frame ${f + 1}/${numFrames} (${Math.round(((f + 1) / numFrames) * 100)}%)\n`);
         }
       }
 
-      // Encode chapter segment MP4 matching voiceover duration into full 30 FPS stream
+      // Encode chapter segment MP4 matching voiceover duration into 30 FPS stream
       const segPath = path.join(tmpDir, `seg_${ch.idx}.mp4`);
-      execFileSync('/usr/local/bin/ffmpeg', [
+      execFileSync(FFMPEG_BIN, [
         '-y',
         '-f', 'image2',
         '-framerate', String(TARGET_FPS),
         '-i', path.join(frameDir, 'f_%05d.jpg'),
         '-i', audioPath,
-        '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2',
+        '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2,fps=30',
         '-c:v', 'libx264',
         '-preset', 'veryfast',
         '-crf', '22',
@@ -580,7 +611,7 @@ async function main() {
       segmentFiles.map(f => `file '${f}'`).join('\n')
     );
 
-    execFileSync('/usr/local/bin/ffmpeg', [
+    execFileSync(FFMPEG_BIN, [
       '-y',
       '-f', 'concat',
       '-safe', '0',

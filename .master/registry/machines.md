@@ -19,6 +19,7 @@
 | `freeze_dryer_twin`          | active | yes   | [freeze_dryer_twin_manifest.md](freeze_dryer_twin_manifest.md)                   | Labconco FreeZone 4.5L (-84°C) cascade benchtop freeze dryer; lab_viewer id `freeze_dryer`  |
 | `dissolution_tester_twin`    | active | yes   | [dissolution_tester_twin_manifest.md](dissolution_tester_twin_manifest.md)       | Agilent 708-DS USP <711> 8-vessel tablet dissolution apparatus; lab_viewer id `dissolution_tester` |
 | `disintegration_tester_twin` | active | yes   | [disintegration_tester_twin_manifest.md](disintegration_tester_twin_manifest.md) | ERWEKA ZT 322 USP <701> dual-station tablet disintegration tester; lab_viewer id `disintegration_tester` |
+| `sem_twin`                   | active | yes   | [sem_twin_manifest.md](sem_twin_manifest.md)                                     | ZEISS GeminiSEM 500 Schottky FE-SEM (0.5–30 kV) in dedicated VC-E Suite; lab_viewer id `sem`            |
 | `lab_viewer`                 | active | —     | (workspace shell)                                                                | Multi-machine desk under `Twins/lab_viewer/`                                                |
 
 ## How to add

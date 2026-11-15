@@ -34,14 +34,16 @@ export class LabEnvironment3D {
     this.interactiveObjects = [];
     this.doors = new Map();
     this.doorList = [];
-    this.blindsByZone = { entrance: [], office: [], conference: [] };
+    this.blindsByZone = { entrance: [], office: [], conference: [], sem: [] };
     this.roomLightGroups = {
       conference: { pointLights: [], diffuserMats: [] },
-      office: { pointLights: [], diffuserMats: [] }
+      office: { pointLights: [], diffuserMats: [] },
+      sem: { pointLights: [], diffuserMats: [] }
     };
     this.roomControls = {
       entrance: { blindsClosed: false },
       office: { blindsClosed: false, lightLevel: "full", privacy: false },
+      sem: { blindsClosed: true, lightLevel: "dim", privacy: false },
       conference: {
         blindsClosed: false,
         lightLevel: "full",
@@ -1852,12 +1854,12 @@ export class LabEnvironment3D {
       openings: []
     });
 
-    // 7. NORTH MAIN ELEVATION — EAST & CENTRAL SPINE (Z = +9.5, X: +1.0 -> +38.0, Exterior +Z)
-    // Leaves X = -21.8..+1.0 completely open below Y = 3.80m as the 22.8m-wide walkthrough portal into the Rear North L-Wing!
+    // 7. NORTH MAIN ELEVATION — EAST & CENTRAL SPINE (Z = +9.5, X: +8.0 -> +38.0, Exterior +Z)
+    // Leaves X = -21.8..+8.0 completely free of exterior brick at Z = 9.5 (X = 1.0..8.0 is the enclosed VC-E SEM Suite south wall)!
     this._buildFramedExteriorElevation({
       axis: "X",
       fixedCoord: 9.5,
-      uStart: 1.0,
+      uStart: 8.0,
       uEnd: 38.0,
       outerSign: 1,
       openings: [
@@ -3114,7 +3116,7 @@ export class LabEnvironment3D {
       // 1B. Rear North L-Wing High-Bay Research Expansion Islands (Y_ceil = 5.60m)
       { x: -15.5, z: 15.0, len: 6.4, sx: 6.8, sz: 2.2, ceilH: H_REAR },
       { x: -7.0,  z: 15.0, len: 6.4, sx: 6.8, sz: 2.2, ceilH: H_REAR },
-      { x: 1.5,   z: 15.0, len: 6.4, sx: 6.8, sz: 2.2, ceilH: H_REAR },
+      { x: 4.5,   z: 14.8, len: 4.8, sx: 5.2, sz: 2.2, ceilH: H_REAR, roomZone: "sem" },
       { x: -15.5, z: 21.5, len: 6.4, sx: 6.8, sz: 2.2, ceilH: H_REAR },
       { x: -7.0,  z: 21.5, len: 6.4, sx: 6.8, sz: 2.2, ceilH: H_REAR },
       { x: 1.5,   z: 21.5, len: 6.4, sx: 6.8, sz: 2.2, ceilH: H_REAR },
@@ -8342,6 +8344,166 @@ export class LabEnvironment3D {
         { id: "blinds", label: "Entrance Walnut Blinds", rect: [24, 130, 464, 450], action: () => this.toggleZoneBlinds("entrance") }
       ]
     });
+
+    // 4. Dedicated VC-E Electron Microscopy Suite Wall Control Panel & Architectural Enclosure (X: 1.0..8.0, Z: 9.5..18.3)
+    this._buildVCESEMSuite();
+    this._createWallControlPanel({
+      zone: "sem",
+      name: "WallControl_SEMSuite",
+      title: "VC-E SEM SUITE",
+      x: 1.12,
+      y: 1.40,
+      z: 13.55,
+      rotY: Math.PI / 2,
+      w: 0.34,
+      h: 0.42,
+      buttons: [
+        { id: "blinds", label: "SEM Blackout Blinds", rect: [24, 108, 464, 150], action: () => this.toggleZoneBlinds("sem") },
+        { id: "lights", label: "SEM Suite Lights", rect: [24, 274, 464, 150], action: () => this.cycleRoomLights("sem") },
+        { id: "privacy", label: "Airlock Door & Privacy", rect: [24, 440, 464, 160], action: () => this.toggleRoomPrivacy("sem") }
+      ]
+    });
+  }
+
+  _buildVCESEMSuite() {
+    const suiteGrp = new THREE.Group();
+    suiteGrp.name = "VC_E_Electron_Microscopy_Suite";
+
+    const wallMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.55, metalness: 0.15 });
+    const copperRfMat = new THREE.MeshStandardMaterial({ color: 0xb87333, roughness: 0.28, metalness: 0.88 });
+    const glassPartitionMat = new THREE.MeshPhysicalMaterial({
+      color: 0xdbeafe,
+      transparent: true,
+      opacity: 0.32,
+      roughness: 0.08,
+      transmission: 0.65,
+      ior: 1.52
+    });
+
+    // 1. VC-E Seismic Isolation Concrete Inertia Slab (X: 2.2..6.8, Z: 12.2..17.6) + Neoprene Joint
+    const vceSlab = new THREE.Mesh(
+      new THREE.BoxGeometry(4.6, 0.04, 5.4),
+      new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.45, metalness: 0.15 })
+    );
+    vceSlab.position.set(4.5, 0.02, 15.0);
+    vceSlab.receiveShadow = true;
+    suiteGrp.add(vceSlab);
+
+    const neopreneJoint = new THREE.Mesh(
+      new THREE.BoxGeometry(4.76, 0.042, 5.56),
+      new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.4, metalness: 0.2 })
+    );
+    neopreneJoint.position.set(4.5, 0.015, 15.0);
+    suiteGrp.add(neopreneJoint);
+
+    // 2. South Acoustic/RF Wall along Z = 9.5 from X = 1.0 to X = 8.0 (H = 3.80m)
+    const southWall = new THREE.Mesh(new THREE.BoxGeometry(7.0, 3.80, 0.18), wallMat);
+    southWall.position.set(4.5, 1.90, 9.5);
+    southWall.castShadow = true;
+    southWall.receiveShadow = true;
+    suiteGrp.add(southWall);
+    this.colliders.push(new THREE.Box3().setFromObject(southWall));
+
+    // 3. North Acoustic/RF Partition along Z = 18.3 from X = 1.0 to X = 8.0 (H = 5.60m) with Observation Window
+    const northWallLower = new THREE.Mesh(new THREE.BoxGeometry(7.0, 1.10, 0.18), wallMat);
+    northWallLower.position.set(4.5, 0.55, 18.3);
+    suiteGrp.add(northWallLower);
+
+    const northWallUpper = new THREE.Mesh(new THREE.BoxGeometry(7.0, 2.70, 0.18), wallMat);
+    northWallUpper.position.set(4.5, 4.25, 18.3);
+    suiteGrp.add(northWallUpper);
+
+    const northGlass = new THREE.Mesh(new THREE.BoxGeometry(6.6, 1.80, 0.06), glassPartitionMat);
+    northGlass.position.set(4.5, 2.00, 18.3);
+    suiteGrp.add(northGlass);
+    this.colliders.push(
+      new THREE.Box3(new THREE.Vector3(1.0, 0, 18.18), new THREE.Vector3(8.0, 5.6, 18.42))
+    );
+
+    // 4. West Entry Partition along X = 1.0 from Z = 9.5 to Z = 18.3 with 2.0m Double Airlock Door Opening at Z = 14.0..16.0
+    const westSouthSeg = new THREE.Mesh(new THREE.BoxGeometry(0.18, 5.60, 4.50), wallMat);
+    westSouthSeg.position.set(1.0, 2.80, 11.75);
+    suiteGrp.add(westSouthSeg);
+    this.colliders.push(new THREE.Box3().setFromObject(westSouthSeg));
+
+    const westNorthSeg = new THREE.Mesh(new THREE.BoxGeometry(0.18, 5.60, 2.30), wallMat);
+    westNorthSeg.position.set(1.0, 2.80, 17.15);
+    suiteGrp.add(westNorthSeg);
+    this.colliders.push(new THREE.Box3().setFromObject(westNorthSeg));
+
+    const westHeader = new THREE.Mesh(new THREE.BoxGeometry(0.18, 3.10, 2.00), wallMat);
+    westHeader.position.set(1.0, 4.05, 15.0);
+    suiteGrp.add(westHeader);
+
+    // Copper RF Faraday Trim Strips along Interior Wall Perimeters
+    const rfStrip = new THREE.Mesh(new THREE.BoxGeometry(6.8, 0.08, 0.02), copperRfMat);
+    rfStrip.position.set(4.5, 1.15, 9.61);
+    suiteGrp.add(rfStrip);
+
+    // 5. Interactive Double Acoustic/EM-Shielded Airlock Doors at X = 1.0, Z = 15.0 (SEM_SUITE_DOOR)
+    const doorGroup = new THREE.Group();
+    doorGroup.name = "SEM_Suite_Double_Airlock_Door";
+    doorGroup.position.set(1.0, 0, 15.0);
+
+    const smartGlassMat = glassPartitionMat.clone();
+    const leftPivot = new THREE.Group();
+    leftPivot.position.set(0, 0, -0.98);
+    const leftLeaf = new THREE.Mesh(new THREE.BoxGeometry(0.08, 2.45, 0.96), smartGlassMat);
+    leftLeaf.position.set(0, 1.225, 0.48);
+    leftPivot.add(leftLeaf);
+    doorGroup.add(leftPivot);
+
+    const rightPivot = new THREE.Group();
+    rightPivot.position.set(0, 0, 0.98);
+    const rightLeaf = new THREE.Mesh(new THREE.BoxGeometry(0.08, 2.45, 0.96), smartGlassMat);
+    rightLeaf.position.set(0, 1.225, -0.48);
+    rightPivot.add(rightLeaf);
+    doorGroup.add(rightPivot);
+
+    suiteGrp.add(doorGroup);
+
+    this._registerDoorControl({
+      id: "SEM_SUITE_DOOR",
+      label: "VC-E SEM Suite Double Airlock Doors",
+      group: doorGroup,
+      smartGlassMat,
+      isOpen: true,
+      isHeavy: true,
+      closedBoxMin: new THREE.Vector3(0.88, 0.0, 14.0),
+      closedBoxMax: new THREE.Vector3(1.12, 2.5, 16.0),
+      pivots: [
+        { group: leftPivot, closedAngle: 0, openAngle: Math.PI * 0.48 },
+        { group: rightPivot, closedAngle: 0, openAngle: -Math.PI * 0.48 }
+      ]
+    });
+
+    // Illuminated Header Plaque above SEM Suite Double Doors
+    const signCanvas = document.createElement("canvas");
+    signCanvas.width = 512;
+    signCanvas.height = 96;
+    const sCtx = signCanvas.getContext("2d");
+    sCtx.fillStyle = "#090d16";
+    sCtx.fillRect(0, 0, 512, 96);
+    sCtx.strokeStyle = "#38bdf8";
+    sCtx.lineWidth = 4;
+    sCtx.strokeRect(4, 4, 504, 88);
+    sCtx.fillStyle = "#f8fafc";
+    sCtx.font = "bold 24px 'IBM Plex Sans', sans-serif";
+    sCtx.fillText("ZONE 8 · ELECTRON MICROSCOPY SUITE", 22, 42);
+    sCtx.fillStyle = "#38bdf8";
+    sCtx.font = "bold 18px 'IBM Plex Mono', monospace";
+    sCtx.fillText("ZEISS GeminiSEM 500 · VC-E SLAB · < 0.5 mG", 22, 74);
+    const signTex = new THREE.CanvasTexture(signCanvas);
+    signTex.colorSpace = THREE.SRGBColorSpace;
+    const signMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(0.04, 0.34, 1.85),
+      new THREE.MeshBasicMaterial({ map: signTex })
+    );
+    signMesh.position.set(0.89, 2.74, 15.0);
+    suiteGrp.add(signMesh);
+
+    this.root.add(suiteGrp);
+    this._applyRoomLighting("sem");
   }
 
   _createWallControlPanel(cfg) {
@@ -8431,7 +8593,7 @@ export class LabEnvironment3D {
     const s = this.roomControls[zone];
     if (!s) return "Room Control";
     switch (buttonId) {
-      case "blinds": return `Wall Panel · Walnut Blinds (${s.blindsClosed ? "Closed -> Open" : "Open -> Close"})`;
+      case "blinds": return `Wall Panel · Blinds (${s.blindsClosed ? "Closed -> Open" : "Open -> Close"})`;
       case "lights": return `Wall Panel · Lights (${s.lightLevel.toUpperCase()} -> Next)`;
       case "projector": return `Wall Panel · 4K Projector (${s.projectorOn ? "ON -> OFF" : "OFF -> ON"})`;
       case "phone": return `Wall Panel · Conf Phone (${s.phoneActive ? "In Call -> End" : "Idle -> Call"})`;
@@ -8494,10 +8656,10 @@ export class LabEnvironment3D {
       drawTile([24, 276, 224, 152], "PROJECTOR", state.projectorOn ? "ON · 4K" : "STANDBY", state.projectorOn, "#22d3ee", "#0c2d38");
       drawTile([264, 276, 224, 152], "CONF PHONE", state.phoneActive ? "IN CALL" : "READY", state.phoneActive, "#34d399", "#0c2c22");
       drawTile([24, 444, 464, 156], "PRIVACY MODE & DOOR FROST", state.privacy ? "ACTIVE · FROSTED · LIGHT ON" : "CLEAR GLASS · AVAILABLE", state.privacy, "#fb7185", "#3b111c");
-    } else if (zone === "office") {
-      drawTile([24, 108, 464, 150], "WALNUT VERTICAL BLINDS", state.blindsClosed ? "CLOSED · PRIVACY" : "OPEN · DAYLIGHT", state.blindsClosed, "#f59e0b", "#2a1f10");
-      drawTile([24, 274, 464, 150], "EXECUTIVE LIGHTING", `MODE: ${state.lightLevel.toUpperCase()}`, state.lightLevel !== "off", state.lightLevel === "dim" ? "#fbbf24" : "#38bdf8", "#10273d");
-      drawTile([24, 440, 464, 160], "PRIVACY LIGHT & DOOR FROST", state.privacy ? "PRIVACY ON · FROSTED" : "AVAILABLE · CLEAR GLASS", state.privacy, "#fb7185", "#3b111c");
+    } else if (zone === "office" || zone === "sem") {
+      drawTile([24, 108, 464, 150], zone === "sem" ? "BLACKOUT BLINDS" : "WALNUT VERTICAL BLINDS", state.blindsClosed ? "CLOSED · DARKROOM" : "OPEN · DAYLIGHT", state.blindsClosed, "#f59e0b", "#2a1f10");
+      drawTile([24, 274, 464, 150], zone === "sem" ? "SEM SUITE LIGHTING" : "EXECUTIVE LIGHTING", `MODE: ${state.lightLevel.toUpperCase()}`, state.lightLevel !== "off", state.lightLevel === "dim" ? "#fbbf24" : "#38bdf8", "#10273d");
+      drawTile([24, 440, 464, 160], "AIRLOCK DOOR & PRIVACY", state.privacy ? "SEALED · FROSTED" : "OPEN · CLEAR GLASS", state.privacy, "#fb7185", "#3b111c");
     } else {
       drawTile([24, 130, 464, 450], "ATRIUM WALNUT BLINDS", state.blindsClosed ? "CLOSED · SHADED" : "OPEN · DAYLIGHT", state.blindsClosed, "#f59e0b", "#2a1f10");
     }
@@ -8560,11 +8722,11 @@ export class LabEnvironment3D {
 
   toggleRoomPrivacy(zone, forcePrivacy = null) {
     const state = this.roomControls[zone];
-    if (!state || (zone !== "conference" && zone !== "office")) return false;
+    if (!state || (zone !== "conference" && zone !== "office" && zone !== "sem")) return false;
     const nextPrivate = forcePrivacy === null ? !state.privacy : Boolean(forcePrivacy);
     state.privacy = nextPrivate;
 
-    const doorId = zone === "conference" ? "CONF_HALLWAY_DOOR" : "USER_OFFICE_DOOR";
+    const doorId = zone === "conference" ? "CONF_HALLWAY_DOOR" : (zone === "sem" ? "SEM_SUITE_DOOR" : "USER_OFFICE_DOOR");
     this.setDoorFrosted(doorId, nextPrivate);
     if (nextPrivate) {
       this.toggleDoor(doorId, false); // Engaging privacy automatically closes the door
