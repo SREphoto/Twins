@@ -12,14 +12,14 @@
  * - Physicalized Data Outputs (PhysicalDataBus) & Spatial Audio (LabSFXMixer)
  */
 import * as THREE from "three";
-import { LabEnvironment3D } from "./engine/LabEnvironment3D.js?v=20261116-fix4";
-import { LabCasework } from "./engine/LabCasework.js?v=20261116-fix4";
+import { LabEnvironment3D } from "./engine/LabEnvironment3D.js?v=20261116-perf1";
+import { LabCasework } from "./engine/LabCasework.js?v=20261116-perf1";
 import { LabUtilities } from "./engine/LabUtilities.js";
-import { LabDockManager } from "./engine/LabDockManager.js";
+import { LabDockManager } from "./engine/LabDockManager.js?v=20261116-perf1";
 import { LabPlayerController } from "./engine/LabPlayerController.js";
 import { physicalDataBus } from "./engine/PhysicalDataBus.js";
 import { labAudio } from "./engine/LabSFXMixer.js";
-import { MobilePerfBudget } from "./engine/MobilePerfBudget.js";
+import { MobilePerfBudget } from "./engine/MobilePerfBudget.js?v=20261116-perf1";
 
 class GrandLabApp {
   constructor() {
@@ -106,14 +106,14 @@ class GrandLabApp {
     }
     this.renderer.setSize(this.width, this.height);
 
-    // On mobile devices, clamp pixel ratio to 1.25 to prevent VRAM exhaustion and iOS WebKit GPU crash
+    // Clamp pixel ratio (1.25 mobile, 1.5 desktop) to prevent excessive Retina fill-rate lag
     const lowMem = typeof navigator.deviceMemory === "number" && navigator.deviceMemory <= 4;
-    const maxDpr = this.isMobile ? (lowMem ? 1.0 : 1.25) : 2.0;
+    const maxDpr = this.isMobile ? (lowMem ? 1.0 : 1.25) : 1.5;
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDpr));
 
-    // Mobile: no shadow maps (saves a 4096px shadow texture and a second pass over ~1,400 meshes)
+    // Mobile: no shadow maps; Desktop: crisp 2048 PCFShadowMap (4x lighter than 4096 PCFSoftShadowMap)
     this.renderer.shadowMap.enabled = !this.isMobile;
-    this.renderer.shadowMap.type = this.isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = this.isMobile ? THREE.BasicShadowMap : THREE.PCFShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.0;
@@ -158,11 +158,11 @@ class GrandLabApp {
     // 3. Interactive Utilities (Running water, Bunsen burners, reagents, power)
     this.utilities = new LabUtilities(this.scene, this.environment.colliders);
 
-    // 4. Mount All 18 Instrument Digital Twins
-    // On mobile: lazyLoad = true mounts lightweight procedural standby plinths and instantiates
-    // only active machines on demand (with LRU eviction) to prevent WebGL context loss
+    // 4. Mount All 18 Instrument Digital Twins (On-Demand Lazy Loading)
+    // Machines are only dynamically imported & instantiated when selected from the menu or workstation
+    // (with LRU disposal of the previous machine so memory & frame rate remain fast).
     this.dockManager = new LabDockManager(this.scene, {
-      lazyLoad: this.isMobile,
+      lazyLoad: true,
       maxActiveMachines: 1,
       onTwinStateChange: (twinId, isOn) => {
         if (this.mobilePerf) this.mobilePerf.refresh();
@@ -200,15 +200,25 @@ class GrandLabApp {
       }
     );
 
-    // 7. Mobile-only memory & GPU budget (texture cap, 4 nearest point lights, small far detail culling)
-    if (this.isMobile) {
-      this.mobilePerf = new MobilePerfBudget(this.scene, this.camera, {
-        maxTextureSize: 1024,
-        maxPointLights: 4
-      });
-      if (this.casework.assetsReadyPromise) {
-        this.casework.assetsReadyPromise.then(() => this.mobilePerf.refresh());
-      }
+    // 7. Adaptive light, texture & far-detail budget across both Desktop and Mobile
+    this.mobilePerf = new MobilePerfBudget(this.scene, this.camera, this.isMobile ? {
+      maxTextureSize: 1024,
+      maxPointLights: 4,
+      maxSpotLights: 0,
+      cullBase: 14,
+      cullPerMetre: 55
+    } : {
+      maxTextureSize: 1536,
+      maxPointLights: 6,
+      maxSpotLights: 2,
+      cullBase: 26,
+      cullPerMetre: 65
+    });
+    if (this.casework.assetsReadyPromise) {
+      this.casework.assetsReadyPromise.then(() => this.mobilePerf.refresh());
+    }
+    if (this.environment.assetsReadyPromise) {
+      this.environment.assetsReadyPromise.then(() => this.mobilePerf.refresh());
     }
   }
 
@@ -339,14 +349,17 @@ class GrandLabApp {
       });
     }
 
-    // Active Instrument Power On / Off Toggle (Mobile memory & GPU conservation)
+    // Active Instrument Power On / Off Toggle (On-demand memory & GPU conservation)
     this.btnPowerToggle = document.getElementById("btn-power-toggle");
     this.powerIndicatorDot = document.getElementById("power-indicator-dot");
     this.powerStateText = document.getElementById("power-state-text");
     if (this.btnPowerToggle) {
-      this.btnPowerToggle.addEventListener("click", () => {
+      this.btnPowerToggle.addEventListener("click", async () => {
         if (!this.activeMachineId) return;
-        this.dockManager.toggleTwin(this.activeMachineId);
+        if (!this.dockManager.isTwinOn(this.activeMachineId) && this.tStatus) {
+          this.tStatus.textContent = "LOADING...";
+        }
+        await this.dockManager.toggleTwin(this.activeMachineId);
         const isOn = this.dockManager.isTwinOn(this.activeMachineId);
         this._updatePowerUI(isOn);
         const dock = this.dockManager.getDockById(this.activeMachineId);
@@ -571,6 +584,9 @@ class GrandLabApp {
     }
     if (this.environment) {
       this.environment.setAtmosphereMood(normalized);
+    }
+    if (this.mobilePerf) {
+      this.mobilePerf.refresh();
     }
   }
 
@@ -866,11 +882,14 @@ class GrandLabApp {
     this.centerMouse = new THREE.Vector2(0, 0); // Center of viewport (used during pointer lock)
     this.mousePos = new THREE.Vector2(-1000, -1000); // Screen cursor (used during orbit/overview)
     this.hoveredObject = null;
+    this._raycastDirty = false;
+    this._lastRaycastAt = 0;
 
     const updatePointerPos = (clientX, clientY) => {
       const rect = this.renderer.domElement.getBoundingClientRect();
       this.mousePos.x = ((clientX - rect.left) / rect.width) * 2 - 1;
       this.mousePos.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+      this._raycastDirty = true;
     };
 
     // Track cursor for hover raycasting in overview mode
@@ -879,7 +898,7 @@ class GrandLabApp {
     });
 
     // Viewport Click / Tap Handler
-    const handleInteract = (clientX, clientY) => {
+    const handleInteract = async (clientX, clientY) => {
       updatePointerPos(clientX, clientY);
       this._updateRaycasting();
 
@@ -890,15 +909,17 @@ class GrandLabApp {
           return;
         }
 
-        // If we clicked on an instrument dock from a distance -> Glide to it!
+        // If we clicked on an instrument dock -> Glide to workstation & load machine on demand!
         if (this.hoveredObject.userData?.isTwinDock) {
           const cfg = this.hoveredObject.userData;
           this.activeMachineId = cfg.id;
+          this.player.glideToStation(cfg.camConsole.pos, cfg.camConsole.look, `${cfg.name} (${cfg.tag})`);
           if (this.dockManager.lazyLoad && !this.dockManager.isTwinOn(cfg.id)) {
-            this.dockManager.turnOnTwin(cfg.id);
+            this._updateSidebarForInstrument(cfg);
+            if (this.tStatus) this.tStatus.textContent = "LOADING...";
+            await this.dockManager.turnOnTwin(cfg.id);
           }
           this._updateSidebarForInstrument(cfg);
-          this.player.glideToStation(cfg.camConsole.pos, cfg.camConsole.look, `${cfg.name} (${cfg.tag})`);
           return;
         }
       }
@@ -924,7 +945,7 @@ class GrandLabApp {
       this.tTemp.textContent = "Ambient";
       this.tTimer.textContent = "00:00:00";
       this.sopTitle.textContent = "Instrument Monograph (Standby)";
-      this.advisorText.textContent = `${cfg.name} is currently in Standby / Off mode to preserve GPU memory on mobile. Tap '⚡ TURN ON' to load and run the digital twin.`;
+      this.advisorText.textContent = `${cfg.name} is currently in Standby / Off mode to keep scene performance fast. Select it in the Quick Jump menu or click '⚡ TURN ON' to load the 3D digital twin.`;
       return;
     }
 
@@ -957,7 +978,7 @@ class GrandLabApp {
     }
   }
 
-  _jumpToPresetLocation(val) {
+  async _jumpToPresetLocation(val) {
     if (val === "reception") {
       this._handleNavDockClick("reception");
     } else if (val === "user_office" || val === "office") {
@@ -988,11 +1009,13 @@ class GrandLabApp {
       if (dock) {
         const cfg = dock.userData;
         this.activeMachineId = cfg.id;
+        this.player.glideToStation(cfg.camConsole.pos, cfg.camConsole.look, `${cfg.name} (${cfg.tag})`);
         if (this.dockManager.lazyLoad && !this.dockManager.isTwinOn(cfg.id)) {
-          this.dockManager.turnOnTwin(cfg.id);
+          this._updateSidebarForInstrument(cfg);
+          if (this.tStatus) this.tStatus.textContent = "LOADING...";
+          await this.dockManager.turnOnTwin(cfg.id);
         }
         this._updateSidebarForInstrument(cfg);
-        this.player.glideToStation(cfg.camConsole.pos, cfg.camConsole.look, `${cfg.name} (${cfg.tag})`);
       }
     }
   }
@@ -1082,8 +1105,12 @@ class GrandLabApp {
       // 3. Update Interactive Utilities (Flame flicker, water flow)
       this.utilities.update(now * 0.001);
 
-      // 4. Update Center Raycasting
-      this._updateRaycasting();
+      // 4. Throttled Center Raycasting (on pointer move or max ~8 Hz during navigation)
+      if (this._raycastDirty || (now - (this._lastRaycastAt || 0)) >= 130) {
+        this._raycastDirty = false;
+        this._lastRaycastAt = now;
+        this._updateRaycasting();
+      }
 
       if (this.mobilePerf) this.mobilePerf.update();
 

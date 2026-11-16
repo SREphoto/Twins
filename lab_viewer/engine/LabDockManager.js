@@ -2,51 +2,26 @@
  * LabDockManager.js — Universal Digital Twin Instrument Mount Orchestrator
  * 
  * Safely initializes and docks all 18 laboratory instrument digital twins
- * onto SEFA casework at countertop datum Y = 0.90m with zero clipping and full procedural detail.
+ * onto SEFA casework at countertop datum Y = 0.90m with true on-demand lazy loading:
+ * instrument modules and 3D CAD meshes are only dynamically imported and instantiated
+ * when the operator selects a machine from the menu or clicks its workstation.
  */
 import * as THREE from "three";
-
-// 1. Factory Function Twins
-import { createSpectrophotometerModel } from "../../spectrophotometer_twin/software/viewer/spectrophotometer3d.js";
-import { createBalanceModel } from "../../balance_twin/software/viewer/balance3d.js";
-import { createCentrifugeModel } from "../../centrifuge_twin/software/viewer/centrifuge3d.js";
-import { createUltrasonicCleanerModel } from "../../ultrasonic_cleaner_twin/software/viewer/ultrasonic3d.js";
-import { createRotovapModel } from "../../rotovap_twin/software/viewer/rotovap3d.js";
-import { createVacuumPumpModel } from "../../vacuum_pump_twin/software/viewer/vacuum_pump3d.js";
-import { createHotplateModel } from "../../hotplate_twin/software/viewer/hotplate3d.js";
-import { buildReactor3D } from "../../high_pressure_reactor_twin/software/viewer/reactor3d.js";
-import { createMuffleFurnaceModel } from "../../muffle_furnace_twin/software/viewer/muffle_furnace3d.js";
-import { buildGloveBox3D } from "../../glove_box_twin/software/viewer/glove_box3d.js";
-import { createPHMeterModel } from "../../ph_meter_twin/software/viewer/ph_meter3d.js";
-import { buildSEMModel } from "../../sem_twin/software/viewer/sem3d.js";
-
-// 2. Class-Based Twins (Require mock DOM container for headless instantiation)
-import { FTIR3D } from "../../ftir_twin/software/viewer/ftir3d.js";
-import { KarlFischer3D } from "../../karl_fischer_twin/software/viewer/karl_fischer3d.js";
-import { Dissolution3D } from "../../dissolution_tester_twin/software/viewer/dissolution3d.js";
-import { Disintegration3D } from "../../disintegration_tester_twin/software/viewer/disintegration3d.js";
-import { FreezeDryer3D } from "../../freeze_dryer_twin/software/viewer/freeze_dryer3d.js";
-import { VortexMixer3D } from "../../vortex_mixer_twin/software/viewer/vortex_mixer3d.js";
-
-function createMockContainer() {
-  const div = document.createElement("div");
-  div.style.width = "800px";
-  div.style.height = "600px";
-  return div;
-}
 
 export class LabDockManager {
   constructor(scene, options = {}) {
     this.scene = scene;
     this.options = Object.assign({
-      lazyLoad: false,
+      lazyLoad: true,
       maxActiveMachines: 1,
       onTwinStateChange: null
     }, options);
 
-    this.lazyLoad = !!this.options.lazyLoad;
+    this.lazyLoad = this.options.lazyLoad !== false;
     this.maxActiveMachines = Math.max(1, this.options.maxActiveMachines || 1);
     this.activeLoadedQueue = []; // FIFO tracking of powered-on twin IDs for LRU memory disposal
+    this._loadingPromises = new Map();
+    this._selectionToken = 0;
 
     this.root = new THREE.Group();
     this.root.name = "Modern_Lab_Instruments_Dock";
@@ -75,7 +50,10 @@ export class LabDockManager {
       rotY: Math.PI, // Rotated 180° so operator console & sample lid face South aisle (+Z)
       scale: 0.085,
       camConsole: { pos: new THREE.Vector3(-11.6, 1.25, -3.35), look: new THREE.Vector3(-11.6, 1.05, -4.15) },
-      builder: () => createSpectrophotometerModel({ includeLab: false })
+      builder: async () => {
+        const { createSpectrophotometerModel } = await import("../../spectrophotometer_twin/software/viewer/spectrophotometer3d.js");
+        return createSpectrophotometerModel({ includeLab: false });
+      }
     });
 
     // 2. FTIR ATR Spectrometer (Nicolet iS50)
@@ -88,7 +66,8 @@ export class LabDockManager {
       rotY: Math.PI, // Rotated 180° so diamond ATR deck & touchscreen face South aisle (+Z)
       scale: 0.09,
       camConsole: { pos: new THREE.Vector3(-8.6, 1.25, -3.35), look: new THREE.Vector3(-8.6, 1.05, -4.15) },
-      builder: () => {
+      builder: async () => {
+        const { FTIR3D } = await import("../../ftir_twin/software/viewer/ftir3d.js");
         const ftir = new FTIR3D(null, { includeLab: false, headless: true, skipRenderer: true, skipLoop: true });
         return ftir.rootGroup || ftir.scene;
       }
@@ -104,7 +83,8 @@ export class LabDockManager {
       rotY: 0,
       scale: 0.09,
       camConsole: { pos: new THREE.Vector3(-7.2, 1.25, -3.35), look: new THREE.Vector3(-7.2, 1.05, -4.15) },
-      builder: () => {
+      builder: async () => {
+        const { KarlFischer3D } = await import("../../karl_fischer_twin/software/viewer/karl_fischer3d.js");
         const kf = new KarlFischer3D(null, { includeLab: false, headless: true, skipRenderer: true, skipLoop: true });
         return kf.root || kf.scene;
       }
@@ -124,7 +104,8 @@ export class LabDockManager {
       rotY: 0,
       scale: 0.10,
       camConsole: { pos: new THREE.Vector3(-4.0, 1.35, -3.15), look: new THREE.Vector3(-4.0, 1.15, -4.15) },
-      builder: () => {
+      builder: async () => {
+        const { Dissolution3D } = await import("../../dissolution_tester_twin/software/viewer/dissolution3d.js");
         const diss = new Dissolution3D(null, { includeLab: false, headless: true, skipRenderer: true, skipLoop: true });
         return diss.mainGroup || diss.scene;
       }
@@ -140,7 +121,8 @@ export class LabDockManager {
       rotY: Math.PI, // Rotated 180° so water bath, beakers & keypad face South aisle (+Z)
       scale: 0.085,
       camConsole: { pos: new THREE.Vector3(-2.0, 1.35, -3.15), look: new THREE.Vector3(-2.0, 1.15, -4.15) },
-      builder: () => {
+      builder: async () => {
+        const { Disintegration3D } = await import("../../disintegration_tester_twin/software/viewer/disintegration3d.js");
         const disint = new Disintegration3D(null, { includeLab: false, headless: true, skipRenderer: true, skipLoop: true });
         const g = new THREE.Group();
         if (disint.chassisGroup) g.add(disint.chassisGroup);
@@ -163,7 +145,10 @@ export class LabDockManager {
       rotY: Math.PI, // Rotated 180° so touchscreen & draft shield doors face South aisle (+Z)
       scale: 0.10,
       camConsole: { pos: new THREE.Vector3(0.0, 1.25, -3.35), look: new THREE.Vector3(0.0, 1.05, -4.15) },
-      builder: () => createBalanceModel({ includeLab: false })
+      builder: async () => {
+        const { createBalanceModel } = await import("../../balance_twin/software/viewer/balance3d.js");
+        return createBalanceModel({ includeLab: false });
+      }
     });
 
     // ==========================================
@@ -180,7 +165,10 @@ export class LabDockManager {
       rotY: 0, // Native front is -Z, facing South aisle (-Z)
       scale: 0.10,
       camConsole: { pos: new THREE.Vector3(-2.2, 1.30, 3.85), look: new THREE.Vector3(-2.2, 1.05, 4.65) },
-      builder: () => createCentrifugeModel(null, { includeLab: false })
+      builder: async () => {
+        const { createCentrifugeModel } = await import("../../centrifuge_twin/software/viewer/centrifuge3d.js");
+        return createCentrifugeModel(null, { includeLab: false });
+      }
     });
 
     // 8. Labconco FreeZone 4.5L Cascade Freeze Dryer (-84°C)
@@ -193,7 +181,8 @@ export class LabDockManager {
       rotY: Math.PI, // Native front is +Z, rotated 180° to face South aisle (-Z)
       scale: 0.08,
       camConsole: { pos: new THREE.Vector3(-0.5, 1.35, 3.85), look: new THREE.Vector3(-0.5, 1.15, 4.65) },
-      builder: () => {
+      builder: async () => {
+        const { FreezeDryer3D } = await import("../../freeze_dryer_twin/software/viewer/freeze_dryer3d.js");
         const fd = new FreezeDryer3D(null, { includeLab: false, headless: true, skipRenderer: true, skipLoop: true });
         return fd.root || fd.scene;
       }
@@ -209,7 +198,10 @@ export class LabDockManager {
       rotY: 0, // Native front is -Z, facing South aisle (-Z)
       scale: 0.10,
       camConsole: { pos: new THREE.Vector3(1.0, 1.25, 3.85), look: new THREE.Vector3(1.0, 1.05, 4.65) },
-      builder: () => createUltrasonicCleanerModel(null, { includeLab: false })
+      builder: async () => {
+        const { createUltrasonicCleanerModel } = await import("../../ultrasonic_cleaner_twin/software/viewer/ultrasonic3d.js");
+        return createUltrasonicCleanerModel(null, { includeLab: false });
+      }
     });
 
     // 10. Digital Multi-Tube Vortex Mixer
@@ -222,7 +214,8 @@ export class LabDockManager {
       rotY: Math.PI,
       scale: 0.001, // Modeled in millimeters -> 0.001 converts mm to meters!
       camConsole: { pos: new THREE.Vector3(2.0, 1.25, 3.85), look: new THREE.Vector3(2.0, 1.05, 4.65) },
-      builder: () => {
+      builder: async () => {
+        const { VortexMixer3D } = await import("../../vortex_mixer_twin/software/viewer/vortex_mixer3d.js");
         const vm = new VortexMixer3D(null);
         return vm.root;
       }
@@ -242,7 +235,10 @@ export class LabDockManager {
       rotY: 0,
       scale: 0.08,
       camConsole: { pos: new THREE.Vector3(-13.5, 1.35, 25.1), look: new THREE.Vector3(-13.5, 1.15, 26.05) },
-      builder: () => createRotovapModel()
+      builder: async () => {
+        const { createRotovapModel } = await import("../../rotovap_twin/software/viewer/rotovap3d.js");
+        return createRotovapModel();
+      }
     });
 
     // 12. Diaphragm Vacuum Pump V-300 (Beside Rotovap in Fume Hood 1)
@@ -255,7 +251,10 @@ export class LabDockManager {
       rotY: 0,
       scale: 0.085,
       camConsole: { pos: new THREE.Vector3(-12.8, 1.25, 25.1), look: new THREE.Vector3(-12.8, 1.05, 26.05) },
-      builder: () => createVacuumPumpModel()
+      builder: async () => {
+        const { createVacuumPumpModel } = await import("../../vacuum_pump_twin/software/viewer/vacuum_pump3d.js");
+        return createVacuumPumpModel();
+      }
     });
 
     // 13. Digital Ceramic Hotplate Magnetic Stirrer (Inside Fume Hood 2 at X = -9.8, Z = 26.1)
@@ -268,7 +267,10 @@ export class LabDockManager {
       rotY: 0,
       scale: 0.09,
       camConsole: { pos: new THREE.Vector3(-9.8, 1.25, 25.1), look: new THREE.Vector3(-9.8, 1.05, 26.05) },
-      builder: () => createHotplateModel()
+      builder: async () => {
+        const { createHotplateModel } = await import("../../hotplate_twin/software/viewer/hotplate3d.js");
+        return createHotplateModel();
+      }
     });
 
     // 14. Parr 4560 High-Pressure Stirred Mini-Reactor (Beside Hotplate in Fume Hood 2)
@@ -281,7 +283,10 @@ export class LabDockManager {
       rotY: 0,
       scale: 0.08,
       camConsole: { pos: new THREE.Vector3(-9.1, 1.35, 25.1), look: new THREE.Vector3(-9.1, 1.15, 26.05) },
-      builder: (group) => buildReactor3D({ scene: group, includeLab: false })
+      builder: async (group) => {
+        const { buildReactor3D } = await import("../../high_pressure_reactor_twin/software/viewer/reactor3d.js");
+        return buildReactor3D({ scene: group, includeLab: false });
+      }
     });
 
     // ==========================================
@@ -298,7 +303,10 @@ export class LabDockManager {
       rotY: Math.PI, // Rotated 180° so vertical lift door & Eurotherm PID face North aisle (+Z)
       scale: 0.08,
       camConsole: { pos: new THREE.Vector3(-11.8, 1.35, -7.25), look: new THREE.Vector3(-11.8, 1.15, -8.25) },
-      builder: () => createMuffleFurnaceModel({ includeLab: false })
+      builder: async () => {
+        const { createMuffleFurnaceModel } = await import("../../muffle_furnace_twin/software/viewer/muffle_furnace3d.js");
+        return createMuffleFurnaceModel({ includeLab: false });
+      }
     });
 
     // ==========================================
@@ -315,7 +323,10 @@ export class LabDockManager {
       rotY: Math.PI / 2,
       scale: 0.10,
       camConsole: { pos: new THREE.Vector3(4.2, 1.55, -4.5), look: new THREE.Vector3(5.5, 1.35, -4.5) },
-      builder: (group) => buildGloveBox3D({ scene: group, includeLab: false })
+      builder: async (group) => {
+        const { buildGloveBox3D } = await import("../../glove_box_twin/software/viewer/glove_box3d.js");
+        return buildGloveBox3D({ scene: group, includeLab: false });
+      }
     });
 
     // ==========================================
@@ -332,7 +343,10 @@ export class LabDockManager {
       rotY: Math.PI, // Rotated 180° so sloped touchscreen & electrode arm face North aisle (+Z)
       scale: 0.10,
       camConsole: { pos: new THREE.Vector3(-8.2, 1.25, -7.25), look: new THREE.Vector3(-8.2, 1.05, -8.25) },
-      builder: () => createPHMeterModel({ includeLab: false })
+      builder: async () => {
+        const { createPHMeterModel } = await import("../../ph_meter_twin/software/viewer/ph_meter3d.js");
+        return createPHMeterModel({ includeLab: false });
+      }
     });
 
     // ==========================================
@@ -350,7 +364,10 @@ export class LabDockManager {
       rotY: Math.PI / 2, // Rotates -Z front face to -X (West) toward the X=1.0 suite double doors
       scale: 0.10,
       camConsole: { pos: new THREE.Vector3(2.2, 1.45, 15.0), look: new THREE.Vector3(4.5, 1.15, 15.0) },
-      builder: () => buildSEMModel(null, { includeLab: false })
+      builder: async () => {
+        const { buildSEMModel } = await import("../../sem_twin/software/viewer/sem3d.js");
+        return buildSEMModel(null, { includeLab: false });
+      }
     });
   }
 
@@ -491,34 +508,45 @@ export class LabDockManager {
     return plinthGroup;
   }
 
-  _instantiateTwinModel(dockGroup, cfg) {
+  async _instantiateTwinModel(dockGroup, cfg) {
     if (dockGroup.userData.modelRoot) {
       return dockGroup.userData.modelRoot;
     }
 
-    const childrenBefore = new Set(dockGroup.children);
-    try {
-      const result = cfg.builder(dockGroup);
-      let modelRoot = null;
-      if (result && result.isObject3D) {
-        modelRoot = result;
-      } else if (result && result.root && result.root.isObject3D) {
-        modelRoot = result.root;
-      }
-      if (modelRoot && modelRoot !== dockGroup && !dockGroup.children.includes(modelRoot)) {
-        dockGroup.add(modelRoot);
-      }
-      
-      const newChildren = dockGroup.children.filter(c => !childrenBefore.has(c));
-      const effectiveRoot = modelRoot || (newChildren.length === 1 ? newChildren[0] : newChildren);
-      dockGroup.userData.modelRoot = effectiveRoot;
-
-      this._sanitizeTwinModel(dockGroup, cfg.id);
-      return effectiveRoot;
-    } catch (err) {
-      console.warn(`Error instantiating instrument twin '${cfg.id}':`, err);
-      return null;
+    if (this._loadingPromises.has(cfg.id)) {
+      return this._loadingPromises.get(cfg.id);
     }
+
+    const loadTask = (async () => {
+      const childrenBefore = new Set(dockGroup.children);
+      try {
+        const result = await cfg.builder(dockGroup);
+        let modelRoot = null;
+        if (result && result.isObject3D) {
+          modelRoot = result;
+        } else if (result && result.root && result.root.isObject3D) {
+          modelRoot = result.root;
+        }
+        if (modelRoot && modelRoot !== dockGroup && !dockGroup.children.includes(modelRoot)) {
+          dockGroup.add(modelRoot);
+        }
+
+        const newChildren = dockGroup.children.filter(c => !childrenBefore.has(c));
+        const effectiveRoot = modelRoot || (newChildren.length === 1 ? newChildren[0] : newChildren);
+        dockGroup.userData.modelRoot = effectiveRoot;
+
+        this._sanitizeTwinModel(dockGroup, cfg.id);
+        return effectiveRoot;
+      } catch (err) {
+        console.warn(`Error instantiating instrument twin '${cfg.id}':`, err);
+        return null;
+      } finally {
+        this._loadingPromises.delete(cfg.id);
+      }
+    })();
+
+    this._loadingPromises.set(cfg.id, loadTask);
+    return loadTask;
   }
 
   _disposeObject(obj) {
@@ -554,26 +582,39 @@ export class LabDockManager {
     });
   }
 
-  turnOnTwin(id) {
+  async turnOnTwin(id) {
     const dock = this.getDockById(id);
     if (!dock) return false;
+
+    const myToken = ++this._selectionToken;
 
     if (dock.userData.isOn && dock.userData.isLoaded) {
       return true;
     }
 
-    // In lazyLoad / mobile mode, if we reached max active machines, evict the oldest
+    // In lazyLoad mode, if we reached max active machines, evict the oldest before instantiating next
     if (this.lazyLoad && this.activeLoadedQueue.length >= this.maxActiveMachines) {
-      const oldestId = this.activeLoadedQueue.shift();
-      if (oldestId && oldestId !== id) {
-        this.turnOffTwin(oldestId);
-      }
+      const toEvict = this.activeLoadedQueue.splice(0, this.activeLoadedQueue.length - this.maxActiveMachines + 1);
+      toEvict.forEach((oldestId) => {
+        if (oldestId && oldestId !== id) {
+          this.turnOffTwin(oldestId);
+        }
+      });
     }
 
-    // Instantiate model if not yet loaded
+    // Dynamically import & instantiate model on demand
     if (!dock.userData.isLoaded || !dock.userData.modelRoot) {
-      this._instantiateTwinModel(dock, dock.userData.cfg);
-      dock.userData.isLoaded = true;
+      const loadedRoot = await this._instantiateTwinModel(dock, dock.userData.cfg);
+      if (myToken !== this._selectionToken) {
+        // User selected another machine before this async import finished -> dispose stale model
+        if (loadedRoot) {
+          this._disposeObject(loadedRoot);
+          dock.userData.modelRoot = null;
+          dock.userData.isLoaded = false;
+        }
+        return false;
+      }
+      dock.userData.isLoaded = Boolean(loadedRoot);
     }
 
     // If model exists, ensure it is visible
@@ -653,11 +694,11 @@ export class LabDockManager {
     return true;
   }
 
-  toggleTwin(id) {
+  async toggleTwin(id) {
     if (this.isTwinOn(id)) {
       return this.turnOffTwin(id);
     } else {
-      return this.turnOnTwin(id);
+      return await this.turnOnTwin(id);
     }
   }
 
@@ -690,16 +731,10 @@ export class LabDockManager {
     this._createStandbyPlinth(dockGroup, cfg);
 
     if (!this.lazyLoad) {
-      // Desktop full mode: load immediately
-      this._instantiateTwinModel(dockGroup, cfg);
-      dockGroup.userData.isLoaded = true;
-      dockGroup.userData.isOn = true;
-      if (dockGroup.userData.standbyMesh) {
-        dockGroup.userData.standbyMesh.visible = false;
-      }
-      this.activeLoadedQueue.push(cfg.id);
+      // Non-lazy mode: instantiate asynchronously
+      this.turnOnTwin(cfg.id);
     } else {
-      // Mobile / Lazy mode: plinth is visible, model is NOT built yet
+      // On-demand mode: model is NOT imported or built until selected from the menu / workstation
       dockGroup.userData.isLoaded = false;
       dockGroup.userData.isOn = false;
       if (dockGroup.userData.standbyMesh) {

@@ -1,14 +1,13 @@
 /**
- * MobilePerfBudget.js — keeps the Grand Lab inside a phone's memory and GPU budget.
- * Only constructed when the app runs in mobile mode; desktop never loads this path.
+ * MobilePerfBudget.js — keeps the Grand Lab inside a responsive CPU/GPU budget on both Desktop and Mobile.
  *
  * 1. Texture cap: any texture larger than maxTextureSize is redrawn at that size before upload.
  * 2. Light budget: three.js compiles every visible light into every lit shader. The full lab has
- *    ~96 point/spot lights, which makes huge shaders and very long frames on phone GPUs (the
- *    usual cause of iOS/Android killing the tab). On mobile only the N point lights nearest the
- *    camera stay on; the count never changes, so shaders compile once.
+ *    ~96 point/spot lights, which makes huge shaders and long frame times. Only the N active lights
+ *    (intensity > 0.001) nearest the camera stay visible; zero-intensity lights stay hidden so
+ *    daylight mode compiles zero exterior night streetlamps/floods into shaders.
  * 3. Detail culling: small meshes far from the camera are moved to a hidden layer so they are not
- *    drawn. Large shapes (walls, roofs, ground) are always drawn.
+ *    drawn. Large shapes (walls, roofs, ground, vehicles) are always drawn.
  */
 import * as THREE from "three";
 
@@ -20,6 +19,7 @@ export class MobilePerfBudget {
     this.camera = camera;
     this.maxTextureSize = options.maxTextureSize || 1024;
     this.maxPointLights = options.maxPointLights ?? 4;
+    this.maxSpotLights = options.maxSpotLights ?? 0;
     this.cullBase = options.cullBase ?? 14; // metres
     this.cullPerMetre = options.cullPerMetre ?? 55; // extra metres of draw distance per metre of object radius
     this.neverCullRadius = options.neverCullRadius ?? 3.0;
@@ -28,6 +28,7 @@ export class MobilePerfBudget {
     this._texSeen = new WeakSet();
     this._cullables = [];
     this._pointLights = [];
+    this._spotLights = [];
     this._frame = 0;
     this._tmp = new THREE.Vector3();
     this._sphere = new THREE.Sphere();
@@ -38,11 +39,14 @@ export class MobilePerfBudget {
   /** Re-scan the scene for new meshes, lights and textures (cheap, only new objects are processed). */
   refresh() {
     const pointLights = [];
+    const spotLights = [];
     const alive = [];
     this.scene.traverse((o) => {
       if (o.isPointLight) {
         pointLights.push(o);
-      } else if (o.isSpotLight || o.isRectAreaLight) {
+      } else if (o.isSpotLight) {
+        spotLights.push(o);
+      } else if (o.isRectAreaLight) {
         o.visible = false;
       } else if (o.isMesh) {
         if (!this._seen.has(o)) {
@@ -60,6 +64,7 @@ export class MobilePerfBudget {
     }
     this._cullables = alive;
     this._pointLights = pointLights;
+    this._spotLights = spotLights;
     this._updateLights();
     this._updateCulling();
   }
@@ -116,14 +121,28 @@ export class MobilePerfBudget {
 
   _updateLights() {
     const cam = this.camera.position;
-    const lights = this._pointLights;
-    if (!lights.length) return;
-    const ranked = lights
-      .map((l) => ({ l, d: l.getWorldPosition(this._tmp).distanceToSquared(cam) }))
-      .sort((a, b) => a.d - b.d);
-    ranked.forEach((e, i) => {
-      e.l.visible = i < this.maxPointLights;
-    });
+    const rankAndToggle = (lights, limit) => {
+      if (!lights || !lights.length) return;
+      if (limit <= 0) {
+        for (let i = 0; i < lights.length; i++) lights[i].visible = false;
+        return;
+      }
+      const active = [];
+      for (let i = 0; i < lights.length; i++) {
+        const l = lights[i];
+        if ((l.intensity ?? 0) <= 0.001) {
+          l.visible = false;
+        } else {
+          active.push({ l, d: l.getWorldPosition(this._tmp).distanceToSquared(cam) });
+        }
+      }
+      active.sort((a, b) => a.d - b.d);
+      for (let i = 0; i < active.length; i++) {
+        active[i].l.visible = i < limit;
+      }
+    };
+    rankAndToggle(this._pointLights, this.maxPointLights);
+    rankAndToggle(this._spotLights, this.maxSpotLights);
   }
 
   _updateCulling() {

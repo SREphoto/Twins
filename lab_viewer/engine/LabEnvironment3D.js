@@ -16,6 +16,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { Sky } from "three/addons/objects/Sky.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { labAudio } from "./LabSFXMixer.js";
 
 export class LabEnvironment3D {
@@ -3158,8 +3159,8 @@ export class LabEnvironment3D {
     this.sunLight.position.set(36.0, 54.0, -52.0);
     this.sunLight.target.position.set(14.0, 0.0, -4.0);
     this.sunLight.castShadow = true;
-    this.sunLight.shadow.mapSize.width = 4096;
-    this.sunLight.shadow.mapSize.height = 4096;
+    this.sunLight.shadow.mapSize.width = 2048;
+    this.sunLight.shadow.mapSize.height = 2048;
     this.sunLight.shadow.camera.near = 2.0;
     this.sunLight.shadow.camera.far = 185.0;
     this.sunLight.shadow.camera.left = -64.0;
@@ -3911,7 +3912,10 @@ export class LabEnvironment3D {
         this.materials.ledLightPanel.emissiveIntensity = 1.45;
       }
       this.interiorPointLights.forEach((l) => { l.intensity = (l.userData.baseIntensity || 1.05) * 4.2 * (l.userData.roomLightFactor ?? 1.0); });
-      this.exteriorNightLights.forEach((l) => { l.intensity = (l.userData.baseIntensity || 1.0) * 0.68; });
+      this.exteriorNightLights.forEach((l) => {
+        l.intensity = (l.userData.baseIntensity || 1.0) * 0.68;
+        l.visible = l.intensity > 0.001;
+      });
       this.exteriorLampEmissives.forEach((m) => { if (m.emissiveIntensity !== undefined) m.emissiveIntensity = 1.65; });
       this.nightVolumetricCones.forEach((c) => {
         c.visible = true;
@@ -3970,7 +3974,10 @@ export class LabEnvironment3D {
         this.materials.ledLightPanel.emissiveIntensity = 2.2;
       }
       this.interiorPointLights.forEach((l) => { l.intensity = (l.userData.baseIntensity || 1.05) * 8.5 * (l.userData.roomLightFactor ?? 1.0); });
-      this.exteriorNightLights.forEach((l) => { l.intensity = (l.userData.baseIntensity || 1.0) * 1.0; });
+      this.exteriorNightLights.forEach((l) => {
+        l.intensity = (l.userData.baseIntensity || 1.0) * 1.0;
+        l.visible = l.intensity > 0.001;
+      });
       this.exteriorLampEmissives.forEach((m) => { if (m.emissiveIntensity !== undefined) m.emissiveIntensity = 2.6; });
       this.nightVolumetricCones.forEach((c) => {
         c.visible = true;
@@ -4040,7 +4047,10 @@ export class LabEnvironment3D {
         this.materials.ledLightPanel.emissiveIntensity = 0.85;
       }
       this.interiorPointLights.forEach((l) => { l.intensity = (l.userData.baseIntensity || 1.05) * 0.78 * (l.userData.roomLightFactor ?? 1.0); });
-      this.exteriorNightLights.forEach((l) => { l.intensity = 0.0; });
+      this.exteriorNightLights.forEach((l) => {
+        l.intensity = 0.0;
+        l.visible = false;
+      });
       this.exteriorLampEmissives.forEach((m) => { if (m.emissiveIntensity !== undefined) m.emissiveIntensity = 0.12; });
       this.nightVolumetricCones.forEach((c) => { c.visible = false; });
       this.nightGroundPools.forEach((p) => { p.visible = false; });
@@ -5057,13 +5067,9 @@ export class LabEnvironment3D {
     };
 
     const vehicleSpecs = shouldLoadCars ? {
-      audiA4:       { url: "./assets/models/car_audi_a4_b8.glb",        targetLength: 4.72 },
-      alfaGiulia:   { url: "./assets/models/car_alfa_romeo_giulia.glb", targetLength: 4.64 },
-      dodgeCharger: { url: "./assets/models/car_dodge_charger.glb",     targetLength: 5.08 },
-      fordF150:     { url: "./assets/models/car_ford_f150.glb",         targetLength: 5.88 },
-      bmwTouring:   { url: "./assets/models/car_bmw_m3_touring.glb",    targetLength: 4.79 },
-      lexusRcf:     { url: "./assets/models/car_lexus_rcf.glb",         targetLength: 4.71 },
-      skylineR34:   { url: "./assets/models/car_skyline_r34.glb",       targetLength: 4.60 }
+      audiA4:       { url: "./assets/models/car_audi_a4_b8.glb",    targetLength: 4.72 },
+      dodgeCharger: { url: "./assets/models/car_dodge_charger.glb", targetLength: 5.08 },
+      fordF150:     { url: "./assets/models/car_ford_f150.glb",     targetLength: 5.88 }
     } : {};
 
     const loadNormalized = (url) =>
@@ -5122,7 +5128,30 @@ export class LabEnvironment3D {
       });
 
     // Dedicated Vehicle Loader: strips hidden physics collider boxes (e.g. COLIDER on Audi A4 B8),
+    // downscales oversized textures to <=1024px, merges static same-material meshes to cut draw calls ~7x,
     // normalizes 0.01x FBX-to-GLB scale to exact 1:1 real-world length, preserves +Z = Front nose, and grounds tires at Y = 0!
+    const downscaleTex1024 = (tex, seenSet) => {
+      if (!tex || !tex.isTexture || seenSet.has(tex)) return tex;
+      seenSet.add(tex);
+      const img = tex.image;
+      if (!img || tex.isDataTexture || tex.isCompressedTexture) return tex;
+      const w = img.width || 0;
+      const h = img.height || 0;
+      if (w <= 1024 && h <= 1024) return tex;
+      if (typeof document === "undefined") return tex;
+      const s = 1024 / Math.max(w, h);
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(w * s));
+      canvas.height = Math.max(1, Math.round(h * s));
+      try {
+        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+        if (typeof img.close === "function") img.close();
+        tex.image = canvas;
+        tex.needsUpdate = true;
+      } catch {}
+      return tex;
+    };
+
     const loadVehicleGLB = (spec) =>
       new Promise((resolve) => {
         const url = typeof spec === "string" ? spec : spec.url;
@@ -5133,6 +5162,7 @@ export class LabEnvironment3D {
             const tpl = new THREE.Group();
             const inner = gltf.scene;
             const nodesToRemove = [];
+            const seenCarTex = new WeakSet();
             inner.traverse((node) => {
               if (/colider|collider|boundingbox/i.test(node.name || "")) {
                 nodesToRemove.push(node);
@@ -5152,12 +5182,12 @@ export class LabEnvironment3D {
                   const std = new THREE.MeshStandardMaterial({
                     name: m.name || "Car_Std_Mat",
                     color: m.color ? m.color.clone() : new THREE.Color(0xffffff),
-                    map: m.map || null,
-                    normalMap: m.normalMap || null,
-                    roughnessMap: m.roughnessMap || null,
-                    metalnessMap: m.metalnessMap || null,
+                    map: downscaleTex1024(m.map, seenCarTex) || null,
+                    normalMap: downscaleTex1024(m.normalMap, seenCarTex) || null,
+                    roughnessMap: downscaleTex1024(m.roughnessMap, seenCarTex) || null,
+                    metalnessMap: downscaleTex1024(m.metalnessMap, seenCarTex) || null,
                     emissive: m.emissive ? m.emissive.clone() : new THREE.Color(0x000000),
-                    emissiveMap: m.emissiveMap || null,
+                    emissiveMap: downscaleTex1024(m.emissiveMap, seenCarTex) || null,
                     emissiveIntensity: m.emissiveIntensity ?? 1.0,
                     roughness: isGlass ? 0.08 : Math.min(m.roughness ?? 0.35, 0.55),
                     metalness: isGlass ? 0.25 : (m.metalness ?? 0.45),
@@ -5195,7 +5225,48 @@ export class LabEnvironment3D {
 
             // Keep +Z = Front, center X & Z, rest tire contact patches cleanly at Y = 0.000
             inner.position.set(-center.x, -box.min.y, -center.z);
-            tpl.add(inner);
+            inner.updateMatrixWorld(true);
+
+            // Merge static meshes sharing the same single material + attribute signature to cut draw calls per car
+            const mergedGroup = new THREE.Group();
+            const buckets = new Map();
+            let mergeSafe = true;
+            inner.traverse((node) => {
+              if (!node.isMesh || !node.geometry) return;
+              if (Array.isArray(node.material) || !node.material) {
+                mergeSafe = false;
+                return;
+              }
+              const geo = node.geometry.clone();
+              geo.applyMatrix4(node.matrixWorld);
+              const attrSig = Object.keys(geo.attributes).sort().join(",") + "|" + Boolean(geo.index);
+              const key = `${node.material.uuid}::${attrSig}`;
+              if (!buckets.has(key)) {
+                buckets.set(key, { mat: node.material, geos: [] });
+              }
+              buckets.get(key).geos.push(geo);
+            });
+
+            if (mergeSafe && buckets.size > 0) {
+              buckets.forEach(({ mat, geos }) => {
+                if (geos.length === 1) {
+                  const m = new THREE.Mesh(geos[0], mat);
+                  mergedGroup.add(m);
+                } else {
+                  const mergedGeo = mergeGeometries(geos, false);
+                  if (mergedGeo) {
+                    const m = new THREE.Mesh(mergedGeo, mat);
+                    mergedGroup.add(m);
+                    geos.forEach((g) => g.dispose());
+                  } else {
+                    geos.forEach((g) => mergedGroup.add(new THREE.Mesh(g, mat)));
+                  }
+                }
+              });
+              tpl.add(mergedGroup);
+            } else {
+              tpl.add(inner);
+            }
 
             // Soft grounded ambient occlusion contact shadow under vehicle chassis
             const shadowDisc = new THREE.Mesh(
@@ -5513,24 +5584,14 @@ export class LabEnvironment3D {
           carInstance.add(beamPool);
         };
 
-        // A. Parked Everyday & Executive Vehicles Grounded in Campus Stalls (Y = 0.000)
+        // A. Parked Everyday Vehicles Grounded in Campus Stalls (Y = 0.000) — Audi A4, Dodge Charger & Ford F-150
         const parkedCampusCars = [
           { key: "fordF150",     x: -17.2, z: -17.15, rotY: 0 },        // North West Stall 2: Ford F-150 Pickup
           { key: "audiA4",       x: -8.8,  z: -17.15, rotY: 0 },        // North West Stall 5: Audi A4 B8 Sedan
-          { key: "alfaGiulia",   x: -0.4,  z: -17.15, rotY: 0 },        // North West EV Stall: 2021 Alfa Romeo Giulia
-          { key: "dodgeCharger", x: 20.8,  z: -17.15, rotY: Math.PI },  // North East Stall 2 (Backed-In): Dodge Charger R/T
-          { key: "audiA4",       x: 26.4,  z: -17.15, rotY: 0 },        // North East Stall 4: Audi A4 B8 Sedan
-          { key: "bmwTouring",   x: 32.0,  z: -17.15, rotY: 0 },        // North East EV Stall: BMW M3 Touring Wagon
-          { key: "lexusRcf",     x: 40.4,  z: -17.15, rotY: Math.PI },  // North East Stall 9 (Backed-In): Lexus RC-F
-          { key: "audiA4",       x: -14.4, z: -30.85, rotY: Math.PI },  // South West Stall 4: Audi A4 Sedan
-          { key: "alfaGiulia",   x: -3.2,  z: -30.85, rotY: Math.PI },  // South West Stall 8: Alfa Romeo Giulia
-          { key: "bmwTouring",   x: 25.2,  z: -30.85, rotY: Math.PI },  // South East Stall 3: BMW Touring
-          { key: "fordF150",     x: 36.4,  z: -30.85, rotY: Math.PI },  // South East Stall 7: Ford F-150 Pickup
-          // Additional Parked Everyday Cars at Roadside Research Buildings Across Biotech Parkway
-          { key: "fordF150",     x: -76.0, z: -59.5,  rotY: Math.PI },
-          { key: "alfaGiulia",   x: -60.0, z: -59.5,  rotY: Math.PI },
-          { key: "dodgeCharger", x: 48.0,  z: -59.5,  rotY: Math.PI },
-          { key: "audiA4",       x: 64.0,  z: -59.5,  rotY: Math.PI }
+          { key: "dodgeCharger", x: 20.8,  z: -17.15, rotY: Math.PI },  // North East Stall 2 (Backed-In): Dodge Charger
+          { key: "audiA4",       x: 29.2,  z: -17.15, rotY: 0 },        // North East Stall 5: Audi A4 B8 Sedan
+          { key: "dodgeCharger", x: -8.8,  z: -30.85, rotY: Math.PI },  // South West Stall 6: Dodge Charger
+          { key: "fordF150",     x: 36.4,  z: -30.85, rotY: Math.PI }   // South East Stall 7: Ford F-150 Pickup
         ];
         parkedCampusCars.forEach((spec) => {
           const entry = carLib[spec.key];
@@ -5547,20 +5608,17 @@ export class LabEnvironment3D {
           );
         });
 
-        // B. 9 Live Animated Everyday Vehicles on 4-Lane Biotech Parkway & Gated Campus Driveway
+        // B. 6 Live Animated Everyday Vehicles on 4-Lane Biotech Parkway & Gated Campus Driveway
         const liveTrafficSpecs = [
           // Westbound (-X, North side of double-yellow centerline Z = -46.8)
           { key: "audiA4",       axis: "x", x: 18.0,  z: -42.55, dir: -1, speed: 10.5, minCoord: -135.0, maxCoord: 162.0, rotY: -Math.PI / 2 },
           { key: "fordF150",     axis: "x", x: 64.0,  z: -42.55, dir: -1, speed: 10.5, minCoord: -135.0, maxCoord: 162.0, rotY: -Math.PI / 2 },
-          { key: "alfaGiulia",   axis: "x", x: -8.0,  z: -45.35, dir: -1, speed: 12.8, minCoord: -135.0, maxCoord: 162.0, rotY: -Math.PI / 2 },
-          { key: "dodgeCharger", axis: "x", x: -58.0, z: -45.35, dir: -1, speed: 12.8, minCoord: -135.0, maxCoord: 162.0, rotY: -Math.PI / 2 },
+          { key: "dodgeCharger", axis: "x", x: -42.0, z: -45.35, dir: -1, speed: 12.8, minCoord: -135.0, maxCoord: 162.0, rotY: -Math.PI / 2 },
           // Eastbound (+X, South side of double-yellow centerline Z = -46.8)
           { key: "dodgeCharger", axis: "x", x: -4.0,  z: -48.25, dir:  1, speed: 13.2, minCoord: -135.0, maxCoord: 162.0, rotY: Math.PI / 2 },
-          { key: "fordF150",     axis: "x", x: -54.0, z: -48.25, dir:  1, speed: 11.4, minCoord: -135.0, maxCoord: 162.0, rotY: Math.PI / 2 },
-          { key: "audiA4",       axis: "x", x: 24.0,  z: -51.05, dir:  1, speed: 11.0, minCoord: -135.0, maxCoord: 162.0, rotY: Math.PI / 2 },
-          { key: "skylineR34",   axis: "x", x: 82.0,  z: -51.05, dir:  1, speed: 11.8, minCoord: -135.0, maxCoord: 162.0, rotY: Math.PI / 2 },
+          { key: "audiA4",       axis: "x", x: 32.0,  z: -51.05, dir:  1, speed: 11.0, minCoord: -135.0, maxCoord: 162.0, rotY: Math.PI / 2 },
           // Campus Entry Road Inbound (+Z on right-hand inbound lane X = 15.65, entering from Biotech Parkway into Parking Lot!)
-          { key: "alfaGiulia",   axis: "z", x: 15.65, z: -38.5,  dir:  1, speed: 5.4,  minCoord: -41.5,  maxCoord: -25.0, rotY: 0 }
+          { key: "fordF150",     axis: "z", x: 15.65, z: -38.5,  dir:  1, speed: 5.4,  minCoord: -41.5,  maxCoord: -25.0, rotY: 0 }
         ];
 
         liveTrafficSpecs.forEach((spec) => {
