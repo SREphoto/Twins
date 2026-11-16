@@ -1559,6 +1559,29 @@ export class LabEnvironment3D {
         const headY = op.headY || 2.45;
         addSpanBlock(op.u0, op.u1, headY, H, false, false, false);
 
+        // Wrap Exterior Cast-Stone & Brick Door Reveal Returns Around Jambs & Lintel (Zero Gap Between Brick & Door Frame!)
+        const revealDepth = brickT + 0.08;
+        const revealZ = fixedCoord + outerSign * (wallT / 2 + revealDepth / 2 - 0.02);
+        const rMat = extMat || this._createBrickCladdingMaterial(0.24, headY);
+        [op.u0 - 0.03, op.u1 + 0.03].forEach((ru) => {
+          const jRevealGeo = isAlongX
+            ? new THREE.BoxGeometry(0.08, headY, revealDepth)
+            : new THREE.BoxGeometry(revealDepth, headY, 0.08);
+          const jReveal = new THREE.Mesh(jRevealGeo, rMat);
+          if (isAlongX) jReveal.position.set(ru, headY / 2, revealZ);
+          else jReveal.position.set(revealZ, headY / 2, ru);
+          jReveal.castShadow = true;
+          jReveal.receiveShadow = true;
+          this.root.add(jReveal);
+        });
+        const lintelGeo = isAlongX
+          ? new THREE.BoxGeometry(opW + 0.14, 0.10, revealDepth + 0.02)
+          : new THREE.BoxGeometry(revealDepth + 0.02, 0.10, opW + 0.14);
+        const lintel = new THREE.Mesh(lintelGeo, this.materials.limestonePlinth);
+        if (isAlongX) lintel.position.set(opMid, headY + 0.03, revealZ);
+        else lintel.position.set(revealZ, headY + 0.03, opMid);
+        this.root.add(lintel);
+
         // Warm interior doorway light spill onto exterior plaza/patio at Dusk & Night
         const spillPool = new THREE.Mesh(
           new THREE.PlaneGeometry(opW * 1.65, 3.4),
@@ -2158,23 +2181,23 @@ export class LabEnvironment3D {
 
     // Architectural Bronze Portal Beam over Central Hallway Entry (X: 16.0, Z: -1.5 to 1.5, center Z = 0)
     const portalBeam = new THREE.Mesh(
-      new THREE.BoxGeometry(0.35, 0.45, 3.2),
+      new THREE.BoxGeometry(0.35, 0.45, 3.22),
       this.materials.doorFrameBlack
     );
     portalBeam.position.set(16.0, 3.55, 0);
     this.root.add(portalBeam);
 
-    // Full-Height Matte-Black Architectural Corner Pilasters Framing Wing Portal
-    [-1.5, 1.5].forEach((pz) => {
+    // Full-Height Matte-Black Architectural Corner Pilasters Framing Wing Portal (Flush against partition wall ends)
+    [-1.48, 1.48].forEach((pz) => {
       const pilaster = new THREE.Mesh(
-        new THREE.BoxGeometry(0.22, H, 0.22),
+        new THREE.BoxGeometry(0.35, H, 0.24),
         this.materials.doorFrameBlack
       );
       pilaster.position.set(16.0, H / 2, pz);
       this.root.add(pilaster);
     });
 
-    // Illuminated "EXECUTIVE & WELLNESS WING" Header Sign above Portal (ChemMate Sans-Serif Identity)
+    // Illuminated "EXECUTIVE & WELLNESS WING" Header Sign above Portal (Clean Geometric Sans-Serif Typography)
     const wingSignCanvas = document.createElement("canvas");
     wingSignCanvas.width = 1024;
     wingSignCanvas.height = 192;
@@ -2185,14 +2208,14 @@ export class LabEnvironment3D {
     wCtx.lineWidth = 4;
     wCtx.strokeRect(4, 4, 1016, 184);
     wCtx.fillStyle = "#D62828";
-    wCtx.fillRect(28, 36, 10, 120);
+    wCtx.fillRect(36, 38, 8, 116);
     wCtx.fillStyle = "#f8fafc";
-    wCtx.font = "700 44px 'Inter', 'Helvetica Neue', Arial, sans-serif";
+    wCtx.font = "600 40px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
     wCtx.textAlign = "left";
-    wCtx.fillText("EXECUTIVE & WELLNESS WING", 64, 88);
+    wCtx.fillText("EXECUTIVE & WELLNESS WING", 68, 86);
     wCtx.fillStyle = "#94a3b8";
-    wCtx.font = "500 24px 'Inter', 'Helvetica Neue', Arial, sans-serif";
-    wCtx.fillText("BOARDROOM  ·  FACULTY OFFICES  ·  BREAK ROOM  ·  LOCKER SUITES", 64, 138);
+    wCtx.font = "500 22px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+    wCtx.fillText("BOARDROOM  ·  FACULTY OFFICES  ·  BREAK ROOM  ·  LOCKER SUITES", 68, 136);
     const wingSignTex = new THREE.CanvasTexture(wingSignCanvas);
     wingSignTex.colorSpace = THREE.SRGBColorSpace;
     const wingSign = new THREE.Mesh(
@@ -2204,7 +2227,7 @@ export class LabEnvironment3D {
     this.root.add(wingSign);
 
     // Upper Acoustic Walnut Slat Frieze along Hallway North & South Walls (Y = 2.55..3.72m)
-    [1.41, -1.41].forEach((sz) => {
+    [1.385, -1.385].forEach((sz) => {
       const slatBacking = new THREE.Mesh(
         new THREE.BoxGeometry(21.4, 1.15, 0.015),
         this.materials.doorFrameBlack
@@ -2222,13 +2245,13 @@ export class LabEnvironment3D {
       }
     });
 
-    // Framed Scientific Heritage Prints Flanking Boardroom Entrance (X = 18.2 & 24.8, Z = 1.41)
+    // Framed Scientific Heritage Prints Flanking Boardroom Entrance (X = 18.2 & 24.8, Z = 1.382)
     [
       { x: 18.2, title: "MOLECULAR LATTICE IV", sub: "Chirality & Symmetry Series" },
       { x: 24.8, title: "SYNTHESIS MONOGRAPH", sub: "USP <711> Reference Plate" }
     ].forEach((art, idx) => {
       const artGrp = new THREE.Group();
-      artGrp.position.set(art.x, 1.60, 1.41);
+      artGrp.position.set(art.x, 1.60, 1.382);
       artGrp.rotation.y = Math.PI;
       const frame = new THREE.Mesh(
         new THREE.BoxGeometry(1.18, 0.86, 0.035),
@@ -2629,7 +2652,7 @@ export class LabEnvironment3D {
     const doorH = 2.4;
     const isAirlock = id === "EXTERIOR_AIRLOCK";
     const jambMat = this.materials.doorFrameBlack;
-    const frameD = isAirlock ? 0.36 : 0.19;
+    const frameD = isAirlock ? 0.36 : 0.22;
     const isSmartGlass = id === "CONF_HALLWAY_DOOR";
     const glassMat = isSmartGlass
       ? new THREE.MeshPhysicalMaterial({
@@ -2646,128 +2669,158 @@ export class LabEnvironment3D {
       : this.materials.glass;
     const handleMat = new THREE.MeshStandardMaterial({ color: 0xe0e6ed, roughness: 0.2, metalness: 0.9 });
 
-    // 1. Hollow Perimeter Matte-Black Door Frame (Full wall depth + Transom for Exterior Airlock)
-    const transomTop = isAirlock ? 2.65 : doorH;
-    const header = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.08, frameD), jambMat);
+    // 1. Hollow Perimeter Matte-Black Door Frame (Full wall depth + Transom for Exterior Airlock, Zero Wall/Leaf Gap!)
+    const transomTop = isAirlock ? 2.68 : doorH + 0.08;
+    const header = new THREE.Mesh(new THREE.BoxGeometry(2.14, 0.09, frameD), jambMat);
     header.position.set(0, doorH + 0.04, 0);
     group.add(header);
 
-    const leftJamb = new THREE.Mesh(new THREE.BoxGeometry(0.08, transomTop, frameD), jambMat);
-    leftJamb.position.set(-1.01, transomTop / 2, 0);
+    const leftJamb = new THREE.Mesh(new THREE.BoxGeometry(0.09, transomTop, frameD), jambMat);
+    leftJamb.position.set(-1.025, transomTop / 2, 0);
     group.add(leftJamb);
 
-    const rightJamb = new THREE.Mesh(new THREE.BoxGeometry(0.08, transomTop, frameD), jambMat);
-    rightJamb.position.set(1.01, transomTop / 2, 0);
+    const rightJamb = new THREE.Mesh(new THREE.BoxGeometry(0.09, transomTop, frameD), jambMat);
+    rightJamb.position.set(1.025, transomTop / 2, 0);
     group.add(rightJamb);
 
+    // Molded Outer Architrave Casing Trim Wrapping Both Faces of Wall Opening
+    [-frameD / 2 - 0.008, frameD / 2 + 0.008].forEach((czOff) => {
+      const topCasing = new THREE.Mesh(new THREE.BoxGeometry(2.24, 0.08, 0.018), jambMat);
+      topCasing.position.set(0, transomTop - 0.02, czOff);
+      group.add(topCasing);
+      [-1.06, 1.06].forEach((cxOff) => {
+        const sideCasing = new THREE.Mesh(new THREE.BoxGeometry(0.08, transomTop, 0.018), jambMat);
+        sideCasing.position.set(cxOff, transomTop / 2, czOff);
+        group.add(sideCasing);
+      });
+    });
+
     if (isAirlock) {
-      const topTransomBar = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.06, frameD), jambMat);
-      topTransomBar.position.set(0, 2.62, 0);
+      const topTransomBar = new THREE.Mesh(new THREE.BoxGeometry(2.14, 0.08, frameD), jambMat);
+      topTransomBar.position.set(0, 2.64, 0);
       group.add(topTransomBar);
 
-      const transomGlass = new THREE.Mesh(new THREE.BoxGeometry(1.94, 0.17, 0.018), glassMat);
-      transomGlass.position.set(0, 2.52, 0);
+      const transomGlass = new THREE.Mesh(new THREE.BoxGeometry(1.98, 0.19, 0.022), glassMat);
+      transomGlass.position.set(0, 2.53, 0);
       group.add(transomGlass);
     }
 
     // Threshold Saddle
     const threshold = new THREE.Mesh(
-      new THREE.BoxGeometry(2.1, 0.015, frameD + 0.02),
+      new THREE.BoxGeometry(2.14, 0.015, frameD + 0.02),
       new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.4, metalness: 0.8 })
     );
     threshold.position.set(0, 0.0075, 0);
     group.add(threshold);
 
-    // 2. Left Door Leaf (Pivoted at Left Inner Jamb Edge X = -0.97, full 0.97m leaf width -> 0 center gap)
+    // 2. Left Door Leaf (Pivoted at Left Inner Jamb Edge X = -0.98, full 0.98m leaf width -> 0 center gap & 0 jamb gap!)
     const isInteriorDouble = !isAirlock;
     const swingDir = id === "LAB_RECEPTION_PORTAL" || isAirlock ? 1 : -1;
     const leftOpenAngle = swingDir * 1.30;
     const rightOpenAngle = -swingDir * 1.30;
     const leftPivot = new THREE.Group();
-    leftPivot.position.set(-0.97, 0, 0);
+    leftPivot.position.set(-0.98, 0, 0);
     if (isInteriorDouble) leftPivot.rotation.y = leftOpenAngle;
 
     const leftDoorGroup = new THREE.Group();
-    leftDoorGroup.position.set(0.485, 0, 0);
+    leftDoorGroup.position.set(0.49, 0, 0);
 
     // Outer & Inner Stiles
-    const stileGeo = new THREE.BoxGeometry(0.08, doorH - 0.01, 0.04);
+    const stileGeo = new THREE.BoxGeometry(0.085, doorH, 0.044);
     const lStileOut = new THREE.Mesh(stileGeo, jambMat);
-    lStileOut.position.set(-0.445, (doorH - 0.01) / 2, 0);
+    lStileOut.position.set(-0.4475, doorH / 2, 0);
     leftDoorGroup.add(lStileOut);
 
     const lStileIn = new THREE.Mesh(stileGeo, jambMat);
-    lStileIn.position.set(0.445, (doorH - 0.01) / 2, 0);
+    lStileIn.position.set(0.4475, doorH / 2, 0);
     leftDoorGroup.add(lStileIn);
 
-    // Center Astragal Meeting Seal
-    const astragal = new THREE.Mesh(new THREE.BoxGeometry(0.024, doorH - 0.01, 0.048), jambMat);
-    astragal.position.set(0.485, (doorH - 0.01) / 2, 0);
+    // Center Astragal Meeting Seal (Full height seal between closed leaves!)
+    const astragal = new THREE.Mesh(new THREE.BoxGeometry(0.032, doorH, 0.052), jambMat);
+    astragal.position.set(0.49, doorH / 2, 0);
     leftDoorGroup.add(astragal);
 
     // Top & Bottom Rails
-    const lRailTop = new THREE.Mesh(new THREE.BoxGeometry(0.81, 0.08, 0.04), jambMat);
-    lRailTop.position.set(0, doorH - 0.05, 0);
+    const lRailTop = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.085, 0.044), jambMat);
+    lRailTop.position.set(0, doorH - 0.0425, 0);
     leftDoorGroup.add(lRailTop);
 
-    const lRailBottom = new THREE.Mesh(new THREE.BoxGeometry(0.81, 0.24, 0.04), jambMat);
-    lRailBottom.position.set(0, 0.13, 0);
+    const lRailBottom = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.24, 0.044), jambMat);
+    lRailBottom.position.set(0, 0.125, 0);
     leftDoorGroup.add(lRailBottom);
 
     // Vision Glass Panel
-    const lGlass = new THREE.Mesh(new THREE.BoxGeometry(0.81, doorH - 0.34, 0.015), glassMat);
-    lGlass.position.set(0, (doorH - 0.34) / 2 + 0.25, 0);
+    const lGlass = new THREE.Mesh(new THREE.BoxGeometry(0.82, doorH - 0.32, 0.016), glassMat);
+    lGlass.position.set(0, (doorH - 0.32) / 2 + 0.24, 0);
     leftDoorGroup.add(lGlass);
 
     // Tubular Handles (Front & Back)
     const handleGeo = new THREE.CylinderGeometry(0.014, 0.014, 0.8, 16);
-    [-0.035, 0.035].forEach(zOff => {
+    [-0.036, 0.036].forEach(zOff => {
       const h = new THREE.Mesh(handleGeo, handleMat);
       h.position.set(0.39, 1.15, zOff);
       leftDoorGroup.add(h);
     });
+
+    // 3 Heavy-Duty Barrel Hinges Connecting Left Jamb directly to Left Door Stile
+    [0.36, 1.20, 2.04].forEach((hy) => {
+      const hinge = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.014, 0.014, 0.11, 12),
+        this.materials.doorCloserAluminum
+      );
+      hinge.position.set(-0.98, hy, 0);
+      group.add(hinge);
+    });
     leftPivot.add(leftDoorGroup);
     group.add(leftPivot);
 
-    // 3. Right Door Leaf (Pivoted at Right Inner Jamb Edge X = +0.97)
+    // 3. Right Door Leaf (Pivoted at Right Inner Jamb Edge X = +0.98)
     const rightPivot = new THREE.Group();
-    rightPivot.position.set(0.97, 0, 0);
+    rightPivot.position.set(0.98, 0, 0);
     if (isInteriorDouble) rightPivot.rotation.y = rightOpenAngle;
 
     const rightDoorGroup = new THREE.Group();
-    rightDoorGroup.position.set(-0.485, 0, 0);
+    rightDoorGroup.position.set(-0.49, 0, 0);
 
     const rStileIn = new THREE.Mesh(stileGeo, jambMat);
-    rStileIn.position.set(-0.445, (doorH - 0.01) / 2, 0);
+    rStileIn.position.set(-0.4475, doorH / 2, 0);
     rightDoorGroup.add(rStileIn);
 
     const rStileOut = new THREE.Mesh(stileGeo, jambMat);
-    rStileOut.position.set(0.445, (doorH - 0.01) / 2, 0);
+    rStileOut.position.set(0.4475, doorH / 2, 0);
     rightDoorGroup.add(rStileOut);
 
-    const rRailTop = new THREE.Mesh(new THREE.BoxGeometry(0.81, 0.08, 0.04), jambMat);
-    rRailTop.position.set(0, doorH - 0.05, 0);
+    const rRailTop = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.085, 0.044), jambMat);
+    rRailTop.position.set(0, doorH - 0.0425, 0);
     rightDoorGroup.add(rRailTop);
 
-    const rRailBottom = new THREE.Mesh(new THREE.BoxGeometry(0.81, 0.24, 0.04), jambMat);
-    rRailBottom.position.set(0, 0.13, 0);
+    const rRailBottom = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.24, 0.044), jambMat);
+    rRailBottom.position.set(0, 0.125, 0);
     rightDoorGroup.add(rRailBottom);
 
-    const rGlass = new THREE.Mesh(new THREE.BoxGeometry(0.81, doorH - 0.34, 0.015), glassMat);
-    rGlass.position.set(0, (doorH - 0.34) / 2 + 0.25, 0);
+    const rGlass = new THREE.Mesh(new THREE.BoxGeometry(0.82, doorH - 0.32, 0.016), glassMat);
+    rGlass.position.set(0, (doorH - 0.32) / 2 + 0.24, 0);
     rightDoorGroup.add(rGlass);
 
-    [-0.035, 0.035].forEach(zOff => {
+    [-0.036, 0.036].forEach(zOff => {
       const h = new THREE.Mesh(handleGeo, handleMat);
       h.position.set(-0.39, 1.15, zOff);
       rightDoorGroup.add(h);
+    });
+    [0.36, 1.20, 2.04].forEach((hy) => {
+      const hinge = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.014, 0.014, 0.11, 12),
+        this.materials.doorCloserAluminum
+      );
+      hinge.position.set(0.98, hy, 0);
+      group.add(hinge);
     });
     rightPivot.add(rightDoorGroup);
     group.add(rightPivot);
 
     // 16-Gauge Stainless Steel Kickplates Seated Inside Bottom Rails
     const kickGeo = new THREE.BoxGeometry(0.81, 0.22, 0.003);
-    [-0.0215, 0.0215].forEach(kz => {
+    [-0.0235, 0.0235].forEach(kz => {
       const kpL = new THREE.Mesh(kickGeo, this.materials.kickplateStainless);
       kpL.position.set(0, 0.125, kz);
       leftDoorGroup.add(kpL);
@@ -2864,7 +2917,7 @@ export class LabEnvironment3D {
     const doorW = 1.1;
     const doorH = 2.4;
     const jambMat = this.materials.doorFrameBlack;
-    const frameD = 0.19;
+    const frameD = 0.22;
     const isPrivacyDoor = /LOCKER|RESTROOM/i.test(id);
     const isSmartGlass = id === "USER_OFFICE_DOOR";
     const glassMat = isSmartGlass
@@ -2882,26 +2935,37 @@ export class LabEnvironment3D {
       : this.materials.glass;
     const handleMat = new THREE.MeshStandardMaterial({ color: 0xe0e6ed, roughness: 0.2, metalness: 0.9 });
 
-    // Full-Wall-Depth Solid Matte-Black Perimeter Frame
-    const header = new THREE.Mesh(new THREE.BoxGeometry(doorW, 0.08, frameD), jambMat);
+    // Full-Wall-Depth Solid Matte-Black Perimeter Frame + Outer Casing Architrave
+    const header = new THREE.Mesh(new THREE.BoxGeometry(doorW + 0.04, 0.09, frameD), jambMat);
     header.position.set(0, doorH + 0.04, 0);
     group.add(header);
 
-    [-doorW / 2 + 0.04, doorW / 2 - 0.04].forEach(jx => {
-      const jamb = new THREE.Mesh(new THREE.BoxGeometry(0.08, doorH, frameD), jambMat);
-      jamb.position.set(jx, doorH / 2, 0);
+    [-doorW / 2 + 0.035, doorW / 2 - 0.035].forEach(jx => {
+      const jamb = new THREE.Mesh(new THREE.BoxGeometry(0.09, doorH + 0.08, frameD), jambMat);
+      jamb.position.set(jx, (doorH + 0.08) / 2, 0);
       group.add(jamb);
     });
 
+    [-frameD / 2 - 0.008, frameD / 2 + 0.008].forEach((czOff) => {
+      const topCasing = new THREE.Mesh(new THREE.BoxGeometry(doorW + 0.12, 0.075, 0.016), jambMat);
+      topCasing.position.set(0, doorH + 0.05, czOff);
+      group.add(topCasing);
+      [-doorW / 2 - 0.025, doorW / 2 + 0.025].forEach((cxOff) => {
+        const sideCasing = new THREE.Mesh(new THREE.BoxGeometry(0.075, doorH + 0.08, 0.016), jambMat);
+        sideCasing.position.set(cxOff, (doorH + 0.08) / 2, czOff);
+        group.add(sideCasing);
+      });
+    });
+
     const threshold = new THREE.Mesh(
-      new THREE.BoxGeometry(doorW, 0.015, frameD + 0.02),
+      new THREE.BoxGeometry(doorW + 0.04, 0.015, frameD + 0.02),
       new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.4, metalness: 0.8 })
     );
     threshold.position.set(0, 0.0075, 0);
     group.add(threshold);
 
-    // Door Leaf Fitted Inside Frame (Clear opening = 0.94m, leafW = 0.935m with hinge clearance)
-    const leafW = doorW - 0.16;
+    // Door Leaf Fitted Inside Frame (Zero Jamb Gap!)
+    const leafW = doorW - 0.14;
     const stileW = 0.085;
     const innerW = leafW - stileW * 2;
 
@@ -2910,6 +2974,15 @@ export class LabEnvironment3D {
     const leafPivot = new THREE.Group();
     leafPivot.position.set(-leafW / 2, 0, 0);
     leafPivot.rotation.y = startOpen ? openAngle : 0;
+
+    [0.36, 1.20, 2.04].forEach((hy) => {
+      const hinge = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.013, 0.013, 0.10, 12),
+        this.materials.doorCloserAluminum
+      );
+      hinge.position.set(-leafW / 2, hy, 0);
+      group.add(hinge);
+    });
 
     const leafGroup = new THREE.Group();
     leafGroup.position.set(leafW / 2, 0, 0);
@@ -3195,12 +3268,13 @@ export class LabEnvironment3D {
     const deckY = H + 0.14;
 
     // 1A. Structural TPO Roof Decks on Lower 3.80m Front Wings Framed Around Reception Atrium Skylight (X: 9.2..14.8, Z: -5.2..5.8)
+    //     Extended over full exterior brick/parapet footprint (X = -22.36..44.36, Z = -9.86..+9.86) -> Zero Wall-to-Roof Gap!
     const roofSlabs = [
-      { cx: -6.4, cz: 0.0,   w: 31.2, d: 19.16 }, // Expanded West Main Lab (-22.0..9.2)
-      { cx: 12.0, cz: -7.39, w: 5.6,  d: 4.38 },  // Reception South of Skylight
-      { cx: 12.0, cz: 7.69,  w: 5.6,  d: 3.78 },  // Reception North of Skylight
-      { cx: 26.4, cz: 0.0,   w: 23.2, d: 19.16 }, // East Executive & Locker Wing
-      { cx: 41.0, cz: 0.0,   w: 6.08, d: 16.16 }  // Far East Women's Suite
+      { cx: -6.58, cz: 0.0,   w: 31.56, d: 19.72 }, // Expanded West Main Lab (-22.36..9.2)
+      { cx: 12.0,  cz: -7.53, w: 5.6,   d: 4.66 },  // Reception South of Skylight
+      { cx: 12.0,  cz: 7.83,  w: 5.6,   d: 4.06 },  // Reception North of Skylight
+      { cx: 26.58, cz: 0.0,   w: 23.56, d: 19.72 }, // East Executive & Locker Wing
+      { cx: 41.18, cz: 0.0,   w: 6.36,  d: 16.72 }  // Far East Women's Suite
     ];
     roofSlabs.forEach((s) => {
       const slab = new THREE.Mesh(new THREE.BoxGeometry(s.w, deckT, s.d), this.materials.roofMembrane);
@@ -3211,11 +3285,8 @@ export class LabEnvironment3D {
     });
 
     // 1B. Modern High-Bay Rear North L-Wing Sculpted Wing-Roof & Terracotta Feature Tower (X: -23.6..+9.4, Z: +7.4..+29.0)
-    //     Modeled after Torrey View & Thrasher Works references:
-    //     - Angled mono-pitch wing roof lifting toward the South-West front (Y = 5.65m -> 6.35m)
-    //     - Deep 2.1m South cantilever over the upper clerestory glazing exposing a warm Western Red Cedar soffit
-    //     - Bold 0.52m Champagne-Alabaster architectural fascia frame + 7.2m Terracotta Corner Feature Tower!
-    const rearRoofY = H_REAR + 0.28;
+    //     Seated flush on the 5.60m high-bay perimeter walls & parapet coping with continuous perimeter clerestory collar -> ZERO gap between roof and walls!
+    const rearRoofY = H_REAR + 0.08;
     const rearWingW = 33.20;
     const rearWingD = 21.60;
     const rearWingCX = -7.1;
@@ -3242,8 +3313,23 @@ export class LabEnvironment3D {
 
     const rearWingRoofAssembly = new THREE.Group();
     rearWingRoofAssembly.position.set(rearWingCX, rearRoofY, rearWingCZ);
-    rearWingRoofAssembly.rotation.x = -0.036; // Lifts the South (-Z) cantilevered leading edge higher toward the front camera!
-    rearWingRoofAssembly.rotation.z = -0.018; // Subtle modern architectural butterfly lift toward the West (-X)
+    rearWingRoofAssembly.rotation.x = 0.0; // Level structural bearing across all 4 perimeter walls (zero roof-to-wall gap!)
+    rearWingRoofAssembly.rotation.z = 0.0;
+
+    // Continuous Perimeter Structural Frieze Collar sealing the wall-to-soffit junction around the entire Rear L-Wing (-22.18..+8.18, 9.32..27.68)
+    [
+      { x: -7.0,   z: 9.48,  sx: 30.56, sz: 0.38 },
+      { x: -7.0,   z: 27.52, sx: 30.56, sz: 0.38 },
+      { x: -22.02, z: 18.5,  sx: 0.38,  sz: 18.40 },
+      { x: 8.02,   z: 18.5,  sx: 0.38,  sz: 18.40 }
+    ].forEach((col) => {
+      const collar = new THREE.Mesh(
+        new THREE.BoxGeometry(col.sx, 0.36, col.sz),
+        this.materials.architecturalBlackMetal
+      );
+      collar.position.set(col.x, H_REAR - 0.02, col.z);
+      this.roofGroup.add(collar);
+    });
 
     const rearTpoDeck = new THREE.Mesh(
       new THREE.BoxGeometry(rearWingW, 0.16, rearWingD),
@@ -4158,60 +4244,117 @@ export class LabEnvironment3D {
     backTile.position.set(0, substrateY, 0.035);
     wallGroup.add(backTile);
 
-    // 5. Real Botanical Living Wall Modules (./assets/models/living_wall.glb) Tiled Across Framed Bay
+    // 5. Lush 3D Multi-Species Hydroponic Living Bio-Wall Canopy (Nordic Reindeer Moss Cushions, Sword Ferns, Monstera, Trailing Pothos & Driftwood!)
     const livingWallBay = new THREE.Group();
     livingWallBay.name = "Biophilic_GLB_Canopy";
     livingWallBay.position.set(0, troughH, 0.055);
     wallGroup.add(livingWallBay);
 
-    const bioLoader = new GLTFLoader();
-    bioLoader.load(
-      "./assets/models/living_wall.glb",
-      (gltf) => {
-        const template = gltf.scene;
-        const box = new THREE.Box3().setFromObject(template);
-        const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
+    const mossPalette = [
+      new THREE.MeshStandardMaterial({ color: 0x3b6e32, roughness: 0.92, metalness: 0.0 }),
+      new THREE.MeshStandardMaterial({ color: 0x4f843d, roughness: 0.90, metalness: 0.0 }),
+      new THREE.MeshStandardMaterial({ color: 0x264e24, roughness: 0.94, metalness: 0.0 }),
+      new THREE.MeshStandardMaterial({ color: 0x6b9e48, roughness: 0.88, metalness: 0.0 }),
+      new THREE.MeshStandardMaterial({ color: 0x1e3f20, roughness: 0.95, metalness: 0.0 })
+    ];
+    const fernLeafMat = new THREE.MeshStandardMaterial({ color: 0x34702f, roughness: 0.55, metalness: 0.02, side: THREE.DoubleSide });
+    const pothosLeafMat = new THREE.MeshStandardMaterial({ color: 0x458b3b, roughness: 0.48, metalness: 0.04, side: THREE.DoubleSide });
+    const darkTropicalMat = new THREE.MeshStandardMaterial({ color: 0x1f4922, roughness: 0.42, metalness: 0.05, side: THREE.DoubleSide });
+    const driftwoodMat = new THREE.MeshStandardMaterial({ color: 0x6b533e, roughness: 0.82, metalness: 0.02 });
 
-        const cols = 4;
-        const rows = 4;
-        const cellW = (bioW - 0.04) / cols;
-        const cellH = (backPanH - 0.14) / rows;
-        const sx = (cellW * 1.03) / Math.max(0.2, size.x);
-        const sy = (cellH * 1.04) / Math.max(0.2, size.y);
-        const sz = 0.95;
+    // A. Dense Sculpted 3D Nordic Reindeer Moss Cushion Pillows Covering the Entire Substrate (Zero Flat Stretched Image!)
+    const mossDomeGeo = new THREE.SphereGeometry(0.16, 12, 10);
+    for (let my = 0.14; my <= backPanH - 0.14; my += 0.17) {
+      for (let mx = -bioW / 2 + 0.16; mx <= bioW / 2 - 0.16; mx += 0.18) {
+        const seed = Math.abs(Math.sin(mx * 12.7 + my * 19.3) * 43758.5453);
+        const frac = seed - Math.floor(seed);
+        const jx = (frac - 0.5) * 0.08;
+        const jy = ((seed * 3.7 % 1) - 0.5) * 0.08;
+        const mMat = mossPalette[Math.floor((seed * 7.1) % mossPalette.length)];
+        const pillow = new THREE.Mesh(mossDomeGeo, mMat);
+        pillow.position.set(mx + jx, my + jy, 0.015);
+        pillow.scale.set(1.05 + (frac * 0.55), 0.95 + ((seed * 2.3 % 1) * 0.50), 0.36 + (frac * 0.34));
+        pillow.receiveShadow = true;
+        pillow.castShadow = true;
+        livingWallBay.add(pillow);
+      }
+    }
 
-        template.traverse((child) => {
-          if (child.isMesh) {
-            child.castShadow = true;
-            child.receiveShadow = true;
-            if (child.material) {
-              child.material.transparent = false;
-              child.material.opacity = 1.0;
-              if ("transmission" in child.material) child.material.transmission = 0;
-              child.material.roughness = 0.72;
-              child.material.metalness = 0.0;
-              child.material.side = THREE.DoubleSide;
-            }
-          }
-        });
+    // B. Sculpted Heart-Shaped & Lanceolate Botanical Leaf Geometry Helper
+    const makeHeartLeafGeo = (w, l) => {
+      const sh = new THREE.Shape();
+      sh.moveTo(0, 0);
+      sh.bezierCurveTo(w * 0.65, l * 0.15, w * 0.55, l * 0.72, 0, l);
+      sh.bezierCurveTo(-w * 0.55, l * 0.72, -w * 0.65, l * 0.15, 0, 0);
+      const geo = new THREE.ShapeGeometry(sh, 10);
+      geo.computeVertexNormals();
+      return geo;
+    };
+    const heartLeafGeo = makeHeartLeafGeo(0.11, 0.15);
+    const largeTropicalGeo = makeHeartLeafGeo(0.18, 0.26);
+    const frondBladeGeo = makeHeartLeafGeo(0.065, 0.34);
 
-        for (let r = 0; r < rows; r++) {
-          for (let c = 0; c < cols; c++) {
-            const tile = template.clone();
-            const inner = tile;
-            const posX = -(bioW - 0.04) / 2 + (c + 0.5) * cellW - center.x * sx;
-            const posY = r * cellH - box.min.y * sy;
-            const posZ = -box.min.z * sz + ((r + c) % 2) * 0.012;
-            inner.scale.set(sx, sy, sz);
-            inner.position.set(posX, posY, posZ);
-            livingWallBay.add(inner);
-          }
-        }
-      },
-      undefined,
-      (err) => console.warn("Living wall GLB load failed:", err)
-    );
+    // C. 28 Lush Multi-FrondBoston Sword Fern & Tropical Rosette Clusters Projecting in 3D Relief
+    for (let c = 0; c < 28; c++) {
+      const s1 = Math.abs(Math.sin((c + 1) * 41.3));
+      const s2 = Math.abs(Math.cos((c + 1) * 73.9));
+      const cx = -bioW / 2 + 0.32 + (s1 * (bioW - 0.64));
+      const cy = 0.26 + (s2 * (backPanH - 0.52));
+      const cluster = new THREE.Group();
+      cluster.position.set(cx, cy, 0.065);
+
+      const isLargeTropical = c % 3 === 0;
+      const numFronds = isLargeTropical ? 7 : 11;
+      for (let f = 0; f < numFronds; f++) {
+        const ang = (f / numFronds) * Math.PI * 2 + (c * 0.4);
+        const leaf = new THREE.Mesh(
+          isLargeTropical ? largeTropicalGeo : frondBladeGeo,
+          isLargeTropical ? darkTropicalMat : fernLeafMat
+        );
+        leaf.rotation.z = ang - Math.PI / 2;
+        leaf.rotation.x = 0.35 + (f % 3) * 0.14;
+        leaf.position.set(Math.cos(ang) * 0.03, Math.sin(ang) * 0.03, 0.02 + (f % 2) * 0.015);
+        leaf.castShadow = true;
+        cluster.add(leaf);
+      }
+      livingWallBay.add(cluster);
+    }
+
+    // D. 14 Cascading Golden Pothos Vines with Overlapping Heart-Shaped Leaves
+    for (let v = 0; v < 14; v++) {
+      const vx = -bioW / 2 + 0.26 + (v / 13) * (bioW - 0.52);
+      const topY = backPanH - 0.22 - (v % 3) * 0.38;
+      const vineLen = 0.95 + (v % 4) * 0.32;
+      const steps = Math.floor(vineLen / 0.11);
+      for (let k = 0; k < steps; k++) {
+        const ly = topY - k * 0.11;
+        if (ly < 0.12) break;
+        const sway = Math.sin(k * 0.9 + v) * 0.045;
+        const leaf = new THREE.Mesh(heartLeafGeo, pothosLeafMat);
+        leaf.position.set(vx + sway, ly, 0.085 + (k % 2) * 0.014);
+        leaf.rotation.z = Math.PI + (sway * 3.2);
+        leaf.rotation.x = -0.32;
+        leaf.scale.setScalar(0.85 + (1 - k / steps) * 0.35);
+        leaf.castShadow = true;
+        livingWallBay.add(leaf);
+      }
+    }
+
+    // E. Sculptural Natural Epiphyte Driftwood Branches Anchored Across the Moss Canopy
+    [
+      { x: -0.95, y: 1.55, rotZ: 0.38, len: 1.35 },
+      { x: 0.85,  y: 1.05, rotZ: -0.44, len: 1.25 }
+    ].forEach((dw) => {
+      const branch = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.022, 0.042, dw.len, 10),
+        driftwoodMat
+      );
+      branch.position.set(dw.x, dw.y, 0.075);
+      branch.rotation.z = dw.rotZ;
+      branch.rotation.x = 0.08;
+      branch.castShadow = true;
+      livingWallBay.add(branch);
+    });
 
     // 10. Overhead Articulated High-CRI LED Spotlight Canisters
     const trackY = wallH + 0.05;
@@ -5231,7 +5374,7 @@ export class LabEnvironment3D {
       placeTree("oak",   -19.2, -12.55, 5.4, 1.2, 0.16);
       placeTree("birch", -12.5, -12.55, 5.2, 0.4, 0.16);
       placeTree("maple", -3.5,  -12.55, 5.0, 2.1, 0.16);
-      placeTree("maple", 22.5,  -12.55, 5.1, 1.1, 0.16);
+      placeTree("maple", 25.5,  -12.55, 5.1, 1.1, 0.16);
       placeTree("birch", 34.5,  -12.55, 5.4, 3.8, 0.16);
 
       // B. Outer Perimeter & Parking Shade Grove (Clear of Building Walls, Gate Driveway & Biotech Parkway!)
@@ -5284,8 +5427,8 @@ export class LabEnvironment3D {
           placeTree(sp, hx, hz, hh, idx * 1.37);
         });
 
-        // 3. Ornamental Shrubs & Realistic Grass Clumps in Mulched Campus & Patio Beds (kept clear of Monument Sign X:5.0..7.5, Trash Pad X:7.8..9.6 & Bike Corral X:17.0..21.2)
-        const southShrubX = [-21.0, -18.2, -15.4, -10.8, -5.2, -2.4, 2.6, 16.0, 22.4, 26.2, 29.4, 32.8, 38.6, 41.2];
+        // 3. Ornamental Shrubs & Realistic Grass Clumps in Mulched Campus & Patio Beds (kept clear of Bike Corral X:3.0..7.0, Trash Pad X:7.8..9.6 & Monument Sign X:18.5..22.8)
+        const southShrubX = [-21.0, -18.2, -15.4, -10.8, -5.2, -2.4, 2.2, 23.4, 26.2, 29.4, 32.8, 38.6, 41.2];
         southShrubX.forEach((sx, i) => {
           placeTree("shrub", sx, i % 2 === 0 ? -11.55 : -13.15, 0.95 + (i % 3) * 0.16, i * 1.1, 0.02);
           placeTree("grass", sx + 0.65, -11.35, 0.46 + (i % 2) * 0.12, i * 0.8, 0.02);
@@ -5370,13 +5513,17 @@ export class LabEnvironment3D {
 
         // A. Parked Everyday & Executive Vehicles Grounded in Campus Stalls (Y = 0.000)
         const parkedCampusCars = [
-          { key: "fordF150",     x: -17.2, z: -17.15, rotY: 0 },        // West Stall 2: Ford F-150 Pickup
-          { key: "audiA4",       x: -8.8,  z: -17.15, rotY: 0 },        // West Stall 5: Audi A4 B8 Sedan
-          { key: "alfaGiulia",   x: 2.4,   z: -17.15, rotY: 0 },        // West EV Stall: 2021 Alfa Romeo Giulia
-          { key: "dodgeCharger", x: 20.8,  z: -17.15, rotY: Math.PI },  // East Stall 2 (Backed-In): Dodge Charger R/T
-          { key: "audiA4",       x: 26.4,  z: -17.15, rotY: 0 },        // East Stall 4: Audi A4 B8 Sedan
-          { key: "bmwTouring",   x: 32.0,  z: -17.15, rotY: 0 },        // East EV Stall: BMW M3 Touring Wagon
-          { key: "lexusRcf",     x: 40.4,  z: -17.15, rotY: Math.PI },  // East Stall 9 (Backed-In): Lexus RC-F
+          { key: "fordF150",     x: -17.2, z: -17.15, rotY: 0 },        // North West Stall 2: Ford F-150 Pickup
+          { key: "audiA4",       x: -8.8,  z: -17.15, rotY: 0 },        // North West Stall 5: Audi A4 B8 Sedan
+          { key: "alfaGiulia",   x: -0.4,  z: -17.15, rotY: 0 },        // North West EV Stall: 2021 Alfa Romeo Giulia
+          { key: "dodgeCharger", x: 20.8,  z: -17.15, rotY: Math.PI },  // North East Stall 2 (Backed-In): Dodge Charger R/T
+          { key: "audiA4",       x: 26.4,  z: -17.15, rotY: 0 },        // North East Stall 4: Audi A4 B8 Sedan
+          { key: "bmwTouring",   x: 32.0,  z: -17.15, rotY: 0 },        // North East EV Stall: BMW M3 Touring Wagon
+          { key: "lexusRcf",     x: 40.4,  z: -17.15, rotY: Math.PI },  // North East Stall 9 (Backed-In): Lexus RC-F
+          { key: "audiA4",       x: -14.4, z: -30.85, rotY: Math.PI },  // South West Stall 4: Audi A4 Sedan
+          { key: "alfaGiulia",   x: -3.2,  z: -30.85, rotY: Math.PI },  // South West Stall 8: Alfa Romeo Giulia
+          { key: "bmwTouring",   x: 25.2,  z: -30.85, rotY: Math.PI },  // South East Stall 3: BMW Touring
+          { key: "fordF150",     x: 36.4,  z: -30.85, rotY: Math.PI },  // South East Stall 7: Ford F-150 Pickup
           // Additional Parked Everyday Cars at Roadside Research Buildings Across Biotech Parkway
           { key: "fordF150",     x: -76.0, z: -59.5,  rotY: Math.PI },
           { key: "alfaGiulia",   x: -60.0, z: -59.5,  rotY: Math.PI },
@@ -6136,51 +6283,62 @@ export class LabEnvironment3D {
       siteGroup.add(curbSide);
     });
 
-    // 4. White Reflective Thermoplastic Parking Stalls & Concrete Wheel Stops
+    // 4. White Reflective Thermoplastic Parking Stalls & Concrete Wheel Stops (North & South Perimeter Bays)
     const stallWidth = 2.8;
     const stallDepth = 5.2;
-    const buildStallRow = (startX, count) => {
+    const buildStallRow = (startX, count, rowZ = -16.8, stopZ = -14.6) => {
       for (let i = 0; i <= count; i++) {
         const rawX = startX + i * stallWidth - stallWidth / 2;
         const lineX = Math.max(-23.85, rawX);
         const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.005, stallDepth), this.materials.parkingStripe);
-        stripe.position.set(lineX, 0.003, -16.8);
+        stripe.position.set(lineX, 0.003, rowZ);
         siteGroup.add(stripe);
 
         if (i < count) {
           const sx = startX + i * stallWidth;
           const wheelStop = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.12, 0.15), this.materials.concreteCurb);
-          wheelStop.position.set(sx, 0.06, -14.6);
+          wheelStop.position.set(sx, 0.06, stopZ);
           siteGroup.add(wheelStop);
 
           [-0.85, 0.85].forEach((ex) => {
             const cap = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.125, 0.155), this.materials.adaYellow);
-            cap.position.set(sx + ex, 0.06, -14.6);
+            cap.position.set(sx + ex, 0.06, stopZ);
             siteGroup.add(cap);
           });
         }
       }
     };
-    buildStallRow(-22.8, 10);
-    buildStallRow(18.0, 11);
+    // North Row Stalls (Z = -16.8): 9 West stalls (-22.8..+1.0, flanking ADA Stall #1) + 12 East stalls (18.0..+50.2)
+    buildStallRow(-22.8, 9, -16.8, -14.6);
+    buildStallRow(18.0, 12, -16.8, -14.6);
+    // South Row Stalls (Z = -31.2, wheel stops at -33.4): 11 West stalls (-22.8..+6.6) + 11 East stalls (19.6..+49.0)
+    buildStallRow(-22.8, 11, -31.2, -33.4);
+    buildStallRow(19.6, 11, -31.2, -33.4);
 
-    // 5. Code-Compliant ADA Van-Accessible Parking Stall (X = 4.8..8.4, Center = 6.6) & Access Aisle (X = 8.4..10.6)
-    //    - Crisp royal-blue stall side stripes on clean dark asphalt (eliminating solid cyan block!)
-    //    - Upright International Symbol of Accessibility (ISA) facing the South drive aisle / Overview camera (+Z top, -X right)
-    //    - Blue-and-white diagonal hatched Van Access Aisle + Flush ADA Curb Ramp + Upright 3D Metal Signpost
+    // Continental Pedestrian Crosswalk Connecting ADA Access Aisle & South Lot Across Drive Aisle to Entry Plaza (X = 11.2..14.8, Z = -20.0..-28.0)
+    for (let czCross = -19.8; czCross >= -28.2; czCross -= 1.2) {
+      const cwBar = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.006, 0.48), this.materials.parkingStripe);
+      cwBar.position.set(13.0, 0.004, czCross);
+      siteGroup.add(cwBar);
+    }
+
+    // 5. Twin Code-Compliant ADA Van-Accessible Handicapped Stalls & Shared Access Aisle:
+    //    - Stall #1 (West): X = 1.0..4.6 (Center = 2.8)
+    //    - Shared Van Access Aisle: X = 4.6..6.8 (Center = 5.7, Width = 2.2m)
+    //    - Stall #2 (Right / East as you face the building!): X = 6.8..10.4 (Center = 8.6)
     const adaRoyalBlueMat = new THREE.MeshStandardMaterial({
       color: 0x1d4ed8,
       roughness: 0.55,
       metalness: 0.05,
       name: "Mat_ADA_Royal_Blue"
     });
-    [4.8, 8.4, 10.6].forEach((bx) => {
+    [1.0, 4.6, 6.8, 10.4].forEach((bx) => {
       const bStripe = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.006, stallDepth), adaRoyalBlueMat);
       bStripe.position.set(bx, 0.004, -16.8);
       siteGroup.add(bStripe);
     });
     const aisleSouthTie = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.006, 0.12), adaRoyalBlueMat);
-    aisleSouthTie.position.set(9.5, 0.004, -19.34);
+    aisleSouthTie.position.set(5.7, 0.004, -19.34);
     siteGroup.add(aisleSouthTie);
 
     // High-Resolution Upright ISA Wheelchair Pavement Emblem
@@ -6229,28 +6387,8 @@ export class LabEnvironment3D {
 
     const adaTex = new THREE.CanvasTexture(adaCanvas);
     adaTex.colorSpace = THREE.SRGBColorSpace;
-    const adaStencil = new THREE.Mesh(
-      new THREE.PlaneGeometry(1.48, 1.48),
-      new THREE.MeshBasicMaterial({ map: adaTex, transparent: true, polygonOffset: true, polygonOffsetFactor: -2 })
-    );
-    // Exact right-handed pavement orientation: Normal = +Y, Canvas Top = +Z (toward building), Canvas Right = -X (screen-right from drive aisle)!
-    adaStencil.rotation.order = "YXZ";
-    adaStencil.rotation.y = Math.PI;
-    adaStencil.rotation.x = -Math.PI / 2;
-    adaStencil.position.set(6.6, 0.008, -17.15);
-    siteGroup.add(adaStencil);
 
-    // ADA Royal-Blue Wheel Stop
-    const adaWheelStop = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.12, 0.15), adaRoyalBlueMat);
-    adaWheelStop.position.set(6.6, 0.06, -14.6);
-    siteGroup.add(adaWheelStop);
-    [-0.92, 0.92].forEach((wx) => {
-      const wCap = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.125, 0.155), this.materials.parkingStripe);
-      wCap.position.set(6.6 + wx, 0.06, -14.6);
-      siteGroup.add(wCap);
-    });
-
-    // Diagonal White/Blue Cross-Hatch Van Access Aisle (X = 8.4..10.6, Width = 2.2m)
+    // Diagonal White/Blue Cross-Hatch Van Access Aisle (X = 4.6..6.8, Center = 5.7, Width = 2.2m)
     const hatchCanvas = document.createElement("canvas");
     hatchCanvas.width = 256;
     hatchCanvas.height = 512;
@@ -6273,22 +6411,8 @@ export class LabEnvironment3D {
     hatchAisle.rotation.order = "YXZ";
     hatchAisle.rotation.y = Math.PI;
     hatchAisle.rotation.x = -Math.PI / 2;
-    hatchAisle.position.set(9.5, 0.006, -16.8);
+    hatchAisle.position.set(5.7, 0.006, -16.8);
     siteGroup.add(hatchAisle);
-
-    // Vertical 3D MUTCD R7-8 "RESERVED PARKING / VAN ACCESSIBLE" Signpost at Head of ADA Stall (X = 6.6, Z = -14.12)
-    const adaSignPostGrp = new THREE.Group();
-    adaSignPostGrp.position.set(6.6, 0, -14.12);
-    const adaPostBase = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.13, 0.16, 14), this.materials.concreteCurb);
-    adaPostBase.position.y = 0.08;
-    adaSignPostGrp.add(adaPostBase);
-    const adaPost = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.036, 0.036, 2.05, 12),
-      new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.35, metalness: 0.85 })
-    );
-    adaPost.position.y = 1.08;
-    adaPost.castShadow = true;
-    adaSignPostGrp.add(adaPost);
 
     const signC = document.createElement("canvas");
     signC.width = 256;
@@ -6320,24 +6444,60 @@ export class LabEnvironment3D {
 
     const adaSignTex = new THREE.CanvasTexture(signC);
     adaSignTex.colorSpace = THREE.SRGBColorSpace;
-    const adaSignBacking = new THREE.Mesh(
-      new THREE.BoxGeometry(0.46, 0.68, 0.016),
-      new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.35, metalness: 0.7 })
-    );
-    adaSignBacking.position.set(0, 1.78, -0.045);
-    adaSignPostGrp.add(adaSignBacking);
 
-    const adaSignFace = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.44, 0.66),
-      new THREE.MeshBasicMaterial({ map: adaSignTex })
-    );
-    adaSignFace.rotation.y = Math.PI; // Faces -Z directly toward drivers entering stall!
-    adaSignFace.position.set(0, 1.78, -0.056);
-    adaSignPostGrp.add(adaSignFace);
-    siteGroup.add(adaSignPostGrp);
+    // Build Both Handicapped Stalls (Stall #1 at X = 2.8, Stall #2 to its right at X = 8.6):
+    [2.8, 8.6].forEach((adaCX) => {
+      const adaStencil = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.48, 1.48),
+        new THREE.MeshBasicMaterial({ map: adaTex, transparent: true, polygonOffset: true, polygonOffsetFactor: -2 })
+      );
+      adaStencil.rotation.order = "YXZ";
+      adaStencil.rotation.y = Math.PI;
+      adaStencil.rotation.x = -Math.PI / 2;
+      adaStencil.position.set(adaCX, 0.008, -17.15);
+      siteGroup.add(adaStencil);
+
+      const adaWheelStop = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.12, 0.15), adaRoyalBlueMat);
+      adaWheelStop.position.set(adaCX, 0.06, -14.6);
+      siteGroup.add(adaWheelStop);
+      [-0.92, 0.92].forEach((wx) => {
+        const wCap = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.125, 0.155), this.materials.parkingStripe);
+        wCap.position.set(adaCX + wx, 0.06, -14.6);
+        siteGroup.add(wCap);
+      });
+
+      const adaSignPostGrp = new THREE.Group();
+      adaSignPostGrp.position.set(adaCX, 0, -14.12);
+      const adaPostBase = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.13, 0.16, 14), this.materials.concreteCurb);
+      adaPostBase.position.y = 0.08;
+      adaSignPostGrp.add(adaPostBase);
+      const adaPost = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.036, 0.036, 2.05, 12),
+        new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.35, metalness: 0.85 })
+      );
+      adaPost.position.y = 1.08;
+      adaPost.castShadow = true;
+      adaSignPostGrp.add(adaPost);
+
+      const adaSignBacking = new THREE.Mesh(
+        new THREE.BoxGeometry(0.46, 0.68, 0.016),
+        new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.35, metalness: 0.7 })
+      );
+      adaSignBacking.position.set(0, 1.78, -0.045);
+      adaSignPostGrp.add(adaSignBacking);
+
+      const adaSignFace = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.44, 0.66),
+        new THREE.MeshBasicMaterial({ map: adaSignTex })
+      );
+      adaSignFace.rotation.y = Math.PI;
+      adaSignFace.position.set(0, 1.78, -0.056);
+      adaSignPostGrp.add(adaSignFace);
+      siteGroup.add(adaSignPostGrp);
+    });
 
     // 6. Commercial Dual-Port EV Fast Charging Pedestals Seated Cleanly Along Curb Sidewalk Edge (Z = -13.35)
-    [2.4, 32.0].forEach((evX) => {
+    [-0.4, 32.0].forEach((evX) => {
       const evPedestal = new THREE.Group();
       evPedestal.position.set(evX, 0, -13.35);
 
@@ -6448,8 +6608,8 @@ export class LabEnvironment3D {
     eastMulch.receiveShadow = true;
     siteGroup.add(eastMulch);
 
-    // 9. Corten Steel & Cast-Iron Tree Planter Frames (Centered in Z = -12.55 Mulch Beds)
-    [-19.2, -12.5, -3.5, 22.5, 34.5].forEach((tx) => {
+    // 9. Corten Steel & Cast-Iron Tree Planter Frames (Centered in Z = -12.55 Mulch Beds, Clear of Bike Corral & Monument Sign!)
+    [-19.2, -12.5, -3.5, 25.5, 34.5].forEach((tx) => {
       const planterGrp = new THREE.Group();
       planterGrp.position.set(tx, 0, -12.55);
 
@@ -6607,18 +6767,19 @@ export class LabEnvironment3D {
       siteGroup.add(canGroup);
     }
 
-    // 13. Dedicated Bike Corral Pad + Stainless Inverted-U Bicycle Racks + 3 Commuter Bicycles (Clear of Portico Columns & Planters!)
+    // 13. Dedicated Bike Corral Pad + Stainless Inverted-U Bicycle Racks + 3 Commuter Bicycles
+    //     Swapped to West Side (X = 5.0, Z = -12.75) Clear of Portico V-Columns (X = 8.35..16.05) & Planters!
     const bikePad = new THREE.Mesh(
       new THREE.BoxGeometry(3.4, 0.07, 1.85),
       this._createHerringboneMaterial(3.4, 1.85)
     );
-    bikePad.position.set(19.0, 0.035, -12.75);
+    bikePad.position.set(5.0, 0.035, -12.75);
     bikePad.receiveShadow = true;
     siteGroup.add(bikePad);
 
     [-1.2, -0.4, 0.4, 1.2].forEach((offsetX) => {
       const bikeRack = new THREE.Group();
-      bikeRack.position.set(19.0 + offsetX, 0.07, -12.75);
+      bikeRack.position.set(5.0 + offsetX, 0.07, -12.75);
       bikeRack.rotation.y = Math.PI / 2;
 
       const legL = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.85, 12), this.materials.cabinetHandle);
@@ -6637,9 +6798,9 @@ export class LabEnvironment3D {
     });
 
     [
-      { x: 18.2, color: 0x0284c7, rotY: 0 },
-      { x: 19.0, color: 0xd97706, rotY: Math.PI },
-      { x: 19.8, color: 0x10b981, rotY: 0 }
+      { x: 4.2, color: 0x0284c7, rotY: 0 },
+      { x: 5.0, color: 0xd97706, rotY: Math.PI },
+      { x: 5.8, color: 0x10b981, rotY: 0 }
     ].forEach((bk) => {
       const bike = this._createProceduralBicycle(bk.color);
       bike.position.set(bk.x, 0.07, -12.75);
@@ -6983,10 +7144,10 @@ export class LabEnvironment3D {
       siteGroup.add(stPool);
     });
 
-    // 16. Grounded PBR Brick & Cast-Stone Monument Sign (X = 6.2, Z = -12.35)
+    // 16. Grounded PBR Brick & Cast-Stone Monument Sign (Swapped to East Side at X = 20.6, Z = -12.35, Clear of Handicapped Stalls & Portico Columns!)
     const signGroup = new THREE.Group();
     signGroup.name = "Campus_Brick_Monument_Sign";
-    signGroup.position.set(6.2, 0, -12.35);
+    signGroup.position.set(20.6, 0, -12.35);
 
     const monPlinth = new THREE.Mesh(new THREE.BoxGeometry(3.15, 0.26, 0.72), this.materials.limestonePlinth);
     monPlinth.position.y = 0.13;
@@ -8174,36 +8335,8 @@ export class LabEnvironment3D {
     ];
 
     configs.forEach((cfg) => {
-      // 1. Over-Door Architectural Backlit Status Header
-      const hdrGroup = new THREE.Group();
-      hdrGroup.name = `Privacy_Header_${cfg.zone}`;
-      hdrGroup.position.set(cfg.headerPos.x, cfg.headerPos.y, cfg.headerPos.z);
-      hdrGroup.rotation.y = cfg.rotY;
-
-      const body = new THREE.Mesh(
-        new THREE.BoxGeometry(cfg.headerW, 0.125, 0.036),
-        this.materials.matteBlackTrim || this.materials.bronzeMullion
-      );
-      hdrGroup.add(body);
-
-      const canvas = document.createElement("canvas");
-      canvas.width = 512;
-      canvas.height = 96;
-      const tex = new THREE.CanvasTexture(canvas);
-      tex.colorSpace = THREE.SRGBColorSpace;
-      const lensMat = new THREE.MeshStandardMaterial({
-        map: tex,
-        emissiveMap: tex,
-        emissive: new THREE.Color(0xffffff),
-        emissiveIntensity: 0.9,
-        roughness: 0.25
-      });
-      const face = new THREE.Mesh(new THREE.PlaneGeometry(cfg.headerW - 0.04, 0.098), lensMat);
-      face.position.z = 0.019;
-      hdrGroup.add(face);
-      this.root.add(hdrGroup);
-
-      // 2. Vertical Corridor Privacy Light Blade beside Jamb at Eye Level (Y = 1.56m)
+      // Note: Over-door signs above Office and Boardroom doors removed per user instruction.
+      // Vertical Corridor Privacy Light Blade beside Jamb at Eye Level (Y = 1.56m)
       const bladeGroup = new THREE.Group();
       bladeGroup.name = `Privacy_Light_Outside_${cfg.zone}`;
       bladeGroup.position.set(cfg.sconcePos.x, cfg.sconcePos.y, cfg.sconcePos.z);
@@ -8234,9 +8367,6 @@ export class LabEnvironment3D {
 
       const ind = {
         ...cfg,
-        canvas,
-        tex,
-        lensMat,
         bladeGlowMat,
         haloLight
       };
@@ -8249,31 +8379,6 @@ export class LabEnvironment3D {
     const ind = this.privacyIndicators[zone];
     if (!ind) return;
     const isPrivate = Boolean(this.roomControls[zone]?.privacy);
-    const ctx = ind.canvas.getContext("2d");
-
-    ctx.fillStyle = isPrivate ? "#3f0912" : "#08241d";
-    ctx.fillRect(0, 0, 512, 96);
-    ctx.strokeStyle = isPrivate ? "#fb7185" : "#34d399";
-    ctx.lineWidth = 4;
-    ctx.strokeRect(4, 4, 504, 88);
-
-    // Status beacon dot on left
-    ctx.fillStyle = isPrivate ? "#ff2e4c" : "#10b981";
-    ctx.beginPath();
-    ctx.arc(44, 48, 16, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.textAlign = "left";
-    ctx.fillStyle = "#f8fafc";
-    ctx.font = "bold 22px 'IBM Plex Sans', sans-serif";
-    ctx.fillText(ind.title, 78, 38);
-
-    ctx.fillStyle = isPrivate ? "#fda4af" : "#6ee7b7";
-    ctx.font = "bold 20px 'IBM Plex Mono', monospace";
-    ctx.fillText(isPrivate ? ind.busySub : "AVAILABLE · GLASS CLEAR", 78, 70);
-
-    ind.tex.needsUpdate = true;
-    ind.lensMat.emissiveIntensity = isPrivate ? 1.55 : 0.65;
 
     if (isPrivate) {
       ind.bladeGlowMat.color.setHex(0xff2e4c);

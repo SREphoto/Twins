@@ -2285,21 +2285,21 @@ export class LabCasework {
       });
 
     this.assetsReadyPromise = Promise.all([
-      loadGLB("./assets/models/imac_27.glb"),
-      loadGLB("./assets/models/medical_washcloths.glb"),
-      this.isMobile ? Promise.resolve(null) : loadGLB("./assets/models/compound_microscope.glb"),
-      loadGLB("./assets/models/apple_magic_keyboard.glb"),
-      loadGLB("./assets/models/apple_magic_mouse.glb"),
-      loadGLB("./assets/models/iphone_14_pro.glb"),
-      loadGLB("./assets/models/macbook_pro.glb"),
-      loadGLB("./assets/models/pen_holder.glb"),
-      loadGLB("./assets/models/coffee_mug.glb"),
-      loadGLB("./assets/models/office_folders.glb"),
-      loadGLB("./assets/models/desk_lamp.glb"),
-      loadGLB("./assets/models/plant_monstera.glb"),
-      loadGLB("./assets/models/plant_snake.glb"),
-      loadGLB("./assets/models/plant_pothos.glb"),
-      loadGLB("./assets/models/plant_palm.glb")
+      loadGLB("./assets/models/imac_27.glb?v=20261116-fix3"),
+      loadGLB("./assets/models/medical_washcloths.glb?v=20261116-fix3"),
+      this.isMobile ? Promise.resolve(null) : loadGLB("./assets/models/compound_microscope.glb?v=20261116-fix3"),
+      loadGLB("./assets/models/apple_magic_keyboard.glb?v=20261116-fix3"),
+      loadGLB("./assets/models/apple_magic_mouse.glb?v=20261116-fix3"),
+      loadGLB("./assets/models/iphone_14_pro.glb?v=20261116-fix3"),
+      loadGLB("./assets/models/macbook_pro.glb?v=20261116-fix3"),
+      loadGLB("./assets/models/pen_holder.glb?v=20261116-fix3"),
+      loadGLB("./assets/models/coffee_mug.glb?v=20261116-fix3"),
+      loadGLB("./assets/models/office_folders.glb?v=20261116-fix3"),
+      loadGLB("./assets/models/desk_lamp.glb?v=20261116-fix3"),
+      loadGLB("./assets/models/plant_monstera.glb?v=20261116-fix3"),
+      loadGLB("./assets/models/plant_snake.glb?v=20261116-fix3"),
+      loadGLB("./assets/models/plant_pothos.glb?v=20261116-fix3"),
+      loadGLB("./assets/models/plant_palm.glb?v=20261116-fix3")
     ]).then(([
       imacTpl, washclothTpl, microscopeTpl,
       kbdTpl, mouseTpl, iphoneTpl, macbookTpl,
@@ -2357,7 +2357,6 @@ export class LabCasework {
 
           if (kbdTpl) {
             const kbd = kbdTpl.clone(true);
-            kbd.scale.set(1.10, 1.4, 2.0);
             kbd.position.set(-0.04, 0.002, 0.22);
             stGrp.add(kbd);
           }
@@ -3659,19 +3658,25 @@ export class LabCasework {
       chair.add(armPad);
     });
 
-    // 7. Executive Contoured Headrest (if specified)
+    // 7. Executive Contoured Headrest (Integrated Full-Width across Upper Backrest!)
     if (isExecutive) {
-      [-0.06, 0.06].forEach((hx) => {
+      [-0.10, 0.10].forEach((hx) => {
         const post = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.008, 0.008, 0.16, 12),
+          new THREE.CylinderGeometry(0.008, 0.008, 0.14, 12),
           this.materials.brassAccent
         );
-        post.position.set(hx, 1.05, -seatD / 2 - 0.04);
+        post.position.set(hx, 1.15, -seatD / 2 - 0.025);
         chair.add(post);
       });
 
-      const headrest = this._createContouredCushionMesh(0.50, 0.16, 0.075, 0.04, 0.018, this.materials.cognacLeather);
-      headrest.position.set(0, 1.13, -seatD / 2 - 0.015);
+      const headShell = this._createContouredCushionMesh(seatW, 0.15, 0.028, 0.05, 0.008, this.materials.walnutDesk);
+      headShell.position.set(0, 1.24, -seatD / 2 - 0.032);
+      headShell.rotation.x = -0.06;
+      chair.add(headShell);
+
+      const headrest = this._createContouredCushionMesh(seatW - 0.02, 0.15, 0.068, 0.05, 0.016, this.materials.cognacLeather);
+      headrest.position.set(0, 1.24, -seatD / 2 - 0.005);
+      headrest.rotation.x = -0.06;
       chair.add(headrest);
     }
 
@@ -4127,19 +4132,26 @@ export class LabCasework {
     deskGroup.add(mon2);
 
     // Executive Desk Peripherals seated on USER side (-Z facing +Z -> User's RIGHT hand is -X!)
-    this._queueGLBProp(deskGroup, "keyboard", { x: 0.02, y: 0.776, z: -0.24 });
-    this._queueGLBProp(deskGroup, "mouse", { x: -0.25, y: 0.776, z: -0.24 });
-    this._queueGLBProp(deskGroup, "iphone", { x: -0.44, y: 0.776, z: -0.22, rotY: 0.18, scale: 0.85 });
+    const deskPad = new THREE.Mesh(
+      new THREE.BoxGeometry(0.86, 0.004, 0.40),
+      this.materials.leatherBlack
+    );
+    deskPad.position.set(-0.04, 0.777, -0.22);
+    deskGroup.add(deskPad);
+
+    this._queueGLBProp(deskGroup, "keyboard", { x: 0.04, y: 0.779, z: -0.24 });
+    this._queueGLBProp(deskGroup, "mouse", { x: -0.24, y: 0.779, z: -0.24 });
+    this._queueGLBProp(deskGroup, "iphone", { x: -0.39, y: 0.779, z: -0.22, rotY: 0.18, scale: 0.85 });
     this._queueGLBProp(deskGroup, "desk_lamp", { x: -0.92, y: 0.775, z: 0.14, rotY: 0.45 });
     const deskTaskLight = new THREE.PointLight(0xffe7c2, 0.55, 2.4, 1.4);
     deskTaskLight.position.set(-0.92, 1.18, 0.14);
     deskTaskLight.userData.baseIntensity = 0.55;
     deskGroup.add(deskTaskLight);
     this.officeDeskLight = deskTaskLight;
-    this._queueGLBProp(deskGroup, "pen_holder", { x: 0.42, y: 0.775, z: -0.18 });
+    this._queueGLBProp(deskGroup, "pen_holder", { x: 0.48, y: 0.775, z: -0.18 });
     this._queueGLBProp(deskGroup, "coffee_mug", { x: -0.58, y: 0.775, z: -0.16, rotY: -0.4 });
-    this._queueGLBProp(deskGroup, "macbook", { x: 0.78, y: 0.775, z: -0.18, rotY: Math.PI - 0.35 });
-    this._queueGLBProp(deskGroup, "office_folders", { x: -0.82, y: 0.775, z: -0.22, rotY: Math.PI / 2 - 0.2 });
+    this._queueGLBProp(deskGroup, "macbook", { x: 0.82, y: 0.775, z: -0.16, rotY: -0.35 });
+    this._queueGLBProp(deskGroup, "office_folders", { x: -0.86, y: 0.775, z: -0.22, rotY: 0.15 });
 
     // Executive Cognac Swivel Chair with Headrest (at z = -0.88 facing +Z toward desk & monitors!)
     const execChair = this._createExecutiveSwivelChair(true);
@@ -4304,18 +4316,18 @@ export class LabCasework {
     // Centered Enterprise VoIP Conference Phone on Boardroom Table
     this._buildConferencePhone(tableGroup);
 
-    // Executive Boardroom Table Laptops, Mugs, Phones & Meeting Binders (Tabletop Y = 0.772m)
+    // Executive Boardroom Table Laptops, Mugs, Phones & Meeting Binders (Tabletop Y = 0.775m)
     [
-      { x: -1.35, z: 0.62, rotY: Math.PI + 0.08 },
-      { x: 0.45,  z: 0.62, rotY: Math.PI - 0.12 },
-      { x: -0.45, z: -0.62, rotY: 0.10 }
+      { x: -1.35, z: 0.56, rotY: Math.PI + 0.06 },
+      { x: 0.45,  z: 0.56, rotY: Math.PI - 0.08 },
+      { x: -0.45, z: -0.56, rotY: 0.08 }
     ].forEach((lp, idx) => {
-      this._queueGLBProp(tableGroup, "macbook", { x: lp.x, y: 0.772, z: lp.z, rotY: lp.rotY });
-      this._queueGLBProp(tableGroup, "coffee_mug", { x: lp.x + 0.28, y: 0.772, z: lp.z + (idx === 2 ? -0.05 : 0.05) });
+      this._queueGLBProp(tableGroup, "macbook", { x: lp.x, y: 0.775, z: lp.z, rotY: lp.rotY });
+      this._queueGLBProp(tableGroup, "coffee_mug", { x: lp.x + 0.30, y: 0.775, z: lp.z + (idx === 2 ? -0.04 : 0.04) });
     });
-    this._queueGLBProp(tableGroup, "iphone", { x: 1.50, y: 0.772, z: -0.58, rotY: -0.35, scale: 0.85 });
-    this._queueGLBProp(tableGroup, "pen_holder", { x: 1.85, y: 0.772, z: 0.56 });
-    this._queueGLBProp(tableGroup, "office_folders", { x: 2.25, y: 0.772, z: 0.52, rotY: Math.PI / 2 });
+    this._queueGLBProp(tableGroup, "iphone", { x: 1.35, y: 0.775, z: -0.54, rotY: -0.35, scale: 0.85 });
+    this._queueGLBProp(tableGroup, "pen_holder", { x: 1.75, y: 0.775, z: 0.52 });
+    this._queueGLBProp(tableGroup, "office_folders", { x: 2.15, y: 0.775, z: 0.48, rotY: Math.PI });
 
     // Heavy fluted marble plinth pedestals (3 support bases)
     [-2.2, 0, 2.2].forEach((bx) => {
@@ -4567,14 +4579,21 @@ export class LabCasework {
 
   // --- Helper: Executive Office Desk Peripherals & Supplies (Facing -Z User -> Right hand is -X!) ---
   _addExecutiveDeskAccessories(parentGroup, deskX = 0, deskY = 0.765, deskZ = -0.5) {
+    const pad = new THREE.Mesh(
+      new THREE.BoxGeometry(0.74, 0.004, 0.36),
+      this.materials.leatherBlack
+    );
+    pad.position.set(deskX - 0.04, deskY + 0.002, deskZ - 0.16);
+    parentGroup.add(pad);
+
     // Authentic Apple Magic Keyboard + Right-Hand Magic Mouse (-X from seated user facing +Z)
-    this._queueGLBProp(parentGroup, "keyboard", { x: deskX + 0.02, y: deskY, z: deskZ - 0.18 });
-    this._queueGLBProp(parentGroup, "mouse", { x: deskX - 0.24, y: deskY, z: deskZ - 0.18 });
-    this._queueGLBProp(parentGroup, "iphone", { x: deskX - 0.42, y: deskY, z: deskZ - 0.18, rotY: 0.2, scale: 0.82 });
+    this._queueGLBProp(parentGroup, "keyboard", { x: deskX + 0.04, y: deskY + 0.004, z: deskZ - 0.18 });
+    this._queueGLBProp(parentGroup, "mouse", { x: deskX - 0.22, y: deskY + 0.004, z: deskZ - 0.18 });
+    this._queueGLBProp(parentGroup, "iphone", { x: deskX - 0.36, y: deskY + 0.004, z: deskZ - 0.18, rotY: 0.2, scale: 0.82 });
     this._queueGLBProp(parentGroup, "desk_lamp", { x: deskX - 0.72, y: deskY, z: deskZ + 0.16, rotY: 0.35 });
     this._queueGLBProp(parentGroup, "coffee_mug", { x: deskX + 0.46, y: deskY, z: deskZ - 0.14 });
     this._queueGLBProp(parentGroup, "pen_holder", { x: deskX + 0.62, y: deskY, z: deskZ - 0.16 });
-    this._queueGLBProp(parentGroup, "office_folders", { x: deskX + 0.76, y: deskY, z: deskZ + 0.05, rotY: Math.PI / 2 - 0.12 });
+    this._queueGLBProp(parentGroup, "office_folders", { x: deskX + 0.76, y: deskY, z: deskZ + 0.05, rotY: 0.12 });
   }
 
   // --- Faculty & Administration Suite: Guest, Admin & Instructor Offices ---

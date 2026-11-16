@@ -12,8 +12,8 @@
  * - Physicalized Data Outputs (PhysicalDataBus) & Spatial Audio (LabSFXMixer)
  */
 import * as THREE from "three";
-import { LabEnvironment3D } from "./engine/LabEnvironment3D.js";
-import { LabCasework } from "./engine/LabCasework.js";
+import { LabEnvironment3D } from "./engine/LabEnvironment3D.js?v=20261116-fix3";
+import { LabCasework } from "./engine/LabCasework.js?v=20261116-fix3";
 import { LabUtilities } from "./engine/LabUtilities.js";
 import { LabDockManager } from "./engine/LabDockManager.js";
 import { LabPlayerController } from "./engine/LabPlayerController.js";
