@@ -2285,21 +2285,21 @@ export class LabCasework {
       });
 
     this.assetsReadyPromise = Promise.all([
-      loadGLB("./assets/models/imac_27.glb?v=20261116-fix3"),
-      loadGLB("./assets/models/medical_washcloths.glb?v=20261116-fix3"),
-      this.isMobile ? Promise.resolve(null) : loadGLB("./assets/models/compound_microscope.glb?v=20261116-fix3"),
-      loadGLB("./assets/models/apple_magic_keyboard.glb?v=20261116-fix3"),
-      loadGLB("./assets/models/apple_magic_mouse.glb?v=20261116-fix3"),
-      loadGLB("./assets/models/iphone_14_pro.glb?v=20261116-fix3"),
-      loadGLB("./assets/models/macbook_pro.glb?v=20261116-fix3"),
-      loadGLB("./assets/models/pen_holder.glb?v=20261116-fix3"),
-      loadGLB("./assets/models/coffee_mug.glb?v=20261116-fix3"),
-      loadGLB("./assets/models/office_folders.glb?v=20261116-fix3"),
-      loadGLB("./assets/models/desk_lamp.glb?v=20261116-fix3"),
-      loadGLB("./assets/models/plant_monstera.glb?v=20261116-fix3"),
-      loadGLB("./assets/models/plant_snake.glb?v=20261116-fix3"),
-      loadGLB("./assets/models/plant_pothos.glb?v=20261116-fix3"),
-      loadGLB("./assets/models/plant_palm.glb?v=20261116-fix3")
+      loadGLB("./assets/models/imac_27.glb?v=20261116-fix4"),
+      loadGLB("./assets/models/medical_washcloths.glb?v=20261116-fix4"),
+      this.isMobile ? Promise.resolve(null) : loadGLB("./assets/models/compound_microscope.glb?v=20261116-fix4"),
+      loadGLB("./assets/models/apple_magic_keyboard.glb?v=20261116-fix4"),
+      loadGLB("./assets/models/apple_magic_mouse.glb?v=20261116-fix4"),
+      loadGLB("./assets/models/iphone_14_pro.glb?v=20261116-fix4"),
+      loadGLB("./assets/models/macbook_pro.glb?v=20261116-fix4"),
+      loadGLB("./assets/models/pen_holder.glb?v=20261116-fix4"),
+      loadGLB("./assets/models/coffee_mug.glb?v=20261116-fix4"),
+      loadGLB("./assets/models/office_folders.glb?v=20261116-fix4"),
+      loadGLB("./assets/models/desk_lamp.glb?v=20261116-fix4"),
+      loadGLB("./assets/models/plant_monstera.glb?v=20261116-fix4"),
+      loadGLB("./assets/models/plant_snake.glb?v=20261116-fix4"),
+      loadGLB("./assets/models/plant_pothos.glb?v=20261116-fix4"),
+      loadGLB("./assets/models/plant_palm.glb?v=20261116-fix4")
     ]).then(([
       imacTpl, washclothTpl, microscopeTpl,
       kbdTpl, mouseTpl, iphoneTpl, macbookTpl,
@@ -2326,9 +2326,6 @@ export class LabCasework {
         const tpl = propTemplates[type];
         if (!tpl) return;
         const inst = tpl.clone(true);
-        if (type === "plant_palm") inst.scale.setScalar(0.65);
-        else if (type === "plant_pothos") inst.scale.setScalar(0.78);
-        else if (type === "keyboard") inst.scale.set(1.12, 1.4, 2.1); // Natural Magic Keyboard proportions (~32 x 11cm)
         group.add(inst);
       });
 
@@ -4199,8 +4196,8 @@ export class LabCasework {
     officeArt.rotation.y = -Math.PI / 2;
     office.add(officeArt);
 
-    const officePlant = this._createArchitecturalPlanter(1.08, "snake");
-    officePlant.position.set(2.25, 0, -3.35);
+    const officePlant = this._createArchitecturalPlanter(1.04, "snake");
+    officePlant.position.set(2.35, 0, -3.12);
     office.add(officePlant);
 
     // 4. Low Architectural Executive Walnut & Marble Credenza (South wall: Z = -3.55)

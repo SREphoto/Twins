@@ -4299,7 +4299,8 @@ export class LabEnvironment3D {
       const s1 = Math.abs(Math.sin((c + 1) * 41.3));
       const s2 = Math.abs(Math.cos((c + 1) * 73.9));
       const cx = -bioW / 2 + 0.32 + (s1 * (bioW - 0.64));
-      const cy = 0.26 + (s2 * (backPanH - 0.52));
+      const cy = 0.24 + (s2 * (backPanH - 0.72));
+      if (cy > backPanH - 0.55 && Math.abs(cx) < 1.45) continue;
       const cluster = new THREE.Group();
       cluster.position.set(cx, cy, 0.065);
 
@@ -4323,7 +4324,8 @@ export class LabEnvironment3D {
     // D. 14 Cascading Golden Pothos Vines with Overlapping Heart-Shaped Leaves
     for (let v = 0; v < 14; v++) {
       const vx = -bioW / 2 + 0.26 + (v / 13) * (bioW - 0.52);
-      const topY = backPanH - 0.22 - (v % 3) * 0.38;
+      const isUnderSign = Math.abs(vx) < 1.38;
+      const topY = (isUnderSign ? backPanH - 0.42 : backPanH - 0.22) - (v % 3) * 0.32;
       const vineLen = 0.95 + (v % 4) * 0.32;
       const steps = Math.floor(vineLen / 0.11);
       for (let k = 0; k < steps; k++) {
@@ -4461,9 +4463,9 @@ export class LabEnvironment3D {
     monitorGroup.add(monScreen);
     wallGroup.add(monitorGroup);
 
-    // 12. Etched Architectural Bronze Plaque Centered on Upper Header
+    // 12. Etched Architectural Bronze Plaque Centered on Upper Header (Proud of Foliage)
     const plaqueGroup = new THREE.Group();
-    plaqueGroup.position.set(0, wallH - borderThick / 2 - 0.14, 0.22);
+    plaqueGroup.position.set(0, wallH - borderThick / 2 - 0.10, 0.245);
 
     const plaqueBase = new THREE.Mesh(
       new THREE.BoxGeometry(2.5, 0.26, 0.015),
