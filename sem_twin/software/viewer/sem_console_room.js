@@ -266,33 +266,6 @@ export function buildVCELabRoom() {
   dadoRight.name = 'Lab_DadoRailRight';
   room.add(dadoRight);
 
-  // Rear Wall Cleanroom EM-Shielded Facility Warning Plaque (upright -Z facing)
-  const signCan = createCanvas(512, 160);
-  if (signCan) {
-    const sCtx = signCan.getContext('2d');
-    if (sCtx) {
-      sCtx.fillStyle = '#0f172a';
-      sCtx.fillRect(0, 0, 512, 160);
-      sCtx.strokeStyle = '#38bdf8';
-      sCtx.lineWidth = 6;
-      sCtx.strokeRect(8, 8, 496, 144);
-      sCtx.fillStyle = '#facc15';
-      sCtx.font = 'bold 26px "IBM Plex Mono", monospace';
-      sCtx.textAlign = 'center';
-      sCtx.fillText('VC-E ELECTRON MICROSCOPY SUITE', 256, 56);
-      sCtx.fillStyle = '#e2e8f0';
-      sCtx.font = 'bold 20px "IBM Plex Mono", monospace';
-      sCtx.fillText('CLASS-A VIBRATION ISOLATED · HIGH VOLTAGE', 256, 108);
-    }
-    const signMesh = new THREE.Mesh(
-      makeOperatorFacingQuadGeo(4.8, 1.5),
-      new THREE.MeshStandardMaterial({ map: finalizeTexture(signCan), roughness: 0.32, metalness: 0.15 })
-    );
-    signMesh.position.set(4.5, 16.5, 12.02);
-    signMesh.name = 'Lab_SuiteSignage';
-    room.add(signMesh);
-  }
-
   // 4. Overhead Cleanroom LED Luminaire Housings (elevated clear of CAM_TOP Y=28.5)
   const matLuminaire = makeMat(0xe2e8f0, { r: 0.28, m: 0.1, e: 0xcbeafe, ei: 0.72 });
   [
@@ -438,24 +411,19 @@ export function buildVCELabRoom() {
   if (sputterCan) {
     const sCtx = sputterCan.getContext('2d');
     if (sCtx) {
-      sCtx.fillStyle = '#06101b';
+      sCtx.fillStyle = '#090d14';
       sCtx.fillRect(0, 0, 320, 160);
-      sCtx.strokeStyle = '#38bdf8';
-      sCtx.lineWidth = 4;
-      sCtx.strokeRect(4, 4, 312, 152);
-      sCtx.fillStyle = '#a855f7';
-      sCtx.font = 'bold 20px "IBM Plex Mono", monospace';
-      sCtx.fillText('SPUTTER Q150R', 18, 34);
-      sCtx.fillStyle = '#38bdf8';
-      sCtx.font = 'bold 40px "IBM Plex Mono", monospace';
-      sCtx.fillText('5.0 nm Au/Pd', 18, 92);
-      sCtx.fillStyle = '#22c55e';
-      sCtx.font = 'bold 18px "IBM Plex Mono", monospace';
-      sCtx.fillText('Ar 0.08 mbar · 45 mA', 18, 136);
+      sCtx.fillStyle = '#e2e8f0';
+      sCtx.font = 'bold 42px "IBM Plex Mono", monospace';
+      sCtx.textAlign = 'center';
+      sCtx.fillText('5.0 nm', 160, 74);
+      sCtx.fillStyle = '#94a3b8';
+      sCtx.font = '600 20px "IBM Plex Mono", monospace';
+      sCtx.fillText('0.08 mbar · 45 mA', 160, 124);
     }
     sputterLcdMat = new THREE.MeshBasicMaterial({ map: finalizeTexture(sputterCan) });
   } else {
-    sputterLcdMat = makeMat(0x06101b);
+    sputterLcdMat = makeMat(0x090d14);
   }
   const sputterLcd = new THREE.Mesh(makeOperatorFacingQuadGeo(0.87, 0.445), sputterLcdMat);
   sputterLcd.position.set(0, 0, -0.008);
@@ -542,25 +510,6 @@ export function buildVCELabRoom() {
   btnSputterCycle.position.set(-1.04, 0.08, -0.03);
   btnSputterCycle.name = 'Btn_SputterCycle';
   coaterSlopePivot.add(btnSputterCycle);
-
-  const swLabelCan = createCanvas(256, 64);
-  if (swLabelCan) {
-    const lCtx = swLabelCan.getContext('2d');
-    if (lCtx) {
-      lCtx.fillStyle = '#1e293b';
-      lCtx.fillRect(0, 0, 256, 64);
-      lCtx.fillStyle = '#f8fafc';
-      lCtx.font = 'bold 22px "IBM Plex Mono", monospace';
-      lCtx.textAlign = 'center';
-      lCtx.fillText('CYCLE      PWR', 128, 40);
-    }
-    const swLabelQuad = new THREE.Mesh(
-      makeOperatorFacingQuadGeo(0.62, 0.15),
-      new THREE.MeshStandardMaterial({ map: finalizeTexture(swLabelCan), roughness: 0.4 })
-    );
-    swLabelQuad.position.set(-0.89, -0.14, -0.005);
-    coaterSlopePivot.add(swLabelQuad);
-  }
   coaterGroup.add(coaterSlopePivot);
 
   // Vacuum baseplate + Viton seal ring under bell jar
@@ -867,29 +816,6 @@ export function buildOperatorConsoleAndControls(screenTex) {
   pcPowerBtn.position.set(0.68, 1.75, -2.20);
   pcPowerBtn.name = 'Btn_WorkstationPower';
   pcTower.add(pcPowerBtn);
-
-  // Brushed HP Z4 SmartSEM front nameplate
-  const pcBadgeCan = createCanvas(384, 96);
-  if (pcBadgeCan) {
-    const pCtx = pcBadgeCan.getContext('2d');
-    if (pCtx) {
-      pCtx.fillStyle = '#0f172a';
-      pCtx.fillRect(0, 0, 384, 96);
-      pCtx.strokeStyle = '#38bdf8';
-      pCtx.lineWidth = 4;
-      pCtx.strokeRect(4, 4, 376, 88);
-      pCtx.fillStyle = '#f8fafc';
-      pCtx.font = 'bold 28px "IBM Plex Mono", monospace';
-      pCtx.textAlign = 'center';
-      pCtx.fillText('SmartSEM Z4 HOST', 192, 58);
-    }
-    const pcQuad = new THREE.Mesh(
-      makeOperatorFacingQuadGeo(1.18, 0.30),
-      new THREE.MeshStandardMaterial({ map: finalizeTexture(pcBadgeCan), roughness: 0.28, metalness: 0.35 })
-    );
-    pcQuad.position.set(-0.08, 1.65, -2.20);
-    pcTower.add(pcQuad);
-  }
   consoleGroup.add(pcTower);
 
   // --------------------------------------------------------------------------

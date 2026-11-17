@@ -10,7 +10,6 @@
 import * as THREE from 'three';
 import {
   makeMat,
-  createCanvas,
   MAT_ZEISS_WHITE,
   MAT_ZEISS_ANTHRACITE,
   MAT_316SS_POLISHED,
@@ -31,42 +30,14 @@ import {
   MAT_COPPER_WINDING,
   MAT_LEAD_GLASS,
   MAT_ELECTRON_BEAM,
-  createDecalQuad,
   createHexSocketScrew,
   createConFlatFlange,
   makeWiringHarness,
 } from './sem_materials.js';
 
 // ----------------------------------------------------------------------------
-// Internal Helpers (Extruded Hollow Shell & Procedural Crisp Silkscreen)
+// Internal Helpers (Extruded Hollow Shell)
 // ----------------------------------------------------------------------------
-function makePlaqueDecal(title, subtitle, w, h, bgHex = '#0f172a', fgHex = '#f8fafc', borderHex = '#38bdf8') {
-  const c = createCanvas(512, 160);
-  let mat;
-  if (c) {
-    const ctx = c.getContext('2d');
-    ctx.fillStyle = bgHex;
-    ctx.fillRect(0, 0, 512, 160);
-    ctx.strokeStyle = borderHex;
-    ctx.lineWidth = 5;
-    ctx.strokeRect(6, 6, 500, 148);
-    ctx.fillStyle = fgHex;
-    ctx.font = 'bold 34px "IBM Plex Mono", monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(title, 256, 56);
-    ctx.fillStyle = borderHex;
-    ctx.font = '600 20px "Inter", sans-serif';
-    ctx.fillText(subtitle, 256, 114);
-    const tex = new THREE.CanvasTexture(c);
-    tex.flipY = false;
-    tex.colorSpace = THREE.SRGBColorSpace;
-    mat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.28, metalness: 0.35 });
-  } else {
-    mat = makeMat(0x0f172a, { r: 0.3, m: 0.3 });
-  }
-  return createDecalQuad(w, h, mat);
-}
 
 /**
  * Builds an extruded hollow chamber D-profile (semicircular rear +Z, flat front -Z jambs)
@@ -244,14 +215,30 @@ export function buildSpecimenChamberAndStage() {
 
   chamberGroup.add(barrelShellGroup);
 
-  // 2. Top & Bottom Bolted DN ConFlat Rings (innerR = 1.15 real see-through bore!)
+  // 2. Top Bolted DN ConFlat Ring & Bottom D-Contour Chamber Base Plate (innerR = 1.15 real see-through bore!)
   const topChamberFlange = createConFlatFlange(2.18, 1.15, 0.28, 'ChamberTop', 16);
   topChamberFlange.position.y = 1.81; // spans +1.67..+1.95 => world top Y = 11.45
   chamberGroup.add(topChamberFlange);
 
-  const botChamberFlange = createConFlatFlange(2.18, 1.15, 0.28, 'ChamberBot', 16);
-  botChamberFlange.position.y = -1.81; // spans -1.95..-1.67 => world bottom Y = 7.55
-  chamberGroup.add(botChamberFlange);
+  // Machined D-profile chamber mounting baseplate flush with front sill & bolted to isolatedDeck (Y = 7.55)
+  const botChamberBase = createHollowBulkheadPlate(2.08, 2.02, 1.15, 0.28, MAT_316SS_BRUSHED);
+  botChamberBase.position.y = -1.95; // spans -1.95..-1.67 => world bottom Y = 7.55
+  botChamberBase.name = 'Body_ChamberBasePlate';
+  chamberGroup.add(botChamberBase);
+
+  for (let b = 0; b < 10; b++) {
+    const ang = (b / 9) * Math.PI; // rear & sides of D-flange
+    const bx = Math.cos(ang) * 2.00;
+    const bz = Math.sin(ang) * 2.00;
+    const bBolt = createHexSocketScrew(0.020, 0.05, `Fastener_HexM8_ChamberBase_${String(b + 1).padStart(2, '0')}`);
+    bBolt.position.set(bx, -1.67, bz);
+    chamberGroup.add(bBolt);
+  }
+  [-1.96, 1.96].forEach((fx, idx) => {
+    const fBolt = createHexSocketScrew(0.020, 0.05, `Fastener_HexM8_ChamberBaseF_0${idx + 1}`);
+    fBolt.position.set(fx, -1.67, -1.94);
+    chamberGroup.add(fBolt);
+  });
 
   // 3. Front Doorway Architrave Jambs / Lintel / Sill (Body_ChamberDoorFrame)
   const doorFrameGroup = new THREE.Group();
@@ -302,14 +289,49 @@ export function buildSpecimenChamberAndStage() {
     doorFrameGroup.add(fScrew);
   });
 
+  // Stationary Chamber-Side Clevis Hinge Brackets aligned to Pivot_DoorChamber (-1.92, ±1.05, -2.02)
+  [-1.05, 1.05].forEach((hy, idx) => {
+    const clevisBlock = new THREE.Mesh(
+      new THREE.BoxGeometry(0.16, 0.36, 0.24),
+      MAT_316SS_BRUSHED
+    );
+    clevisBlock.position.set(-2.00, hy, -1.92);
+    clevisBlock.name = `Body_DoorHingeClevis_0${idx + 1}`;
+    doorFrameGroup.add(clevisBlock);
+
+    [-0.135, 0.135].forEach((ey) => {
+      const earCyl = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.095, 0.095, 0.075, 18),
+        MAT_316SS_BRUSHED
+      );
+      earCyl.position.set(-1.92, hy + ey, -2.02);
+      doorFrameGroup.add(earCyl);
+
+      const earWeb = new THREE.Mesh(
+        new THREE.BoxGeometry(0.14, 0.075, 0.16),
+        MAT_316SS_BRUSHED
+      );
+      earWeb.position.set(-1.98, hy + ey, -1.96);
+      doorFrameGroup.add(earWeb);
+    });
+
+    [-0.10, 0.10].forEach((by, bIdx) => {
+      const cBolt = createHexSocketScrew(0.015, 0.04, `Fastener_HexM5_Clevis_0${idx + 1}_${bIdx + 1}`);
+      cBolt.rotation.z = Math.PI / 2;
+      cBolt.position.set(-2.08, hy + by, -1.90);
+      doorFrameGroup.add(cBolt);
+    });
+  });
+
   chamberGroup.add(doorFrameGroup);
 
   // 4. 8 ConFlat (CF) Radial Ports Strictly Clear of Front Doorway (|ang| >= 1.10 rad)
+  const dirEDSVec = new THREE.Vector3(2.15, -0.77, -0.10).normalize();
   const portSpecs = [
     { ang: 1.18, y: 0.35, rOut: 0.62, rDist: 2.26, name: 'Body_ChamberPort_AuxR' },
     { ang: -1.18, y: 0.35, rOut: 0.56, rDist: 2.26, name: 'Body_ChamberPort_AuxL' },
     { ang: 1.65, y: 0.22, rOut: 0.68, rDist: 2.15, name: 'Body_ChamberPort_SE2' },
-    { ang: -1.65, y: 0.32, rOut: 0.68, rDist: 2.15, name: 'Body_ChamberPort_EDS' },
+    { ang: -1.65, y: 0.32, rOut: 0.68, rDist: 2.15, name: 'Body_ChamberPort_EDS', exactDir: dirEDSVec },
     { ang: 2.18, y: 0.55, rOut: 0.52, rDist: 2.15, name: 'Body_ChamberPort_Optical' },
     { ang: -2.18, y: 0.20, rOut: 0.52, rDist: 2.15, name: 'Body_ChamberPort_Gauge' },
     { ang: 2.72, y: -0.45, rOut: 0.48, rDist: 2.15, name: 'Body_ChamberPort_Feedthrough' },
@@ -318,10 +340,14 @@ export function buildSpecimenChamberAndStage() {
   portSpecs.forEach((ps, idx) => {
     const portAssembly = new THREE.Group();
     portAssembly.name = ps.name;
-    const px = Math.sin(ps.ang) * ps.rDist;
-    const pz = -Math.cos(ps.ang) * ps.rDist;
+    const px = ps.exactDir ? -2.15 : Math.sin(ps.ang) * ps.rDist;
+    const pz = ps.exactDir ? 0.10 : -Math.cos(ps.ang) * ps.rDist;
     portAssembly.position.set(px, ps.y, pz);
-    portAssembly.rotation.y = -ps.ang;
+    if (ps.exactDir) {
+      portAssembly.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), ps.exactDir);
+    } else {
+      portAssembly.rotation.y = -ps.ang;
+    }
 
     const neckTube = new THREE.Mesh(
       new THREE.CylinderGeometry(ps.rOut * 0.72, ps.rOut * 0.72, 0.46, 22),
@@ -416,22 +442,45 @@ export function buildSpecimenChamberAndStage() {
   doorMesh.name = 'Body_ChamberDoorSlab';
   doorPivot.add(doorMesh);
 
-  // Heavy 316L Door Hinge Knuckles & Stainless Pins on -X Hinge Axis (x_local = 0)
+  // Heavy 316L Door Hinge Knuckles, Straps & Vertical Pins on -X Pivot Axis (x_local = 0, z_local = 0)
   [-1.05, 1.05].forEach((hy, idx) => {
     const knuckle = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.11, 0.11, 0.34, 18),
-      MAT_316SS_BRUSHED
+      new THREE.CylinderGeometry(0.095, 0.095, 0.18, 18),
+      MAT_316SS_POLISHED
     );
-    knuckle.position.set(0.0, hy, -0.17);
+    knuckle.position.set(0.0, hy, 0.0);
     knuckle.name = `Body_DoorHinge_0${idx + 1}`;
     doorPivot.add(knuckle);
 
     const hingePin = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.055, 0.055, 0.42, 14),
+      new THREE.CylinderGeometry(0.045, 0.045, 0.40, 16),
       MAT_DARK_ANODIZED
     );
-    hingePin.position.set(0.0, hy, -0.17);
+    hingePin.position.set(0.0, hy, 0.0);
     doorPivot.add(hingePin);
+
+    // Side lug bridging from pivot pin to door side/front strap
+    const sideArm = new THREE.Mesh(
+      new THREE.BoxGeometry(0.14, 0.17, 0.24),
+      MAT_316SS_BRUSHED
+    );
+    sideArm.position.set(0.05, hy, -0.10);
+    doorPivot.add(sideArm);
+
+    // Front bolted hinge strap resting flush on door slab front face (z = -0.34)
+    const frontStrap = new THREE.Mesh(
+      new THREE.BoxGeometry(0.46, 0.18, 0.06),
+      MAT_316SS_BRUSHED
+    );
+    frontStrap.position.set(0.22, hy, -0.34);
+    doorPivot.add(frontStrap);
+
+    [0.16, 0.36].forEach((sx, sIdx) => {
+      const strapBolt = createHexSocketScrew(0.015, 0.04, `Fastener_HexM5_HingeStrap_0${idx + 1}_${sIdx + 1}`);
+      strapBolt.rotation.x = -Math.PI / 2;
+      strapBolt.position.set(sx, hy, -0.37);
+      doorPivot.add(strapBolt);
+    });
   });
 
   // DN100CF Viewport Flange Ring inside/over real circular bore (1.92, 0.18)
@@ -493,20 +542,6 @@ export function buildSpecimenChamberAndStage() {
   switchPlunger.position.set(3.70, 1.32, 0.09);
   doorPivot.add(switchPlunger);
 
-  // Crisp Upright Caution Plaque on lower front face of Chamber Door
-  const doorCaution = makePlaqueDecal(
-    'UHV CHAMBER · X-RAY SHIELD',
-    'VENT WITH DRY N2 BEFORE OPENING',
-    2.45,
-    0.42,
-    '#0f172a',
-    '#fef08a',
-    '#f59e0b'
-  );
-  doorCaution.position.set(1.92, -1.08, -0.365);
-  doorCaution.name = 'Body_DoorCautionPlaque';
-  doorPivot.add(doorCaution);
-
   chamberGroup.add(doorPivot);
 
   // 6. All Internal Detectors, Mirror & PT100 Strictly Clear of Doorway (ZERO Protrusions!)
@@ -564,32 +599,42 @@ export function buildSpecimenChamberAndStage() {
     const edsAxis = new THREE.Group();
     edsAxis.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), dirEDS);
 
+    // Stainless mating adapter flange seated flush against angled CF port face at x_axis = -0.36
+    const edsAdapterFlange = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.56, 0.56, 0.10, 26),
+      MAT_316SS_POLISHED
+    );
+    edsAdapterFlange.rotation.z = Math.PI / 2;
+    edsAdapterFlange.position.x = -0.39;
+    edsAxis.add(edsAdapterFlange);
+
+    // Blue anodized Peltier electronics cylinder cleanly outside CF flange (x_axis = -0.44..-1.68)
     const edsHousing = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.46, 0.50, 1.38, 26),
+      new THREE.CylinderGeometry(0.46, 0.48, 1.24, 26),
       MAT_BLUE_ANODIZED
     );
     edsHousing.rotation.z = Math.PI / 2;
-    edsHousing.position.x = -0.68;
+    edsHousing.position.x = -1.06;
     edsAxis.add(edsHousing);
 
-    // Peltier heatsink cooling fins
+    // Peltier heatsink cooling fins cleanly outside flange (-0.58..-1.38)
     for (let f = 0; f < 6; f++) {
       const fin = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.55, 0.55, 0.04, 24),
+        new THREE.CylinderGeometry(0.54, 0.54, 0.036, 24),
         MAT_DARK_ANODIZED
       );
       fin.rotation.z = Math.PI / 2;
-      fin.position.x = -0.35 - f * 0.16;
+      fin.position.x = -0.58 - f * 0.16;
       edsAxis.add(fin);
     }
 
     // Tapered stainless collimator snout projecting safely inside chamber (r_inner < 1.50)
     const snout = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.12, 0.24, 1.15, 22),
+      new THREE.CylinderGeometry(0.12, 0.24, 1.48, 22),
       MAT_316SS_POLISHED
     );
     snout.rotation.z = -Math.PI / 2;
-    snout.position.x = 0.55;
+    snout.position.x = 0.40;
     edsAxis.add(snout);
 
     const sensorWindow = new THREE.Mesh(
@@ -599,18 +644,6 @@ export function buildSpecimenChamberAndStage() {
     sensorWindow.rotation.z = Math.PI / 2;
     sensorWindow.position.x = 1.14;
     edsAxis.add(sensorWindow);
-
-    const edsLabel = makePlaqueDecal(
-      'OXFORD ULTIM MAX 100',
-      '100 mm² SDD EDS · PELTIER COOLED',
-      0.96,
-      0.30,
-      '#0f172a',
-      '#f8fafc',
-      '#38bdf8'
-    );
-    edsLabel.position.set(-0.75, 0.0, -0.52);
-    edsAxis.add(edsLabel);
 
     edsGroup.add(edsAxis);
   }
@@ -1074,20 +1107,6 @@ export function buildGeminiColumnAndDetectors() {
   columnRing.name = 'Body_ColumnBlueCollar';
   columnGroup.add(columnRing);
 
-  // Crisp Upright Front Column Plaque
-  const columnBadge = makePlaqueDecal(
-    'ZEISS GEMINI II OPTICS',
-    'BEAM BOOSTER +8 kV · MAGNETIC-ELECTROSTATIC OBJECTIVE',
-    1.80,
-    0.40,
-    '#0f172a',
-    '#f8fafc',
-    '#38bdf8'
-  );
-  columnBadge.position.set(0.0, 0.72, -1.33);
-  columnBadge.name = 'Body_ColumnNameplate';
-  columnGroup.add(columnBadge);
-
   // Top Schottky Field Emission Gun (FEG) Head & Flanged Alumina -30 kV HV Boot (top Y_local = +4.25 => Y_world = 18.80)
   const fegGroup = new THREE.Group();
   fegGroup.name = 'Body_GunHeadFEG';
@@ -1158,18 +1177,6 @@ export function buildGeminiColumnAndDetectors() {
     MAT_DARK_ANODIZED
   );
   igpGroup.add(igpYoke);
-
-  const igpLabel = makePlaqueDecal(
-    'ION GETTER PUMP',
-    '25 L/s · 2.0e-10 mbar UHV',
-    0.84,
-    0.32,
-    '#0f172a',
-    '#22c55e',
-    '#16a34a'
-  );
-  igpLabel.position.set(0.0, 0.10, -0.47);
-  igpGroup.add(igpLabel);
   columnGroup.add(igpGroup);
 
   // Pneumatic Column Isolation Gate Valve between FEG Gun and Chamber

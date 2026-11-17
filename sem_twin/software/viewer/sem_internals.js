@@ -10,7 +10,6 @@
 import * as THREE from 'three';
 import {
   makeMat,
-  createCanvas,
   MAT_ZEISS_ANTHRACITE,
   MAT_FRAME_STEEL,
   MAT_316SS_POLISHED,
@@ -36,43 +35,10 @@ import {
   MAT_COOLANT_BLUE,
   MAT_COOLANT_RED,
   MAT_PHOENIX_GREEN,
-  createDecalQuad,
   createHexSocketScrew,
   createConFlatFlange,
   makeWiringHarness,
 } from './sem_materials.js';
-
-// ----------------------------------------------------------------------------
-// Internal Procedural Laser-Marking & Nameplate Helper (flipY = false, sRGB)
-// ----------------------------------------------------------------------------
-function makeComponentLabel(title, subtitle, w, h, bgHex = '#0f172a', fgHex = '#f8fafc', borderHex = '#38bdf8') {
-  const c = createCanvas(512, 192);
-  let mat;
-  if (c) {
-    const ctx = c.getContext('2d');
-    ctx.fillStyle = bgHex;
-    ctx.fillRect(0, 0, 512, 192);
-    ctx.strokeStyle = borderHex;
-    ctx.lineWidth = 6;
-    ctx.strokeRect(6, 6, 500, 180);
-    ctx.fillStyle = fgHex;
-    ctx.font = 'bold 40px "IBM Plex Mono", monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(title, 256, 68);
-    ctx.fillStyle = borderHex;
-    ctx.font = '600 24px "IBM Plex Mono", monospace';
-    ctx.fillText(subtitle, 256, 134);
-
-    const tex = new THREE.CanvasTexture(c);
-    tex.flipY = false;
-    tex.colorSpace = THREE.SRGBColorSpace;
-    mat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.28, metalness: 0.22 });
-  } else {
-    mat = makeMat(0x0f172a, { r: 0.35, m: 0.20 });
-  }
-  return createDecalQuad(w, h, mat);
-}
 
 // ----------------------------------------------------------------------------
 // Internal Mechanics, Vacuum Pumps, HV Tank, PSU, Motherboard & Harnesses
@@ -139,18 +105,6 @@ export function buildInternalMechanicsAndElectronicsBay() {
   tc110Box.position.set(0.98, 0.22, 0.0);
   tc110Box.name = 'Body_TurboControllerTC110';
   turboGroup.add(tc110Box);
-
-  const turboLabel = makeComponentLabel(
-    'PFEIFFER HiPace 300',
-    '90,000 RPM · 260 L/s TURBO',
-    0.84,
-    0.32,
-    '#0f172a',
-    '#38bdf8',
-    '#0284c7'
-  );
-  turboLabel.position.set(0.0, 0.28, -0.92);
-  turboGroup.add(turboLabel);
 
   // DN25KF Foreline Exhaust Port on -X side of turbo base (world = -4.78, 5.80, -0.20)
   const kfPort = new THREE.Mesh(
@@ -241,19 +195,6 @@ export function buildInternalMechanicsAndElectronicsBay() {
   kfClampScroll.position.set(0.0, 0.90, -0.75);
   scrollGroup.add(kfClampScroll);
 
-  const scrollLabel = makeComponentLabel(
-    'PFEIFFER HiScroll 6',
-    'OIL-FREE DRY SCROLL · 1800 RPM',
-    1.10,
-    0.34,
-    '#111827',
-    '#f8fafc',
-    '#22c55e'
-  );
-  scrollLabel.rotation.y = -Math.PI / 2;
-  scrollLabel.position.set(0.58, 0.24, -0.10);
-  scrollGroup.add(scrollLabel);
-
   internalGroup.add(scrollGroup);
 
   // --------------------------------------------------------------------------
@@ -336,18 +277,6 @@ export function buildInternalMechanicsAndElectronicsBay() {
     hvTankGroup.add(rib);
   });
 
-  const hvLabel = makeComponentLabel(
-    'DANGER · 30,000 V DC',
-    'SPELLMAN EHT TANK · +8kV BOOSTER',
-    1.62,
-    0.54,
-    '#450a0a',
-    '#fef08a',
-    '#ef4444'
-  );
-  hvLabel.position.set(0.0, 0.18, -0.97);
-  hvTankGroup.add(hvLabel);
-
   internalGroup.add(hvTankGroup);
 
   // 30 kV Silicone Umbilical routed strictly inside rear cabinet (never pokes outside -X wall!)
@@ -417,25 +346,13 @@ export function buildInternalMechanicsAndElectronicsBay() {
   psuTopCover.position.set(0.0, 0.52, 0.19);
   psuGroup.add(psuTopCover);
 
-  // Front top fascia flange strip for clean Mean Well label (no overlap with components below)
+  // Front top fascia flange strip for clean chassis stiffening
   const psuFrontLip = new THREE.Mesh(
     new THREE.BoxGeometry(2.26, 0.20, 0.05),
     MAT_316SS_BRUSHED
   );
   psuFrontLip.position.set(0.0, 0.44, -0.80);
   psuGroup.add(psuFrontLip);
-
-  const psuLabel = makeComponentLabel(
-    'MEAN WELL LRS-350-24',
-    '24 VDC · 14.6 A REGULATED',
-    1.80,
-    0.16,
-    '#0f172a',
-    '#f8fafc',
-    '#38bdf8'
-  );
-  psuLabel.position.set(0.0, 0.44, -0.835);
-  psuGroup.add(psuLabel);
 
   // Internal green PSU PCB seated on base tray
   const psuInnerPcb = new THREE.Mesh(
@@ -549,10 +466,13 @@ export function buildInternalMechanicsAndElectronicsBay() {
   dinBackplate.name = 'Body_MoboDINBracket';
   moboGroup.add(dinBackplate);
 
-  const pcbBoard = new THREE.Mesh(
-    new THREE.BoxGeometry(2.90, 2.15, 0.06),
-    MAT_PCB_FR4
-  );
+  const pcbGeo = new THREE.BoxGeometry(2.90, 2.15, 0.06);
+  const pcbUv = pcbGeo.attributes.uv;
+  for (let i = 0; i < pcbUv.count; i++) {
+    pcbUv.setY(i, 1.0 - pcbUv.getY(i));
+  }
+  pcbUv.needsUpdate = true;
+  const pcbBoard = new THREE.Mesh(pcbGeo, MAT_PCB_FR4);
   moboGroup.add(pcbBoard);
 
   // 6 M3 brass hex standoffs + DIN 912 hex socket cap screws securing PCB to DIN bracket
@@ -608,19 +528,6 @@ export function buildInternalMechanicsAndElectronicsBay() {
     leadR.position.set(0.32, off, 0.015);
     mcuGroup.add(leadR);
   }
-
-  // Procedural vector CanvasTexture laser marking "ARM Cortex-M7"
-  const mcuLabel = makeComponentLabel(
-    'ARM Cortex-M7',
-    '176-LQFP · ZEISS SCAN',
-    0.54,
-    0.54,
-    '#14171f',
-    '#f8fafc',
-    '#38bdf8'
-  );
-  mcuLabel.position.z = -0.032;
-  mcuGroup.add(mcuLabel);
   moboGroup.add(mcuGroup);
 
   // Dual TSOP-54 Synchronous DRAM Chips (Part_RAM_Chip — ISSI SDRAM)
@@ -628,25 +535,13 @@ export function buildInternalMechanicsAndElectronicsBay() {
   ramGroup.name = 'Part_RAM_Chip';
   ramGroup.position.set(0.58, 0.42, -0.05);
 
-  [-0.22, 0.22].forEach((ry, idx) => {
+  [-0.22, 0.22].forEach((ry) => {
     const ramPkg = new THREE.Mesh(
       new THREE.BoxGeometry(0.56, 0.28, 0.05),
       MAT_IC_EPOXY
     );
     ramPkg.position.y = ry;
     ramGroup.add(ramPkg);
-
-    const ramLbl = makeComponentLabel(
-      'ISSI SDRAM',
-      `512MB TSOP-54 · CH${idx + 1}`,
-      0.50,
-      0.22,
-      '#14171f',
-      '#e2e8f0',
-      '#94a3b8'
-    );
-    ramLbl.position.set(0.0, ry, -0.027);
-    ramGroup.add(ramLbl);
   });
   moboGroup.add(ramGroup);
 
@@ -667,18 +562,6 @@ export function buildInternalMechanicsAndElectronicsBay() {
   );
   ssdEdge.position.x = -0.35;
   ssdGroup.add(ssdEdge);
-
-  const ssdLbl = makeComponentLabel(
-    '256GB NVMe',
-    'INDUSTRIAL GLP FLASH',
-    0.58,
-    0.34,
-    '#0f172a',
-    '#38bdf8',
-    '#22c55e'
-  );
-  ssdLbl.position.z = -0.032;
-  ssdGroup.add(ssdLbl);
   moboGroup.add(ssdGroup);
 
   // Castellated Wi-Fi 802.11ac / BLE Shielded Radio Module (WiFi_BLE)
@@ -692,18 +575,6 @@ export function buildInternalMechanicsAndElectronicsBay() {
     MAT_316SS_POLISHED
   );
   wifiGroup.add(wifiShieldCan);
-
-  const wifiLbl = makeComponentLabel(
-    'Wi-Fi / BLE',
-    '802.11ac + BT 5.2',
-    0.40,
-    0.26,
-    '#1e293b',
-    '#f8fafc',
-    '#38bdf8'
-  );
-  wifiLbl.position.set(0.0, 0.04, -0.032);
-  wifiGroup.add(wifiLbl);
 
   // Gold U.FL connector pad aligned cleanly at world (-2.63, 3.85, -1.72)
   const uflPad = new THREE.Mesh(
@@ -1049,12 +920,14 @@ export function buildInternalMechanicsAndElectronicsBay() {
     )
   );
 
-  // 8D. Closed-Loop Chiller Coolant Lines (Swagelok Rear Unions -> Objective Water Jacket)
+  // 8D. Closed-Loop Chiller Coolant Lines (Swagelok Rear Unions -> Rear Riser -> Objective Water Jacket)
   internalGroup.add(
     makeWiringHarness(
       [
         [-3.55, 2.00, 4.98],
-        [-3.55, 5.85, 2.45],
+        [-3.55, 2.75, 4.45],
+        [-3.55, 7.20, 4.10],
+        [-3.25, 10.60, 2.10],
         [-3.08, 11.05, 0.35],
       ],
       0.046,
@@ -1066,7 +939,9 @@ export function buildInternalMechanicsAndElectronicsBay() {
     makeWiringHarness(
       [
         [-3.15, 2.00, 4.98],
-        [-3.15, 5.85, 2.45],
+        [-3.15, 2.75, 4.45],
+        [-3.15, 7.20, 4.10],
+        [-3.05, 10.60, 2.10],
         [-2.96, 11.05, 0.35],
       ],
       0.046,

@@ -9,7 +9,6 @@
 import * as THREE from 'three';
 import {
   makeMat,
-  createCanvas,
   MAT_ZEISS_WHITE,
   MAT_ZEISS_ANTHRACITE,
   MAT_ZEISS_BLUE,
@@ -23,10 +22,83 @@ import {
   MAT_BRASS_GOLD,
   MAT_RUBBER_EPDM,
   MAT_CAST_IRON,
-  createDecalQuad,
   createHexSocketScrew,
   makeSREdesignsBadge,
 } from './sem_materials.js';
+
+/**
+ * Builds a precision framed industrial ventilation louver grille facing ±X.
+ */
+function buildSideVentGrille(widthZ, heightY, sideSign, bladeCount, prefix) {
+  const grp = new THREE.Group();
+  grp.name = `${prefix}_Grille`;
+  const frameT = 0.085;
+  const frameD = 0.045;
+
+  // Dark acoustic plenum backing seated flush inside perimeter bezel
+  const plenum = new THREE.Mesh(
+    new THREE.BoxGeometry(0.014, heightY - frameT * 1.4, widthZ - frameT * 1.4),
+    MAT_DARK_ANODIZED
+  );
+  plenum.position.x = sideSign * 0.004;
+  plenum.name = `${prefix}_Plenum`;
+  grp.add(plenum);
+
+  // 4-piece mitered brushed-stainless bezel frame
+  const topRail = new THREE.Mesh(new THREE.BoxGeometry(frameD, frameT, widthZ), MAT_316SS_BRUSHED);
+  topRail.position.set(sideSign * 0.016, heightY * 0.5 - frameT * 0.5, 0);
+  grp.add(topRail);
+
+  const botRail = new THREE.Mesh(new THREE.BoxGeometry(frameD, frameT, widthZ), MAT_316SS_BRUSHED);
+  botRail.position.set(sideSign * 0.016, -heightY * 0.5 + frameT * 0.5, 0);
+  grp.add(botRail);
+
+  const frontRail = new THREE.Mesh(new THREE.BoxGeometry(frameD, heightY - frameT * 2, frameT), MAT_316SS_BRUSHED);
+  frontRail.position.set(sideSign * 0.016, 0, -widthZ * 0.5 + frameT * 0.5);
+  grp.add(frontRail);
+
+  const rearRail = new THREE.Mesh(new THREE.BoxGeometry(frameD, heightY - frameT * 2, frameT), MAT_316SS_BRUSHED);
+  rearRail.position.set(sideSign * 0.016, 0, widthZ * 0.5 - frameT * 0.5);
+  grp.add(rearRail);
+
+  // Center vertical stiffener mullion
+  const mullion = new THREE.Mesh(
+    new THREE.BoxGeometry(0.024, heightY - frameT * 2, 0.045),
+    MAT_ZEISS_ANTHRACITE
+  );
+  mullion.position.set(sideSign * 0.012, 0, 0);
+  grp.add(mullion);
+
+  // Thin crisp angled louver slats inside the bezel opening
+  const innerH = heightY - frameT * 2.4;
+  const innerW = widthZ - frameT * 2.2;
+  const pitch = innerH / bladeCount;
+  for (let i = 0; i < bladeCount; i++) {
+    const blade = new THREE.Mesh(
+      new THREE.BoxGeometry(0.016, 0.068, innerW),
+      MAT_316SS_POLISHED
+    );
+    blade.position.set(sideSign * 0.014, -innerH * 0.5 + (i + 0.5) * pitch, 0);
+    blade.rotation.z = sideSign * 0.42;
+    blade.name = `${prefix}_Louver_${String(i + 1).padStart(2, '0')}`;
+    grp.add(blade);
+  }
+
+  // 4 corner M4 stainless socket screws anchoring the bezel frame
+  [
+    [heightY * 0.5 - frameT * 0.5, -widthZ * 0.5 + frameT * 0.5],
+    [heightY * 0.5 - frameT * 0.5, widthZ * 0.5 - frameT * 0.5],
+    [-heightY * 0.5 + frameT * 0.5, -widthZ * 0.5 + frameT * 0.5],
+    [-heightY * 0.5 + frameT * 0.5, widthZ * 0.5 - frameT * 0.5],
+  ].forEach(([cy, cz], idx) => {
+    const scr = createHexSocketScrew(0.012, 0.03, `Fastener_HexM4_${prefix}_0${idx + 1}`);
+    scr.rotation.z = -sideSign * (Math.PI / 2);
+    scr.position.set(sideSign * 0.038, cy, cz);
+    grp.add(scr);
+  });
+
+  return grp;
+}
 
 // ----------------------------------------------------------------------------
 // Plinth, Welded Spaceframe, Pneumatic Isolators & Service Bay Door
@@ -362,24 +434,9 @@ export function buildPlinthAndChassis() {
   leftBayWall.name = 'Body_ChassisWallLeft';
 
   // Left wall side ventilation grille + M5 panel fasteners
-  const leftVentBacking = new THREE.Mesh(
-    new THREE.BoxGeometry(0.02, 2.20, 3.40),
-    MAT_ZEISS_ANTHRACITE
-  );
-  leftVentBacking.position.set(-0.088, -0.45, 0.60);
-  leftVentBacking.name = 'Body_LeftWallVentRecess';
-  leftBayWall.add(leftVentBacking);
-
-  for (let s = 0; s < 7; s++) {
-    const slat = new THREE.Mesh(
-      new THREE.BoxGeometry(0.03, 0.09, 3.16),
-      MAT_316SS_BRUSHED
-    );
-    slat.position.set(-0.095, -1.30 + s * 0.28, 0.60);
-    slat.rotation.z = -0.35;
-    slat.name = `Body_LeftWallLouver_0${s + 1}`;
-    leftBayWall.add(slat);
-  }
+  const leftVentGrille = buildSideVentGrille(3.40, 2.20, -1, 10, 'Body_LeftWallVent');
+  leftVentGrille.position.set(-0.082, -0.45, 0.60);
+  leftBayWall.add(leftVentGrille);
 
   [
     [-2.70, -4.60],
@@ -402,24 +459,9 @@ export function buildPlinthAndChassis() {
   rightBayWall.position.set(0.12, 3.95, 0.0);
   rightBayWall.name = 'Body_ChassisWallRight';
 
-  const rightVentBacking = new THREE.Mesh(
-    new THREE.BoxGeometry(0.02, 2.20, 3.40),
-    MAT_ZEISS_ANTHRACITE
-  );
-  rightVentBacking.position.set(0.088, -0.45, 0.60);
-  rightVentBacking.name = 'Body_RightWallVentRecess';
-  rightBayWall.add(rightVentBacking);
-
-  for (let s = 0; s < 7; s++) {
-    const slat = new THREE.Mesh(
-      new THREE.BoxGeometry(0.03, 0.09, 3.16),
-      MAT_316SS_BRUSHED
-    );
-    slat.position.set(0.095, -1.30 + s * 0.28, 0.60);
-    slat.rotation.z = 0.35;
-    slat.name = `Body_RightWallLouver_0${s + 1}`;
-    rightBayWall.add(slat);
-  }
+  const rightVentGrille = buildSideVentGrille(3.40, 2.20, 1, 10, 'Body_RightWallVent');
+  rightVentGrille.position.set(0.082, -0.45, 0.60);
+  rightBayWall.add(rightVentGrille);
 
   [
     [-2.70, -4.60],
@@ -517,27 +559,12 @@ export function buildPlinthAndChassis() {
   zeissTrimBar.name = 'Body_ChassisAccentTrim';
   rearUpperCabinet.add(zeissTrimBar);
 
-  // Brushed side ventilation louvers on -X and +X faces of the rear tower
+  // Framed industrial ventilation grilles on -X and +X faces of the rear tower
   [-1, 1].forEach((sideSign, sIdx) => {
-    const sideX = sideSign * 4.01;
-    const recess = new THREE.Mesh(
-      new THREE.BoxGeometry(0.02, 2.90, 1.80),
-      MAT_ZEISS_ANTHRACITE
-    );
-    recess.position.set(sideX, 0.40, 0.15);
-    recess.name = `Body_TowerVentRecess_${sIdx === 0 ? 'L' : 'R'}`;
-    rearUpperCabinet.add(recess);
-
-    for (let v = 0; v < 9; v++) {
-      const blade = new THREE.Mesh(
-        new THREE.BoxGeometry(0.035, 0.09, 1.62),
-        MAT_316SS_BRUSHED
-      );
-      blade.position.set(sideSign * 4.02, -0.78 + v * 0.29, 0.15);
-      blade.rotation.z = sideSign * 0.36;
-      blade.name = `Body_TowerLouver_${sIdx === 0 ? 'L' : 'R'}_0${v + 1}`;
-      rearUpperCabinet.add(blade);
-    }
+    const tag = sIdx === 0 ? 'L' : 'R';
+    const towerGrille = buildSideVentGrille(1.88, 2.94, sideSign, 12, `Body_TowerVent_${tag}`);
+    towerGrille.position.set(sideSign * 4.002, 0.40, 0.15);
+    rearUpperCabinet.add(towerGrille);
   });
 
   // Top removable maintenance cover plate + 8 DIN 912 M5 hex socket screws
@@ -609,53 +636,6 @@ export function buildPlinthAndChassis() {
     louver.name = `Body_ServiceDoorLouver_0${l + 1}`;
     serviceDoorPivot.add(louver);
   }
-
-  // ISO High-Voltage / Vacuum Bay Caution Nameplate on upper front door face (upright, flipY = false)
-  const warnCanvas = createCanvas(512, 224);
-  let warnMat;
-  if (warnCanvas) {
-    const wCtx = warnCanvas.getContext('2d');
-    wCtx.fillStyle = '#0f172a';
-    wCtx.fillRect(0, 0, 512, 224);
-    wCtx.strokeStyle = '#facc15';
-    wCtx.lineWidth = 8;
-    wCtx.strokeRect(8, 8, 496, 208);
-
-    // Warning triangle
-    wCtx.fillStyle = '#facc15';
-    wCtx.beginPath();
-    wCtx.moveTo(86, 48);
-    wCtx.lineTo(138, 146);
-    wCtx.lineTo(34, 146);
-    wCtx.closePath();
-    wCtx.fill();
-    wCtx.fillStyle = '#0f172a';
-    wCtx.font = 'bold 58px sans-serif';
-    wCtx.textAlign = 'center';
-    wCtx.fillText('⚡', 86, 128);
-
-    wCtx.fillStyle = '#facc15';
-    wCtx.font = 'bold 34px "IBM Plex Mono", monospace';
-    wCtx.textAlign = 'left';
-    wCtx.fillText('CAUTION · 30 kV HV', 164, 84);
-    wCtx.fillStyle = '#e2e8f0';
-    wCtx.font = '600 22px "Inter", sans-serif';
-    wCtx.fillText('TURBOPUMP & EHT SERVICE BAY', 164, 130);
-    wCtx.fillStyle = '#94a3b8';
-    wCtx.font = '18px "IBM Plex Mono", monospace';
-    wCtx.fillText('DISCONNECT AC MAINS BEFORE ACCESS', 164, 170);
-
-    const wTex = new THREE.CanvasTexture(warnCanvas);
-    wTex.flipY = false;
-    wTex.colorSpace = THREE.SRGBColorSpace;
-    warnMat = new THREE.MeshStandardMaterial({ map: wTex, roughness: 0.28, metalness: 0.20 });
-  } else {
-    warnMat = MAT_YELLOW_SAFETY;
-  }
-  const warnDecal = createDecalQuad(1.08, 0.47, warnMat);
-  warnDecal.position.set(5.90, 1.85, -0.054);
-  warnDecal.name = 'Body_ServiceDoorHVDecal';
-  serviceDoorPivot.add(warnDecal);
 
   // Rotary Compression Latch near +X free edge (X_local = 7.36, Y_local = +0.25)
   const latchGroup = new THREE.Group();
