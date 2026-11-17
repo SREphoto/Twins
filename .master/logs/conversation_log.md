@@ -4,6 +4,41 @@ Newest first. Template: `templates/conversation_log_entry.md`.
 
 ---
 
+## 2026-11-17 · OGA · chemmate-interactive-teaching-lab-and-swiss-redesign
+
+| Field   | Value                                    |
+| ------- | ---------------------------------------- |
+| Agent   | OGA (Organizational Governance Agent)    |
+| Machine | `lab_viewer`, `workspace`                |
+
+### User request (paraphrase)
+
+The user designed and approved an educational ChemMate chemistry teaching experience integrated cleanly into the `lab_viewer/` 3D complex—without deleting standalone labs—featuring a Sketchfab 3D iPhone prop + slide-out HUD + syncable mobile companion (`companion.html`), Gemini 3.8 Flash TTS narration, 3 PoC flagship labs (`T1L1`, `T4L24`, `PHARMA_QC`), and a complete 24-lab Tier 1 curriculum roadmap. Following review of the first-pass UI and Formula 1 Apex (`https://formula-1-apex.web.app/index.html`) + ChemMate Swiss Archival Paper references (`IMG_0306.jpeg`, `IMG_6768..6777.png`), the user demanded strict anti-slop governance rules, fixing the broken duplicate 3D iPhone GLB & unwanted bench QR placard, restyling the entire ChemMate teaching experience to Swiss Archival Paper craft, using specialized subagents, and recording all work in the `.master/` changelog, troubleshooting log, and report cards.
+
+### Decisions
+
+1. **Governance & Anti-Slop Skill Codification**: Created `.agents/skills/world-class-ui-design/SKILL.md` encoding the 10 Formula 1 Apex editorial design benchmarks and ChemMate Swiss Archival Paper tokens (`#F4F1EA`, `#FBF9F4`, `#141413`, `#D6D0C4`, `#D61F1F`), and added `[DIAG-027]`, `[DIAG-028]`, `[DIAG-029]` plus `CHK-19`–`CHK-21` across `.agents/`.
+2. **Non-Destructive Separation**: Isolated Lesson Mode under `body.chemmate-lesson-mode`, leaving Grand Lab free-explore dark biotech HUD and all 18 standalone `*_twin/` packages untouched.
+3. **GLB Hygiene & Curated Studio Bench**: Stripped duplicate upside-down copy `Object_16..26` from `iphone_14_pro.glb`, remapped screen `Object_6` UVs cleanly (`flipY = false`), elevated Dynamic Island `Object_8`, removed the unrequested 3D QR placard (`qrPlaca`) and floating sprite banners in favor of projected 2D SVG leader-line callouts (`#cm-leader-callout`), paired with `Magnetic_Stirrer_Hotplate`, 100 mL Pyrex beaker, stir bar, and CuSO₄·5H₂O crystals.
+4. **Instant Studio Framing**: Executed `player.setCameraPose()` synchronously at lesson launch prior to async twin loading so students immediately land on the curated analytical bench.
+
+### Outcomes
+
+- Full 7-stage headless Chrome CDP visual QA suite (`vqa_cdp_audit.mjs`) passed with `0` console errors, `0` exceptions, `0` HTTP/network errors, `leaderAnchorDeltaPx: 0.1`, active `stirBarRotationY: 2230.21`, verified mobile layout (`390×844` zero overflow), and clean Free-Explore regression (`qa_07`).
+- All 7 visual artifacts (`qa_01`–`qa_07`) visually audited via `view_file`.
+- `.master/logs/` and `.master/05_PERSONAL_MISC/tools/cad_validator.mjs` governance gate verified.
+
+### Open questions for human
+
+None.
+
+### Links
+
+- Report card: `logs/report_cards/2026-11-17_OGA_chemmate-swiss-redesign-and-phone-fix.md`
+- Change log: `logs/master_change_log.md`
+
+---
+
 ## 2026-10-25 · OGA · build-erweka-zt322-disintegration-tester-twin
 
 | Field   | Value                                                              |

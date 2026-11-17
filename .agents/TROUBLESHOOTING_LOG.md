@@ -488,6 +488,37 @@ Cause Analysis, and Mathematical Fixes
 
 ---
 
+### DIAG-027: Imported GLB Duplicate Submesh & Unwanted 3D Bench Placard Clutter
+
+- **Visual Symptom**: Third-party 3D props on lab benches (such as Sketchfab `iphone_14_pro.glb`) display TWO overlapping side-by-side phones, native third-party car wallpapers bleeding through the procedural UI texture, Z-fighting screen planes, or giant floating/propped neon QR billboards cluttering the clean benchtop.
+- **Why It Occurred**: The `.glb` file was added blindly without inspecting its internal glTF node hierarchy (`Object_4..Object_14` upright copy vs. `Object_16..Object_26` upside-down duplicate copy), fallback procedural screen planes overlapped the GLB screen mesh, UV coordinates extended outside `[0, 1]`, and an unrequested `qrGroup` 3D billboard was mounted beside the phone stand.
+- **Enforced Rule (AGENTS.md & `world-class-ui-design`)**:
+  - Parse every third-party `.glb` scene graph prior to integration; strip/remove duplicate sibling copies so strictly **one** physical prop instance remains.
+  - Remap screen mesh UVs cleanly onto `[0, 1] x [0, 1]` paired with `texture.flipY = false` and replace the stock wallpaper material directly (`toneMapped: false`) instead of placing a colliding `PlaneGeometry` in front of it. Hide fallback meshes once GLB loads.
+  - **NEVER** spawn 3D QR billboards (`qrPlaca`) or chunky 3D floating text sprites (`beaconSprite`) over clean benchtop glassware/equipment. Place QR pairing inside the on-screen Companion drawer and use lightweight projected 2D SVG leader-line callouts in screen overlay space.
+  - Verify with a dedicated close-up screenshot (`CAM_PROP_CLOSEUP`) inspected via `view_file`.
+
+---
+
+### DIAG-028: Generic Dark-Box UI / Editorial Typography & Contrast Violation
+
+- **Visual Symptom**: Educational interfaces (`#iphone-companion-hud`, `companion.html`) look like generic AI dark-navy rectangles with harsh neon cyan outlines, wrapped badge pills (`STEP 1 OF \n 4`), truncated titles pushing header controls vertically, and zero typographic hierarchy compared to the user's editorial references (Formula 1 Apex Legends & ChemMate Swiss Archival Paper broadsheets).
+- **Why It Occurred**: UI markup was styled ad hoc with repetitive `#090d14` / `#00d4e8` dark boxes rather than consulting the `world-class-ui-design` skill, reference screenshots (`IMG_6768..6777`), and curated design tokens.
+- **Enforced Rule (AGENTS.md & `world-class-ui-design`)**:
+  - Enforce the **ChemMate Swiss Archival Paper Design System** (`#F4F1EA` warm paper ground, `#FBF9F4` cards, `#141413` grotesque display ink, `#D6D0C4` 1px hairline borders, `#D61F1F` Swiss crimson badges/CTAs/SVG leader pins, `IBM Plex Mono` uppercase labels with `tabular-nums`, and corner `+` registration marks) across Lesson Mode, iPhone Companion OS, Curriculum Selector, and `companion.html`.
+  - Keep single-line badges (`white-space: nowrap; flex-shrink: 0;`), zero overlapped controls, and auto-collapse redundant legacy sidebars during guided lesson mode while preserving standalone `*_twin/` and free-explore Grand Lab UIs intact.
+
+---
+
+### DIAG-029: Async Scene Load Overriding Lesson Camera Spawn Framing
+
+- **Visual Symptom**: Launching `index.html?lesson=T1L1` opens looking at the distant outdoor campus parking lot while the Lesson HUD and guidance voiceover already describe analytical instruments inside Zone 1.
+- **Why It Occurred**: `LabPlayerController` spawns at exterior campus overview `(-22, 24.5, -62)`, and `startLesson()` waited for async GLB/module dynamic imports (`await dockManager.turnOnTwin(...)`) before calling a 1.1s `glideToStation()` lerp—allowing initial frames and fast user loads to remain outdoors.
+- **Enforced Rule (AGENTS.md & `world-class-ui-design`)**:
+  - Whenever entering a lesson directly (especially via `?lesson=` query param or from far exterior overview), invoke `player.setCameraPose(lesson.benchCam.pos, lesson.benchCam.look, "station_focus")` **immediately** before awaiting heavy module imports, guaranteeing instant interior curated bench framing on frame 1.
+
+---
+
 ## How to Use This Log in Future Visual Audits
 
 1. **Pre-flight Moiré / Z-Fighting Scan**: Orbit camera $360^\circ$ at shallow grazing angles ($15^\circ$ to
@@ -528,6 +559,9 @@ Every subagent, builder, and auditor MUST execute and document this checklist fo
 | **CHK-16** | **Optical Ray & Solid-Body Propagation** | Light rays passing diagonally through solid partition walls or turning in empty air. | All optics coplanar on $Y_{\text{beam}}$; physical hollow aperture bores through walls; $45^\circ$ kinematic fold mirrors at beam turns; zero solid collision. |
 | **CHK-17** | **Lamp House & Optics Industrial Fidelity** | Abstract cone reflectors, bare bulbs, flat non-reflective mirror planes. | Finned cast-aluminum lamp housing, G4 ceramic socket, collector mirrors, fused silica quartz first-surface mirrors with kinematic mounts and retention clips. |
 | **CHK-18** | **Ceiling Height & Top View Clearance** | Low ceiling slab cutting off top camera or high-angle viewing orbits. | Elevated ceiling ($Y \ge 28\text{ m}$); single-sided downward-facing ceiling plane backface-culled from above; zero top-view occlusion. |
+| **CHK-19** | **GLB Prop Hygiene & Bench Cleanliness** | Duplicate side-by-side phones, native stock wallpapers bleeding through, unrequested QR placards, chunky 3D billboard banners. | Third-party `.glb` scene graphs stripped of duplicate sibling copies; normalized upright `[0,1]` screen UVs with `flipY = false`; zero unrequested 3D QR plaques or text sprites; close-up `CAM_PROP_CLOSEUP` inspected via `view_file` (DIAG-027). |
+| **CHK-20** | **Editorial UI Craft & Swiss Paper Token Discipline** | Dark neon box slop, truncated/wrapping header badges, occluded titles, missing tabular numerals. | Conforms to `.agents/skills/world-class-ui-design/SKILL.md`: ChemMate Swiss Archival Paper system (`#F4F1EA` / `#FBF9F4` / `#141413` / `#D61F1F`) in Lesson Mode & `companion.html`, single-line badges (`nowrap`), SVG leader callouts, and `tabular-nums` (DIAG-028). |
+| **CHK-21** | **Instant Curated Lesson Studio Framing** | Launching `?lesson=` opens looking at the distant parking lot while voiceover speaks about a benchtop machine. | `startLesson()` snaps camera immediately via `player.setCameraPose(...)` to curated interior bench view before dynamic twin module loading (DIAG-029). |
 
 
 

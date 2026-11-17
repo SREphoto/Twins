@@ -20,6 +20,8 @@ import { LabPlayerController } from "./engine/LabPlayerController.js";
 import { physicalDataBus } from "./engine/PhysicalDataBus.js";
 import { labAudio } from "./engine/LabSFXMixer.js";
 import { MobilePerfBudget } from "./engine/MobilePerfBudget.js?v=20261116-perf1";
+import { PhoneCompanionController } from "./engine/PhoneCompanionController.js";
+import { TeachingLabManager } from "./engine/TeachingLabManager.js";
 
 class GrandLabApp {
   constructor() {
@@ -83,6 +85,10 @@ class GrandLabApp {
     );
     this._initRaycasting();
     this._startLoop();
+
+    if (this._pendingUrlLesson) {
+      this.teachingLab?.startLesson(this._pendingUrlLesson);
+    }
   }
 
   _initThree() {
@@ -220,6 +226,18 @@ class GrandLabApp {
     if (this.environment.assetsReadyPromise) {
       this.environment.assetsReadyPromise.then(() => this.mobilePerf.refresh());
     }
+
+    // 8. ChemMate Dual-Mode iPhone Companion & Curated Teaching Lab Manager
+    this.phoneCompanion = new PhoneCompanionController(this.scene, this.camera, {
+      onTriggerStepAction: () => this.teachingLab?.performCurrentStepAction(),
+      onHighlightTarget: () => this.teachingLab?.focusAndPulseCurrentTarget(),
+      onSelectLesson: (lessonId) => this.teachingLab?.startLesson(lessonId),
+      onExitLessonMode: () => this.teachingLab?.exitLessonMode(),
+      onOpenCurriculum: () => this.setCurriculumModalOpen(true)
+    });
+    this.teachingLab = new TeachingLabManager(this);
+
+    this._pendingUrlLesson = new URLSearchParams(window.location.search).get("lesson");
   }
 
   _initUI() {
@@ -294,6 +312,59 @@ class GrandLabApp {
       if (!val) return;
       this._jumpToPresetLocation(val);
       e.target.value = "";
+    });
+
+    // ChemMate Lesson Mode Selector, Curriculum Modal & Companion Controls
+    this.chemmateLessonSelect = document.getElementById("chemmate-lesson-select");
+    if (this.chemmateLessonSelect) {
+      this.chemmateLessonSelect.addEventListener("change", (e) => {
+        const lessonId = e.target.value;
+        if (!lessonId) return;
+        this.teachingLab?.startLesson(lessonId);
+        e.target.value = "";
+      });
+    }
+    const btnIphoneTop = document.getElementById("btn-iphone-companion-top");
+    if (btnIphoneTop) {
+      btnIphoneTop.addEventListener("click", () => {
+        this.phoneCompanion?.toggleOpen();
+      });
+    }
+
+    this.curriculumModal = document.getElementById("chemmate-curriculum-modal");
+    document.getElementById("btn-cm-curriculum")?.addEventListener("click", () => {
+      this.setCurriculumModalOpen(true);
+      labAudio.playButtonClick();
+    });
+    document.getElementById("btn-close-curriculum-modal")?.addEventListener("click", () => {
+      this.setCurriculumModalOpen(false);
+      labAudio.playButtonClick();
+    });
+    this.curriculumModal?.addEventListener("click", (e) => {
+      if (e.target === this.curriculumModal) this.setCurriculumModalOpen(false);
+    });
+    document.querySelectorAll("[data-start-lesson]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const lessonId = btn.getAttribute("data-start-lesson");
+        if (!lessonId) return;
+        this.setCurriculumModalOpen(false);
+        this.teachingLab?.startLesson(lessonId);
+        labAudio.playButtonClick();
+      });
+    });
+    document.getElementById("btn-cm-toggle-iphone")?.addEventListener("click", () => {
+      this.phoneCompanion?.toggleOpen();
+    });
+    document.getElementById("btn-cm-focus-target")?.addEventListener("click", () => {
+      this.teachingLab?.focusAndPulseCurrentTarget();
+    });
+    document.getElementById("btn-cm-exit-grandlab")?.addEventListener("click", () => {
+      this.teachingLab?.exitLessonMode();
+      labAudio.playButtonClick();
+    });
+    document.getElementById("cm-leader-box")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.teachingLab?.performCurrentStepAction();
     });
 
     // Lighting Atmosphere & Time-of-Day Mood Switcher (Daylight / Dusk / Night)
@@ -396,12 +467,31 @@ class GrandLabApp {
       });
     }
     window.addEventListener("keydown", (e) => {
-      if (e.code === "Escape" && this.controlsHelpModal && !this.controlsHelpModal.classList.contains("is-hidden")) {
+      if (e.code !== "Escape") return;
+      if (this.curriculumModal && !this.curriculumModal.classList.contains("is-hidden")) {
+        e.stopImmediatePropagation();
+        this.setCurriculumModalOpen(false);
+        return;
+      }
+      if (this.controlsHelpModal && !this.controlsHelpModal.classList.contains("is-hidden")) {
+        e.stopImmediatePropagation();
         setHelpModalOpen(false);
       }
-    });
+    }, { capture: true });
 
     this._initRoomControlsUI();
+  }
+
+  setCurriculumModalOpen(open) {
+    const modal = this.curriculumModal || document.getElementById("chemmate-curriculum-modal");
+    if (!modal) return;
+    modal.classList.toggle("is-hidden", !open);
+    if (open) {
+      const callout = document.getElementById("cm-leader-callout");
+      if (callout) callout.classList.add("is-hidden");
+    } else if (this.teachingLab?.activeLesson) {
+      this.teachingLab.update(performance.now() * 0.001);
+    }
   }
 
   _initRoomControlsUI() {
@@ -1028,21 +1118,37 @@ class GrandLabApp {
     const coords = useCenterReticle ? this.centerMouse : this.mousePos;
     this.raycaster.setFromCamera(coords, this.camera);
 
-    // Objects to test: interactive utilities + casework + clickable doors/blinds/wall controls + instrument docks
+    // Objects to test: interactive utilities + casework + clickable doors/blinds/wall controls + instrument docks + teaching targets
     const targets = [
       ...this.utilities.interactiveObjects,
       ...(this.casework?.interactiveObjects || []),
       ...(this.environment?.interactiveObjects || []),
-      ...this.dockManager.clickableDocks
+      ...this.dockManager.clickableDocks,
+      ...(this.teachingLab?.interactiveTargets || []),
+      ...(this.phoneCompanion?.interactiveHitBox ? [this.phoneCompanion.interactiveHitBox] : [])
     ];
 
     const intersects = this.raycaster.intersectObjects(targets, true);
 
     if (intersects.length > 0) {
-      // Find top interactive parent
-      let obj = intersects[0].object;
-      while (obj && !obj.userData?.toggle && !obj.userData?.isTwinDock && obj.parent) {
-        obj = obj.parent;
+      const resolveInteractive = (hitObj) => {
+        let cur = hitObj;
+        while (cur && !cur.userData?.toggle && !cur.userData?.isTwinDock && cur.parent) {
+          cur = cur.parent;
+        }
+        return cur;
+      };
+
+      // Find top interactive parent (preferring teaching target hits during active lesson mode)
+      let obj = resolveInteractive(intersects[0].object);
+      if (this.teachingLab?.activeLesson) {
+        for (const hit of intersects) {
+          const candidate = resolveInteractive(hit.object);
+          if (candidate?.userData?.isTeachingTarget) {
+            obj = candidate;
+            break;
+          }
+        }
       }
 
       this.hoveredObject = obj;
@@ -1102,8 +1208,9 @@ class GrandLabApp {
       this.environment.update(now * 0.001, this.camera, this.player.mode);
       this.casework?.update?.(delta);
 
-      // 3. Update Interactive Utilities (Flame flicker, water flow)
+      // 3. Update Interactive Utilities (Flame flicker, water flow) & Curated Teaching Lab
       this.utilities.update(now * 0.001);
+      this.teachingLab?.update(now * 0.001);
 
       // 4. Throttled Center Raycasting (on pointer move or max ~8 Hz during navigation)
       if (this._raycastDirty || (now - (this._lastRaycastAt || 0)) >= 130) {

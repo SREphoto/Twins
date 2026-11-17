@@ -296,3 +296,20 @@
 - [ ] **Git & Deployment Verification**:
   - Clean `git status`, descriptive commit message, push to `origin/main` (`BypassSandbox: true`).
   - Confirm GitHub Actions workflow completion with `gh run list` (`✓ SUCCESS`).
+
+---
+
+## Category 13: World-Class Editorial UI, Companion & GLB Prop Hygiene (`world-class-ui-design`)
+
+- [ ] **Anti-Garbage UI & Editorial Craft (`DIAG-028`)**:
+  - Follows `.agents/skills/world-class-ui-design/SKILL.md` (10 curated design benchmarks from Formula 1 Apex Legends: `Recent.design`, `Godly`, `Minimal Gallery`, `Mobbin`, `SiteInspire`, `Awwwards`, `Figma Community`, `Deck.gallery`, `Posts.design`, `Land-book`).
+  - Zero generic dark-navy neon-cyan slop rectangles in ChemMate Teaching Lab mode or `companion.html`; adheres strictly to **ChemMate Swiss Archival Paper** (`#F4F1EA`, `#FBF9F4`, `#141413`, `#D6D0C4`, `#D61F1F`).
+  - Single-line status badges (`white-space: nowrap`), `tabular-nums` monospace telemetry, and zero wrapping/clipped header pills.
+- [ ] **GLB Submesh Hygiene & Clean Benches (`DIAG-027`)**:
+  - Imported `.glb` assets audited for duplicate sibling submeshes (zero dual-phone stacking), normalized screen UVs (`flipY = false`), zero native demo wallpaper bleed-through, and zero unrequested 3D QR billboards (`qrPlaca`) or chunky 3D billboard sprites (`beaconSprite`).
+  - Close-up prop inspection (`CAM_PROP_CLOSEUP`) audited via `view_file`.
+- [ ] **Instant Interior Studio Framing (`DIAG-029`)**:
+  - Direct lesson URL launch (`?lesson=`) snaps immediately via `setCameraPose` to curated interior bench framing before heavy GLB imports, preventing exterior parking-lot spawns.
+- [ ] **Non-Destructive Mode Preservation**:
+  - Standalone `*_twin/` viewers and Grand Lab free-explore mode remain completely intact when `body.chemmate-lesson-mode` is inactive.
+

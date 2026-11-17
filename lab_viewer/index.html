@@ -14,8 +14,8 @@
   <meta name="theme-color" content="#E53935" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20261116-perf1" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=20261116-swiss1" />
 
   <script type="importmap">
   {
@@ -77,9 +77,33 @@
             <option value="sem">18 · Zeiss Gemini Field-Emission SEM</option>
           </optgroup>
         </select>
+        <select id="chemmate-lesson-select" class="quick-travel-select chemmate-lesson-select" aria-label="Launch ChemMate Teaching Lab">
+          <option value="">🎓 ChemMate Teaching Labs (PoC + Tier 1)...</option>
+          <optgroup label="🚀 Flagship 3-Lab Proof of Concept">
+            <option value="T1L1">PoC 1 · T1L1: CuSO₄·5H₂O Dissolution (Balance + Beaker)</option>
+            <option value="T4L24">PoC 2 · T4L24: Crystal Violet Kinetics (UV-1900i 590nm)</option>
+            <option value="PHARMA_QC">PoC 3 · USP &lt;701&gt;/&lt;711&gt;: ERWEKA ZT 322 &amp; 708-DS</option>
+          </optgroup>
+          <optgroup label="🧪 Tier 1: Atoms &amp; Elements (All 24 Modules)">
+            <option value="T1L2">T1L2 · Matter Basics (Centrifuge + Hotplate)</option>
+            <option value="T1L3">T1L3 · Phase Shift (Lauric Acid Curve)</option>
+            <option value="T1L4">T1L4 · Inside the Atom (Rutherford α-Scattering)</option>
+            <option value="T1L5">T1L5 · Elements &amp; Identity (Flame Emission)</option>
+            <option value="T1L6">T1L6 · Electrostatic Forces (Ionic vs Covalent)</option>
+            <option value="T1L7">T1L7 · Precision Tools (Volumetric Calibration)</option>
+            <option value="T1L11">T1L11 · Dalton's Postulates (Muffle Furnace + Balance)</option>
+            <option value="T1L14">T1L14 · Quantized Energy (Balmer Discharge)</option>
+            <option value="T1L16">T1L16 · The Periodic Law (Period 3 Oxides pH)</option>
+            <option value="T1L21">T1L21 · Group 17 Kinetics (Vortex + Centrifuge)</option>
+            <option value="T1L24">T1L24 · Tier 1 Mastery Exam (3 Unknowns)</option>
+          </optgroup>
+        </select>
       </div>
 
       <div class="header-actions">
+        <button id="btn-iphone-companion-top" class="btn-icon" title="Pull ChemMate iPhone 14 Pro Companion On/Off Screen (Key P)">
+          <span>📱</span> <span class="btn-label">iPHONE</span>
+        </button>
         <div class="mood-switcher" role="group" aria-label="Lighting Atmosphere &amp; Time of Day">
           <button class="mood-btn active" data-mood="daylight" title="Crisp Physical Daylight &amp; Sky IBL">☀️ <span class="mood-label">Daylight</span></button>
           <button class="mood-btn" data-mood="dusk" title="Golden-Hour Sunset Atmosphere">🌅 <span class="mood-label">Dusk</span></button>
@@ -98,6 +122,26 @@
           <span>⌨️</span> <span class="btn-label">CONTROLS</span>
         </button>
       </div>
+
+      <!-- ChemMate Swiss Archival Header Bar (Visible ONLY when body.chemmate-lesson-mode is active) -->
+      <div id="chemmate-topbar-nav" class="cm-topbar-nav" aria-label="ChemMate Teaching Studio Navigation">
+        <div class="cm-nav-brand">
+          <span class="cm-plus-square" aria-hidden="true">+</span>
+          <span class="cm-nav-wordmark">ChemMate</span>
+          <span class="cm-nav-sub">INTERACTIVE LAB STUDIO</span>
+        </div>
+
+        <nav class="cm-nav-links">
+          <button id="btn-cm-curriculum" class="cm-nav-link" type="button">CURRICULUM</button>
+          <button id="btn-cm-toggle-iphone" class="cm-nav-link" type="button">iPHONE COMPANION</button>
+          <button id="btn-cm-focus-target" class="cm-nav-link" type="button">FOCUS CONTROL</button>
+        </nav>
+
+        <div class="cm-nav-right">
+          <span id="cm-active-lesson-pill" class="cm-active-lesson-pill">T1L1 · CuSO₄·5H₂O</span>
+          <button id="btn-cm-exit-grandlab" class="cm-exit-btn" type="button">← GRAND LAB</button>
+        </div>
+      </div>
     </header>
 
     <!-- Main Viewport Stage -->
@@ -111,6 +155,21 @@
       <div id="interaction-prompt-pill" class="interaction-prompt-pill is-hidden">
         <span class="prompt-icon">💡</span>
         <span id="prompt-text">Click to interact</span>
+      </div>
+
+      <!-- 2D Projected Swiss Crimson Leader-Line Callout for Active 3D Control -->
+      <div id="cm-leader-callout" class="cm-leader-callout is-hidden" aria-hidden="true">
+        <svg id="cm-leader-svg" class="cm-leader-svg" width="100%" height="100%">
+          <polyline id="cm-leader-poly" points="0,0 0,0 0,0" fill="none" stroke="#D61F1F" stroke-width="1.75" />
+          <circle id="cm-leader-dot" cx="0" cy="0" r="5" fill="#D61F1F" stroke="#FBF9F4" stroke-width="2" />
+        </svg>
+        <div id="cm-leader-box" class="cm-leader-box">
+          <span class="cm-leader-pin" aria-hidden="true">+</span>
+          <div class="cm-leader-text">
+            <span id="cm-leader-mesh" class="cm-leader-mesh">Btn_Power</span>
+            <span id="cm-leader-label" class="cm-leader-label">Click 3D control to actuate</span>
+          </div>
+        </div>
       </div>
 
       <!-- Sleek Floating Bottom Navigation Dock -->
@@ -385,8 +444,257 @@
         </div>
       </div>
     </div>
+
+    <!-- ChemMate Swiss Archival Paper Editorial Curriculum Showcase & Tier 1 Matrix -->
+    <div id="chemmate-curriculum-modal" class="cm-modal-backdrop is-hidden" role="dialog" aria-modal="true" aria-labelledby="cm-modal-hero-title">
+      <div class="cm-broadsheet">
+        <span class="cm-reg cm-reg-tl" aria-hidden="true">+</span>
+        <span class="cm-reg cm-reg-tr" aria-hidden="true">+</span>
+        <span class="cm-reg cm-reg-bl" aria-hidden="true">+</span>
+        <span class="cm-reg cm-reg-br" aria-hidden="true">+</span>
+
+        <!-- Broadsheet Top Navigation -->
+        <div class="cm-bs-header">
+          <div class="cm-nav-brand">
+            <span class="cm-plus-square" aria-hidden="true">+</span>
+            <span class="cm-nav-wordmark">ChemMate</span>
+            <span class="cm-bs-kicker">INTERACTIVE 3D CURRICULUM</span>
+          </div>
+          <div class="cm-bs-header-right">
+            <span class="cm-bs-tagline">BETTER THINKERS · BUILD A BRIGHTER FUTURE</span>
+            <button id="btn-close-curriculum-modal" class="cm-close-btn" type="button" aria-label="Close Curriculum">✕ CLOSE</button>
+          </div>
+        </div>
+
+        <div class="cm-bs-scroll">
+          <!-- Editorial Hero Banner (Modeled on Swiss Broadsheet Reference) -->
+          <section class="cm-hero-grid">
+            <div class="cm-hero-copy">
+              <div class="cm-hero-meta">
+                <span class="cm-num-flag">01</span>
+                <span class="cm-mono-tag">INTERACTIVE CHEMISTRY CURRICULUM · 3D BENCH + BLE iPHONE</span>
+              </div>
+              <h2 id="cm-modal-hero-title" class="cm-hero-title">Reason through chemistry, not just memorize it.</h2>
+              <p class="cm-hero-lead">Launch directly into calibrated 3D laboratory instruments, DIN borosilicate glassware, real-time BLE telemetry, and guided stoichiometry verification — designed to reveal the physical why, not just the formula.</p>
+              <div class="cm-hero-cta-row">
+                <button class="cm-cta-black" type="button" data-start-lesson="T1L1">LAUNCH POC 01 · CuSO₄·5H₂O →</button>
+                <span class="cm-mono-meta">CURATED BENCH · ZERO NEON CLUTTER</span>
+              </div>
+            </div>
+
+            <div class="cm-hero-specimen">
+              <span class="cm-reg cm-reg-tl" aria-hidden="true">+</span>
+              <span class="cm-reg cm-reg-br" aria-hidden="true">+</span>
+              <div class="cm-spec-head">
+                <span>03 | [Cu(H₂O)₆]²⁺ &amp; NaCl Lattice</span>
+                <span>SPACE GROUP Fm-3m</span>
+              </div>
+              <svg viewBox="0 0 360 176" class="cm-hero-svg" role="img" aria-label="NaCl Crystal Lattice and Octahedral Cu2+ Complex">
+                <rect x="6" y="6" width="348" height="164" fill="#F4F1EA" stroke="#D6D0C4" stroke-width="1"/>
+                <!-- 3D Isometric Crystal Lattice Frame -->
+                <g stroke="#141413" stroke-width="1.4" fill="none">
+                  <rect x="44" y="42" width="84" height="84"/>
+                  <rect x="78" y="24" width="84" height="84"/>
+                  <line x1="44" y1="42" x2="78" y2="24"/>
+                  <line x1="128" y1="42" x2="162" y2="24"/>
+                  <line x1="44" y1="126" x2="78" y2="108"/>
+                  <line x1="128" y1="126" x2="162" y2="108"/>
+                  <line x1="86" y1="42" x2="86" y2="126" stroke-opacity="0.4"/>
+                  <line x1="44" y1="84" x2="128" y2="84" stroke-opacity="0.4"/>
+                </g>
+                <!-- Lattice Ions -->
+                <circle cx="44" cy="42" r="9" fill="#0F3554" stroke="#141413" stroke-width="1.2"/>
+                <circle cx="128" cy="42" r="9" fill="#0F3554" stroke="#141413" stroke-width="1.2"/>
+                <circle cx="44" cy="126" r="9" fill="#0F3554" stroke="#141413" stroke-width="1.2"/>
+                <circle cx="128" cy="126" r="9" fill="#0F3554" stroke="#141413" stroke-width="1.2"/>
+                <circle cx="78" cy="24" r="7" fill="#0F3554" stroke="#141413" stroke-width="1.1"/>
+                <circle cx="162" cy="24" r="9" fill="#0F3554" stroke="#141413" stroke-width="1.2"/>
+                <circle cx="86" cy="42" r="5" fill="#9CA3AF" stroke="#141413" stroke-width="1"/>
+                <circle cx="86" cy="84" r="9" fill="#0F3554" stroke="#141413" stroke-width="1.2"/>
+                <circle cx="128" cy="84" r="5.5" fill="#9CA3AF" stroke="#141413" stroke-width="1"/>
+                <circle cx="86" cy="126" r="5.5" fill="#9CA3AF" stroke="#141413" stroke-width="1"/>
+                <!-- Red Leader Pins -->
+                <circle cx="162" cy="24" r="3" fill="#D61F1F"/>
+                <polyline points="162,24 188,24 198,24" fill="none" stroke="#D61F1F" stroke-width="1.4"/>
+                <rect x="198" y="15" width="38" height="16" fill="#D61F1F"/>
+                <text x="206" y="26" font-family="IBM Plex Mono, monospace" font-size="9" font-weight="700" fill="#FBF9F4">Cl⁻</text>
+                <text x="198" y="42" font-family="IBM Plex Mono, monospace" font-size="8" fill="#5C564C">(2,8,8)</text>
+
+                <circle cx="128" cy="84" r="3" fill="#D61F1F"/>
+                <polyline points="128,84 188,84 198,84" fill="none" stroke="#D61F1F" stroke-width="1.4"/>
+                <rect x="198" y="75" width="38" height="16" fill="#D61F1F"/>
+                <text x="206" y="86" font-family="IBM Plex Mono, monospace" font-size="9" font-weight="700" fill="#FBF9F4">Na⁺</text>
+                <text x="198" y="102" font-family="IBM Plex Mono, monospace" font-size="8" fill="#5C564C">(2,8)</text>
+
+                <!-- Electron Shells Right Column -->
+                <line x1="256" y1="18" x2="256" y2="156" stroke="#D6D0C4" stroke-width="1"/>
+                <text x="272" y="24" font-family="IBM Plex Mono, monospace" font-size="8" font-weight="700" fill="#5C564C">SHELL MODEL</text>
+                <circle cx="304" cy="64" r="24" fill="none" stroke="#141413" stroke-width="0.9"/>
+                <circle cx="304" cy="64" r="15" fill="none" stroke="#141413" stroke-width="0.9"/>
+                <circle cx="304" cy="64" r="6" fill="#141413"/>
+                <circle cx="304" cy="40" r="2" fill="#D61F1F"/>
+                <circle cx="328" cy="64" r="2" fill="#D61F1F"/>
+                <circle cx="280" cy="64" r="2" fill="#D61F1F"/>
+                <text x="272" y="102" font-family="IBM Plex Mono, monospace" font-size="8" font-weight="700" fill="#141413">Cl⁻ · 2,8,8</text>
+                <rect x="262" y="116" width="84" height="42" fill="#FBF9F4" stroke="#D6D0C4" stroke-width="1"/>
+                <text x="270" y="132" font-family="IBM Plex Mono, monospace" font-size="8" font-weight="700" fill="#141413">FCC LATTICE</text>
+                <text x="270" y="146" font-family="IBM Plex Mono, monospace" font-size="7" fill="#5C564C">3D COORDINATION</text>
+              </svg>
+            </div>
+          </section>
+
+          <!-- Flagship 3-Lab Proof of Concept Selector -->
+          <section class="cm-section">
+            <div class="cm-section-head">
+              <div class="cm-section-title-group">
+                <span class="cm-num-flag">POC</span>
+                <h3>Flagship 3-Lab Proof of Concept</h3>
+              </div>
+              <span class="cm-mono-tag">INSTANT STUDIO FRAMING · BLE + VOICE</span>
+            </div>
+
+            <div class="cm-poc-grid">
+              <!-- PoC 1: T1L1 -->
+              <article class="cm-poc-card">
+                <div class="cm-poc-top">
+                  <span class="cm-poc-code">POC 01 · T1L1</span>
+                  <span class="cm-poc-chip">CR-01 · 12 MIN</span>
+                </div>
+                <h4>CuSO₄·5H₂O Dissolution &amp; Recrystallization</h4>
+                <p>Weigh 5.0012 g triclinic crystals on the 0.1 mg analytical microbalance, dissolve at 400 RPM, and track ΔT = −1.8 °C.</p>
+                <div class="cm-poc-diagram">
+                  <svg viewBox="0 0 240 88" role="img" aria-label="T1L1 Beaker and Hydrated Copper Ion">
+                    <path d="M26 20 L26 72 Q26 76 30 76 L72 76 Q76 76 76 72 L76 20" fill="#BAE6FD" fill-opacity="0.48" stroke="#141413" stroke-width="1.5"/>
+                    <line x1="28" y1="38" x2="74" y2="38" stroke="#0284C7" stroke-width="1.4"/>
+                    <rect x="40" y="67" width="22" height="5" rx="2.5" fill="#FBF9F4" stroke="#141413" stroke-width="1.1"/>
+                    <line x1="142" y1="22" x2="142" y2="70" stroke="#141413" stroke-width="1.1"/>
+                    <line x1="118" y1="46" x2="166" y2="46" stroke="#141413" stroke-width="1.1"/>
+                    <circle cx="142" cy="46" r="8" fill="#0284C7" stroke="#141413" stroke-width="1.2"/>
+                    <circle cx="142" cy="22" r="4.5" fill="#FBF9F4" stroke="#141413" stroke-width="1.1"/>
+                    <circle cx="142" cy="70" r="4.5" fill="#FBF9F4" stroke="#141413" stroke-width="1.1"/>
+                    <circle cx="118" cy="46" r="4.5" fill="#FBF9F4" stroke="#141413" stroke-width="1.1"/>
+                    <circle cx="166" cy="46" r="4.5" fill="#FBF9F4" stroke="#141413" stroke-width="1.1"/>
+                    <circle cx="142" cy="46" r="3" fill="#D61F1F"/>
+                    <polyline points="142,46 174,24 184,24" fill="none" stroke="#D61F1F" stroke-width="1.2"/>
+                    <rect x="184" y="16" width="48" height="15" fill="#D61F1F"/>
+                    <text x="189" y="26" font-family="IBM Plex Mono, monospace" font-size="7.5" font-weight="700" fill="#FBF9F4">[Cu²⁺]</text>
+                    <text x="184" y="47" font-family="IBM Plex Mono, monospace" font-size="7.5" fill="#5C564C">ΔT -1.8°C</text>
+                    <text x="184" y="61" font-family="IBM Plex Mono, monospace" font-size="7.5" font-weight="700" fill="#16794B">96.4% YLD</text>
+                  </svg>
+                </div>
+                <div class="cm-poc-foot">
+                  <span class="cm-poc-machines">Balance · Hotplate</span>
+                  <button class="cm-cta-red" type="button" data-start-lesson="T1L1">START LESSON →</button>
+                </div>
+              </article>
+
+              <!-- PoC 2: T4L24 -->
+              <article class="cm-poc-card">
+                <div class="cm-poc-top">
+                  <span class="cm-poc-code">POC 02 · T4L24</span>
+                  <span class="cm-poc-chip">CR-04 · 10 MIN</span>
+                </div>
+                <h4>Crystal Violet Kinetics (UV-Vis 590 nm)</h4>
+                <p>Blank the dual-beam spectrophotometer with quartz cuvettes and measure first-order bleaching with NaOH (R² = 0.9982).</p>
+                <div class="cm-poc-diagram">
+                  <svg viewBox="0 0 240 88" role="img" aria-label="T4L24 590nm Beer-Lambert Cuvette">
+                    <rect x="14" y="34" width="22" height="18" fill="#141413"/>
+                    <text x="17" y="46" font-family="IBM Plex Mono, monospace" font-size="6.5" font-weight="700" fill="#FBF9F4">SRC</text>
+                    <line x1="36" y1="43" x2="78" y2="43" stroke="#D61F1F" stroke-width="2" stroke-dasharray="4 2"/>
+                    <line x1="112" y1="43" x2="150" y2="43" stroke="#D61F1F" stroke-width="1.3" stroke-opacity="0.55"/>
+                    <rect x="78" y="24" width="34" height="38" fill="#EDE9FE" stroke="#141413" stroke-width="1.5"/>
+                    <rect x="81" y="34" width="28" height="25" fill="#7C3AED" fill-opacity="0.34"/>
+                    <circle cx="95" cy="43" r="3" fill="#D61F1F"/>
+                    <polyline points="95,43 122,20 138,20" fill="none" stroke="#D61F1F" stroke-width="1.2"/>
+                    <rect x="138" y="12" width="54" height="15" fill="#D61F1F"/>
+                    <text x="143" y="22" font-family="IBM Plex Mono, monospace" font-size="7.5" font-weight="700" fill="#FBF9F4">λ 590 nm</text>
+                    <!-- Mini Decay Curve -->
+                    <polyline points="164,68 176,52 192,48 214,42 226,40" fill="none" stroke="#141413" stroke-width="1.2"/>
+                    <polyline points="164,34 176,48 192,58 214,65 226,68" fill="none" stroke="#D61F1F" stroke-width="1.8"/>
+                    <text x="164" y="79" font-family="IBM Plex Mono, monospace" font-size="7" fill="#16794B" font-weight="700">1ST ORDER</text>
+                  </svg>
+                </div>
+                <div class="cm-poc-foot">
+                  <span class="cm-poc-machines">UV-Vis Spectrophotometer</span>
+                  <button class="cm-cta-red" type="button" data-start-lesson="T4L24">START LESSON →</button>
+                </div>
+              </article>
+
+              <!-- PoC 3: PHARMA_QC -->
+              <article class="cm-poc-card">
+                <div class="cm-poc-top">
+                  <span class="cm-poc-code">POC 03 · USP &lt;701&gt;</span>
+                  <span class="cm-poc-chip">ZONE 1 · 15 MIN</span>
+                </div>
+                <h4>ERWEKA ZT 322 &amp; Agilent 708-DS Pharma QC</h4>
+                <p>Stabilize the 37.0 °C bath, actuate the 30 SPM reciprocating basket rack, and log Stage 1 disintegration &amp; Q% release.</p>
+                <div class="cm-poc-diagram">
+                  <svg viewBox="0 0 240 88" role="img" aria-label="PHARMA_QC USP 701 Basket Assembly">
+                    <path d="M32 20 L32 70 Q32 74 36 74 L96 74 Q100 74 100 70 L100 20" fill="#E0F2FE" fill-opacity="0.48" stroke="#141413" stroke-width="1.5"/>
+                    <line x1="34" y1="32" x2="98" y2="32" stroke="#0284C7" stroke-width="1.2" stroke-dasharray="3 2"/>
+                    <rect x="46" y="25" width="40" height="34" fill="none" stroke="#141413" stroke-width="1.3"/>
+                    <line x1="59" y1="25" x2="59" y2="59" stroke="#141413" stroke-width="1"/>
+                    <line x1="73" y1="25" x2="73" y2="59" stroke="#141413" stroke-width="1"/>
+                    <line x1="46" y1="59" x2="86" y2="59" stroke="#D61F1F" stroke-width="2" stroke-dasharray="2 1"/>
+                    <circle cx="66" cy="50" r="3.5" fill="#FBF9F4" stroke="#141413" stroke-width="1.1"/>
+                    <circle cx="86" cy="59" r="3" fill="#D61F1F"/>
+                    <polyline points="86,59 124,34 142,34" fill="none" stroke="#D61F1F" stroke-width="1.2"/>
+                    <rect x="142" y="26" width="84" height="15" fill="#D61F1F"/>
+                    <text x="147" y="36" font-family="IBM Plex Mono, monospace" font-size="7.5" font-weight="700" fill="#FBF9F4">37.0°C · 30 SPM</text>
+                    <text x="142" y="56" font-family="IBM Plex Mono, monospace" font-size="7.5" fill="#5C564C">11.7 min ENDPOINT</text>
+                    <text x="142" y="69" font-family="IBM Plex Mono, monospace" font-size="7.5" font-weight="700" fill="#16794B">85.4% Q PASS</text>
+                  </svg>
+                </div>
+                <div class="cm-poc-foot">
+                  <span class="cm-poc-machines">ZT 322 · 708-DS</span>
+                  <button class="cm-cta-red" type="button" data-start-lesson="PHARMA_QC">START LESSON →</button>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <!-- Complete 24-Module Tier 1 Curriculum Grid (Modeled on IMG_6777) -->
+          <section class="cm-section">
+            <div class="cm-section-head">
+              <div class="cm-section-title-group">
+                <span class="cm-num-flag">01</span>
+                <h3>Atoms and Elements · Complete Tier 1 Matrix</h3>
+              </div>
+              <span class="cm-mono-tag">TIER 1 / 24 INTERACTIVE LABS</span>
+            </div>
+
+            <div class="cm-t1-grid">
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L1"><div class="cm-t1-top"><span class="cm-t1-idx">01</span><span class="cm-t1-arrow">→</span></div><strong>1.1 Chemistry in Context</strong><span class="cm-t1-sub">CuSO₄·5H₂O · Balance &amp; Hotplate</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L2"><div class="cm-t1-top"><span class="cm-t1-idx">02</span><span class="cm-t1-arrow">→</span></div><strong>1.2 Matter Basics</strong><span class="cm-t1-sub">Mixture Separation · Centrifuge</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L3"><div class="cm-t1-top"><span class="cm-t1-idx">03</span><span class="cm-t1-arrow">→</span></div><strong>1.3 Phase Shift</strong><span class="cm-t1-sub">Lauric Acid Curve · Hotplate</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L4"><div class="cm-t1-top"><span class="cm-t1-idx">04</span><span class="cm-t1-arrow">→</span></div><strong>1.4 Inside the Atom</strong><span class="cm-t1-sub">Rutherford α · Vacuum Chamber</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L5"><div class="cm-t1-top"><span class="cm-t1-idx">05</span><span class="cm-t1-arrow">→</span></div><strong>1.5 Elements &amp; Identity</strong><span class="cm-t1-sub">Flame Emission · UV-Vis</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L6"><div class="cm-t1-top"><span class="cm-t1-idx">06</span><span class="cm-t1-arrow">→</span></div><strong>1.6 Electrostatic Forces</strong><span class="cm-t1-sub">Ionic vs Covalent · Conductivity</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L7"><div class="cm-t1-top"><span class="cm-t1-idx">07</span><span class="cm-t1-arrow">→</span></div><strong>1.7 Precision Tools</strong><span class="cm-t1-sub">Volumetric Calibration · Balance</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L8"><div class="cm-t1-top"><span class="cm-t1-idx">08</span><span class="cm-t1-arrow">→</span></div><strong>1.8 Macro-Micro Bridge</strong><span class="cm-t1-sub">Avogadro Monolayer · Balance</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L9"><div class="cm-t1-top"><span class="cm-t1-idx">09</span><span class="cm-t1-arrow">→</span></div><strong>1.9 Subatomic Particles</strong><span class="cm-t1-sub">Thomson e/m CRT · Optics</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L10"><div class="cm-t1-top"><span class="cm-t1-idx">10</span><span class="cm-t1-arrow">→</span></div><strong>1.10 Isotope Balance</strong><span class="cm-t1-sub">Neon Sector MS · Vacuum Pump</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L11"><div class="cm-t1-top"><span class="cm-t1-idx">11</span><span class="cm-t1-arrow">→</span></div><strong>1.11 Dalton's Postulates</strong><span class="cm-t1-sub">Multiple Proportions · Furnace</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L12"><div class="cm-t1-top"><span class="cm-t1-idx">12</span><span class="cm-t1-arrow">→</span></div><strong>1.12 Plum Pudding</strong><span class="cm-t1-sub">Crookes Maltese Cross · Vacuum</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L13"><div class="cm-t1-top"><span class="cm-t1-idx">13</span><span class="cm-t1-arrow">→</span></div><strong>1.13 The Nucleus</strong><span class="cm-t1-sub">Backscattering vs Z · Vacuum</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L14"><div class="cm-t1-top"><span class="cm-t1-idx">14</span><span class="cm-t1-arrow">→</span></div><strong>1.14 Quantized Energy</strong><span class="cm-t1-sub">Balmer Discharge · Spectro</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L15"><div class="cm-t1-top"><span class="cm-t1-idx">15</span><span class="cm-t1-arrow">→</span></div><strong>1.15 Atomic Mass Units</strong><span class="cm-t1-sub">²⁸Si Sphere · Microbalance</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L16"><div class="cm-t1-top"><span class="cm-t1-idx">16</span><span class="cm-t1-arrow">→</span></div><strong>1.16 The Periodic Law</strong><span class="cm-t1-sub">Period 3 Oxides · pH Meter</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L17"><div class="cm-t1-top"><span class="cm-t1-idx">17</span><span class="cm-t1-arrow">→</span></div><strong>1.17 Metallic Nature</strong><span class="cm-t1-sub">4-Point Probe · Hotplate</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L18"><div class="cm-t1-top"><span class="cm-t1-idx">18</span><span class="cm-t1-arrow">→</span></div><strong>1.18 Non-Metal Logic</strong><span class="cm-t1-sub">S &amp; I₂ Allotropes · Furnace</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L19"><div class="cm-t1-top"><span class="cm-t1-idx">19</span><span class="cm-t1-arrow">→</span></div><strong>1.19 The Staircase</strong><span class="cm-t1-sub">Si/Ge Bandgap · Thermal Stage</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L20"><div class="cm-t1-top"><span class="cm-t1-idx">20</span><span class="cm-t1-arrow">→</span></div><strong>1.20 Valence Stability</strong><span class="cm-t1-sub">Noble Gas Arc · Spectro</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L21"><div class="cm-t1-top"><span class="cm-t1-idx">21</span><span class="cm-t1-arrow">→</span></div><strong>1.21 Group 17 Kinetics</strong><span class="cm-t1-sub">Halogen Displacement · Vortex</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L22"><div class="cm-t1-top"><span class="cm-t1-idx">22</span><span class="cm-t1-arrow">→</span></div><strong>1.22 Carbon Catenation</strong><span class="cm-t1-sub">Diamond / HOPG · Furnace</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L23"><div class="cm-t1-top"><span class="cm-t1-idx">23</span><span class="cm-t1-arrow">→</span></div><strong>1.23 Hydrogen Fundamentals</strong><span class="cm-t1-sub">Hofmann Electrolysis · pH</span></button>
+              <button class="cm-t1-card" type="button" data-start-lesson="T1L24"><div class="cm-t1-top"><span class="cm-t1-idx">24</span><span class="cm-t1-arrow">→</span></div><strong>1.24 Tier 1 Mastery Exam</strong><span class="cm-t1-sub">3 Blind Unknowns · Multi-Twin</span></button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <script type="module" src="app.js?v=20261116-perf1"></script>
+  <script type="module" src="app.js?v=20261116-swiss1"></script>
 </body>
 </html>

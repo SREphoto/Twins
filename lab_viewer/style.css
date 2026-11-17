@@ -1025,3 +1025,1482 @@ body, html {
     text-overflow: ellipsis;
   }
 }
+
+/* ============================================================================
+   CHEMMATE SWISS ARCHIVAL PAPER DESIGN SYSTEM, iPHONE 14 PRO HUD & CURRICULUM
+   ============================================================================ */
+:root {
+  --cm-paper: #F4F1EA;
+  --cm-card: #FBF9F4;
+  --cm-ink: #141413;
+  --cm-muted: #5C564C;
+  --cm-hair: #D6D0C4;
+  --cm-grid: #EAE3D5;
+  --cm-red: #D61F1F;
+  --cm-red-dark: #B51818;
+  --cm-red-soft: #FBECEC;
+  --cm-green: #16794B;
+  --cm-green-soft: #E6F4EC;
+  --font-display: 'Space Grotesk', 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.hud-zone-pill {
+  white-space: nowrap;
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chemmate-lesson-select {
+  border-color: rgba(61, 214, 140, 0.55);
+  color: var(--green);
+  max-width: 245px;
+}
+
+.cm-plus-square,
+.cm-plus-badge {
+  width: 20px;
+  height: 20px;
+  background: var(--cm-red);
+  color: #FBF9F4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* --- ChemMate Lesson Mode Top Navigation Bar (Hidden in Grand Lab Free-Explore) --- */
+.cm-topbar-nav {
+  display: none;
+}
+
+body.chemmate-lesson-mode .topbar {
+  background: var(--cm-paper);
+  backdrop-filter: none;
+  border-bottom: 1px solid var(--cm-hair);
+  color: var(--cm-ink);
+  padding: 0 20px;
+}
+
+body.chemmate-lesson-mode .topbar > .brand,
+body.chemmate-lesson-mode .topbar > .header-center,
+body.chemmate-lesson-mode .topbar > .header-actions {
+  display: none;
+}
+
+body.chemmate-lesson-mode #chemmate-topbar-nav {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.cm-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.cm-nav-wordmark {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--cm-ink);
+  white-space: nowrap;
+}
+
+.cm-nav-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--cm-muted);
+  letter-spacing: 0.06em;
+  border-left: 1px solid var(--cm-hair);
+  padding-left: 9px;
+  white-space: nowrap;
+}
+
+.cm-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cm-nav-link {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--cm-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 5px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.14s ease, border-color 0.14s ease, background 0.14s ease;
+}
+
+.cm-nav-link:hover {
+  color: var(--cm-ink);
+  background: var(--cm-card);
+  border-color: var(--cm-hair);
+}
+
+.cm-nav-link.is-active {
+  color: var(--cm-red);
+  border-bottom: 2px solid var(--cm-red);
+}
+
+.cm-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.cm-active-lesson-pill {
+  background: var(--cm-card);
+  border: 1px solid var(--cm-ink);
+  color: var(--cm-ink);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  max-width: 240px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+
+.cm-exit-btn {
+  background: var(--cm-card);
+  border: 1px solid var(--cm-red);
+  color: var(--cm-red);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 5px 11px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.14s ease, color 0.14s ease;
+}
+
+.cm-exit-btn:hover {
+  background: var(--cm-red);
+  color: #FBF9F4;
+}
+
+/* Clean Archival Prompt Pill during Lesson Mode */
+body.chemmate-lesson-mode .interaction-prompt-pill {
+  background: var(--cm-card);
+  border: 1.5px solid var(--cm-ink);
+  box-shadow: 0 8px 24px rgba(20, 20, 19, 0.22);
+  color: var(--cm-ink);
+  border-radius: 4px;
+}
+
+/* --- 2D Projected Swiss Crimson Leader-Line Callout (#cm-leader-callout) --- */
+.cm-leader-callout {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 65;
+}
+
+.cm-leader-callout.is-hidden {
+  display: none;
+}
+
+.cm-leader-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.cm-leader-box {
+  position: absolute;
+  background: var(--cm-card);
+  border: 1.5px solid var(--cm-ink);
+  border-left: 4px solid var(--cm-red);
+  box-shadow: 0 8px 24px rgba(20, 20, 19, 0.22);
+  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 240px;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.cm-leader-pin {
+  width: 18px;
+  height: 18px;
+  background: var(--cm-red);
+  color: #FBF9F4;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cm-leader-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cm-leader-mesh {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cm-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cm-leader-label {
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--cm-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================================================
+   iPHONE 14 PRO BRUSHED-TITANIUM SHELL & SWISS ARCHIVAL PAPER OS HUD
+   ============================================================================ */
+body.chemmate-lesson-mode .hud-nav-dock,
+body.chemmate-lesson-mode .smart-sidebar.is-collapsed {
+  display: none;
+}
+
+body.chemmate-lesson-mode .iphone-companion-hud {
+  bottom: 18px;
+}
+
+body.chemmate-lesson-mode .iphone-shell {
+  max-height: calc(100vh - 88px);
+}
+
+.iphone-companion-hud {
+  position: fixed;
+  left: 18px;
+  bottom: 76px;
+  z-index: 250;
+  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease;
+}
+
+.iphone-summon-pill {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  background: var(--cm-card);
+  border: 1.5px solid var(--cm-ink);
+  color: var(--cm-ink);
+  padding: 7px 12px;
+  border-radius: 6px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 26px rgba(20, 20, 19, 0.28);
+  white-space: nowrap;
+}
+
+.iphone-summon-pill:hover {
+  border-color: var(--cm-red);
+}
+
+.iphone-companion-hud.is-minimized .iphone-shell {
+  display: none;
+}
+
+.iphone-companion-hud.is-minimized .iphone-summon-pill {
+  display: inline-flex;
+}
+
+.iphone-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cm-green);
+  flex-shrink: 0;
+}
+
+.summon-telemetry-mini {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cm-red);
+  background: var(--cm-red-soft);
+  border: 1px solid rgba(214, 31, 31, 0.32);
+  padding: 2px 7px;
+}
+
+/* Brushed Titanium iPhone 14 Pro Bezel */
+.iphone-shell {
+  width: 344px;
+  max-height: calc(100vh - 134px);
+  background: linear-gradient(145deg, #474c56 0%, #1d2026 28%, #2e333c 68%, #16181d 100%);
+  border: 1.5px solid #6b7280;
+  border-radius: 38px;
+  padding: 6px;
+  box-shadow:
+    0 26px 64px rgba(0, 0, 0, 0.62),
+    inset 0 1px 1px rgba(255, 255, 255, 0.28);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Inner Swiss Archival Paper OS Screen */
+.iphone-paper-screen {
+  background: var(--cm-paper);
+  color: var(--cm-ink);
+  border: 2.5px solid #0e0f10;
+  border-radius: 32px;
+  padding: 8px 11px 7px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+}
+
+.iphone-dynamic-island {
+  width: 178px;
+  margin: 0 auto 7px;
+  background: #111110;
+  border-radius: 999px;
+  padding: 4px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.island-led {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #3dd68c;
+  flex-shrink: 0;
+}
+
+.island-text {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #F4F1EA;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Clean Single-Row Status Bar */
+.iphone-statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--cm-hair);
+  flex-shrink: 0;
+}
+
+.iphone-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.iphone-wordmark {
+  font-family: var(--font-display);
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--cm-ink);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.iphone-lesson-name {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--cm-ink);
+  background: var(--cm-card);
+  border: 1px solid var(--cm-hair);
+  padding: 2px 6px;
+  max-width: 78px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+
+.iphone-header-btns {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.iphone-icon-btn {
+  background: var(--cm-card);
+  border: 1px solid var(--cm-ink);
+  color: var(--cm-ink);
+  padding: 3px 7px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.14s ease, color 0.14s ease;
+}
+
+.iphone-icon-btn:hover {
+  background: var(--cm-ink);
+  color: #FBF9F4;
+}
+
+/* On-Demand QR Pairing Drawer */
+.iphone-qr-drawer {
+  margin-top: 7px;
+  padding: 8px;
+  background: var(--cm-card);
+  border: 1px solid var(--cm-ink);
+  flex-shrink: 0;
+}
+
+.iphone-qr-drawer.is-hidden {
+  display: none;
+}
+
+.qr-drawer-row {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+}
+
+.hud-qr-canvas {
+  border: 1px solid var(--cm-hair);
+  background: #FBF9F4;
+  flex-shrink: 0;
+}
+
+.qr-drawer-info {
+  font-size: 10.5px;
+  color: var(--cm-muted);
+  line-height: 1.35;
+}
+
+.qr-drawer-info a {
+  color: var(--cm-red);
+  font-weight: 700;
+}
+
+.qr-code-tag {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--cm-ink);
+  margin-bottom: 3px;
+}
+
+.qr-peer-status {
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--cm-green);
+}
+
+/* 4 Editorial Tabs */
+.iphone-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  margin: 7px 0;
+  flex-shrink: 0;
+}
+
+.iphone-tab {
+  background: var(--cm-card);
+  border: 1px solid var(--cm-hair);
+  color: var(--cm-muted);
+  padding: 5px 2px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.iphone-tab:hover {
+  color: var(--cm-ink);
+  border-color: var(--cm-ink);
+}
+
+.iphone-tab.active {
+  background: var(--cm-red);
+  border-color: var(--cm-red);
+  color: #FBF9F4;
+}
+
+.iphone-tab-panel {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  max-height: calc(100vh - 285px);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 2px;
+}
+
+.iphone-tab-panel.is-hidden {
+  display: none;
+}
+
+.step-progress-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.hud-step-badge {
+  background: var(--cm-red);
+  color: #FBF9F4;
+  padding: 2px 7px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.hud-room-tag {
+  color: var(--cm-muted);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.hud-step-title {
+  font-family: var(--font-display);
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.24;
+  letter-spacing: -0.015em;
+  color: var(--cm-ink);
+}
+
+.hud-step-desc {
+  font-size: 11.5px;
+  color: var(--cm-muted);
+  line-height: 1.42;
+}
+
+.hud-diagram-preview {
+  background: var(--cm-card);
+  border: 1px solid var(--cm-hair);
+  padding: 4px;
+}
+
+.hud-diagram-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Target Control Card */
+.glowing-target-card {
+  background: var(--cm-card);
+  border: 1px solid var(--cm-ink);
+  border-left: 3.5px solid var(--cm-red);
+  padding: 8px 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.target-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.target-pin-badge {
+  width: 20px;
+  height: 20px;
+  background: var(--cm-red);
+  color: #FBF9F4;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.target-meta-col {
+  min-width: 0;
+}
+
+.target-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--cm-red);
+}
+
+.target-mesh-name {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cm-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.target-card-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+}
+
+.iphone-btn-primary {
+  background: var(--cm-red);
+  color: #FBF9F4;
+  border: 1px solid var(--cm-red);
+  padding: 7px 10px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.14s ease;
+}
+
+.iphone-btn-primary:hover {
+  background: var(--cm-red-dark);
+}
+
+.iphone-btn-secondary {
+  background: var(--cm-card);
+  color: var(--cm-ink);
+  border: 1px solid var(--cm-ink);
+  padding: 7px 10px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.iphone-btn-secondary:hover {
+  background: var(--cm-paper);
+}
+
+/* Gemini 3.8 Flash TTS Strip */
+.gemini-tts-card {
+  background: var(--cm-card);
+  border: 1px solid var(--cm-hair);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--cm-ink);
+}
+
+.tts-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.tts-mini-btn {
+  background: var(--cm-paper);
+  border: 1px solid var(--cm-hair);
+  color: var(--cm-ink);
+  padding: 2px 6px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tts-mini-btn:hover {
+  border-color: var(--cm-ink);
+}
+
+.tts-script-box {
+  font-size: 10.5px;
+  color: var(--cm-muted);
+  font-style: italic;
+  line-height: 1.38;
+}
+
+/* BLE Telemetry Tab */
+.ble-connection-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  background: var(--cm-card);
+  padding: 7px 9px;
+  border: 1px solid var(--cm-hair);
+}
+
+.ble-machine-label {
+  color: var(--cm-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ble-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--cm-green);
+  background: var(--cm-green-soft);
+  border: 1px solid var(--cm-green);
+  padding: 2px 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ble-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cm-green);
+}
+
+.ble-metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.ble-metric-box {
+  background: var(--cm-card);
+  border: 1px solid var(--cm-hair);
+  padding: 8px;
+}
+
+.ble-metric-wide {
+  grid-column: span 2;
+}
+
+.ble-metric-lbl {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--cm-muted);
+}
+
+.ble-metric-val {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cm-ink);
+  margin-top: 3px;
+}
+
+/* Notebook Plotter & Verification */
+.notebook-sec-title {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--cm-ink);
+  margin-bottom: 4px;
+}
+
+.iphone-plot-canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 1px solid var(--cm-hair);
+  background: var(--cm-card);
+}
+
+.iphone-observations-list {
+  background: var(--cm-card);
+  border: 1px solid var(--cm-hair);
+  padding: 7px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 92px;
+  overflow-y: auto;
+}
+
+.obs-line {
+  color: var(--cm-green);
+  font-weight: 600;
+}
+
+.obs-line.muted {
+  color: var(--cm-muted);
+  font-weight: 400;
+}
+
+.notebook-verify-card {
+  background: var(--cm-card);
+  border: 1px solid var(--cm-ink);
+  padding: 8px;
+}
+
+.verify-prompt {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cm-ink);
+  margin-bottom: 6px;
+}
+
+.verify-input-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.verify-input {
+  flex: 1;
+  min-width: 0;
+  background: var(--cm-paper);
+  border: 1px solid var(--cm-ink);
+  color: var(--cm-ink);
+  padding: 5px 8px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.verify-unit {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--cm-muted);
+}
+
+.verify-feedback {
+  margin-top: 5px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* Tier 1 24-Lab Drawer Cards */
+.tier1-header-note {
+  font-size: 10.5px;
+  color: var(--cm-muted);
+  line-height: 1.38;
+  background: var(--cm-card);
+  border: 1px solid var(--cm-hair);
+  padding: 7px 8px;
+}
+
+.tier1-header-note strong {
+  color: var(--cm-ink);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.iphone-tier1-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tier1-card {
+  background: var(--cm-card);
+  border: 1px solid var(--cm-hair);
+  padding: 7px 8px;
+  font-size: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tier1-card-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--cm-ink);
+}
+
+.tier1-num-badge {
+  background: var(--cm-ink);
+  color: #FBF9F4;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 5px;
+  flex-shrink: 0;
+}
+
+.tier1-card-title {
+  flex: 1;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cm-ink);
+  line-height: 1.25;
+}
+
+.tier1-load-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--cm-red);
+  color: #FBF9F4;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tier1-load-btn:hover {
+  background: var(--cm-red-dark);
+}
+
+.tier1-meta {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--cm-muted);
+  line-height: 1.32;
+}
+
+.tier1-meta span {
+  color: var(--cm-ink);
+  font-weight: 700;
+}
+
+.iphone-home-bar-wrap {
+  padding-top: 7px;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.iphone-home-bar {
+  width: 108px;
+  height: 4px;
+  border-radius: 999px;
+  background: #8C8476;
+}
+
+/* ============================================================================
+   CHEMMATE EDITORIAL CURRICULUM MODAL (#chemmate-curriculum-modal)
+   ============================================================================ */
+.cm-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 20, 19, 0.58);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 320;
+  padding: 16px;
+}
+
+.cm-modal-backdrop.is-hidden {
+  display: none;
+}
+
+.cm-broadsheet {
+  position: relative;
+  width: min(1160px, 100%);
+  max-height: calc(100vh - 32px);
+  background: var(--cm-paper);
+  color: var(--cm-ink);
+  border: 1.5px solid var(--cm-ink);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.cm-reg {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: #8C8476;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 2;
+}
+.cm-reg-tl { top: 5px; left: 7px; }
+.cm-reg-tr { top: 5px; right: 7px; }
+.cm-reg-bl { bottom: 5px; left: 7px; }
+.cm-reg-br { bottom: 5px; right: 7px; }
+
+.cm-bs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 22px;
+  border-bottom: 1px solid var(--cm-hair);
+  background: var(--cm-paper);
+  flex-shrink: 0;
+}
+
+.cm-bs-kicker {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--cm-red);
+  border-left: 1px solid var(--cm-hair);
+  padding-left: 10px;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.cm-bs-header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.cm-bs-tagline {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--cm-muted);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.cm-close-btn {
+  background: var(--cm-card);
+  border: 1px solid var(--cm-red);
+  color: var(--cm-red);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 5px 11px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.cm-close-btn:hover {
+  background: var(--cm-red);
+  color: #FBF9F4;
+}
+
+.cm-bs-scroll {
+  overflow-y: auto;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.cm-hero-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.95fr;
+  gap: 22px;
+  align-items: center;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--cm-ink);
+}
+
+.cm-hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.cm-num-flag {
+  background: var(--cm-red);
+  color: #FBF9F4;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 7px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cm-mono-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--cm-muted);
+}
+
+.cm-hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3vw, 40px);
+  font-weight: 700;
+  line-height: 1.03;
+  letter-spacing: -0.03em;
+  color: var(--cm-ink);
+}
+
+.cm-hero-lead {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--cm-muted);
+  margin-top: 12px;
+  max-width: 54ch;
+}
+
+.cm-hero-cta-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.cm-cta-black {
+  background: var(--cm-ink);
+  color: #FBF9F4;
+  border: 1px solid var(--cm-ink);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 10px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.cm-cta-black:hover {
+  background: var(--cm-red);
+  border-color: var(--cm-red);
+}
+
+.cm-mono-meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--cm-muted);
+}
+
+.cm-hero-specimen {
+  position: relative;
+  background: var(--cm-card);
+  border: 1px solid var(--cm-hair);
+  padding: 16px 16px 15px;
+}
+
+.cm-spec-head {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--cm-ink);
+  margin-bottom: 6px;
+}
+
+.cm-hero-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.cm-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cm-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid var(--cm-hair);
+  padding-bottom: 8px;
+}
+
+.cm-section-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cm-section-title-group h3 {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--cm-ink);
+}
+
+/* Flagship 3-Lab Proof of Concept Cards */
+.cm-poc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.cm-poc-card {
+  background: var(--cm-card);
+  border: 1px solid var(--cm-hair);
+  border-top: 2.5px solid var(--cm-red);
+  padding: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cm-poc-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.cm-poc-code {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--cm-red);
+}
+
+.cm-poc-chip {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  background: var(--cm-paper);
+  border: 1px solid var(--cm-hair);
+  padding: 2px 6px;
+  color: var(--cm-muted);
+  white-space: nowrap;
+}
+
+.cm-poc-card h4 {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.24;
+  color: var(--cm-ink);
+}
+
+.cm-poc-card p {
+  font-size: 12px;
+  line-height: 1.44;
+  color: var(--cm-muted);
+}
+
+.cm-poc-diagram {
+  background: var(--cm-paper);
+  border: 1px solid var(--cm-hair);
+  padding: 6px;
+}
+
+.cm-poc-diagram svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.cm-poc-foot {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--cm-hair);
+}
+
+.cm-poc-machines {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--cm-muted);
+}
+
+.cm-cta-red {
+  background: var(--cm-red);
+  color: #FBF9F4;
+  border: none;
+  padding: 7px 11px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.cm-cta-red:hover {
+  background: var(--cm-red-dark);
+}
+
+/* Complete 24-Module Tier 1 Grid */
+.cm-t1-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.cm-t1-card {
+  background: var(--cm-card);
+  border: 1px solid var(--cm-hair);
+  padding: 10px 11px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color 0.14s ease, transform 0.12s ease;
+}
+
+.cm-t1-card:hover {
+  border-color: var(--cm-ink);
+  transform: translateY(-1px);
+}
+
+.cm-t1-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.cm-t1-idx {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--cm-red);
+}
+
+.cm-t1-arrow {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--cm-red);
+  color: #FBF9F4;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cm-t1-card strong {
+  font-family: var(--font-display);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--cm-ink);
+  line-height: 1.25;
+}
+
+.cm-t1-sub {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--cm-muted);
+  line-height: 1.32;
+}
+
+/* Responsive Breakpoints for Broadsheet & iPhone HUD */
+@media (max-width: 1024px) {
+  .cm-hero-grid {
+    grid-template-columns: 1fr;
+  }
+  .cm-poc-grid {
+    grid-template-columns: 1fr;
+  }
+  .cm-t1-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cm-nav-sub,
+  .cm-bs-tagline {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .iphone-companion-hud {
+    left: 10px;
+    bottom: 66px;
+  }
+  .iphone-shell {
+    width: min(334px, calc(100vw - 20px));
+    max-height: calc(100vh - 122px);
+  }
+  .iphone-tab-panel {
+    max-height: calc(100vh - 265px);
+  }
+  body.chemmate-lesson-mode .topbar {
+    padding: 0 10px;
+  }
+  .cm-nav-links {
+    gap: 3px;
+  }
+  .cm-nav-link {
+    font-size: 9.5px;
+    padding: 4px 6px;
+  }
+  .cm-active-lesson-pill {
+    display: none;
+  }
+  .cm-t1-grid {
+    grid-template-columns: 1fr;
+  }
+}

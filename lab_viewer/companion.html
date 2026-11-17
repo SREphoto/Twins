@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>ChemMate · Swiss Archival Phone Companion</title>
+  <link rel="icon" type="image/svg+xml" href="icon.svg" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#F4F1EA" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cm-paper: #F4F1EA;
+      --cm-card: #FBF9F4;
+      --cm-ink: #141413;
+      --cm-muted: #5C564C;
+      --cm-hair: #D6D0C4;
+      --cm-grid: #EAE3D5;
+      --cm-red: #D61F1F;
+      --cm-red-soft: #FBECEC;
+      --cm-green: #16794B;
+      --cm-green-soft: #E6F4EC;
+      --font-display: 'Space Grotesk', 'IBM Plex Sans', -apple-system, sans-serif;
+      --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--cm-paper);
+      color: var(--cm-ink);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .companion-app {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 66px 14px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Fixed Swiss Archival Header Bar */
+    .cm-topbar {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      height: 54px;
+      background: rgba(244, 241, 234, 0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--cm-hair);
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      z-index: 50;
+    }
+
+    .cm-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .cm-plus-square {
+      width: 22px;
+      height: 22px;
+      background: var(--cm-red);
+      color: #FBF9F4;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 16px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .cm-wordmark {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: -0.02em;
+      color: var(--cm-ink);
+      white-space: nowrap;
+    }
+
+    .cm-header-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .cm-pair-badge {
+      background: var(--cm-card);
+      border: 1px solid var(--cm-ink);
+      color: var(--cm-ink);
+      padding: 3px 7px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .cm-live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--cm-green-soft);
+      border: 1px solid var(--cm-green);
+      color: var(--cm-green);
+      padding: 3px 7px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .cm-live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--cm-green);
+    }
+
+    /* Archival Specimen Cards with Corner + Registration Marks */
+    .card {
+      position: relative;
+      background: var(--cm-card);
+      border: 1px solid var(--cm-hair);
+      padding: 14px;
+    }
+
+    .card-accent {
+      border-top: 2px solid var(--cm-red);
+    }
+
+    .reg-plus {
+      position: absolute;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #8C8476;
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+    }
+    .reg-tl { top: 4px; left: 5px; }
+    .reg-tr { top: 4px; right: 5px; }
+    .reg-bl { bottom: 4px; left: 5px; }
+    .reg-br { bottom: 4px; right: 5px; }
+
+    .row-between {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .badge-red {
+      background: var(--cm-red);
+      color: #FBF9F4;
+      padding: 3px 8px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .badge-ink {
+      background: var(--cm-paper);
+      color: var(--cm-ink);
+      border: 1px solid var(--cm-hair);
+      padding: 3px 8px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .kicker {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--cm-muted);
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.22;
+      letter-spacing: -0.02em;
+      color: var(--cm-ink);
+      margin-top: 8px;
+    }
+
+    p {
+      font-size: 13px;
+      color: var(--cm-muted);
+      line-height: 1.48;
+      margin-top: 6px;
+    }
+
+    /* Lesson Quick Switcher */
+    select {
+      width: 100%;
+      background: var(--cm-paper);
+      color: var(--cm-ink);
+      border: 1px solid var(--cm-hair);
+      padding: 9px 10px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      font-weight: 600;
+      margin-top: 10px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    select:focus {
+      border-color: var(--cm-ink);
+    }
+
+    /* 4-Tab Editorial Switcher */
+    .tab-bar {
+      display: grid;
+      grid-template-columns: 0.92fr 1.02fr 0.96fr 1.18fr;
+      gap: 4px;
+      background: var(--cm-card);
+      border: 1px solid var(--cm-hair);
+      padding: 4px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--cm-muted);
+      padding: 7px 2px;
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    .tab-btn:hover {
+      color: var(--cm-ink);
+      background: var(--cm-paper);
+    }
+
+    .tab-btn.active {
+      background: var(--cm-red);
+      color: #FBF9F4;
+      border-color: var(--cm-red);
+    }
+
+    .tab-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tab-panel.is-hidden {
+      display: none;
+    }
+
+    /* Scientific Diagram Box */
+    .diagram-frame {
+      margin-top: 10px;
+      border: 1px solid var(--cm-hair);
+      background: var(--cm-paper);
+      padding: 8px;
+    }
+
+    .diagram-frame svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Target Control & CTA Hierarchy */
+    .target-box {
+      margin-top: 10px;
+      padding: 10px;
+      background: var(--cm-red-soft);
+      border: 1px solid var(--cm-red);
+      border-left: 4px solid var(--cm-red);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .target-box .badge-ink {
+      min-width: 0;
+      flex-shrink: 1;
+      max-width: 56%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .target-code {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--cm-ink);
+    }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      padding: 11px 14px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 11.5px;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      border: 1px solid var(--cm-ink);
+      white-space: nowrap;
+      transition: transform 0.1s ease, background 0.15s ease;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: var(--cm-red);
+      border-color: var(--cm-red);
+      color: #FBF9F4;
+      width: 100%;
+    }
+
+    .btn-primary:hover {
+      background: #B81919;
+    }
+
+    .btn-secondary {
+      background: var(--cm-card);
+      color: var(--cm-ink);
+      border: 1px solid var(--cm-ink);
+    }
+
+    .btn-secondary:hover {
+      background: var(--cm-paper);
+    }
+
+    /* BLE Tabular Grid */
+    .metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .metric {
+      background: var(--cm-paper);
+      border: 1px solid var(--cm-hair);
+      padding: 10px;
+    }
+
+    .metric-wide {
+      grid-column: span 2;
+    }
+
+    .metric-lbl {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--cm-muted);
+    }
+
+    .metric-val {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--cm-ink);
+      margin-top: 4px;
+    }
+
+    .metric-val.is-green {
+      color: var(--cm-green);
+    }
+
+    /* Results Plotter & Log */
+    .plot-canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+      margin-top: 8px;
+      border: 1px solid var(--cm-hair);
+      background: var(--cm-card);
+    }
+
+    .obs-box {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--cm-green);
+      background: var(--cm-paper);
+      border: 1px solid var(--cm-hair);
+      padding: 10px;
+      margin-top: 8px;
+      min-height: 54px;
+    }
+
+    .verify-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    input {
+      flex: 1;
+      min-width: 0;
+      background: var(--cm-paper);
+      border: 1px solid var(--cm-ink);
+      color: var(--cm-ink);
+      padding: 9px 10px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .verify-msg {
+      margin-top: 7px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+
+    /* Tier 1 24-Lab Archival Grid */
+    .tier1-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .t1-item {
+      background: var(--cm-card);
+      border: 1px solid var(--cm-hair);
+      padding: 11px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .t1-item-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .t1-num {
+      background: var(--cm-ink);
+      color: #FBF9F4;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      flex-shrink: 0;
+    }
+
+    .t1-title {
+      flex: 1;
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--cm-ink);
+      line-height: 1.25;
+    }
+
+    .t1-arrow-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: none;
+      background: var(--cm-red);
+      color: #FBF9F4;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .t1-meta {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--cm-muted);
+      line-height: 1.38;
+    }
+
+    .t1-meta strong {
+      color: var(--cm-ink);
+    }
+  </style>
+</head>
+<body>
+  <header class="cm-topbar">
+    <div class="cm-brand">
+      <span class="cm-plus-square" aria-hidden="true">+</span>
+      <span class="cm-wordmark">ChemMate</span>
+    </div>
+    <div class="cm-header-right">
+      <span class="cm-pair-badge" id="code-badge">PAIR: CM-LIVE</span>
+      <span class="cm-live-pill"><span class="cm-live-dot"></span><span id="peer-banner">LIVE</span></span>
+    </div>
+  </header>
+
+  <main class="companion-app">
+    <!-- Active Lesson Header & Switcher -->
+    <section class="card card-accent">
+      <span class="reg-plus reg-tl">+</span>
+      <span class="reg-plus reg-tr">+</span>
+      <div class="row-between">
+        <span class="badge-red" id="step-badge">STEP 1 / 4</span>
+        <span class="badge-ink" id="lesson-id-badge">T1L1</span>
+      </div>
+      <h1 id="lesson-title">T1L1 · Chemistry in Context (CuSO₄·5H₂O)</h1>
+      <select id="lesson-select" aria-label="Switch Active ChemMate Experiment">
+        <option value="T1L1">PoC 1 · T1L1: CuSO₄·5H₂O Dissolution &amp; Recrystallization</option>
+        <option value="T4L24">PoC 2 · T4L24: UV-1900i Crystal Violet Kinetics (590 nm)</option>
+        <option value="PHARMA_QC">PoC 3 · USP &lt;701&gt;/&lt;711&gt;: ERWEKA ZT 322 &amp; Agilent 708-DS</option>
+      </select>
+    </section>
+
+    <!-- 4-Tab Navigation -->
+    <nav class="tab-bar" role="tablist">
+      <button class="tab-btn active" data-tab="guide" type="button">01 Guide</button>
+      <button class="tab-btn" data-tab="ble" type="button">02 BLE Link</button>
+      <button class="tab-btn" data-tab="results" type="button">03 Results</button>
+      <button class="tab-btn" data-tab="tier1" type="button">04 Tier 1 (24)</button>
+    </nav>
+
+    <!-- TAB 01: GUIDE -->
+    <section id="panel-guide" class="tab-panel">
+      <div class="card">
+        <span class="reg-plus reg-tr">+</span>
+        <span class="reg-plus reg-br">+</span>
+        <div class="kicker" id="room-name">CR-01 · ACTIVE MATTER STUDIO</div>
+        <h1 id="step-title">Step 1 · Verify Benchtop Continuity</h1>
+        <p id="step-desc">Click the glowing button on the 3D machine or tap ACTUATE IN 3D below to trigger the step remotely from your phone.</p>
+
+        <div class="diagram-frame" id="companion-diagram-wrap"></div>
+
+        <div class="target-box">
+          <div>
+            <div class="kicker" style="color:var(--cm-red);">TARGET 3D CONTROL</div>
+            <div class="target-code" id="target-mesh">Btn_Power</div>
+          </div>
+          <span class="badge-ink" id="target-machine-tag">Balance</span>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" id="btn-actuate" type="button">ACTUATE IN 3D →</button>
+          <button class="btn btn-secondary" id="btn-highlight" type="button">FOCUS</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 02: BLE LINK -->
+    <section id="panel-ble" class="tab-panel is-hidden">
+      <div class="card">
+        <div class="row-between">
+          <span class="kicker">LIVE BLE 5.2 INSTRUMENT STREAM</span>
+          <span id="ble-status" class="badge-ink" style="color:var(--cm-green);border-color:var(--cm-green);">LINKED</span>
+        </div>
+        <div class="metrics">
+          <div class="metric">
+            <div class="metric-lbl" id="m-lbl-1">BALANCE MASS</div>
+            <div class="metric-val" id="m-val-1">0.0000 g</div>
+          </div>
+          <div class="metric">
+            <div class="metric-lbl" id="m-lbl-2">SOLUTION TEMP</div>
+            <div class="metric-val is-green" id="m-val-2">21.0 °C</div>
+          </div>
+          <div class="metric metric-wide">
+            <div class="metric-lbl" id="m-lbl-3">TERTIARY CHANNEL</div>
+            <div class="metric-val" id="m-val-3" style="font-size:15px;">CLOSED · ZEROED</div>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btn-ble-actuate" type="button" style="margin-top:10px;">ACTUATE IN 3D →</button>
+      </div>
+    </section>
+
+    <!-- TAB 03: RESULTS -->
+    <section id="panel-results" class="tab-panel is-hidden">
+      <div class="card">
+        <div class="row-between">
+          <span class="kicker" id="plot-title">EMPIRICAL CURVE TRACE</span>
+          <span class="badge-ink">GLP SYNC</span>
+        </div>
+        <canvas id="companion-plot-canvas" class="plot-canvas" width="416" height="164"></canvas>
+
+        <div class="kicker" style="margin-top:12px;">AUTOMATIC OBSERVATION LOG</div>
+        <div class="obs-box" id="obs-box">✓ Connected to 3D Teaching Lab Bench.</div>
+
+        <p id="verify-prompt" style="margin-top:12px;color:var(--cm-ink);font-weight:600;">Verify Moles of 5.0012 g CuSO₄·5H₂O:</p>
+        <div class="verify-row">
+          <input id="verify-input" type="text" placeholder="0.0200" />
+          <button class="btn btn-primary" id="btn-verify" type="button" style="width:auto;padding:0 16px;">VERIFY →</button>
+        </div>
+        <div id="verify-msg" class="verify-msg"></div>
+      </div>
+    </section>
+
+    <!-- TAB 04: ALL 24 TIER 1 MODULES -->
+    <section id="panel-tier1" class="tab-panel is-hidden">
+      <div class="card">
+        <div class="row-between">
+          <span class="badge-red">TIER 1 · 24 LABS</span>
+          <span class="kicker">ATOMS &amp; ELEMENTS</span>
+        </div>
+        <p style="margin-top:8px;">Tap the red arrow on any module to configure the curated 3D bench, glassware, and reagents in real time.</p>
+      </div>
+      <div id="tier1-list" class="tier1-list"></div>
+    </section>
+  </main>
+
+  <script>
+    const TIER1_CURRICULUM_MANIFEST = [
+      { id: "T1L1", title: "1.1 · Chemistry in Context (CuSO₄·5H₂O)", machines: ["balance", "hotplate"], glassware: "100mL Pyrex Beaker, Stir Rod, Weigh Boat", chemicals: "CuSO₄·5H₂O crystals, DI H₂O" },
+      { id: "T1L2", title: "1.2 · Matter Basics (Mixture Separation)", machines: ["centrifuge", "hotplate"], glassware: "15mL Conical Tubes, 60° Funnel, Filter", chemicals: "Silica sand, NaCl, Fe filings" },
+      { id: "T1L3", title: "1.3 · Phase Shift (Heating/Cooling Curves)", machines: ["hotplate"], glassware: "600mL Water Bath, Boiling Tube, Probe", chemicals: "Lauric Acid (Tm 43.2°C), Stearic Eutectic" },
+      { id: "T1L4", title: "1.4 · Inside the Atom (Rutherford α-Scattering)", machines: ["vacuum_pump"], glassware: "Scattering Chamber, 0.1µm Au Leaf, Detector", chemicals: "²⁴¹Am α-source, ZnS(Ag) screen" },
+      { id: "T1L5", title: "1.5 · Elements & Identity (Flame Emission)", machines: ["spectrophotometer"], glassware: "Pt Wire Loop, Watch Glasses, Fiber Collector", chemicals: "LiCl, NaCl (589nm), KCl, SrCl₂, CuCl₂" },
+      { id: "T1L6", title: "1.6 · Electrostatic Forces (Ionic vs Covalent)", machines: ["hotplate"], glassware: "Dual Graphite Electrode Rig w/ LED, Beakers", chemicals: "Solid/Molten/Aq NaCl, Aq Sucrose, DI H₂O" },
+      { id: "T1L7", title: "1.7 · Precision Tools (Volumetric Calibration)", machines: ["balance"], glassware: "10mL Class A Pipette, 25mL Pycnometer", chemicals: "Degassed DI Water (ρ(T) calibration)" },
+      { id: "T1L8", title: "1.8 · The Macro-Micro Bridge (Avogadro Monolayer)", machines: ["balance"], glassware: "30cm Trough, P20 Micropipette, Calipers", chemicals: "0.5% Oleic Acid in Hexane on H₂O" },
+      { id: "T1L9", title: "1.9 · Subatomic Particles (Thomson e/m CRT)", machines: ["spectrophotometer"], glassware: "Thomson CRT Bulb, Dual Helmholtz Coils", chemicals: "Accelerated e⁻ beam in trace Hg/He" },
+      { id: "T1L10", title: "1.10 · Isotope Balance (Neon Sector MS)", machines: ["vacuum_pump"], glassware: "Gas Ampoules, Magnetic Sector, Faraday Cup", chemicals: "²⁰Ne (90.48%), ²¹Ne (0.27%), ²²Ne (9.25%)" },
+      { id: "T1L11", title: "1.11 · Dalton's Postulates (Multiple Proportions)", machines: ["balance", "muffle_furnace"], glassware: "2× Porcelain Crucibles, Tongs, Desiccator", chemicals: "Red Cu₂O & Black CuO → Metallic Cu⁰" },
+      { id: "T1L12", title: "1.12 · Plum Pudding (Crookes Maltese Cross)", machines: ["vacuum_pump"], glassware: "Crookes Tube w/ Maltese Cross, HV Coil", chemicals: "Residual gas cathode ray fluorescence" },
+      { id: "T1L13", title: "1.13 · The Nucleus (Backscattering vs Z)", machines: ["vacuum_pump"], glassware: "4-Position Foil Wheel (Al, Ni, Ag, Au), MCA", chemicals: "α-backscattering trajectories ∝ Z²" },
+      { id: "T1L14", title: "1.14 · Quantized Energy (Balmer Discharge)", machines: ["spectrophotometer"], glassware: "5kV Spectrum Supply, H₂/He Capillary, Grating", chemicals: "Hα 656.3nm, Hβ 486.1nm, Hγ 434.0nm" },
+      { id: "T1L15", title: "1.15 · Atomic Mass Units (²⁸Si Avogadro Sphere)", machines: ["balance"], glassware: "Quartz Weighing Boat, Antistatic Ionizer", chemicals: "Ultra-pure ²⁸Si crystal & ¹²C standard" },
+      { id: "T1L16", title: "1.16 · The Periodic Law (Period 3 Oxides)", machines: ["ph_meter"], glassware: "6× 50mL Beakers, Stir Rods, pH Electrode", chemicals: "Na₂O, MgO, Al₂O₃, SiO₂, P₄O₁₀, SO₂" },
+      { id: "T1L17", title: "1.17 · Metallic Nature (4-Point Probe & Thermal)", machines: ["hotplate"], glassware: "4-Point Spring Probe, DC Source, Thermocouples", chemicals: "Cu, Al, Fe, Pb, Sn machined rods" },
+      { id: "T1L18", title: "1.18 · Non-Metal Logic (Sulfur & Iodine Allotropes)", machines: ["hotplate", "muffle_furnace"], glassware: "Pyrex Tubes, Cold-Finger Condenser, Crucible", chemicals: "S₈ crown rings → S_λ polymer; I₂ plume" },
+      { id: "T1L19", title: "1.19 · The Staircase (Semiconductor Bandgap)", machines: ["hotplate"], glassware: "Ceramic Stage, Wafer Clips, Type-K Probe, DMM", chemicals: "Intrinsic Si (1.12 eV) & Ge (0.67 eV)" },
+      { id: "T1L20", title: "1.20 · Valence Stability (Noble Gas Breakdown)", machines: ["spectrophotometer"], glassware: "5× Parallel-Plate Gas Cells, 0–10kV Supply", chemicals: "He, Ne, Ar, Kr, Xe Townsend plasma" },
+      { id: "T1L21", title: "1.21 · Group 17 Kinetics (Halogen Displacement)", machines: ["vortex_mixer", "centrifuge"], glassware: "6× Test Tubes in Rack, P1000 Pipette", chemicals: "NaCl/NaBr/NaI + Cl₂/Br₂/I₂ + Cyclohexane" },
+      { id: "T1L22", title: "1.22 · Carbon Catenation (Diamond, Graphite, HOPG)", machines: ["muffle_furnace", "balance"], glassware: "Alumina Boats, Quartz Tube, CO₂ Trap", chemicals: "Synthetic Diamond, Flake Graphite, HOPG" },
+      { id: "T1L23", title: "1.23 · Hydrogen Fundamentals (Hofmann Electrolysis)", machines: ["ph_meter"], glassware: "Dual 50mL Graduated Arms, Pt Foils", chemicals: "0.5M H₂SO₄ w/ 2:1 H₂/O₂ bubble streams" },
+      { id: "T1L24", title: "1.24 · Tier 1 Mastery Exam (3 Unknown Elements)", machines: ["balance", "spectrophotometer", "hotplate"], glassware: "Pycnometer, Pt Flame Loop, 4-Point Probe", chemicals: "Blind Unknowns A, B, C forensic assay" }
+    ];
+
+    const params = new URLSearchParams(window.location.search);
+    const code = (params.get("code") || "CM-LIVE").toUpperCase();
+    document.getElementById("code-badge").textContent = "PAIR: " + code;
+
+    let currentState = {
+      lessonId: "T1L1",
+      targetMeshName: "Btn_Power",
+      plotData: {
+        title: "CuSO₄·5H₂O Temperature / Kinetics",
+        points: [
+          { x: 0, y: 21.0 },
+          { x: 30, y: 19.8 },
+          { x: 60, y: 19.2 },
+          { x: 120, y: 52.0 },
+          { x: 180, y: 85.0 }
+        ]
+      }
+    };
+
+    // Populate select options with all 24 Tier 1 labs too
+    const lessonSelect = document.getElementById("lesson-select");
+    const t1OptGroup = document.createElement("optgroup");
+    t1OptGroup.label = "Tier 1 · Atoms & Elements (All 24)";
+    TIER1_CURRICULUM_MANIFEST.forEach((m) => {
+      if (m.id === "T1L1") return;
+      const opt = document.createElement("option");
+      opt.value = m.id;
+      opt.textContent = m.title;
+      t1OptGroup.appendChild(opt);
+    });
+    lessonSelect.appendChild(t1OptGroup);
+
+    // Populate Tab 04 Tier 1 list
+    const t1List = document.getElementById("tier1-list");
+    t1List.innerHTML = TIER1_CURRICULUM_MANIFEST.map((m, idx) => {
+      const num = String(idx + 1).padStart(2, "0");
+      return `
+        <article class="t1-item">
+          <div class="t1-item-top">
+            <span class="t1-num">${num}</span>
+            <div class="t1-title">${m.title}</div>
+            <button class="t1-arrow-btn" data-pick-lesson="${m.id}" type="button" title="Load ${m.id}">→</button>
+          </div>
+          <div class="t1-meta"><strong>MACHINES:</strong> ${m.machines.join(", ")}</div>
+          <div class="t1-meta"><strong>GLASSWARE:</strong> ${m.glassware}</div>
+          <div class="t1-meta"><strong>REAGENTS:</strong> ${m.chemicals}</div>
+        </article>
+      `;
+    }).join("");
+
+    // Tab switching
+    function switchTab(tabName) {
+      document.querySelectorAll(".tab-btn").forEach((b) => {
+        b.classList.toggle("active", b.getAttribute("data-tab") === tabName);
+      });
+      ["guide", "ble", "results", "tier1"].forEach((t) => {
+        const panel = document.getElementById("panel-" + t);
+        if (panel) panel.classList.toggle("is-hidden", t !== tabName);
+      });
+      if (tabName === "results") {
+        drawPlotCanvas(currentState.plotData);
+      }
+    }
+
+    document.querySelectorAll(".tab-btn").forEach((b) => {
+      b.addEventListener("click", () => switchTab(b.getAttribute("data-tab")));
+    });
+
+    function renderDiagramSVG(s) {
+      const id = String(s?.lessonId || "T1L1").toUpperCase();
+      if (id === "T4L24") {
+        return `
+          <svg viewBox="0 0 320 112" role="img" aria-label="UV-Vis 590 nm Cuvette Optical Path">
+            <rect x="4" y="4" width="312" height="104" fill="#FBF9F4" stroke="#D6D0C4" stroke-width="1"/>
+            <text x="14" y="20" font-family="IBM Plex Mono, monospace" font-size="9" font-weight="700" fill="#5C564C">FIG 02 · BEER-LAMBERT λ = 590 NM</text>
+            <rect x="18" y="48" width="30" height="24" fill="#141413"/>
+            <text x="24" y="63" font-family="IBM Plex Mono, monospace" font-size="8" font-weight="700" fill="#FBF9F4">SRC</text>
+            <line x1="48" y1="60" x2="122" y2="60" stroke="#D61F1F" stroke-width="2.2" stroke-dasharray="5 2"/>
+            <line x1="172" y1="60" x2="250" y2="60" stroke="#D61F1F" stroke-width="1.4" stroke-opacity="0.55"/>
+            <rect x="122" y="34" width="50" height="52" fill="#EDE9FE" stroke="#141413" stroke-width="1.6"/>
+            <rect x="125" y="46" width="44" height="37" fill="#7C3AED" fill-opacity="0.34"/>
+            <text x="129" y="98" font-family="IBM Plex Mono, monospace" font-size="8" fill="#141413">b = 1.0 cm</text>
+            <rect x="250" y="46" width="38" height="28" fill="#F4F1EA" stroke="#141413" stroke-width="1.5"/>
+            <text x="258" y="63" font-family="IBM Plex Mono, monospace" font-size="8" font-weight="700" fill="#141413">DET</text>
+            <circle cx="147" cy="60" r="3.5" fill="#D61F1F"/>
+            <polyline points="147,60 176,30 202,30" fill="none" stroke="#D61F1F" stroke-width="1.3"/>
+            <rect x="202" y="21" width="70" height="16" fill="#D61F1F"/>
+            <text x="208" y="32" font-family="IBM Plex Mono, monospace" font-size="8.5" font-weight="700" fill="#FBF9F4">CV⁺ + OH⁻</text>
+          </svg>`;
+      }
+      if (id === "PHARMA_QC") {
+        return `
+          <svg viewBox="0 0 320 112" role="img" aria-label="USP 701 Basket Disintegration Vessel">
+            <rect x="4" y="4" width="312" height="104" fill="#FBF9F4" stroke="#D6D0C4" stroke-width="1"/>
+            <text x="14" y="20" font-family="IBM Plex Mono, monospace" font-size="9" font-weight="700" fill="#5C564C">FIG 03 · USP &lt;701&gt; 37.0°C BATH</text>
+            <path d="M58 34 L58 92 Q58 96 62 96 L142 96 Q146 96 146 92 L146 34" fill="#E0F2FE" fill-opacity="0.48" stroke="#141413" stroke-width="1.6"/>
+            <line x1="60" y1="48" x2="144" y2="48" stroke="#0284C7" stroke-width="1.2" stroke-dasharray="3 2"/>
+            <rect x="74" y="40" width="56" height="42" fill="none" stroke="#141413" stroke-width="1.5"/>
+            <line x1="88" y1="40" x2="88" y2="82" stroke="#141413" stroke-width="1"/>
+            <line x1="102" y1="40" x2="102" y2="82" stroke="#141413" stroke-width="1"/>
+            <line x1="116" y1="40" x2="116" y2="82" stroke="#141413" stroke-width="1"/>
+            <line x1="74" y1="82" x2="130" y2="82" stroke="#D61F1F" stroke-width="2.2" stroke-dasharray="2 1"/>
+            <circle cx="95" cy="70" r="4.5" fill="#FBF9F4" stroke="#141413" stroke-width="1.2"/>
+            <circle cx="109" cy="70" r="4.5" fill="#FBF9F4" stroke="#141413" stroke-width="1.2"/>
+            <circle cx="130" cy="82" r="3.5" fill="#D61F1F"/>
+            <polyline points="130,82 174,58 194,58" fill="none" stroke="#D61F1F" stroke-width="1.3"/>
+            <rect x="194" y="49" width="96" height="17" fill="#D61F1F"/>
+            <text x="199" y="61" font-family="IBM Plex Mono, monospace" font-size="8.5" font-weight="700" fill="#FBF9F4">#10 MESH · 30 SPM</text>
+            <text x="194" y="84" font-family="IBM Plex Mono, monospace" font-size="8.5" font-weight="700" fill="#16794B">PASS ≤ 15.0 MIN</text>
+          </svg>`;
+      }
+      if (id === "T1L1") {
+        return `
+          <svg viewBox="0 0 320 112" role="img" aria-label="CuSO4 5H2O Dissolution Diagram">
+            <rect x="4" y="4" width="312" height="104" fill="#FBF9F4" stroke="#D6D0C4" stroke-width="1"/>
+            <text x="14" y="20" font-family="IBM Plex Mono, monospace" font-size="9" font-weight="700" fill="#5C564C">FIG 01 · [Cu(H₂O)₆]²⁺ COORDINATION</text>
+            <path d="M36 34 L36 92 Q36 96 40 96 L98 96 Q102 96 102 92 L102 34" fill="#BAE6FD" fill-opacity="0.48" stroke="#141413" stroke-width="1.6"/>
+            <line x1="38" y1="52" x2="100" y2="52" stroke="#0284C7" stroke-width="1.5"/>
+            <rect x="55" y="86" width="28" height="6" rx="3" fill="#FBF9F4" stroke="#141413" stroke-width="1.2"/>
+            <line x1="194" y1="34" x2="194" y2="88" stroke="#141413" stroke-width="1.2"/>
+            <line x1="164" y1="61" x2="224" y2="61" stroke="#141413" stroke-width="1.2"/>
+            <line x1="174" y1="43" x2="214" y2="79" stroke="#141413" stroke-width="1.1"/>
+            <circle cx="194" cy="61" r="9" fill="#0284C7" stroke="#141413" stroke-width="1.3"/>
+            <circle cx="194" cy="34" r="5" fill="#FBF9F4" stroke="#141413" stroke-width="1.2"/>
+            <circle cx="194" cy="88" r="5" fill="#FBF9F4" stroke="#141413" stroke-width="1.2"/>
+            <circle cx="164" cy="61" r="5" fill="#FBF9F4" stroke="#141413" stroke-width="1.2"/>
+            <circle cx="224" cy="61" r="5" fill="#FBF9F4" stroke="#141413" stroke-width="1.2"/>
+            <circle cx="194" cy="61" r="3.5" fill="#D61F1F"/>
+            <polyline points="194,61 232,37 244,37" fill="none" stroke="#D61F1F" stroke-width="1.3"/>
+            <rect x="244" y="28" width="56" height="17" fill="#D61F1F"/>
+            <text x="250" y="39" font-family="IBM Plex Mono, monospace" font-size="8.5" font-weight="700" fill="#FBF9F4">Cu²⁺ d⁹</text>
+            <text x="244" y="64" font-family="IBM Plex Mono, monospace" font-size="8.5" fill="#5C564C">ΔT -1.8°C</text>
+            <text x="244" y="80" font-family="IBM Plex Mono, monospace" font-size="8.5" font-weight="700" fill="#16794B">0.400 M</text>
+          </svg>`;
+      }
+      return `
+        <svg viewBox="0 0 320 112" role="img" aria-label="${id} Apparatus Schematic">
+          <rect x="4" y="4" width="312" height="104" fill="#FBF9F4" stroke="#D6D0C4" stroke-width="1"/>
+          <text x="14" y="20" font-family="IBM Plex Mono, monospace" font-size="9" font-weight="700" fill="#5C564C">${id} · INSTRUMENT SCHEMATIC</text>
+          <rect x="28" y="38" width="76" height="52" fill="#F4F1EA" stroke="#141413" stroke-width="1.5"/>
+          <rect x="38" y="46" width="56" height="18" fill="#141413"/>
+          <text x="44" y="58" font-family="IBM Plex Mono, monospace" font-size="8" font-weight="700" fill="#FBF9F4">3D TWIN</text>
+          <circle cx="52" cy="78" r="4.5" fill="#D61F1F"/>
+          <circle cx="78" cy="78" r="4.5" fill="#141413"/>
+          <polygon points="164,34 176,34 192,90 148,90" fill="#E0F2FE" fill-opacity="0.48" stroke="#141413" stroke-width="1.5"/>
+          <line x1="104" y1="64" x2="156" y2="64" stroke="#141413" stroke-width="1.3" stroke-dasharray="3 2"/>
+          <circle cx="170" cy="64" r="3.5" fill="#D61F1F"/>
+          <polyline points="170,64 202,41 218,41" fill="none" stroke="#D61F1F" stroke-width="1.3"/>
+          <rect x="218" y="32" width="80" height="17" fill="#D61F1F"/>
+          <text x="224" y="43" font-family="IBM Plex Mono, monospace" font-size="8.5" font-weight="700" fill="#FBF9F4">${String(s?.targetMeshName || "Btn_Start").slice(0, 12)}</text>
+          <text x="218" y="68" font-family="IBM Plex Mono, monospace" font-size="8.5" fill="#5C564C">BLE 5.2 LINKED</text>
+          <text x="218" y="84" font-family="IBM Plex Mono, monospace" font-size="8.5" font-weight="700" fill="#16794B">CURATED BENCH</text>
+        </svg>`;
+    }
+
+    function drawPlotCanvas(plotData) {
+      const canvas = document.getElementById("companion-plot-canvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
+
+      ctx.fillStyle = "#FBF9F4";
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.strokeStyle = "#EAE3D5";
+      ctx.lineWidth = 1;
+      for (let i = 1; i <= 3; i++) {
+        const gy = 16 + ((h - 38) / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(46, gy);
+        ctx.lineTo(w - 14, gy);
+        ctx.stroke();
+      }
+      for (let j = 1; j <= 4; j++) {
+        const gx = 46 + ((w - 60) / 5) * j;
+        ctx.beginPath();
+        ctx.moveTo(gx, 16);
+        ctx.lineTo(gx, h - 22);
+        ctx.stroke();
+      }
+
+      ctx.strokeStyle = "#141413";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(46, 14);
+      ctx.lineTo(46, h - 22);
+      ctx.lineTo(w - 12, h - 22);
+      ctx.stroke();
+
+      const pts = plotData?.points || [];
+      if (pts.length < 2) return;
+
+      const xs = pts.map((p) => p.x);
+      const ys = pts.map((p) => p.y);
+      const minX = Math.min(...xs);
+      const maxX = Math.max(...xs, minX + 1);
+      const minY = Math.min(...ys);
+      const maxY = Math.max(...ys, minY + 0.1);
+
+      ctx.strokeStyle = "#D61F1F";
+      ctx.lineWidth = 2.6;
+      ctx.beginPath();
+      pts.forEach((p, idx) => {
+        const px = 52 + ((p.x - minX) / (maxX - minX)) * (w - 72);
+        const py = h - 26 - ((p.y - minY) / (maxY - minY)) * (h - 46);
+        if (idx === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      });
+      ctx.stroke();
+
+      pts.forEach((p) => {
+        const px = 52 + ((p.x - minX) / (maxX - minX)) * (w - 72);
+        const py = h - 26 - ((p.y - minY) / (maxY - minY)) * (h - 46);
+        ctx.fillStyle = "#FBF9F4";
+        ctx.strokeStyle = "#D61F1F";
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.arc(px, py, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      });
+
+      ctx.fillStyle = "#141413";
+      ctx.font = "600 10px 'IBM Plex Mono', monospace";
+      ctx.fillText(maxY.toFixed(2), 6, 22);
+      ctx.fillText(minY.toFixed(2), 6, h - 23);
+      ctx.fillStyle = "#5C564C";
+      ctx.fillText(String(plotData?.xLabel || "Time (s)"), w - 76, h - 6);
+    }
+
+    let bus = null;
+    try {
+      bus = new BroadcastChannel("chemmate_companion_sync_v1");
+      bus.postMessage({ type: "COMPANION_HELLO", code });
+      bus.onmessage = (ev) => {
+        if (ev.data && ev.data.type === "LAB_STATE_SYNC" && ev.data.state) {
+          applyState(ev.data.state);
+        }
+      };
+    } catch (_) {}
+
+    function sendCommand(action, extra = {}) {
+      const payload = Object.assign({ type: "COMPANION_ACTION", action, ts: Date.now() }, extra);
+      if (bus) bus.postMessage(payload);
+      try {
+        localStorage.setItem("chemmate_companion_cmd", JSON.stringify(payload));
+      } catch (_) {}
+    }
+
+    function applyState(s) {
+      currentState = s;
+      document.getElementById("lesson-id-badge").textContent = s.lessonId || "T1L1";
+      document.getElementById("lesson-title").textContent = s.lessonTitle || "ChemMate Lab";
+      document.getElementById("step-badge").textContent = `STEP ${(s.stepIndex || 0) + 1} / ${s.totalSteps || 4}`;
+      document.getElementById("room-name").textContent = (s.roomName || "CR-01 TEACHING STUDIO").toUpperCase();
+      document.getElementById("step-title").textContent = s.stepTitle || "";
+      document.getElementById("step-desc").textContent = s.stepInstruction || "";
+      document.getElementById("target-mesh").textContent = s.targetMeshName || "Btn_Power";
+      document.getElementById("target-machine-tag").textContent = String(s.targetMachineName || "Instrument");
+      document.getElementById("companion-diagram-wrap").innerHTML = renderDiagramSVG(s);
+
+      if (s.lessonId && lessonSelect.value !== s.lessonId) {
+        const hasOption = Array.from(lessonSelect.options).some((o) => o.value === s.lessonId);
+        if (hasOption) lessonSelect.value = s.lessonId;
+      }
+
+      if (s.telemetry) {
+        document.getElementById("m-lbl-1").textContent = s.telemetry.primaryLabel || "PRIMARY";
+        document.getElementById("m-val-1").textContent = s.telemetry.primaryVal || "—";
+        document.getElementById("m-lbl-2").textContent = s.telemetry.secondaryLabel || "SECONDARY";
+        document.getElementById("m-val-2").textContent = s.telemetry.secondaryVal || "—";
+        document.getElementById("m-lbl-3").textContent = s.telemetry.tertiaryLabel || "TERTIARY";
+        document.getElementById("m-val-3").textContent = s.telemetry.tertiaryVal || "—";
+        document.getElementById("ble-status").textContent = s.telemetry.status || "LINKED";
+      }
+      if (Array.isArray(s.observations) && s.observations.length) {
+        document.getElementById("obs-box").innerHTML = s.observations.join("<br/>");
+      } else {
+        document.getElementById("obs-box").textContent = "Actuate 3D machine controls to auto-log BLE telemetry.";
+      }
+      if (s.plotData?.title) {
+        document.getElementById("plot-title").textContent = s.plotData.title;
+      }
+      drawPlotCanvas(s.plotData);
+
+      if (s.verificationQuestion) {
+        document.getElementById("verify-prompt").textContent = s.verificationQuestion.prompt;
+        const msgEl = document.getElementById("verify-msg");
+        if (s.verificationQuestion.verified) {
+          msgEl.textContent = `✓ PASS (${s.verificationQuestion.expected} ${s.verificationQuestion.unit || ""}) — Synced to Gradebook.`;
+          msgEl.style.color = "var(--cm-green)";
+        } else {
+          msgEl.textContent = "";
+        }
+      }
+    }
+
+    // Load cached state or render initial T1L1 diagram/plot
+    try {
+      const cached = localStorage.getItem("chemmate_companion_state");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && parsed.state) applyState(parsed.state);
+      } else {
+        document.getElementById("companion-diagram-wrap").innerHTML = renderDiagramSVG(currentState);
+        drawPlotCanvas(currentState.plotData);
+      }
+    } catch (_) {
+      document.getElementById("companion-diagram-wrap").innerHTML = renderDiagramSVG(currentState);
+      drawPlotCanvas(currentState.plotData);
+    }
+
+    document.getElementById("btn-highlight").addEventListener("click", () => sendCommand("highlight_target"));
+    document.getElementById("btn-actuate").addEventListener("click", () => sendCommand("perform_step"));
+    document.getElementById("btn-ble-actuate").addEventListener("click", () => sendCommand("perform_step"));
+    document.getElementById("btn-verify").addEventListener("click", () => {
+      const val = document.getElementById("verify-input").value;
+      sendCommand("verify_calc", { value: val });
+    });
+    lessonSelect.addEventListener("change", (e) => {
+      sendCommand("select_lesson", { lessonId: e.target.value });
+    });
+    document.querySelectorAll("[data-pick-lesson]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const id = e.currentTarget.getAttribute("data-pick-lesson");
+        sendCommand("select_lesson", { lessonId: id });
+        switchTab("guide");
+      });
+    });
+  </script>
+</body>
+</html>

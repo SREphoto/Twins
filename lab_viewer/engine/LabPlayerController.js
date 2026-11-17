@@ -29,7 +29,7 @@ export class LabPlayerController {
     this.orbitControls.enableDamping = true;
     this.orbitControls.dampingFactor = 0.08;
     this.orbitControls.maxPolarAngle = Math.PI / 2 - 0.02; // Prevent clipping through floor
-    this.orbitControls.minDistance = 1.0;
+    this.orbitControls.minDistance = 0.25;
     this.orbitControls.maxDistance = 220.0;
 
     // Default Overview Pose (Grand Campus & L-Wing Complex Sightline)

@@ -63,11 +63,11 @@ generate generic minimal HTML/CSS shells.
 
 ## 7. Closed-Loop Multi-Angle Visual QA Gate (Mandatory for Every Build)
 
-**Every twin build must execute the standardized 6-viewpoint visual audit before signoff.** Refer to `.agents/skills/twin-visual-qa/SKILL.md`.
+**Every twin build must execute the standardized 6-viewpoint visual audit before signoff.** Refer to `.agents/skills/twin-visual-qa/SKILL.md` and `.agents/skills/world-class-ui-design/SKILL.md`.
 
 Before marking any part or twin complete, the agent must:
 1. Start the local server (`http://127.0.0.1:8765`).
-2. Run the automated CDP/browser verification script capturing all 6 standardized viewpoints:
+2. Run the automated CDP/browser verification script capturing all 6 standardized viewpoints (plus `CAM_PROP_CLOSEUP` for imported third-party `.glb` bench props):
    - `CAM_ISO`: 3/4 isometric perspective, bench clearance ($Y = 9.0$), seamless room walls.
    - `CAM_FRONT`: Upright typography, zero knob/control display occlusion, brand badge containment.
    - `CAM_SIDE`: Profile silhouette, flush switches/connectors, zero floating parts.
@@ -95,6 +95,9 @@ All agents must strictly cross-reference `.agents/TROUBLESHOOTING_LOG.md` before
 - **DIAG-020 (Kinematic Exploded Exposure)**: Unibody casting must elevate $\ge +100\text{ mm}$ to fully expose cast iron ballast, isolators, motor windings, and PCB.
 - **DIAG-021 (Kinematic Directional Synchronization)**: Lever and dial rotations must mathematically synchronize with silkscreen labels.
 - **DIAG-022 (Camera Viewport Bounding)**: Camera framing must encompass the entire vertical envelope ($Y \in [0, 260\text{ mm}]$); zero cut-off caps.
+- **DIAG-027 (Imported GLB Hygiene & Clean Benches)**: Inspect third-party `.glb` node hierarchies, strip duplicate twin submeshes, normalize screen UVs with `flipY = false`, eliminate native stock wallpaper bleed, and ban unrequested floating 3D QR billboards (`qrPlaca`) or chunky 3D text sprites (`beaconSprite`).
+- **DIAG-028 (Editorial UI Craft & Anti-Garbage Rule)**: Follow `.agents/skills/world-class-ui-design/SKILL.md`; enforce Swiss Archival Paper system (`#F4F1EA` / `#FBF9F4` / `#141413` / `#D61F1F`) in ChemMate Teaching Lab & `companion.html`, single-line badges, and `tabular-nums`.
+- **DIAG-029 (Instant Lesson Camera Framing)**: Snap immediately to curated studio `benchCam` pose via `setCameraPose` on lesson launch before heavy dynamic imports.
 
 ## 9. Physical Circuit Continuity & Real-World Reality
 

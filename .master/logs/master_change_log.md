@@ -4,6 +4,45 @@ Newest first. Template: `templates/change_log_entry.md`.
 
 ---
 
+## 2026-11-17 · OGA · chemmate-swiss-redesign-and-phone-fix
+
+| Field   | Value |
+| ------- | ----- |
+| Agent   | OGA (Organizational Governance Agent) / `cad_teaching_engineer` / `web_ba_chemmate_ui` / `vqa_audit_director` |
+| Machine | `lab_viewer`, `workspace` |
+| Intent  | Remediate all first-pass 3D phone prop and editorial UI defects in the ChemMate Interactive 3D Chemistry Teaching Lab (`lab_viewer/`), codify anti-slop craftsmanship rules modeled on Formula 1 Apex (`world-class-ui-design` / `[DIAG-027]`–`[DIAG-029]`) and ChemMate Swiss Archival Paper broadsheets (`#F4F1EA` / `#FBF9F4` / `#141413` / `#D61F1F`), eliminate unrequested floating 3D QR plaques/sprites, guarantee instant interior studio framing on lesson launch, and verify 0 errors across 7 headless Chrome CDP visual QA captures while keeping all standalone `*_twin/` viewers and Grand Lab free-explore mode 100% intact. |
+
+### Created
+
+- `.agents/skills/world-class-ui-design/SKILL.md` — 10 curated human design benchmarks, Swiss Archival Paper design tokens, hard anti-slop rules, GLB submesh inspection mandate, and instant interior framing rule.
+- `lab_viewer/companion.html` — Responsive mobile/second-screen ChemMate Companion web app (`?code=CM-XXXX`) styled in Swiss Archival Paper with live `BroadcastChannel` + `storage` sync, 4 editorial tabs, Canvas reaction curve plotter, SQL-free local observation log, interactive verification solver, and 24-lab Tier 1 matrix.
+- `lab_viewer/engine/PhoneCompanionController.js` — Single-instance pruned `iphone_14_pro.glb` controller (`Object_16..26` duplicate removed, planar `[0,1]` UV screen `Object_6` with `flipY = false`, elevated Dynamic Island `Object_8`, machined MagSafe titanium stand, zero 3D `qrPlaca`), on-screen Swiss Archival iPhone HUD (`KeyP`), QR drawer, Gemini 3.8 Flash TTS voiceover player, and complete 24-lab `TIER1_CURRICULUM_MANIFEST`.
+- `lab_viewer/engine/TeachingLabManager.js` — Curated Lesson Bench Engine (`POC_LESSONS`: `T1L1`, `T4L24`, `PHARMA_QC`, plus dynamic `T1L1`–`T1L24` builder) featuring a mini brushed-aluminum MagStir hotplate with rotary dials, 100 mL Pyrex beaker + PTFE stir bar + CuSO₄·5H₂O crystalline shader, instant `setCameraPose()` studio framing, emissive 3D target pulsing + Swiss crimson beacon ring, and real-time 2D projected SVG leader-line callout (`#cm-leader-callout`) with HUD clearance avoidance.
+- `lab_viewer/assets/audio/t1l1_intro.mp3` — Cached TTS voiceover stem for PoC Lab 1.1.
+- `.master/logs/report_cards/2026-11-17_OGA_chemmate-swiss-redesign-and-phone-fix.md` — Session self-report card and 21-gate checklist verification.
+
+### Changed
+
+- `.agents/AGENTS.md`, `.agents/MASTER_PREFLIGHT_CHECKLIST.md`, `.agents/SUBAGENT_PUZZLE_ROSTER.md`, `.agents/TROUBLESHOOTING_LOG.md` — Added `[DIAG-027]` (GLB hygiene & clean benches), `[DIAG-028]` (Editorial UI craft & Swiss Paper token discipline), `[DIAG-029]` (Instant curated lesson studio framing), and `CHK-19`–`CHK-21` preflight gates.
+- `lab_viewer/index.html` — Added editorial ChemMate topbar (`#chemmate-topbar-nav`), Swiss Broadsheet Curriculum Selector Modal (`#chemmate-curriculum-modal` with NaCl FCC Lattice + PoC SVG diagrams and Tier 1 24-lab grid), 2D SVG leader-line overlay (`#cm-leader-callout`), and lesson quick-launch dropdown while leaving Grand Lab DOM intact.
+- `lab_viewer/style.css` — Added scoped `body.chemmate-lesson-mode`, `.iphone-companion-hud`, `.cm-leader-callout`, and `.cm-curriculum-modal` Swiss Archival Paper stylesheets; hid legacy `.hud-nav-dock` and `.smart-sidebar` cleanly in lesson mode; removed `transform: translate(0, -50%)` on `.cm-leader-box` and CSS transitions on `.iphone-tab` for instant high-contrast tab states.
+- `lab_viewer/app.js` — Wired `PhoneCompanionController`, `TeachingLabManager`, URL `?lesson=` auto-launch, `#cm-leader-box` click actuation, curriculum modal keyboard/click handlers, and lesson-priority raycasting without mutating free-explore mode.
+- `lab_viewer/engine/LabPlayerController.js` — Lowered `orbitControls.minDistance` from `1.0` to `0.25` m for close-up benchtop glassware & handheld phone inspection.
+
+### Deleted
+
+- None (`*_twin/` standalone builds and Grand Lab assets untouched).
+
+### Moved
+
+- None.
+
+### Report card
+
+`logs/report_cards/2026-11-17_OGA_chemmate-swiss-redesign-and-phone-fix.md`
+
+---
+
 ## 2026-11-15 · OGA · zeiss-geminisem-500-vc-e-suite-progressive-scan-and-5-gate-gold
 
 | Field   | Value                                                                                                                                                                                                                                                            |

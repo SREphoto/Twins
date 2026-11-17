@@ -4,6 +4,50 @@ Newest first. Template: `templates/troubleshooting_entry.md`.
 
 ---
 
+## 2026-11-17 · OGA · chemmate-glb-pruning-editorial-ui-and-leader-alignment [DIAG-027] [DIAG-028] [DIAG-029]
+
+| Field    | Value                                                              |
+| -------- | ------------------------------------------------------------------ |
+| Status   | resolved                                                           |
+| Machine  | `lab_viewer`, `workspace`                                          |
+| Severity | high                                                               |
+
+### Problem
+
+First-pass ChemMate Teaching Lab integration in `lab_viewer/` exhibited five severe visual and UX defects rejected during user review:
+1. Imported Sketchfab `iphone_14_pro.glb` rendered TWO overlapping side-by-side phones with supercar stock wallpaper bleeding onto the screen and Dynamic Island Z-fighting (`[DIAG-027]`).
+2. An unrequested chunky 3D QR billboard (`qrPlaca`) and floating 3D label sprites (`beaconSprite`) cluttered the benchtop, while `#iphone-companion-hud` and `companion.html` used generic dark-navy boxes (`#090d14`) with neon cyan borders, wrapped pill badges (`STEP 1 OF \n 4`), and truncated headers (`[DIAG-028]`).
+3. Launching `index.html?lesson=T1L1` lingered at the exterior campus parking lot before slow `1.1s` camera lerps ran (`[DIAG-029]`).
+4. Subsequent VQA inspection revealed four secondary polish issues: `.cm-leader-box` `transform: translate(0, -50%)` misaligned the SVG leader polyline onto the bottom corner instead of vertical center (`leaderAnchorDeltaPx`); legacy dark-cyan `.hud-nav-dock` & collapsed `.smart-sidebar` toggle leaked during lesson mode; `.iphone-tab` / `.tab-btn` `transition: all 0.14s` caused mid-fade washed-out active tab contrast (`03 Results`) in instant CDP screenshots; and `#target-machine-tag` `.slice(0, 22)` cut `"Shimadzu Dual-Beam UV-Vis..."` at a dangling hyphen `"UV-"`, while `Fm3̄m` combining overbar glyphs collided on Linux font shaping.
+5. Continuous WebGL `requestAnimationFrame` under SwiftShader starved headless Chrome `Page.captureScreenshot` calls until CDP timed out.
+
+### Symptoms
+
+- Two iPhones on stand (`Object_4..14` + upside-down sibling `Object_16..26`), racecar background visible, protruding 3D QR plaque on bench.
+- Exterior parking lot captured on initial lesson frame instead of Analytical Balance bench.
+- Active tab `03 Results` captured mid-transition with faint low-contrast label in `qa_04`.
+- `Fm3̄m` overbar glyph collisions in curriculum modal and `"Shimadzu Dual-Beam UV-"` in mobile `companion.html`.
+
+### Cause
+
+- `iphone_14_pro.glb` packed two opposite-facing copy hierarchies (`Object_4..14` and `Object_16..26`) and shared UV range `[0,1]` mismatches without inspecting node bounds prior to mounting.
+- First-pass UI reused generic dark cyan variables instead of curated Formula 1 Apex + ChemMate Swiss Archival Paper broadsheet tokens.
+- `startLesson()` awaited dynamic module imports prior to calling `glideToStation()`.
+- `.cm-leader-box` combined JS `boxTop = shelfY - bh / 2` with CSS `translate(0, -50%)`; `.iphone-tab`/`.tab-btn` animated color transitions asynchronously relative to DOM click capture.
+
+### Fix
+
+1. Pruned `Object_16..26` from `iphone_14_pro.glb` prior to `Box3` normalization, remapped `Object_6` screen UVs cleanly to `[0,1]x[0,1]` paired with `texture.flipY = false`, elevated `Object_8` Dynamic Island `+0.0003` along local normal, removed 3D `qrPlaca` / `beaconSprite`, and hid procedural fallbacks upon GLB mount (`PhoneCompanionController.js`).
+2. Redesigned Teaching Mode Chrome, iPhone Companion HUD, Curriculum Broadsheet Modal, and `companion.html` strictly in ChemMate Swiss Archival Paper (`#F4F1EA`, `#FBF9F4`, `#141413`, `#D6D0C4`, `#D61F1F`), moved QR pairing inside the `#iphone-qr-drawer`, hid legacy dark nav dock / sidebar strictly via `body.chemmate-lesson-mode`, replaced `.slice(0, 22)` with CSS `text-overflow: ellipsis`, and changed `Fm3̄m` to `Fm-3m`.
+3. Added immediate `player.setCameraPose(lesson.benchCam.pos, lesson.benchCam.look, "station_focus")` at the start of `startLesson()` before awaiting twin imports (`TeachingLabManager.js`).
+4. Removed `transform: translate(0, -50%)` from `.cm-leader-box`, added dynamic left-HUD collision avoidance in `_updateLeaderCallout()` (`leaderAnchorDeltaPx: 0.1` px), removed CSS transitions on `.iphone-tab` / `.tab-btn`, and paused continuous WebGL rAF (`app.isContextLost = true` around `Page.captureScreenshot`) in `vqa_cdp_audit.mjs`.
+
+### Prevention
+
+- Enforced `[DIAG-027]`, `[DIAG-028]`, and `[DIAG-029]` plus `CHK-19`–`CHK-21` in `.agents/TROUBLESHOOTING_LOG.md`, `.agents/MASTER_PREFLIGHT_CHECKLIST.md`, and `.agents/skills/world-class-ui-design/SKILL.md`. Always parse third-party `.glb` hierarchies in Python before Three.js import and verify via tight `CAM_PROP_CLOSEUP` CDP screenshots (`view_file`).
+
+---
+
 ## 2026-11-15 · OGA · sem-twin-vc-e-partition-door-and-cdp-proxy-flags [DIAG-005] [DIAG-014] [DIAG-020]
 
 | Field    | Value                                                              |
