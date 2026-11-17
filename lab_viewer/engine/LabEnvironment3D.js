@@ -44,7 +44,7 @@ export class LabEnvironment3D {
     this.roomControls = {
       entrance: { blindsClosed: false },
       office: { blindsClosed: false, lightLevel: "full", privacy: false },
-      sem: { blindsClosed: true, lightLevel: "dim", privacy: false },
+      sem: { blindsClosed: true, lightLevel: "full", privacy: false },
       conference: {
         blindsClosed: false,
         lightLevel: "full",
@@ -3190,7 +3190,7 @@ export class LabEnvironment3D {
       // 1B. Rear North L-Wing High-Bay Research Expansion Islands (Y_ceil = 5.60m)
       { x: -15.5, z: 15.0, len: 6.4, sx: 6.8, sz: 2.2, ceilH: H_REAR },
       { x: -7.0,  z: 15.0, len: 6.4, sx: 6.8, sz: 2.2, ceilH: H_REAR },
-      { x: 4.5,   z: 14.8, len: 4.8, sx: 5.2, sz: 2.2, ceilH: H_REAR, roomZone: "sem" },
+      { x: 4.5,   z: 14.8, len: 4.8, sx: 5.2, sz: 2.2, ceilH: H_REAR, roomZone: "sem", baseIntensity: 1.85 },
       { x: -15.5, z: 21.5, len: 6.4, sx: 6.8, sz: 2.2, ceilH: H_REAR },
       { x: -7.0,  z: 21.5, len: 6.4, sx: 6.8, sz: 2.2, ceilH: H_REAR },
       { x: 1.5,   z: 21.5, len: 6.4, sx: 6.8, sz: 2.2, ceilH: H_REAR },
@@ -3248,9 +3248,10 @@ export class LabEnvironment3D {
       diffuser.position.set(cfg.x, lumY - 0.035, cfg.z);
       this.root.add(diffuser);
 
-      const point = new THREE.PointLight(0xfff4e0, 1.05, 14.5, 1.15);
+      const baseInt = cfg.baseIntensity ?? 1.05;
+      const point = new THREE.PointLight(0xfff4e0, baseInt, 14.5, 1.15);
       point.position.set(cfg.x, lumY - 0.15, cfg.z);
-      point.userData.baseIntensity = 1.05;
+      point.userData.baseIntensity = baseInt;
       point.userData.roomLightFactor = 1.0;
       if (cfg.roomZone && this.roomLightGroups[cfg.roomZone]) {
         point.userData.roomZone = cfg.roomZone;
@@ -4072,6 +4073,7 @@ export class LabEnvironment3D {
     }
     this._applyRoomLighting("conference");
     this._applyRoomLighting("office");
+    this._applyRoomLighting("sem");
   }
 
   update(time, camera, mode = "overview") {
@@ -8534,8 +8536,13 @@ export class LabEnvironment3D {
     const suiteGrp = new THREE.Group();
     suiteGrp.name = "VC_E_Electron_Microscopy_Suite";
 
-    const wallMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.55, metalness: 0.15 });
+    const wallMat = new THREE.MeshStandardMaterial({ color: 0x283548, roughness: 0.42, metalness: 0.18 });
     const copperRfMat = new THREE.MeshStandardMaterial({ color: 0xb87333, roughness: 0.28, metalness: 0.88 });
+    const stainlessTrimMat = this.materials.kickplateStainless || new THREE.MeshStandardMaterial({
+      color: 0xcfd6e0,
+      roughness: 0.25,
+      metalness: 0.88
+    });
     const glassPartitionMat = new THREE.MeshPhysicalMaterial({
       color: 0xdbeafe,
       transparent: true,
@@ -8600,10 +8607,52 @@ export class LabEnvironment3D {
     westHeader.position.set(1.0, 4.05, 15.0);
     suiteGrp.add(westHeader);
 
-    // Copper RF Faraday Trim Strips along Interior Wall Perimeters
-    const rfStrip = new THREE.Mesh(new THREE.BoxGeometry(6.8, 0.08, 0.02), copperRfMat);
-    rfStrip.position.set(4.5, 1.15, 9.61);
-    suiteGrp.add(rfStrip);
+    // 4B. East Acoustic/RF Perimeter Wall along X = 8.0 from Z = 9.5 to Z = 18.3 (H = 5.60m)
+    // Seated at X = 7.93 (X: 7.84..8.02) so interior face cleanly covers 9C drywall/mullions while outer face clears exterior curtain-wall glass
+    const eastWall = new THREE.Mesh(new THREE.BoxGeometry(0.18, 5.60, 8.80), wallMat);
+    eastWall.position.set(7.93, 2.80, 13.9);
+    eastWall.castShadow = true;
+    eastWall.receiveShadow = true;
+    suiteGrp.add(eastWall);
+    this.colliders.push(new THREE.Box3().setFromObject(eastWall));
+
+    // Copper RF Faraday Trim Strips & Stainless Cove Trim Strips along Interior Wall Perimeters
+    const rfStripSouth = new THREE.Mesh(new THREE.BoxGeometry(6.73, 0.08, 0.02), copperRfMat);
+    rfStripSouth.position.set(4.465, 1.15, 9.605);
+    suiteGrp.add(rfStripSouth);
+
+    const rfStripEast = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.08, 8.60), copperRfMat);
+    rfStripEast.position.set(7.825, 1.15, 13.9);
+    suiteGrp.add(rfStripEast);
+
+    const rfStripNorth = new THREE.Mesh(new THREE.BoxGeometry(6.73, 0.06, 0.02), copperRfMat);
+    rfStripNorth.position.set(4.465, 1.03, 18.195);
+    suiteGrp.add(rfStripNorth);
+
+    const rfStripWestSouth = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.08, 3.68), copperRfMat);
+    rfStripWestSouth.position.set(1.105, 1.15, 11.44);
+    suiteGrp.add(rfStripWestSouth);
+
+    const rfStripWestNorth = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.08, 2.15), copperRfMat);
+    rfStripWestNorth.position.set(1.105, 1.15, 17.125);
+    suiteGrp.add(rfStripWestNorth);
+
+    // Stainless Steel Cove Baseboard & Upper Architectural Cove Reveal Trim
+    [
+      { sx: 6.73, sy: 0.12, sz: 0.02, x: 4.465, y: 0.06, z: 9.605 },
+      { sx: 0.02, sy: 0.12, sz: 8.60, x: 7.825, y: 0.06, z: 13.9 },
+      { sx: 6.73, sy: 0.12, sz: 0.02, x: 4.465, y: 0.06, z: 18.195 },
+      { sx: 0.02, sy: 0.12, sz: 4.35, x: 1.105, y: 0.06, z: 11.775 },
+      { sx: 0.02, sy: 0.12, sz: 2.15, x: 1.105, y: 0.06, z: 17.125 },
+      { sx: 6.73, sy: 0.05, sz: 0.025, x: 4.465, y: 3.74, z: 9.605 },
+      { sx: 0.025, sy: 0.05, sz: 8.60, x: 7.825, y: 3.74, z: 13.9 },
+      { sx: 6.73, sy: 0.05, sz: 0.025, x: 4.465, y: 3.74, z: 18.195 },
+      { sx: 0.025, sy: 0.05, sz: 8.60, x: 1.105, y: 3.74, z: 13.9 }
+    ].forEach((t) => {
+      const trim = new THREE.Mesh(new THREE.BoxGeometry(t.sx, t.sy, t.sz), stainlessTrimMat);
+      trim.position.set(t.x, t.y, t.z);
+      suiteGrp.add(trim);
+    });
 
     // 5. Interactive Double Acoustic/EM-Shielded Airlock Doors at X = 1.0, Z = 15.0 (SEM_SUITE_DOOR)
     const doorGroup = new THREE.Group();
@@ -8666,6 +8715,16 @@ export class LabEnvironment3D {
     );
     signMesh.position.set(0.89, 2.74, 15.0);
     suiteGrp.add(signMesh);
+
+    // 6. Dedicated Secondary Zone 8 Cleanroom Fill PointLight (crisp hospital-lab illumination under daylight mood)
+    const semFillLight = new THREE.PointLight(0xf4f8ff, 1.85, 12.0, 1.15);
+    semFillLight.position.set(3.25, 3.10, 14.75);
+    semFillLight.userData.baseIntensity = 1.85;
+    semFillLight.userData.roomLightFactor = 1.0;
+    semFillLight.userData.roomZone = "sem";
+    this.roomLightGroups.sem.pointLights.push(semFillLight);
+    this.interiorPointLights.push(semFillLight);
+    suiteGrp.add(semFillLight);
 
     this.root.add(suiteGrp);
     this._applyRoomLighting("sem");

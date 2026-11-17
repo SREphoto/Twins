@@ -225,6 +225,27 @@ export class SEMSoundEffects {
     this.playScanCompleteChime();
   }
 
+  playInterlockBuzz() {
+    if (!this._ensureContext()) return;
+    const now = this.ctx.currentTime;
+    [0, 0.14].forEach((offset) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(165, now + offset);
+      gain.gain.setValueAtTime(0.16, now + offset);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.10);
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(now + offset);
+      osc.stop(now + offset + 0.11);
+    });
+  }
+
+  playAlarm() {
+    this.playInterlockBuzz();
+  }
+
   playScanCompleteChime() {
     if (!this._ensureContext()) return;
     const now = this.ctx.currentTime;

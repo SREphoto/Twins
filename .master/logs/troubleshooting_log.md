@@ -570,3 +570,23 @@ No blockers while creating `.master` structure.
 **Fix:** Reordered regex evaluations so specific domains (Controls, Tank, Basket, Lid, Fluid, Electronics) evaluate prior to the generic `Body_` chassis fallback.
 
 
+
+---
+
+## 2026-11-16 · OGA · sem_twin [ISS-048] [DIAG-022]
+
+| Field    | Value      |
+| -------- | ---------- |
+| Status   | resolved   |
+| Machine  | sem_twin   |
+| Severity | high       |
+
+**Problem:**
+1. `sem_twin` lacked `#cm-plate-overlay`, `#cm-stage-switcher`, and `#lab-light-mood` / `#btn-view-retro` handlers in `app.js`, failing OGA Gate 6 (`UI-02`, `UI-03`).
+2. `CAM_ISO`, `CAM_FRONT`, and `CAM_SIDE` clipped the top HV boot (`Y = 18.80 u`) and lower plinth feet (`DIAG-022`), and `Body_DoorCautionPlaque` text clipped at its left/right border.
+3. `process_voiceover_audio.py` hardcoded `/usr/local/bin/ffmpeg` and `/usr/local/bin/ffprobe`, failing on Linux where they live in `/usr/bin/`.
+
+**Fix:**
+1. Added full Gold Standard UI controls, lighting moods, and ChemMate retro overlay handlers to `index.html` and `app.js`.
+2. Pulled back `CAMERA_PRESETS` and calibrated `CAM_SIDE` (`FOV 46°`) inside `Lab_WallRight`, and shortened `Body_DoorCautionPlaque` copy in `sem_chamber_column.js`.
+3. Updated `scripts/process_voiceover_audio.py` to resolve `ffmpeg`/`ffprobe` via `shutil.which()`. Verified with 19-shot CDP Visual QA (`Total exceptions: 0`) and `oga_validator.mjs` (0 errors).

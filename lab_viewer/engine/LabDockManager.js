@@ -360,10 +360,10 @@ export class LabDockManager {
       name: "ZEISS GeminiSEM 500 FE-SEM",
       tag: "Zeiss GeminiSEM 500 (0.8nm UHV · InLens/SE2/BSE/EDS)",
       zone: "Zone 8: VC-E Electron Microscopy Suite (ZEISS GeminiSEM 500)",
-      pos: new THREE.Vector3(4.5, 0.0, 15.0),
+      pos: new THREE.Vector3(4.5, 0.04, 15.0),
       rotY: Math.PI / 2, // Rotates -Z front face to -X (West) toward the X=1.0 suite double doors
       scale: 0.10,
-      camConsole: { pos: new THREE.Vector3(2.2, 1.45, 15.0), look: new THREE.Vector3(4.5, 1.15, 15.0) },
+      camConsole: { pos: new THREE.Vector3(2.15, 1.35, 14.55), look: new THREE.Vector3(4.50, 1.05, 14.55) },
       builder: async () => {
         const { buildSEMModel } = await import("../../sem_twin/software/viewer/sem3d.js");
         return buildSEMModel(null, { includeLab: false });

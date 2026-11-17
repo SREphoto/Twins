@@ -1,0 +1,92 @@
+[
+  {
+    "idx": 0,
+    "badge": "STAGE 0 / 10",
+    "title": "VC-E Electron Microscopy Suite & System Architecture",
+    "start": 0.0,
+    "end": 20.9,
+    "duration": 20.95,
+    "filename": "vo_0.mp3"
+  },
+  {
+    "idx": 1,
+    "badge": "STAGE 1 / 10",
+    "title": "Electrical Continuity, Grounding & Mains Power-Up",
+    "start": 21.0,
+    "end": 40.15,
+    "duration": 19.2,
+    "filename": "vo_1.mp3"
+  },
+  {
+    "idx": 2,
+    "badge": "STAGE 2 / 10",
+    "title": "Specimen Preparation & Gold-Palladium Sputter Coating",
+    "start": 40.25,
+    "end": 57.9,
+    "duration": 17.68,
+    "filename": "vo_2.mp3"
+  },
+  {
+    "idx": 3,
+    "badge": "STAGE 3 / 10",
+    "title": "Chamber Venting, 5-Axis Eucentric Stage Loading & UHV Pumpdown",
+    "start": 57.95,
+    "end": 79.75,
+    "duration": 21.84,
+    "filename": "vo_3.mp3"
+  },
+  {
+    "idx": 4,
+    "badge": "STAGE 4 / 10",
+    "title": "Operator Console, DualRotary Encoders & Dual Joysticks",
+    "start": 79.8,
+    "end": 99.3,
+    "duration": 19.54,
+    "filename": "vo_4.mp3"
+  },
+  {
+    "idx": 5,
+    "badge": "STAGE 5 / 10",
+    "title": "Active Electron Beam Raster Scanning & Multi-Detector Physics",
+    "start": 99.4,
+    "end": 123.1,
+    "duration": 23.75,
+    "filename": "vo_5.mp3"
+  },
+  {
+    "idx": 6,
+    "badge": "STAGE 6 / 10",
+    "title": "High-SNR Micrograph Capture, EDS Analysis & GLP CSV Export",
+    "start": 123.15,
+    "end": 151.8,
+    "duration": 28.68,
+    "filename": "vo_6.mp3"
+  },
+  {
+    "idx": 7,
+    "badge": "STAGE 7A / 10",
+    "title": "Internal Power Supply, Vibration Isolation & 30 kV EHT Tank",
+    "start": 152.0,
+    "end": 176.65,
+    "duration": 24.69,
+    "filename": "vo_7.mp3"
+  },
+  {
+    "idx": 8,
+    "badge": "STAGE 7B / 10",
+    "title": "Vacuum Pumps, Foreline Plumbing & 5-Axis Stage Actuators",
+    "start": 176.8,
+    "end": 199.0,
+    "duration": 22.23,
+    "filename": "vo_8.mp3"
+  },
+  {
+    "idx": 9,
+    "badge": "STAGE 7C-7D / 10",
+    "title": "Chamber Sensors, 45\u00b0 Optical Mirror, Motherboard & Wireless I/O",
+    "start": 199.1,
+    "end": 223.8,
+    "duration": 24.74,
+    "filename": "vo_9.mp3"
+  }
+]

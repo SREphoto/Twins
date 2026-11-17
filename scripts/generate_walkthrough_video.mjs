@@ -519,6 +519,14 @@ async function main() {
     const segmentFiles = [];
 
     for (const ch of CHAPTERS) {
+      if (process.env.OGA_RESUME_DIR) {
+        const existingSeg = path.join(process.env.OGA_RESUME_DIR, `seg_${ch.idx}.mp4`);
+        if (fs.existsSync(existingSeg) && fs.statSync(existingSeg).size > 10000) {
+          console.log(`  ♻️  Reusing existing segment for [${ch.badge}]: ${existingSeg}`);
+          segmentFiles.push(existingSeg);
+          continue;
+        }
+      }
       let audioPath = null;
       if (CUSTOM_AUDIO_DIR && fs.existsSync(CUSTOM_AUDIO_DIR)) {
         const candidates = [

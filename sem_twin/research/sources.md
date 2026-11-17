@@ -1,47 +1,54 @@
-# Research Sources & OEM Technical Specifications — `sem_twin` (ZEISS GeminiSEM 500)
+# OEM Research Sources & Engineering Lineage — `sem_twin` (ZEISS GeminiSEM 500)
 
-## 1. Primary Reference Instrument & Lineage
-- **OEM Reference Model**: **Carl Zeiss Microscopy GmbH — ZEISS GeminiSEM 500** (with Gemini II Nano-Twin Lens Column, 105-mm 5-Axis Motorized Eucentric Stage, and SmartSEM V06.01 Workstation).
-- **Primary Technical Manuals & Blueprints**:
-  1. **ZEISS GeminiSEM Series Instruction Manual** (`Document No. 349500-8038-000`, Rev. `en02`):
-     - Section 3.2 *System Layout*:
-       - **Plinth + Column Footprint**: `822 mm (W) × 1082 mm (D) × 1757 mm (H)` (up to `1890 mm` with top HV umbilical strain-relief boot and IGP magnet assembly).
-       - **Mass & Load Distribution**: `890 kg` (`4 × 222.5 kg` distributed across `4 × Ø 80 mm` leveling isolator pads).
-       - **Operator Table + PC Dual-Monitor Workstation**: `1650 mm (W) × 900 mm (D) × 760 mm (H)` (combined integrated footprint width `1650 mm`, depth `1080 mm`).
-     - Section 3.4 *Installation Requirements*:
-       - **Floor Vibration Limits** (measured in time-domain RMS at specimen chamber height `1.0–1.5 m`):
-         - `< 10 Hz`: Horizontal $X/Y < 5\ \mu\text{m/s}$, Vertical $Z < 4\ \mu\text{m/s}$ RMS (corresponds to `VC-E` / `VC-G` active-passive isolation slab).
-         - `10–60 Hz`: Horizontal $X/Y < 10\ \mu\text{m/s}$, Vertical $Z < 14\ \mu\text{m/s}$ RMS.
-         - `> 60 Hz`: Horizontal $X/Y < 14\ \mu\text{m/s}$, Vertical $Z < 20\ \mu\text{m/s}$ RMS.
-       - **Stray Electromagnetic Field Limits**:
-         - DC component: $< 0.5\ \text{mG}$ ($50\ \text{nT}$) drift per 5 minutes.
-         - AC component (`10 Hz–1 kHz`): $< 1.0\ \text{mG}$ ($100\ \text{nT}$) peak-to-peak.
-       - **Acoustic Noise Limits**: $< 52\ \text{dB}$ (`< 120 Hz`), $< 43\ \text{dB}$ (`120–450 Hz`), $< 47\ \text{dB}$ (`> 450 Hz`).
-       - **Ambient Room Stability**: $21\ ^\circ\text{C} \pm 4\ ^\circ\text{C}$, short-term drift $\le 0.5\ ^\circ\text{C/h}$, relative humidity $< 65\%$.
-     - Section 4.4 *Schematics of the Vacuum System (Gemini II Column)*:
-       - **FEG Gun Chamber**: UHV $< 2 \times 10^{-7}\ \text{Pa}$ maintained by a `20 l/s` Sputter Ion Getter Pump (IGP) isolated by a pneumatic column gate valve.
-       - **Specimen Chamber**: High vacuum $\le 2.5 \times 10^{-4}\ \text{Pa}$ pumped by a bottom-mounted `Pfeiffer HiPace 300` (`260 l/s`, `90,000 RPM`) turbomolecular pump backed via a `DN25KF` corrugated stainless-steel bellows foreline by an oil-free `Pfeiffer HiScroll 6` / `Edwards nXDS6i` dry scroll pump (`10 Pa` roughing crossover).
-  2. **ZEISS 105-mm 5-Axis DC Motorized Stage Manual** (`Document No. 349347-9013-000`, Rev. `v02`):
-     - **Travel Ranges**: $X = 105\ \text{mm}$ ($\pm 52.5\ \text{mm}$), $Y = 105\ \text{mm}$ ($\pm 52.5\ \text{mm}$), $Z = 50\ \text{mm}$ (Working Distance `WD = 2.0–40.0 mm`), Tilt $T = -5^\circ\text{ to }+70^\circ$, Rotation $R = 360^\circ$ continuous, plus $M$-axis eucentric height adjustment.
-     - **Specimen Chamber Interior**: `330 mm` inner diameter × `270 mm` internal height, supporting specimens up to `500 g` on a 9-position aluminum pin-stub carousel (`Ø 12.7 mm` standard SEM pin stubs).
-     - **Hardware Safety Interlocks (§2.3.3 & §3.4)**:
-       - Chamber door microswitch (`Sensor_Microswitch_Door`) located at inner bottom front of chamber immediately blocks `EHT` and `SE2` collector voltages and locks `Z`, `M`, and `T` axes when opened.
-       - Stage tilt $T$ must be set to $0^\circ$ and retractable `BSE` / `EDS` detectors must be retracted before opening the chamber door to prevent mechanical collision.
-       - Specimen current monitor with integrated touch alarm prevents polepiece contact.
-  3. **ZEISS SmartSEM V06.01 Control Panel & Dual-Joystick Box Manual** (`sem_sm_smartsem_v06_01_en01.1`):
-     - **ZEISS Dual-Rotary Control Panel**: 8 tactile knurled rotary encoders (`Magnification`, `Focus Coarse`, `Focus Fine`, `Stigmator X`, `Stigmator Y`, `Brightness`, `Contrast`, `Aperture Align`) + illuminated function keys (`Scan/Freeze`, `Reduced Raster`, `Auto Focus`, `Auto CB`, `Fast/Slow`, `EHT On/Off`).
-     - **ZEISS Dual-Joystick Stage Control Box**: Right joystick (`X / Y` translation + twist `R` rotation), Left joystick (`Z` working distance), and top-center red `Break` emergency stage-stop pushbutton.
-  4. **Electron Optics & Multi-Detector Suite** (`ZEISS GeminiSEM Brochure EN_40_011_112` & `Oxford Instruments Ultim Max 100`):
-     - **Resolution**: `0.8 nm @ 15 kV`, `0.8 nm @ 1 kV` (with Tandem decel), `1.0 nm @ 500 V`.
-     - **Accelerating Voltage (`EHT`)**: `0.02 kV – 30.0 kV` (`20 V – 30,000 V`).
-     - **Probe Current**: `3 pA – 20 nA` (adjustable via condenser zoom & `30 µm`..`120 µm` aperture strip).
-     - **Magnification**: `50× – 2,000,000×` (interactive viewer range `50× – 300,000×`).
-     - **Detectors**:
-       1. `InLens SE`: On-axis annular secondary electron detector inside the Beam Booster column (pure nanoscale surface topography).
-       2. `SE2` (Everhart-Thornley): Chamber-mounted biased Faraday cage (`+300 V`) + YAG scintillator + quartz lightguide + PMT (oblique topographic shadowing).
-       3. `4-Quad BSE` (Sense BSD): Retractable under-polepiece 4-quadrant solid-state silicon diode ring (atomic-number $Z$-contrast $\eta \propto Z^{0.7}$).
-       4. `EDS` (Oxford Ultim Max 100 SDD): `100 mm²` Peltier-cooled Silicon Drift Detector at `35°` take-off angle (`8.5 mm` analytical WD) for characteristic X-ray microanalysis.
-       5. `IR Chamberscope`: `850 nm` infrared LED ring + `45°` gold optical relay mirror (`Mirror_OpticalRelay`) + CCD camera for real-time stage/polepiece clearance monitoring.
+## 1. Primary OEM Manuals & Architectural Specifications
 
-## 2. Legal & Engineering Note
-All 3D geometry (`sem3d.js`), acoustic synthesis (`sfx.js`), and control software (`sem_controller.py`, `app.js`) are original procedural implementations created for educational and scientific simulation under the **S R E** (`Badge_SREdesigns`) laboratory digital twin standard.
+1. **ZEISS GeminiSEM Series Instruction Manual (`Doc. 349500-8038-000`)**
+   - **Electron Column**: Gemini II Nano-Twin magnetic-electrostatic objective lens with in-column `+8.0 kV` electrostatic Beam Booster liner (`Body_BeamBoosterTube`), water-cooled polepiece (`20.5 °C`), and automatic variable aperture strip (`30 / 60 / 120 µm`).
+   - **Field Emission Source**: Thermal Schottky `ZrO/W(100)` emitter (`1800 K`), guaranteed emitter lifetime `> 10,000 h`, gun chamber pressure `2.0e-8 Pa` (`2.0e-10 mbar`) maintained by a **`20 l/s` Sputter Ion Getter Pump (`Body_IonGetterPump`)**.
+   - **Optical Ranges & Resolution**:
+     - Accelerating Voltage (`EHT`): `0.02 – 30.0 kV`
+     - Probe Current: `3.0 – 20,000.0 pA` (`3 pA` to `20 nA`)
+     - Magnification: `50× – 300,000×` (`HFW = 120,000 / Mag µm`)
+     - Working Distance (`WD`) / Stage Z: `2.0 – 40.0 mm`
+     - Objective Focus (`focus_mm`): Coarse & Fine rotary encoders rotating **CW to increase**
+     - 8-Pole Electromagnetic Stigmator (`X / Y`): `-100%` to `+100%`
+     - Ultimate Resolution: `0.6 nm @ 15 kV`, `0.8 nm @ 1 kV`, `1.2 nm @ 500 V`.
+   - **Overall Physical Envelope (`Code 4771-CAD`, §3.2)**:
+     - Combined Footprint (`W × D × H`): **`1650 × 1082 × 1757 mm`** (`1880 mm` max height w/ top `-30 kV` HV boot).
+     - **Coordinate Handedness (`1 unit = 100 mm`, `Y = 0` floor datum, `-Z` operator front)**:
+       - `screenRight = forward(+Z) × up(+Y) = -X`: Plinth + Hollow UHV Chamber + Gemini II Column centered at `X = -3.80 u` (`X = -7.80..+0.20 u`, `Z = -5.10..+5.10 u`, `Y = 0.00..17.57 u`, max `18.80 u` w/ HV boot).
+       - `screenLeft = +X`: Operator Console Desk centered at `X = +4.50 u` (`X = +0.50..+8.50 u`, `Y = 0.00..7.60 u`), with dual 27" monitors (`UI_LCD_ChamberScope` at `X = +6.65 u` screen-left, `UI_LCD` at `X = +2.35 u` screen-right), Dual-Rotary panel (`X = +2.45 u`), Dual-Joystick stage box (`X = +6.35 u`), and Standalone Prep Bench (`X = +14.80 u`).
+     - Mass: `890 kg` (column + plinth console) + `145 kg` (operator workstation desk).
+   - **Operator Console Hardware**:
+     - Dual 27-inch monitors on central articulated VESA stand, ZEISS Dual-Rotary Control Panel (`8` fluted knurled encoders + `8` illuminated pushbuttons), and Dual-Joystick Stage Control Box (`1`-axis Z joystick, `3`-axis XY+R twist joystick, navigation trackball, red mushroom emergency stage brake with yellow collar).
+
+2. **ZEISS 105-mm 5-Axis DC Motorized Specimen Stage Manual (`Doc. 349347-9013-000`)**
+   - **Travels**: `X = 105 mm` (`±52.5 mm`), `Y = 105 mm` (`±52.5 mm`), `Z = 2.0 – 40.0 mm` (coupled to `WD`), Tilt `T = -5° to +70°` (eucentric), Rotation `R = 360°` continuous.
+   - **Specimen Holder**: 9-position aluminum pin-stub carousel (`Body_SpecimenCarousel`, `9` equal `40°` angular slots on `Ø 12.7 mm` stubs): **6 active monograph specimens** + **3 calibration substrates** (`Cu/Au` calibration grid, `Si` resolution standard, Faraday cup).
+   - **Hardware Interlocks (§2.3.3 & §3.4)**:
+     - Chamber door **cannot open under vacuum** (`chamber_pressure_pa < 95,000 Pa` / `< 950 mbar` raises `RuntimeError`).
+     - Door-open requires tilt $|T| \le 1^\circ$, automatically retracts the `4Q-BSE` detector (`bse_retracted = True`), and locks stage `Z` and `Tilt` axes (`RuntimeError`).
+
+3. **Pfeiffer Vacuum `HiPace 300` & `HiScroll 6` Vacuum Architecture (`1 mbar = 100 Pa`)**
+   - **High-Vacuum Stage (`Motor_DriveTurboPump`)**: `Pfeiffer HiPace 300` (`90,000 RPM` / `1,500 Hz`, `260 l/s` N₂ pumping speed) bolted directly to the bottom `DN100CF` flange of the hollow `0.32 u`-wall 316L stainless UHV chamber (`Body_ChamberUHV`).
+   - **Backing Stage (`Motor_DriveScrollPump`)**: `Pfeiffer HiScroll 6` (`1,800 RPM`) oil-free dry scroll roughing pump connected via corrugated `DN25KF` stainless bellows (`Body_VacuumForeline_KF25`).
+   - **Pressure Regimes (SI `Pa` & `mbar`)**:
+     - Atmospheric vent (`P_atm`): `101,325.0 Pa` (`1,013.25 mbar`)
+     - Chamber door interlock limit: `95,000.0 Pa` (`950.0 mbar`)
+     - Scroll-to-turbo crossover: `10.0 Pa` (`0.10 mbar` / `1.0e-1 mbar`)
+     - High vacuum threshold: `<= 2.5e-4 Pa` (`2.5e-6 mbar`)
+     - Analytical operating equilibrium: `1.4e-4 Pa` (`1.4e-6 mbar`)
+     - FEG gun UHV (`Body_IonGetterPump`): `2.0e-8 Pa` (`2.0e-10 mbar`)
+   - **Vacuum Gauging**: `Pfeiffer PKR 361` full-range Pirani / cold-cathode Penning gauge (`Body_GaugePiraniPenning`, `101,325 Pa` to `10^-7 Pa`).
+
+4. **Oxford Instruments `Ultim Max 100` SDD EDS & Detector Suite**
+   - **InLens SE (`Body_DetectorInLens`)**: Annular on-axis secondary electron detector inside the objective lens bore.
+   - **SE2 (`Body_DetectorSE2`)**: Everhart-Thornley secondary electron detector (`+300 V` Faraday cage + YAG scintillator + PMT).
+   - **4Q-BSE (`Pivot_DetectorBSE`)**: Retractable 4-quadrant solid-state diode backscatter detector (`Sense BSD`) for atomic-number $Z$-contrast (`η(Z)`).
+   - **EDS (`Body_DetectorEDS`)**: `100 mm²` Peltier-cooled Silicon Drift Detector (`SDD`) at `35°` take-off angle (`123 eV` Mn-Kα FWHM).
+   - **Specimen Preparation (`5.0 nm` Au/Pd Sputter Film)**: Benchtop Quorum `Q150T ES` class magnetron sputter coater (rotary vacuum gauge, sample chuck inside polycarbonate bell jar, power/timer switches, rear cord) depositing `5.0 nm` `Au/Pd` (`Au Mα 2.120 keV`, `Pd Lα 2.838 keV`) to eliminate dielectric charging on biological specimens.
+
+5. **VC-E Electron Microscopy Suite Facility Standards (`ZEISS Site Planning Guide`)**
+   - **Vibration Criterion**: Decoupled `VC-E` (`<= 3.1 µm/s` RMS across `1–80 Hz`) seismic concrete inertia slab isolated via `35 mm` perimeter neoprene joint + 4 continuous active-passive pneumatic isolators (`Y = 0.95..6.95 u`).
+   - **Electromagnetic Interference**: AC magnetic stray field `< 0.5 mG` (`50 nT` RMS) achieved via RF/mu-metal wall shielding and `300 VA` low-stray-field toroidal transformer.
+   - **Acoustic Noise**: `< 55 dBA` achieved via perforated acoustic wall panels and isolated enclosure doors.

@@ -1060,3 +1060,12 @@ Newest first. Template: `templates/change_log_entry.md`.
 - Topbar/toolbar cleanup, theme-aware tube wells (app.js)
 - Retro/Night view chooser added across all showcases; shared chemmate_themes.css + theme manager
 - Root portal hub: view chooser, theme persisted via ?theme=
+
+## 2026-11-16 — ZEISS GeminiSEM 500 (`sem_twin`) Gold Standard UI, 19-Shot Visual QA & 2-Speaker Walkthrough
+
+- `sem_twin/software/viewer/index.html`, `app.js`: Added Gold Standard `#cm-stage-switcher`, `#cm-plate-overlay`, `#btn-hide-panels`, `#lab-light-mood`, `#btn-view-modern/retro/night`, 5 ChemMate 3D callout anchors, `manualFrameStepping` optimization for headless video capture, and calibrated `CAMERA_PRESETS` (`DIAG-022`).
+- `sem_twin/software/viewer/sem_chamber_column.js`: Adjusted `Body_DoorCautionPlaque` text width to eliminate horizontal edge clipping.
+- `scripts/process_voiceover_audio.py`: Resolved `ffmpeg` / `ffprobe` via `shutil.which()` for cross-platform Linux/macOS support.
+- `.master/05_PERSONAL_MISC/tools/sem_twin_visual_qa.mjs`: Added permanent 19-shot CDP Visual QA harness (`Total exceptions: 0`).
+- `sem_twin/docs/audio/vo_{0..9}.mp3` & `sem_twin/docs/SEM_GEMINI_Social_Walkthrough.mp4`: Sliced 2-speaker Google Drive master narration (`223.80 s`) and mastered 1080p H.264/AAC walkthrough video.
+- Report card: `.master/logs/report_cards/2026-11-16_oga_sem_twin_gold_standard.md`

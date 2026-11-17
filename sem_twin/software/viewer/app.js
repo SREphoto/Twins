@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { buildSEMModel } from './sem3d.js?v=20261115-oga';
-import { sfx } from './sfx.js?v=20261115-oga';
+import { buildSEMModel } from './sem3d.js?v=20261117-oga';
+import { sfx } from './sfx.js?v=20261117-oga';
 
 // ============================================================================
 // 1. Specimen Monograph Database (Heightfield h(u,v), Atomic Number Z(u,v), EDS)
@@ -153,8 +153,8 @@ export const TOUR_CHAPTERS = [
     idx: 2,
     badge: 'STAGE 2 / 10',
     title: 'Specimen Preparation & Gold-Palladium Sputter Coating',
-    camPos: [-13.5, 11.5, -9.5],
-    camTarget: [-19.5, 8.8, -6.5],
+    camPos: [11.0, 11.4, -7.2],
+    camTarget: [14.8, 8.6, 1.2],
     explode: 0.0,
     cutaway: false,
     pluggedIn: true,
@@ -273,7 +273,10 @@ const state = {
   detector: 'InLens_Secondary',
   magnification: 15000,
   ehtKv: 15.0,
+  probeCurrentPa: 200,
+  apertureUm: 30,
   wdMm: 8.50,
+  focusFine: 50,
   stigX: 0.0,
   stigY: 0.0,
   brightness: 50,
@@ -288,12 +291,19 @@ const state = {
   scanMode: 'FAST', // 'FAST' (TV 512px), 'SLOW' (Photo 1024px), 'LINE' (Line Profile)
   frozen: false,
   scanRow: 0,
+  caliperActive: false,
+  caliperPoints: [],
 
   exploded: 0.0,
   cutaway: false,
   wireframe: false,
   autoRotate: false,
   orbitSpeed: 1.0,
+  currentTheme: 'modern',
+  currentStageMode: 'plate',
+  calloutsVisible: true,
+  lightMult: 1.0,
+  lightMood: 'neutral',
 
   capturedScans: [],
   tourActive: false,
@@ -655,6 +665,41 @@ function renderLCDDisplay() {
     }
   }
 
+  // Optional 2-Point Scale Caliper Measurement Overlay
+  if (state.caliperActive && state.caliperPoints.length > 0) {
+    const hfwUm = 120000 / Math.max(50, state.magnification);
+    const [p1, p2] = state.caliperPoints;
+    lcdCtx.save();
+    lcdCtx.strokeStyle = '#facc15';
+    lcdCtx.fillStyle = '#facc15';
+    lcdCtx.lineWidth = 2.5;
+    lcdCtx.beginPath();
+    lcdCtx.arc(p1.x, p1.y, 6, 0, Math.PI * 2);
+    lcdCtx.fill();
+    if (p2) {
+      lcdCtx.beginPath();
+      lcdCtx.moveTo(p1.x, p1.y);
+      lcdCtx.lineTo(p2.x, p2.y);
+      lcdCtx.stroke();
+      lcdCtx.beginPath();
+      lcdCtx.arc(p2.x, p2.y, 6, 0, Math.PI * 2);
+      lcdCtx.fill();
+      const distPx = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+      const distUm = (distPx / 1024) * hfwUm;
+      const lbl = distUm >= 1 ? `${distUm.toFixed(2)} µm` : `${(distUm * 1000).toFixed(1)} nm`;
+      const mx = (p1.x + p2.x) * 0.5;
+      const my = (p1.y + p2.y) * 0.5 - 12;
+      lcdCtx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+      lcdCtx.fillRect(mx - 58, my - 16, 116, 26);
+      lcdCtx.fillStyle = '#facc15';
+      lcdCtx.font = 'bold 15px "IBM Plex Mono", monospace';
+      lcdCtx.textAlign = 'center';
+      lcdCtx.fillText(lbl, mx, my + 2);
+      lcdCtx.textAlign = 'left';
+    }
+    lcdCtx.restore();
+  }
+
   // Authentic ZEISS SmartSEM Datazone Footer Bar (y: 680..768)
   lcdCtx.fillStyle = '#070a0f';
   lcdCtx.fillRect(0, 680, 1024, 88);
@@ -663,7 +708,7 @@ function renderLCDDisplay() {
   lcdCtx.strokeRect(1, 681, 1022, 86);
 
   // Scale Bar calculation based on magnification (Horizontal Field Width = 120 mm / M)
-  const hfwUm = (120000 / Math.max(100, state.magnification));
+  const hfwUm = (120000 / Math.max(50, state.magnification));
   const barUm = hfwUm > 50 ? 20 : hfwUm > 10 ? 2 : hfwUm > 2 ? 0.5 : 0.1;
   const barPx = Math.min(220, Math.max(48, (barUm / hfwUm) * 820));
 
@@ -701,8 +746,8 @@ const viewportEl = document.getElementById('viewport3d');
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0c1016);
 
-const camera = new THREE.PerspectiveCamera(40, 16 / 9, 0.1, 250);
-camera.position.set(-10.5, 14.2, -16.2);
+const camera = new THREE.PerspectiveCamera(38, 16 / 9, 0.1, 250);
+camera.position.set(-16.0, 14.5, -27.5);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -715,10 +760,10 @@ viewportEl.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.06;
-controls.target.set(0.0, 8.8, 0.0);
+controls.target.set(0.0, 9.3, 0.0);
 controls.maxPolarAngle = Math.PI * 0.495;
 controls.minDistance = 3.0;
-controls.maxDistance = 42.0;
+controls.maxDistance = 48.0;
 
 // Calibrated 3-Point Studio & VC-E Suite Lighting
 const hemiLight = new THREE.HemisphereLight(0xdbeafe, 0x1e293b, 0.85);
@@ -744,14 +789,14 @@ scene.add(semModel.root);
 
 // Standardized Camera Presets (Gate 7 Visual QA + Stage 7A-7D Internal Shots)
 const CAMERA_PRESETS = {
-  CAM_ISO: { pos: [-14.0, 14.5, -22.5], target: [0.0, 10.2, 0.0] },
-  CAM_FRONT: { pos: [0.0, 10.8, -24.0], target: [0.0, 10.5, 0.0] },
-  CAM_SIDE: { pos: [-23.5, 10.8, 0.0], target: [-2.0, 10.5, 0.0] },
-  CAM_TOP: { pos: [0.0, 28.5, -1.5], target: [0.0, 8.5, 0.0] },
+  CAM_ISO: { pos: [-16.0, 14.5, -27.5], target: [0.0, 9.3, 0.0] },
+  CAM_FRONT: { pos: [0.0, 10.2, -31.5], target: [0.0, 9.3, 0.0] },
+  CAM_SIDE: { pos: [-27.8, 9.6, 0.0], target: [-4.15, 9.5, 0.0] },
+  CAM_TOP: { pos: [0.0, 29.5, -1.5], target: [0.0, 8.5, 0.0] },
   CAM_CONSOLE: { pos: [4.5, 11.4, -6.8], target: [4.5, 8.8, 0.2] },
   CAM_CHAMBER: { pos: [-6.2, 10.8, -6.8], target: [-4.15, 9.5, -0.2] },
   CAM_COLUMN: { pos: [-6.8, 16.5, -7.2], target: [-4.15, 14.8, -0.2] },
-  CAM_EXPLODED: { pos: [-15.2, 15.8, -24.8], target: [-0.5, 10.5, 0.0] },
+  CAM_EXPLODED: { pos: [-17.0, 16.2, -30.5], target: [-0.5, 10.4, 0.0] },
   STAGE7_POWER_ROUTING: { pos: [-7.5, 5.2, -6.8], target: [-3.5, 3.4, 2.2] },
   STAGE7_MOTORS_ACTUATORS: { pos: [-5.8, 4.8, -6.4], target: [-4.2, 3.6, 0.6] },
   STAGE7_SENSORS_OPTICS: { pos: [-6.2, 12.2, -5.8], target: [-4.15, 11.2, -0.2] },
@@ -760,6 +805,11 @@ const CAMERA_PRESETS = {
 
 function setCameraPreset(presetName) {
   const p = CAMERA_PRESETS[presetName] || CAMERA_PRESETS.CAM_ISO;
+  const targetFov = presetName === 'CAM_SIDE' ? 46 : 38;
+  if (camera.fov !== targetFov) {
+    camera.fov = targetFov;
+    camera.updateProjectionMatrix();
+  }
   camera.position.set(p.pos[0], p.pos[1], p.pos[2]);
   controls.target.set(p.target[0], p.target[1], p.target[2]);
   controls.update();
@@ -797,12 +847,14 @@ function syncUIToState() {
   // Optics Sliders & Readouts
   document.getElementById('valMag').textContent = `${state.magnification.toLocaleString()} ×`;
   document.getElementById('valEht').textContent = `${state.ehtKv.toFixed(2)} kV`;
+  const valProbeAp = document.getElementById('valProbeAp');
+  if (valProbeAp) valProbeAp.textContent = `${state.probeCurrentPa} pA · ${state.apertureUm} µm`;
   document.getElementById('valWd').textContent = `${state.wdMm.toFixed(2)} mm`;
   document.getElementById('valStig').textContent = `${state.stigX.toFixed(0)}% / ${state.stigY.toFixed(0)}%`;
   document.getElementById('valBC').textContent = `B: ${state.brightness}% · C: ${state.contrast}%`;
 
   // Resolution & Mean Free Path Telemetry
-  const defocusMm = Math.abs(state.wdMm - spec.optimalWdMm);
+  const defocusMm = Math.abs(state.wdMm - spec.optimalWdMm) + Math.abs(state.focusFine - 50) * 0.005;
   const resNm = (0.8 / Math.sqrt(Math.max(0.5, state.ehtKv / 15.0)) + defocusMm * 1.4).toFixed(2);
   const mfpMeters = (6.8e-5 / Math.max(1e-10, state.chamberVacuumMbar)).toFixed(1);
   document.getElementById('hudResolution').textContent = `Res: ${resNm} nm`;
@@ -810,6 +862,32 @@ function syncUIToState() {
   document.getElementById('hudScanLine').textContent = state.frozen
     ? 'Scan: FROZEN'
     : `Scan: ${state.scanMode === 'SLOW' ? 'PHOTO 1024px' : state.scanMode === 'LINE' ? 'LINE PROFILE' : 'TV 512px'}`;
+
+  // ChemMate Plate Live Equations & Legend
+  const eqEht = document.getElementById('cm-eq-eht');
+  const eqLam = document.getElementById('cm-eq-lambda');
+  const eqMag = document.getElementById('cm-eq-mag');
+  const eqHfw = document.getElementById('cm-eq-hfw');
+  if (eqEht) {
+    const vVolt = Math.max(20, state.ehtKv * 1000);
+    const lambdaPm = (1.2264e3 / Math.sqrt(vVolt * (1 + 9.784e-7 * vVolt))).toFixed(2);
+    const hfwUm = 120000 / Math.max(50, state.magnification);
+    eqEht.textContent = `${state.ehtKv.toFixed(2)} kV`;
+    if (eqLam) eqLam.textContent = `λe = ${lambdaPm} pm`;
+    if (eqMag) eqMag.textContent = `${state.magnification.toLocaleString()} ×`;
+    if (eqHfw) eqHfw.textContent = hfwUm >= 1 ? `HFW ${hfwUm.toFixed(2)} µm` : `HFW ${(hfwUm * 1000).toFixed(0)} nm`;
+  }
+  const legTitle = document.getElementById('cm-legend-title');
+  const legItems = document.getElementById('cm-legend-items');
+  if (legTitle && legItems) {
+    legTitle.textContent = `EDS Composition (${spec.id.toUpperCase()})`;
+    legItems.innerHTML = spec.elements
+      .map(
+        e =>
+          `<div class="cm-legend-item"><span class="cm-legend-dot" style="background:${e.color};"></span><span>${e.symbol} ${e.line} (${e.keV} keV · ${e.wtPct}%)</span></div>`
+      )
+      .join('');
+  }
 
   // Detector buttons
   document.querySelectorAll('.sem-det-btn').forEach(b => {
@@ -844,7 +922,11 @@ function syncUIToState() {
   document.getElementById('valStageRot').textContent = `${state.stageRot.toFixed(0)}°`;
 
   // Sync 3D model state
-  semModel.setPluggedIn(state.isPluggedIn);
+  if (typeof semModel.setPowerState === 'function') {
+    semModel.setPowerState(state.isPluggedIn, state.powerSwitch);
+  } else {
+    semModel.setPluggedIn(state.isPluggedIn);
+  }
   semModel.setDoorOpen(state.doorOpen ? 1.0 : 0.0);
   semModel.setBeamActive(isPowered && state.beamOn && state.vacuumState === 'UHV_READY', state.ehtKv);
   semModel.setStagePosition({
@@ -854,6 +936,7 @@ function syncUIToState() {
     tilt: state.stageTilt,
     rot: state.stageRot,
     specimenIndex: state.specimenIdx,
+    coatedByStub: state.coatedByStub,
   });
   semModel.updateChamberScopeCanvas({
     isPluggedIn: state.isPluggedIn,
@@ -865,6 +948,7 @@ function syncUIToState() {
     stageX: state.stageX,
     stageY: state.stageY,
     stageTilt: state.stageTilt,
+    sputterCoated: isCoated,
     edsPeaks: spec.elements.map(e => ({ keV: e.keV, el: e.symbol, cps: e.wtPct * 24 + 180 })),
   });
 }
@@ -1046,16 +1130,19 @@ function bindEvents() {
     });
   });
 
-  // View Theme Switcher (Modern / Retro / Night)
-  ['modern', 'retro', 'night'].forEach(theme => {
-    const b = document.getElementById(`btn-view-${theme}`);
-    if (b) {
-      b.addEventListener('click', () => {
-        document.body.dataset.theme = theme === 'modern' ? '' : theme;
-        document.querySelectorAll('.view-choice-btn').forEach(el => el.classList.remove('active'));
-        b.classList.add('active');
-      });
-    }
+  // View Theme Switcher (Modern / Retro / Night) & ChemMate Stage Controls
+  document.getElementById('btn-view-modern')?.addEventListener('click', () => setTheme('modern'));
+  document.getElementById('btn-view-retro')?.addEventListener('click', () => setTheme('retro'));
+  document.getElementById('btn-view-night')?.addEventListener('click', () => setTheme('night'));
+  document.getElementById('btn-cm-plate')?.addEventListener('click', () => setStageBackdrop('plate'));
+  document.getElementById('btn-cm-bench')?.addEventListener('click', () => setStageBackdrop('bench'));
+  document.getElementById('btn-cm-callouts')?.addEventListener('click', () => setCallouts(!state.calloutsVisible));
+
+  // Hide Panels toggle
+  document.getElementById('btn-hide-panels')?.addEventListener('click', e => {
+    const anyVisible = Array.from(document.querySelectorAll('.panel-collapsible')).some(p => p.style.display !== 'none');
+    setPanelsHidden(anyVisible);
+    e.currentTarget.classList.toggle('active', anyVisible);
   });
 
   // Topbar Mains Plug Continuity Toggle (Gate 2 PWR-04)
@@ -1128,16 +1215,20 @@ function bindEvents() {
   document.getElementById('camera-zoom').addEventListener('input', e => {
     const pct = parseFloat(e.target.value);
     document.getElementById('camera-zoom-val').textContent = `${Math.round(pct)}%`;
-    const dist = 28.0 - (pct / 100.0) * 20.0;
+    const dist = 34.0 - (pct / 100.0) * 26.0;
     const dir = camera.position.clone().sub(controls.target).normalize();
     camera.position.copy(controls.target).addScaledVector(dir, dist);
   });
 
   document.getElementById('lab-light').addEventListener('input', e => {
-    const mult = parseFloat(e.target.value);
-    document.getElementById('lab-light-val').textContent = `${mult.toFixed(1)}×`;
-    keyLight.intensity = 1.55 * mult;
-    hemiLight.intensity = 0.85 * mult;
+    state.lightMult = parseFloat(e.target.value);
+    document.getElementById('lab-light-val').textContent = `${state.lightMult.toFixed(1)}×`;
+    applyLabLighting();
+  });
+
+  document.getElementById('lab-light-mood')?.addEventListener('change', e => {
+    state.lightMood = e.target.value;
+    applyLabLighting();
   });
 
   // Detector Selection
@@ -1150,10 +1241,12 @@ function bindEvents() {
     });
   });
 
-  // Electron Optics Sliders
+  // Electron Optics Sliders (Clockwise knob increase: negative rotation.y)
   document.getElementById('sliderMag').addEventListener('input', e => {
     state.magnification = parseInt(e.target.value, 10);
-    semModel.knobMeshes.Knob_Magnification.rotation.y = (state.magnification / 50000) * Math.PI;
+    if (semModel.knobMeshes.Knob_Magnification) {
+      semModel.knobMeshes.Knob_Magnification.rotation.y = -(state.magnification / 50000) * Math.PI;
+    }
     renderScanRows(0, SCAN_H);
     syncUIToState();
   });
@@ -1164,37 +1257,72 @@ function bindEvents() {
     syncUIToState();
   });
 
+  document.getElementById('sliderProbeCurrent')?.addEventListener('input', e => {
+    state.probeCurrentPa = parseInt(e.target.value, 10);
+    if (semModel.knobMeshes.Knob_ProbeCurrent) {
+      semModel.knobMeshes.Knob_ProbeCurrent.rotation.y = -(state.probeCurrentPa / 5000) * Math.PI;
+    }
+    renderScanRows(0, SCAN_H);
+    syncUIToState();
+  });
+
+  document.getElementById('selAperture')?.addEventListener('change', e => {
+    state.apertureUm = parseInt(e.target.value, 10);
+    sfx.playClick();
+    renderScanRows(0, SCAN_H);
+    syncUIToState();
+  });
+
   document.getElementById('sliderWd').addEventListener('input', e => {
     state.wdMm = parseFloat(e.target.value);
-    semModel.knobMeshes.Knob_FocusWD.rotation.y = (state.wdMm - 8.5) * 0.6;
+    if (semModel.knobMeshes.Knob_FocusCoarse) {
+      semModel.knobMeshes.Knob_FocusCoarse.rotation.y = -(state.wdMm - 8.5) * 0.6;
+    }
+    renderScanRows(0, SCAN_H);
+    syncUIToState();
+  });
+
+  document.getElementById('sliderFocusFine')?.addEventListener('input', e => {
+    state.focusFine = parseInt(e.target.value, 10);
+    if (semModel.knobMeshes.Knob_FocusFine) {
+      semModel.knobMeshes.Knob_FocusFine.rotation.y = -(state.focusFine - 50) * 0.05;
+    }
     renderScanRows(0, SCAN_H);
     syncUIToState();
   });
 
   document.getElementById('sliderStigX').addEventListener('input', e => {
     state.stigX = parseFloat(e.target.value);
-    semModel.knobMeshes.Knob_StigmatorX.rotation.y = state.stigX * 0.05;
+    if (semModel.knobMeshes.Knob_StigmatorX) {
+      semModel.knobMeshes.Knob_StigmatorX.rotation.y = -state.stigX * 0.05;
+    }
     renderScanRows(0, SCAN_H);
     syncUIToState();
   });
 
   document.getElementById('sliderStigY').addEventListener('input', e => {
     state.stigY = parseFloat(e.target.value);
-    semModel.knobMeshes.Knob_StigmatorY.rotation.y = state.stigY * 0.05;
+    if (semModel.knobMeshes.Knob_StigmatorY) {
+      semModel.knobMeshes.Knob_StigmatorY.rotation.y = -state.stigY * 0.05;
+    }
     renderScanRows(0, SCAN_H);
     syncUIToState();
   });
 
   document.getElementById('sliderBrightness').addEventListener('input', e => {
     state.brightness = parseInt(e.target.value, 10);
-    semModel.knobMeshes.Knob_Brightness.rotation.y = (state.brightness - 50) * 0.05;
+    if (semModel.knobMeshes.Knob_Brightness) {
+      semModel.knobMeshes.Knob_Brightness.rotation.y = -(state.brightness - 50) * 0.05;
+    }
     renderScanRows(0, SCAN_H);
     syncUIToState();
   });
 
   document.getElementById('sliderContrast').addEventListener('input', e => {
     state.contrast = parseInt(e.target.value, 10);
-    semModel.knobMeshes.Knob_Contrast.rotation.y = (state.contrast - 68) * 0.05;
+    if (semModel.knobMeshes.Knob_Contrast) {
+      semModel.knobMeshes.Knob_Contrast.rotation.y = -(state.contrast - 68) * 0.05;
+    }
     renderScanRows(0, SCAN_H);
     syncUIToState();
   });
@@ -1208,7 +1336,10 @@ function bindEvents() {
   });
 
   document.getElementById('btnToggleEht').addEventListener('click', () => {
-    if (!state.isPluggedIn || !state.powerSwitch || state.vacuumState !== 'UHV_READY') return;
+    if (!state.isPluggedIn || !state.powerSwitch || state.vacuumState !== 'UHV_READY') {
+      sfx.playInterlockBuzz();
+      return;
+    }
     state.beamOn = !state.beamOn;
     if (state.beamOn) sfx.playEhtChime();
     else sfx.playClick();
@@ -1219,9 +1350,12 @@ function bindEvents() {
   document.getElementById('btnAutoFocus').addEventListener('click', () => {
     const spec = SPECIMENS[state.specimenIdx] || SPECIMENS[0];
     state.wdMm = spec.optimalWdMm;
+    state.focusFine = 50;
     state.stigX = 0;
     state.stigY = 0;
     document.getElementById('sliderWd').value = String(state.wdMm);
+    const ff = document.getElementById('sliderFocusFine');
+    if (ff) ff.value = '50';
     document.getElementById('sliderStigX').value = '0';
     document.getElementById('sliderStigY').value = '0';
     sfx.playEhtChime();
@@ -1277,6 +1411,29 @@ function bindEvents() {
     document.getElementById('lblMute').textContent = muted ? 'Muted' : 'Audio ON';
   });
 
+  // 2-Point Scale Caliper on Live Micrograph Canvas
+  document.getElementById('btnScaleCaliper')?.addEventListener('click', e => {
+    state.caliperActive = !state.caliperActive;
+    state.caliperPoints = [];
+    const lbl = document.getElementById('lblCaliper');
+    if (lbl) lbl.textContent = state.caliperActive ? '2-Pt Scale Caliper: ON (Click LCD)' : '2-Pt Scale Caliper: OFF';
+    e.currentTarget.classList.toggle('is-active', state.caliperActive);
+    sfx.playClick();
+    renderLCDDisplay();
+  });
+
+  lcdCanvas.addEventListener('pointerdown', ev => {
+    if (!state.caliperActive) return;
+    const rect = lcdCanvas.getBoundingClientRect();
+    const x = ((ev.clientX - rect.left) / rect.width) * lcdCanvas.width;
+    const y = ((ev.clientY - rect.top) / rect.height) * lcdCanvas.height;
+    if (y >= 680) return;
+    if (state.caliperPoints.length >= 2) state.caliperPoints = [];
+    state.caliperPoints.push({ x, y });
+    sfx.playClick();
+    renderLCDDisplay();
+  });
+
   // Specimen Prep & Vacuum Interlock Controls
   document.getElementById('btnSputterCoat').addEventListener('click', () => {
     state.coatedByStub[state.specimenIdx] = !state.coatedByStub[state.specimenIdx];
@@ -1286,6 +1443,10 @@ function bindEvents() {
   });
 
   document.getElementById('btnVentPump').addEventListener('click', () => {
+    if (!state.isPluggedIn || !state.powerSwitch) {
+      sfx.playInterlockBuzz();
+      return;
+    }
     sfx.playValveThud();
     if (state.vacuumState === 'VENTED') {
       state.doorOpen = false;
@@ -1295,17 +1456,17 @@ function bindEvents() {
     } else {
       state.beamOn = false;
       state.vacuumState = 'VENTED';
-      state.chamberVacuumMbar = 1013.0;
+      state.chamberVacuumMbar = 1013.25;
     }
     syncUIToState();
   });
 
   document.getElementById('btnChamberDoor').addEventListener('click', () => {
-    if (state.vacuumState !== 'VENTED' && !state.doorOpen) {
-      // Automatically vent with dry N2 before opening door per safety interlock
-      state.beamOn = false;
-      state.vacuumState = 'VENTED';
-      state.chamberVacuumMbar = 1013.0;
+    if (!state.doorOpen && state.chamberVacuumMbar < 950.0) {
+      sfx.playInterlockBuzz();
+      document.getElementById('lab-status').textContent =
+        'INTERLOCK: Cannot open chamber door under vacuum — Vent Chamber (N₂) first!';
+      return;
     }
     state.doorOpen = !state.doorOpen;
     sfx.playValveThud();
@@ -1348,7 +1509,7 @@ function bindEvents() {
     else startGuidedTour();
   });
 
-  // 3D Viewport Raycasting for Interactive Rotary Knobs, Buttons, Plug & Doors
+  // 3D Viewport Raycasting for All 8 Rotary Knobs, All 8 Buttons, StageBreak, Plug & Doors
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
   renderer.domElement.addEventListener('pointerdown', ev => {
@@ -1360,22 +1521,75 @@ function bindEvents() {
     if (hits.length > 0) {
       let node = hits[0].object;
       while (node && !node.userData.controlId && node.parent) {
-        if (node.name === 'Body_Power_Plug_NEMA' || node.name === 'Pivot_DoorChamber') break;
+        if (
+          node.name === 'Power_Plug_NEMA' ||
+          node.name === 'Body_Power_Plug_NEMA' ||
+          node.name === 'Pivot_DoorChamber' ||
+          node.name === 'Pivot_DoorServiceBay'
+        ) break;
         node = node.parent;
       }
       if (!node) return;
-      if (node.name === 'Body_Power_Plug_NEMA') {
+      if (node.name === 'Power_Plug_NEMA' || node.name === 'Body_Power_Plug_NEMA') {
         document.getElementById('btnPowerPlug').click();
       } else if (node.name === 'Pivot_DoorChamber') {
         document.getElementById('btnChamberDoor').click();
-      } else if (node.userData.controlId === 'Btn_Power') {
-        document.getElementById('btnConsolePower').click();
-      } else if (node.userData.controlId === 'Btn_EHT') {
-        document.getElementById('btnToggleEht').click();
-      } else if (node.userData.controlId === 'Btn_AutoFocus') {
-        document.getElementById('btnAutoFocus').click();
-      } else if (node.userData.controlId === 'Btn_Record') {
-        document.getElementById('btnPhotoScan').click();
+      } else if (node.name === 'Pivot_DoorServiceBay') {
+        document.getElementById('btn-cutaway').click();
+      } else if (node.userData.interactiveType === 'button') {
+        // Tactile 0.9 mm depress animation
+        const baseY = node.position.y;
+        node.position.y = baseY - 0.012;
+        setTimeout(() => { node.position.y = baseY; }, 120);
+        const cid = node.userData.controlId;
+        if (cid === 'Btn_Power') document.getElementById('btnConsolePower').click();
+        else if (cid === 'Btn_EHT') document.getElementById('btnToggleEht').click();
+        else if (cid === 'Btn_VacVent') document.getElementById('btnVentPump').click();
+        else if (cid === 'Btn_AutoFocus') document.getElementById('btnAutoFocus').click();
+        else if (cid === 'Btn_AutoBC') document.getElementById('btnAutoBC').click();
+        else if (cid === 'Btn_ScanSpeed') document.getElementById('btnScanSpeed').click();
+        else if (cid === 'Btn_Freeze') document.getElementById('btnFreezeScan').click();
+        else if (cid === 'Btn_Record') document.getElementById('btnPhotoScan').click();
+        else if (cid === 'Btn_StageBreak') {
+          state.beamOn = false;
+          state.frozen = true;
+          sfx.playInterlockBuzz();
+          syncUIToState();
+        }
+      } else if (node.userData.interactiveType === 'knob') {
+        const cid = node.userData.controlId;
+        sfx.playClick();
+        if (cid === 'Knob_Magnification') {
+          const el = document.getElementById('sliderMag');
+          el.value = String(Math.min(300000, state.magnification + 2500));
+          el.dispatchEvent(new Event('input'));
+        } else if (cid === 'Knob_FocusCoarse') {
+          const el = document.getElementById('sliderWd');
+          el.value = String(Math.min(40, state.wdMm + 0.25));
+          el.dispatchEvent(new Event('input'));
+        } else if (cid === 'Knob_FocusFine') {
+          const el = document.getElementById('sliderFocusFine');
+          if (el) { el.value = String((state.focusFine + 5) % 100); el.dispatchEvent(new Event('input')); }
+        } else if (cid === 'Knob_ProbeCurrent') {
+          const el = document.getElementById('sliderProbeCurrent');
+          if (el) { el.value = String(Math.min(20000, state.probeCurrentPa + 200)); el.dispatchEvent(new Event('input')); }
+        } else if (cid === 'Knob_StigmatorX') {
+          const el = document.getElementById('sliderStigX');
+          el.value = String(state.stigX >= 45 ? -45 : state.stigX + 5);
+          el.dispatchEvent(new Event('input'));
+        } else if (cid === 'Knob_StigmatorY') {
+          const el = document.getElementById('sliderStigY');
+          el.value = String(state.stigY >= 45 ? -45 : state.stigY + 5);
+          el.dispatchEvent(new Event('input'));
+        } else if (cid === 'Knob_Brightness') {
+          const el = document.getElementById('sliderBrightness');
+          el.value = String(state.brightness >= 90 ? 30 : state.brightness + 5);
+          el.dispatchEvent(new Event('input'));
+        } else if (cid === 'Knob_Contrast') {
+          const el = document.getElementById('sliderContrast');
+          el.value = String(state.contrast >= 95 ? 35 : state.contrast + 5);
+          el.dispatchEvent(new Event('input'));
+        }
       }
     }
   });
@@ -1427,6 +1641,7 @@ function updateTourCaptionForProgress(idx, progress) {
 }
 
 function stepTourFrame(idx, p) {
+  state.manualFrameStepping = true;
   const ch = TOUR_CHAPTERS[idx];
   if (!ch) return;
   updateTourCaptionForProgress(idx, p);
@@ -1534,6 +1749,129 @@ function setPanelsHidden(hidden) {
 }
 
 // ============================================================================
+// 10B. Theme, Lab Lighting, Stage Backdrop & Retro Callout Projection
+// ============================================================================
+const LIGHT_MOODS = {
+  neutral: { bg: 0x0c1016, hemiSky: 0xdbeafe, hemiGnd: 0x1e293b, hemiI: 0.85, keyCol: 0xffffff, keyI: 1.55, fillCol: 0x93c5fd, fillI: 0.65, rimCol: 0x38bdf8, rimI: 0.45 },
+  bright: { bg: 0x16202e, hemiSky: 0xf8fafc, hemiGnd: 0x334155, hemiI: 1.15, keyCol: 0xffffff, keyI: 2.05, fillCol: 0xbfdbfe, fillI: 0.90, rimCol: 0x60a5fa, rimI: 0.55 },
+  dim: { bg: 0x07090d, hemiSky: 0x64748b, hemiGnd: 0x0f172a, hemiI: 0.45, keyCol: 0xe2e8f0, keyI: 0.90, fillCol: 0x475569, fillI: 0.35, rimCol: 0x0ea5e9, rimI: 0.35 },
+  cool: { bg: 0x0a1320, hemiSky: 0xbae6fd, hemiGnd: 0x0f172a, hemiI: 0.85, keyCol: 0xe0f2fe, keyI: 1.50, fillCol: 0x38bdf8, fillI: 0.70, rimCol: 0x00d4e8, rimI: 0.65 },
+  warm: { bg: 0x15110d, hemiSky: 0xfef3c7, hemiGnd: 0x292524, hemiI: 0.85, keyCol: 0xffedd5, keyI: 1.60, fillCol: 0xfde68a, fillI: 0.60, rimCol: 0xf59e0b, rimI: 0.45 },
+  chemmate: { bg: 0xf4ece1, hemiSky: 0xfffdf8, hemiGnd: 0xd6cbb8, hemiI: 1.05, keyCol: 0xfffaf0, keyI: 1.45, fillCol: 0xfef3c7, fillI: 0.65, rimCol: 0x94a3b8, rimI: 0.30 },
+  night: { bg: 0x0a0406, hemiSky: 0x7f1d1d, hemiGnd: 0x1a080c, hemiI: 0.45, keyCol: 0xfca5a5, keyI: 0.95, fillCol: 0xef4444, fillI: 0.40, rimCol: 0xdc2626, rimI: 0.55 },
+};
+
+function applyLabLighting() {
+  const m = LIGHT_MOODS[state.lightMood] || LIGHT_MOODS.neutral;
+  const mult = state.lightMult || 1.0;
+  scene.background.setHex(m.bg);
+  hemiLight.color.setHex(m.hemiSky);
+  hemiLight.groundColor.setHex(m.hemiGnd);
+  hemiLight.intensity = m.hemiI * mult;
+  keyLight.color.setHex(m.keyCol);
+  keyLight.intensity = m.keyI * mult;
+  fillLight.color.setHex(m.fillCol);
+  fillLight.intensity = m.fillI * mult;
+  rimLight.color.setHex(m.rimCol);
+  rimLight.intensity = m.rimI * mult;
+  renderer.render(scene, camera);
+}
+
+function applyChemMate3DStage(mode) {
+  const showRoom = mode !== 'plate';
+  const roomNode = semModel.root.getObjectByName('VC_E_Room_Suite');
+  if (roomNode) roomNode.visible = showRoom;
+  if (semModel.benchGroup) semModel.benchGroup.visible = showRoom;
+}
+
+function setStageBackdrop(mode) {
+  state.currentStageMode = mode === 'bench' ? 'bench' : 'plate';
+  document.getElementById('btn-cm-plate')?.classList.toggle('active', state.currentStageMode === 'plate');
+  document.getElementById('btn-cm-bench')?.classList.toggle('active', state.currentStageMode === 'bench');
+  if (state.currentTheme === 'retro') {
+    applyChemMate3DStage(state.currentStageMode);
+  } else {
+    applyChemMate3DStage('bench');
+  }
+  renderer.render(scene, camera);
+}
+
+function setCallouts(on) {
+  state.calloutsVisible = Boolean(on);
+  document.getElementById('btn-cm-callouts')?.classList.toggle('active', state.calloutsVisible);
+  const layer = document.getElementById('cm-callouts-layer');
+  const svg = document.getElementById('cm-callouts-svg');
+  if (layer) layer.style.display = state.calloutsVisible ? '' : 'none';
+  if (svg) svg.style.display = state.calloutsVisible ? '' : 'none';
+  updateChemMateCallouts(camera, viewportEl);
+}
+
+function setTheme(theme) {
+  state.currentTheme = theme || 'modern';
+  document.body.dataset.theme = state.currentTheme;
+  document.getElementById('btn-view-modern')?.classList.toggle('active', state.currentTheme === 'modern');
+  document.getElementById('btn-view-retro')?.classList.toggle('active', state.currentTheme === 'retro');
+  document.getElementById('btn-view-night')?.classList.toggle('active', state.currentTheme === 'night');
+
+  const overlay = document.getElementById('cm-plate-overlay');
+  if (overlay) {
+    overlay.setAttribute('aria-hidden', state.currentTheme === 'retro' ? 'false' : 'true');
+  }
+
+  if (state.currentTheme === 'retro') {
+    state.lightMood = 'chemmate';
+    applyChemMate3DStage(state.currentStageMode);
+  } else if (state.currentTheme === 'night') {
+    state.lightMood = 'night';
+    applyChemMate3DStage('bench');
+  } else {
+    state.lightMood = 'neutral';
+    applyChemMate3DStage('bench');
+  }
+  const moodSel = document.getElementById('lab-light-mood');
+  if (moodSel) moodSel.value = state.lightMood;
+  applyLabLighting();
+  updateChemMateCallouts(camera, viewportEl);
+}
+
+const CALLOUT_ANCHORS_3D = {
+  column: new THREE.Vector3(-4.15, 14.2, -0.2),
+  chamber: new THREE.Vector3(-4.15, 9.6, -0.8),
+  stage: new THREE.Vector3(-4.15, 8.6, 0.2),
+  console: new THREE.Vector3(4.5, 8.8, 0.2),
+  prep: new THREE.Vector3(14.8, 9.0, 1.2),
+};
+
+function updateChemMateCallouts(cam, hostEl) {
+  if (state.currentTheme !== 'retro' || !state.calloutsVisible) return;
+  const svg = document.getElementById('cm-callouts-svg');
+  if (!svg || !hostEl) return;
+  const w = hostEl.clientWidth || 1;
+  const h = hostEl.clientHeight || 1;
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  const lines = [];
+  const hostRect = hostEl.getBoundingClientRect();
+  document.querySelectorAll('#cm-callouts-layer .cm-callout').forEach(btn => {
+    const key = btn.dataset.callout;
+    const anchor = CALLOUT_ANCHORS_3D[key];
+    if (!anchor) return;
+    const p = anchor.clone().project(cam);
+    if (p.z > 1) return;
+    const ax = (p.x * 0.5 + 0.5) * w;
+    const ay = (-p.y * 0.5 + 0.5) * h;
+    const r = btn.getBoundingClientRect();
+    const isLeft = btn.classList.contains('cm-callout-left');
+    const bx = (isLeft ? r.right : r.left) - hostRect.left;
+    const by = r.top + r.height * 0.5 - hostRect.top;
+    lines.push(
+      `<line x1="${bx.toFixed(1)}" y1="${by.toFixed(1)}" x2="${ax.toFixed(1)}" y2="${ay.toFixed(1)}" stroke="#8c2d19" stroke-width="1.4" stroke-dasharray="4 3" />` +
+        `<circle cx="${ax.toFixed(1)}" cy="${ay.toFixed(1)}" r="3.5" fill="#8c2d19" />`
+    );
+  });
+  svg.innerHTML = lines.join('');
+}
+
+// ============================================================================
 // 11. Resize & Animation Loop
 // ============================================================================
 function onResize() {
@@ -1570,6 +1908,7 @@ function animate() {
   if (state.manualFrameStepping) return;
   renderLCDDisplay();
   controls.update();
+  updateChemMateCallouts(camera, viewportEl);
   renderer.render(scene, camera);
 }
 animate();
@@ -1578,6 +1917,7 @@ function renderNow() {
   syncUIToState();
   renderLCDDisplay();
   controls.update();
+  updateChemMateCallouts(camera, viewportEl);
   renderer.render(scene, camera);
 }
 
@@ -1597,6 +1937,9 @@ window.app = {
   stepTourFrame,
   updateTourCaptionForProgress,
   setPanelsHidden,
+  setTheme,
+  setStageBackdrop,
+  setCallouts,
   setCameraPreset,
   renderNow,
   setExplodedValue: val => {

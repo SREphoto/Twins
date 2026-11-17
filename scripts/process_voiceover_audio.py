@@ -192,8 +192,10 @@ def slice_audio(audio_in: Path, out_dir: Path, intervals):
         dur = item['duration']
         print(f"  [{item['badge']}] {item['start']:6.2f}s -> {item['end']:6.2f}s ({dur:5.2f}s) -> {item['filename']}")
         
+        import shutil
+        ffmpeg_bin = shutil.which('ffmpeg') or '/usr/bin/ffmpeg'
         cmd = [
-            '/usr/local/bin/ffmpeg', '-y',
+            ffmpeg_bin, '-y',
             '-ss', f"{item['start']:.3f}",
             '-i', str(audio_in),
             '-t', f"{dur:.3f}",
@@ -213,8 +215,10 @@ def slice_audio(audio_in: Path, out_dir: Path, intervals):
     print(f"  ✅ Saved metadata alignment: {align_file}")
 
 def get_audio_duration(path: Path) -> float:
+    import shutil
+    ffprobe_bin = shutil.which('ffprobe') or '/usr/bin/ffprobe'
     cmd = [
-        '/usr/local/bin/ffprobe', '-v', 'error',
+        ffprobe_bin, '-v', 'error',
         '-show_entries', 'format=duration',
         '-of', 'default=noprint_wrappers=1:nokey=1',
         str(path)

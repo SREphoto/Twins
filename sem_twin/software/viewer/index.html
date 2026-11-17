@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20261115-oga" />
+  <link rel="stylesheet" href="style.css?v=20261117-oga" />
   <script type="importmap">
   {
     "imports": {
@@ -81,10 +81,19 @@
       <!-- 3D Viewport Stage -->
       <section class="stage">
         <div class="view-toolbar">
+          <!-- Backdrop Stage (Retro/Night) -->
+          <div class="toolbar-group" id="cm-stage-switcher" hidden>
+            <button type="button" class="view-btn active" id="btn-cm-plate" title="Diagram plate backdrop">Plate</button>
+            <button type="button" class="view-btn" id="btn-cm-bench" title="Lab room backdrop">Lab Room</button>
+            <button type="button" class="view-btn active" id="btn-cm-callouts" title="Toggle callouts">Callouts</button>
+          </div>
+
           <!-- Camera Presets -->
           <div class="toolbar-group">
             <button type="button" class="view-btn active" data-cam-preset="CAM_ISO" title="3/4 Isometric Suite Overview">ISO 3/4</button>
             <button type="button" class="view-btn" data-cam-preset="CAM_FRONT" title="Front Elevation">Front</button>
+            <button type="button" class="view-btn" data-cam-preset="CAM_SIDE" title="Side Profile">Side</button>
+            <button type="button" class="view-btn" data-cam-preset="CAM_TOP" title="Top Overhead">Top</button>
             <button type="button" class="view-btn" data-cam-preset="CAM_CONSOLE" title="Operator Console &amp; Dual Monitors">Console</button>
             <button type="button" class="view-btn" data-cam-preset="CAM_CHAMBER" title="UHV Chamber &amp; 5-Axis Stage">Chamber</button>
             <button type="button" class="view-btn" data-cam-preset="CAM_COLUMN" title="Gemini II Column &amp; FEG Head">Column</button>
@@ -95,6 +104,7 @@
             <button type="button" class="view-btn" id="btn-explode" title="Separate major assemblies">Exploded</button>
             <button type="button" class="view-btn" id="btn-cutaway" title="Cutaway Column &amp; Service Bay">Cutaway</button>
             <button type="button" class="view-btn" id="btn-wireframe" title="Toggle wireframe">Wireframe</button>
+            <button type="button" class="view-btn" id="btn-hide-panels" title="Hide side panels for full viewport">Hide Panels</button>
             <button type="button" class="view-btn" id="btn-view-reset" title="Reset camera to default">Reset</button>
           </div>
 
@@ -136,6 +146,84 @@
         </div>
 
         <div id="viewport3d" class="viewport"></div>
+
+        <!-- ChemMate Retro-Educational Archival Plate Overlay -->
+        <div id="cm-plate-overlay" class="cm-plate-overlay" aria-hidden="true">
+          <div class="cm-plate-header">
+            <div class="cm-plate-header-left">
+              <span class="cm-reg-cross">+</span>
+              <span class="cm-plate-idx">13</span>
+              <span class="cm-plate-rule">|</span>
+              <span class="cm-plate-heading">ZEISS GeminiSEM 500 — UHV Field-Emission SEM</span>
+            </div>
+            <div class="cm-plate-header-right">
+              SUB-NANOMETER ELECTRON OPTICS &amp; SDD EDS.<br />
+              TIER 1 · INTERACTIVE LAB INSTRUMENT
+            </div>
+          </div>
+
+          <svg id="cm-callouts-svg" class="cm-callouts-svg" preserveAspectRatio="none"></svg>
+
+          <div id="cm-callouts-layer" class="cm-callouts-layer">
+            <button type="button" class="cm-callout cm-callout-left" data-callout="column" style="top: 20%;">
+              <span class="cm-callout-title">Gemini II Column</span>
+              <span class="cm-callout-badge">+8 kV Beam Booster</span>
+              <span class="cm-callout-desc">Schottky ZrO/W(100) FEG emitter with magnetic-electrostatic objective lens.</span>
+            </button>
+            <button type="button" class="cm-callout cm-callout-left" data-callout="chamber" style="top: 46%;">
+              <span class="cm-callout-title">316L UHV Chamber</span>
+              <span class="cm-callout-badge">1.4×10⁻⁶ mbar</span>
+              <span class="cm-callout-desc">Hollow 316L chamber with DN100CF viewport, SE2, 4Q-BSE &amp; SDD EDS.</span>
+            </button>
+            <button type="button" class="cm-callout cm-callout-left" data-callout="stage" style="top: 72%;">
+              <span class="cm-callout-title">5-Axis Eucentric Stage</span>
+              <span class="cm-callout-desc">105 mm motorized X/Y/Z/T/R stage with 9-position pin-stub carousel.</span>
+            </button>
+
+            <button type="button" class="cm-callout cm-callout-right" data-callout="console" style="top: 26%;">
+              <span class="cm-callout-title">SmartSEM Console</span>
+              <span class="cm-callout-badge">Dual 27" 4K</span>
+              <span class="cm-callout-desc">Dual-Rotary tactile encoders, 5-axis joysticks &amp; IR Chamberscope.</span>
+            </button>
+            <button type="button" class="cm-callout cm-callout-right" data-callout="prep" style="top: 56%;">
+              <span class="cm-callout-title">Au/Pd Sputter Bench</span>
+              <span class="cm-callout-desc">5.0 nm conductive Au/Pd magnetron film prevents dielectric charging.</span>
+            </button>
+          </div>
+
+          <div class="cm-legend-box" id="cm-legend-box">
+            <div class="cm-legend-kicker" id="cm-legend-title">EDS Composition</div>
+            <div class="cm-legend-items" id="cm-legend-items"></div>
+          </div>
+
+          <div class="cm-equation-card">
+            <span class="cm-paperclip" aria-hidden="true"></span>
+            <div class="cm-eq-head">
+              <span class="cm-eq-badge">SEM</span>
+              <span class="cm-eq-kicker">ELECTRON OPTICS</span>
+              <span class="cm-eq-sub">LIVE TELEMETRY</span>
+            </div>
+            <div class="cm-eq-formula">
+              <div class="cm-eq-side">
+                <div class="cm-eq-expr" id="cm-eq-eht">15.00 kV</div>
+                <span class="cm-eq-pill" id="cm-eq-lambda">λe = 9.93 pm</span>
+              </div>
+              <span class="cm-eq-arrow">⟶</span>
+              <div class="cm-eq-side">
+                <div class="cm-eq-expr" id="cm-eq-mag">15,000 ×</div>
+                <span class="cm-eq-pill is-balanced" id="cm-eq-hfw">HFW 8.00 µm</span>
+              </div>
+            </div>
+            <div class="cm-eq-steps">
+              <div class="cm-eq-steps-title">HFW = 120,000 µm / Mag</div>
+              <ol>
+                <li>Evacuate UHV chamber &amp; energize EHT</li>
+                <li>Select detector (InLens / SE2 / BSE / EDS)</li>
+                <li>Focus WD, correct stigmator &amp; capture</li>
+              </ol>
+            </div>
+          </div>
+        </div>
 
         <!-- Broadcast Cinema Lower-Third Voiceover & Chapter Overlay -->
         <div id="tourOverlay" class="tour-overlay hidden">
@@ -198,7 +286,7 @@
                     <span>MAGNIFICATION (M)</span>
                     <span class="sem-slider-val" id="valMag">15,000 ×</span>
                   </div>
-                  <input type="range" id="sliderMag" min="100" max="500000" step="100" value="15000" />
+                  <input type="range" id="sliderMag" min="50" max="300000" step="50" value="15000" />
                 </div>
 
                 <div class="sem-slider-row">
@@ -206,15 +294,33 @@
                     <span>ACCEL VOLTAGE (EHT)</span>
                     <span class="sem-slider-val" id="valEht">15.00 kV</span>
                   </div>
-                  <input type="range" id="sliderEht" min="0.5" max="30.0" step="0.5" value="15.0" />
+                  <input type="range" id="sliderEht" min="0.02" max="30.0" step="0.02" value="15.0" />
                 </div>
 
                 <div class="sem-slider-row">
                   <div class="sem-slider-head">
-                    <span>WORKING DISTANCE / FOCUS (WD)</span>
+                    <span>PROBE CURRENT &amp; APERTURE</span>
+                    <span class="sem-slider-val" id="valProbeAp">200 pA · 30 µm</span>
+                  </div>
+                  <div style="display:flex; gap:6px; align-items:center;">
+                    <input type="range" id="sliderProbeCurrent" min="3" max="20000" step="10" value="200" title="Probe Current (pA)" style="flex:1;" />
+                    <select id="selAperture" aria-label="Objective Aperture" style="width:74px; background:#0f172a; color:#e2e8f0; border:1px solid #334155; border-radius:4px; padding:2px 4px; font-size:11px;">
+                      <option value="30" selected>30 µm</option>
+                      <option value="60">60 µm</option>
+                      <option value="120">120 µm</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="sem-slider-row">
+                  <div class="sem-slider-head">
+                    <span>WORKING DISTANCE / FOCUS FINE</span>
                     <span class="sem-slider-val" id="valWd">8.50 mm</span>
                   </div>
-                  <input type="range" id="sliderWd" min="2.0" max="20.0" step="0.05" value="8.50" />
+                  <div style="display:flex; gap:6px;">
+                    <input type="range" id="sliderWd" min="2.0" max="40.0" step="0.05" value="8.50" title="Working Distance (mm)" />
+                    <input type="range" id="sliderFocusFine" min="0" max="100" step="1" value="50" title="Objective Focus Fine" />
+                  </div>
                 </div>
 
                 <div class="sem-slider-row">
@@ -223,8 +329,8 @@
                     <span class="sem-slider-val" id="valStig">0.0% / 0.0%</span>
                   </div>
                   <div style="display:flex; gap:6px;">
-                    <input type="range" id="sliderStigX" min="-50" max="50" step="1" value="0" title="Stigmator X" />
-                    <input type="range" id="sliderStigY" min="-50" max="50" step="1" value="0" title="Stigmator Y" />
+                    <input type="range" id="sliderStigX" min="-100" max="100" step="1" value="0" title="Stigmator X" />
+                    <input type="range" id="sliderStigY" min="-100" max="100" step="1" value="0" title="Stigmator Y" />
                   </div>
                 </div>
 
@@ -291,6 +397,9 @@
                   </button>
                   <button type="button" class="btn btn-demo" id="btnToggleMute" title="Mute / Unmute Procedural Web Audio Synthesizer">
                     <span class="btn-glyph" id="glyphMute">🔊</span> <span id="lblMute">Audio ON</span>
+                  </button>
+                  <button type="button" class="btn btn-demo" id="btnScaleCaliper" title="2-Point Scale Caliper Measurement on Live Micrograph" style="grid-column: span 2;">
+                    <span class="btn-glyph">📏</span> <span id="lblCaliper">2-Pt Scale Caliper: OFF</span>
                   </button>
                 </div>
               </div>
@@ -393,6 +502,6 @@
     </div>
   </div>
 
-  <script type="module" src="app.js?v=20261115-oga"></script>
+  <script type="module" src="app.js?v=20261117-oga"></script>
 </body>
 </html>

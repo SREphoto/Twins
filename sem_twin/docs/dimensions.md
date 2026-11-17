@@ -1,113 +1,117 @@
 # Dimensions & Spatial Coordinate Specification — `sem_twin` (ZEISS GeminiSEM 500)
 
-## 1. Spatial Envelope & Datum Freeze (Code 4771-CAD)
+## 1. Spatial Envelope, Handedness & Datum Freeze (Code 4771-CAD)
 
 > **GOVERNANCE LOCK (`Code 4771-CAD`)**: All exterior dimensions, sub-assembly datum offsets, and coordinate scales in this document are derived from the **ZEISS GeminiSEM Series Instruction Manual (`Doc. 349500-8038-000`, §3.2)** and **105-mm DC Stage Manual (`Doc. 349347-9013-000`)** and are frozen under Code `4771-CAD`.
 
-- **Three.js Scene Unit Scale**: **`1 unit = 100 mm` (`0.1 m = 1 dm`)**
-  - When docked in `lab_viewer` (`1 unit = 1.0 m`), `LabDockManager.js` applies `scale: 0.10` (`1 dm × 0.10 = 0.1 m`), yielding exact 1:1 physical meter dimensions inside the Zone 8 SEM Suite.
-- **Global Origin `(0, 0, 0)`**: Centered horizontally on the combined FE-SEM + Operator Console footprint at the finished floor surface (`Y = 0.0 mm`).
-- **Floor Datum**: `Y = 0.0 mm` (`y = 0.00` units). The 4 pneumatic leveling isolator pads (`Foot_Leveling_FL`, `Foot_Leveling_FR`, `Foot_Leveling_RL`, `Foot_Leveling_RR`) and operator desk leveling glides rest flush on `Y = 0.0 mm` with zero floor penetration.
-- **Operator-Facing Front Direction**: **`-Z`** (operator sits on the `-Z` side looking toward `+Z`; in `lab_viewer` with `rotY = +Math.PI / 2`, the `-Z` front faces **West (`-X`)** toward the SEM Suite double airlock doors at `X = 1.0 m`).
+- **Three.js Scene Unit Scale**: **`1 unit (u) = 100 mm` (`0.1 m = 1 dm`)**
+  - When docked in `lab_viewer` (`1 unit = 1.0 m`), `LabDockManager.js` mounts `sem_twin` in **Zone 8 (`VC-E` Electron Microscopy Suite)** at `(4.5, 0.0, 15.0)` with `rotY = +Math.PI / 2` and `scale = 0.10` (`1 dm × 0.10 = 0.1 m`), yielding exact 1:1 physical meter dimensions.
+- **Global Origin `(0, 0, 0)`**: Centered horizontally between the FE-SEM column plinth bay (`-X`) and operator console bay (`+X`) at the finished floor surface (`Y = 0.0 mm`).
+- **Floor Datum**: `Y = 0.00 mm` (`Y = 0.00 u`). All 4 plinth leveling isolator pads (`Foot_Leveling_FL`, `Foot_Leveling_FR`, `Foot_Leveling_RL`, `Foot_Leveling_RR`) and operator desk leveling glides rest flush on `Y = 0.00 u` with zero floor penetration.
+- **Right-Handed Coordinate Handedness (Operator-Facing `-Z`)**:
+  - Up axis: **`+Y`**
+  - Operator-facing front: **`-Z`** (operator sits on the `-Z` side looking forward toward `+Z`).
+  - Therefore, by the right-hand rule:
+    - **`screenRight = forward(+Z) × up(+Y) = -X`** (Plinth + UHV Chamber + Gemini II Column bay)
+    - **`screenLeft = +X`** (Operator Console Desk bay, with Standalone Prep Bench further screen-left)
+  - In `lab_viewer` (`rotY = +Math.PI / 2` at `(4.5, 0.0, 15.0)`), the `-Z` front rotates to **West (`-X`)** facing the `VC-E` suite double airlock doors at `X = 1.0 m`.
 
-| Overall System Envelope | Millimeters (mm) | Scene Units (`1 unit = 100 mm`) | Source Tag |
+| Overall System Envelope | Millimeters (mm) | Scene Units (`1 u = 100 mm`) | Source Tag |
 | :--- | ---: | ---: | :--- |
-| **Total Combined Width (`X`)** (`-825` to `+825 mm`) | `1650 mm` | `16.50 u` (`-8.25` to `+8.25`) | **PUB** (`349500-8038-000` §3.2) |
-| **Total System Depth (`Z`)** (`-540` to `+542 mm`) | `1082 mm` | `10.82 u` (`-5.40` to `+5.42`) | **PUB** (`349500-8038-000` §3.2) |
-| **Column + Plinth Height (`Y`)** (`0` to `1757 mm`, `1880 mm` w/ HV boot) | `1757 mm` (`1880 mm` max) | `17.57 u` (`18.80 u` max) | **PUB** (`349500-8038-000` §3.2) |
-| **Column Plinth Width × Depth** (`Left bay X = -825..-3 mm`) | `822 × 1082 mm` | `8.22 × 10.82 u` | **PUB** (`349500-8038-000` §3.2) |
-| **Operator Console Table Width × Depth × Height** (`Right bay X = -25..+825 mm`) | `850 × 900 × 760 mm` | `8.50 × 9.00 × 7.60 u` | **PUB** (`349500-8038-000` §3.2) |
-| **Total Mass** | `890 kg` (plinth+col) + `145 kg` (console) | `4 × 222.5 kg` on `4 × Ø 80 mm` pads | **PUB** (`349500-8038-000` §3.2) |
+| **Total Combined Width (`X`)** (`-780..+850 mm`, `1650 mm` w/ trim) | `1650 mm` | `16.50 u` (`-8.25` to `+8.25` nominal; `-7.80..+8.50` active bays) | **PUB** (`349500-8038-000` §3.2) |
+| **Total System Depth (`Z`)** (`-540..+542 mm`) | `1082 mm` | `10.82 u` (`-5.10..+5.10` plinth body; `10.82 u` w/ door handle & rear I/O) | **PUB** (`349500-8038-000` §3.2) |
+| **Column + Plinth Height (`Y`)** (`0` to `1757 mm`, `1880 mm` w/ HV boot) | `1757 mm` (`1880 mm` max) | `17.57 u` (`18.80 u` max w/ top `-30 kV` HV boot) | **PUB** (`349500-8038-000` §3.2) |
+| **Plinth + Chamber + Column Bay (`Screen-RIGHT`, `-X`)** | `800 × 1020 × 1757 mm` (`822 × 1082` OEM) | Centered `X = -3.80 u` (`X = -7.80..+0.20 u`, `Z = -5.10..+5.10 u`) | **PUB** (`349500-8038-000` §3.2) |
+| **Operator Console Desk (`Screen-LEFT`, `+X`)** | `800 × 900 × 760 mm` (`850 mm` w/ trim) | Centered `X = +4.50 u` (`X = +0.50..+8.50 u`, `Y = 0.00..7.60 u`) | **PUB** (`349500-8038-000` §3.2) |
+| **Total Mass** | `890 kg` (plinth+col) + `145 kg` (console) | `4 × 222.5 kg` on `4 × Ø 80 mm` isolator pads | **PUB** (`349500-8038-000` §3.2) |
 
 ---
 
-## 2. Sub-Assembly Breakdown & Coordinates (`1 unit = 100 mm`)
+## 2. Sub-Assembly Breakdown & Coordinates (`1 u = 100 mm`)
 
-### 2.1 Vibration-Isolated Plinth & Structural Frame (`X = -4.15 u`, `Y = 0.00..7.80 u`, `Z = 0.00 u`)
+### 2.1 Vibration-Isolated Plinth & Structural Frame (`Screen-RIGHT`, `X = -3.80 u`, `Y = 0.00..7.55 u`)
 - **`Foot_Leveling_FL` / `FR` / `RL` / `RR`**:
-  - 4 heavy-duty pneumatic/elastomeric isolator feet (`Ø 80 mm = 0.80 u` vulcanized neoprene base pad, `H = 45 mm = 0.45 u`, M20 threaded stainless leveling spindle + hex jam nut + active pneumatic air-spring cylinder `Ø 110 mm`).
-  - Coordinates: `X ∈ {-7.65, -0.65}`, `Z ∈ {-4.60, +4.60}`, bottom exactly at `Y = 0.00 u`.
-- **`Body_Chassis` (Plinth Cabinet & Welded Frame)**:
-  - Tubular steel spaceframe (`40 × 40 mm` square structural tubing) spanning `X = -8.15..-0.15 u` (`800 mm`), `Y = 0.45..7.80 u` (`735 mm`), `Z = -5.10..+5.10 u` (`1020 mm`).
-  - Front & side powder-coated sheet-metal service doors (`Pivot_DoorServiceBay`) with stamped ventilation louvers, recessed chrome quarter-turn latches, and M4 DIN 912 hex socket hinge screws.
+  - 4 heavy-duty elastomeric/pneumatic leveling feet (`Ø 80 mm = 0.80 u` vulcanized EPDM base pad, `M20` stainless leveling spindle + knurled collar + hex jam nut), resting flush at **`Y = 0.00 u`**.
+  - Positioned at the four plinth corners within `X ∈ [-7.80, +0.20]`, `Z ∈ [-5.10, +5.10]`.
+- **`Body_Chassis` (`basePlinth`, `isolatedDeck`, Structural Frame & Service Door)**:
+  - Lower heavy cast-iron/welded steel plinth base (`basePlinth`) spanning `X = -7.80..+0.20 u` (`800 mm`, centered at `X = -3.80 u`), `Y = 0.25..0.95 u` (`70 mm` structural rail height), `Z = -5.10..+5.10 u` (`1020 mm`).
+  - Upper vibration-isolated granite/steel deck (`isolatedDeck`) spanning `X = -7.80..+0.20 u`, `Y = 6.95..7.55 u` (`60 mm` deck thickness).
+  - Hinged front louvered service bay door (`Pivot_DoorServiceBay`) covering `Y = 0.95..6.95 u` on the `-Z` front face, with stamped ventilation louvers and quarter-turn compression latch.
+- **`Body_PneumaticIsolator_01`..`04` (Continuous Active-Passive Air-Spring Cylinders)**:
+  - 4 pneumatic vibration-isolation columns anchored with **base cups flush on `basePlinth` top surface (`Y = 0.95 u`)** and **pistons, elastomeric air bellows, and top mounting plates spanning continuously up to the `isolatedDeck` underside (`Y = 6.95 u`)** — total continuous vertical span `6.00 u = 600 mm` with **zero floating cylinders**.
 - **`Badge_SREdesigns`**:
-  - Official brushed-aluminum laser-etched **S R E** brand badge (`110 mm × 32 mm × 2.5 mm` = `1.10 × 0.32 × 0.025 u`) seated in a `2.0 mm` carved recessed pocket on the **lower-left front frame rail** at `(X = -6.80, Y = 1.15, Z = -5.12 u)`, facing `-Z` (`DIAG-001`, `DIAG-015`).
+  - Official **`[S][R][E] designs.com`** brushed-aluminum laser-etched nameplate (`1.10 × 0.32 × 0.03 u` = `110 × 32 × 3 mm`), secured with 4 corner `M3` hex socket screws.
+  - Mounted inside a **`2.0 mm` (`0.020 u`) carved recessed pocket** on the **FIXED lower-left (`+X` screen-left) front plinth structural frame rail** (`Y = 0.25..0.95 u`, centered at `Y = 0.60 u`, `Z = -5.10 u`, facing `-Z`). Because it sits on the fixed lower structural rail rather than the swinging `Pivot_DoorServiceBay`, it exhibits **zero swing clipping**, `45.7% <= 85%` boundary containment (`DIAG-001`), and 100% upright front readability (`DIAG-015`).
 
-### 2.2 316L Stainless UHV Specimen Chamber (`X = -4.15 u`, `Y = 7.80..10.90 u`, `Z = -0.20 u`)
+### 2.2 Hollow 316L Stainless UHV Specimen Chamber (`X = -3.80 u`, `Y = 7.55..11.45 u`, `Z = -0.20 u`)
 - **`Body_ChamberUHV`**:
-  - Electropolished 316L stainless-steel cylindrical/octagonal multi-port vacuum vessel (`ID = 330 mm = 3.30 u`, `OD = 410 mm = 4.10 u`, `H = 310 mm = 3.10 u` external / `270 mm` internal), bolted to the top granite/cast-iron vibration table at `Y = 7.80 u`.
-  - Equipped with 8 radial ConFlat (`CF`) ports (`DN100CF`, `DN63CF`, `DN40CF`), each featuring a machined knife-edge flange, OFHC copper gasket ring, and 12 radial `Fastener_HexM6_*` socket head cap screws.
-- **`Pivot_DoorChamber` (Front Hinged UHV Access Door)**:
-  - Hinge axis at `(X = -6.25, Y = 9.35, Z = -2.35 u)` (`0°` closed -> `-105°` open).
-  - Machined `380 × 290 × 38 mm` (`3.80 × 2.90 × 0.38 u`) 316L stainless door slab with a `DN100CF` central leaded-glass viewport (`Glass_ViewportChamber`, `IOR = 1.52`), internal black Viton O-ring seal (`Ø 340 mm`), linear guide tracks, and heavy knurled toggle latch handle.
-- **`Pivot_Stage5Axis` (ZEISS 105-mm 5-Axis Motorized Eucentric Stage, `349347-9013-000`)**:
-  - Mounted inside the chamber cavity (`X = -4.15, Y = 8.15..9.25, Z = -0.20 u`):
-    - Cross-roller `X` & `Y` linear stages (`±52.5 mm` travel) driven by brushed DC/stepper micro-actuators (`Motor_LiftStageZ`, `Motor_DriveStageXY`) with flexible brass leadscrew couplings.
-    - Tilt cradle (`T = -5°..+70°`), continuous `360°` rotary table (`R`), eucentric `Z` wedge (`WD = 2.0–40.0 mm`), and 9-position aluminum pin-stub carousel (`Body_SpecimenCarousel`) with brass touch-alarm wire.
+  - **Hollow extruded 316L stainless-steel cylindrical vacuum shell** (`wall thickness = 0.32 u = 32 mm`, `ID = 330 mm = 3.30 u`, `OD = 394 mm = 3.94 u`, `H = 365 mm = 3.65 u`), bolted cleanly to `isolatedDeck` (`Y = 7.55 u`) via top/bottom `DN` ConFlat bolted rings.
+  - **Genuine Front Doorway Cutout**: Machined rectangular front doorway opening spanning `X = -1.92..+1.92 u` relative to the column center (`X_world = -5.72..-1.88 u`), exposing the internal UHV cavity and 5-axis stage when the chamber door opens.
+  - **8 Radial ConFlat (`CF`) Ports (`DN100CF` / `DN63CF` / `DN40CF`)**: Positioned strictly **clear of the front doorway (`±0.95 rad` clear zone)** and rear tower cabinet, each modeled with machined knife-edge flange, OFHC copper gasket ring, and radial `Fastener_HexM6_CF_*` hex socket cap screws.
+- **`Pivot_DoorChamber` (Extruded Front Hinged UHV Access Door)**:
+  - Hinged vertically on its **`-X` edge** (`x_local = -1.92 u`, `X_world = -5.72 u`) and rotates **OUTWARD (`+angle` around `+Y` toward `-Z`)** so the latch edge swings cleanly out toward the operator without intersecting the chamber wall.
+  - Extruded 316L stainless door slab (`3.84 × 3.25 × 0.34 u`) featuring a **circular carved `DN100CF` viewport cutout** behind the `25 mm` leaded borosilicate glass window (`Glass_ViewportChamber`, `IOR = 1.52`), internal Viton fluoroelastomer O-ring seal, anodized handle bar, and snap-action door safety microswitch (`Body_MicroswitchDoor`).
+- **`Pivot_Stage5Axis` & `Body_SpecimenCarousel` (ZEISS 105-mm 5-Axis Motorized Eucentric Stage, `349347-9013-000`)**:
+  - Mounted inside the chamber cavity (`X = -3.80 u`, `Z = -0.20 u`):
+    - Cross-roller `X` & `Y` linear stages (`±52.5 mm` travel, `105 × 105 mm`) driven by non-magnetic actuators (`Motor_DriveStageXY`, `Motor_LiftStageZ`) with brass leadscrew couplings.
+    - Tilt cradle (`T = -5°..+70°`), continuous `360°` rotary stage (`R`), eucentric `Z` wedge (`WD = 2.0–40.0 mm`).
+    - **9-Position Aluminum Pin-Stub Carousel (`Body_SpecimenCarousel`)**: Machined 6061-T6 platter featuring **`9` equal `40°` angular slots** on `Ø 12.7 mm` aluminum pin stubs:
+      - Slots `1–6`: 6 active monograph specimens (`ommatidia`, `pollen`, `morpho`, `finfet`, `zno_tetrapods`, `al_cu_alloy`) coated with a `5.0 nm` `Au/Pd` conductive film (toggleable on/off).
+      - Slots `7–9`: 3 dedicated calibration substrates (**`Cu/Au` Calibration Grid**, **`Si` Resolution Standard**, and **Faraday Cup** probe-current trap).
 
-### 2.3 Gemini II Nano-Twin Electron Optical Column (`X = -4.15 u`, `Y = 10.90..17.57 u`, `Z = -0.20 u`)
+### 2.3 Gemini II Nano-Twin Electron Optical Column (`X = -3.80 u`, `Y = 11.45..17.57 u`, `Z = -0.20 u`)
 - **`Body_ColumnGemini`**:
-  - Lower conical objective lens housing (`Y = 10.90..12.60 u`, `Ø 260 -> 210 mm`), mid-column double condenser & stigmator section (`Y = 12.60..15.40 u`, `Ø 210 mm`) with internal cutaway window exposing wound copper electromagnetic coils, `+8 kV` Beam Booster quartz/metal liner tube, `InLens SE` & `InLens EsB` annular detectors, and mechanical 4-position aperture strip drive (`30/60/120 µm`).
-  - Upper Schottky Field Emission Gun (`FEG`) head (`Y = 15.40..17.57 u`, `Ø 185 mm`) with `20 l/s` Ion Getter Pump (`Body_IonGetterPump`) magnet yoke on the `+X` side, pneumatic column isolation valve (`Body_ValveColumnGate`), and top conical `-30 kV` HV cable stress-relief receptacle (`Y = 17.57..18.60 u`).
-- **Chamber-Mounted Detectors & Optics**:
-  - **`Body_DetectorSE2` (Everhart-Thornley SE2)**: Mounted on right-rear `DN63CF` port `(X = -1.95, Y = 9.55, Z = +0.55 u)`, angled toward eucentric point; includes biased perforated Faraday cage, scintillator disc, lightguide, PMT housing, and BNC signal cable.
-  - **`Pivot_DetectorBSE` (Retractable 4-Quad Sense BSD)**: Mounted on front-left `DN40CF` port `(X = -6.30, Y = 9.75, Z = -0.85 u)` with welded stainless bellows, pneumatic slide cylinder, and gold 4-quadrant photodiode head under the objective polepiece.
-  - **`Body_DetectorEDS` (Oxford Ultim Max 100 SDD)**: Mounted on upper-left `35°` inclined `DN63CF` port `(X = -6.45, Y = 10.35, Z = +0.40 u)` with blue-anodized Peltier heatsink fins, motorized slide, and tapered copper collimator snout.
-  - **`Mirror_OpticalRelay` (IR Chamberscope Assembly)**: Mounted on upper-front-right `DN40CF` port `(X = -2.25, Y = 10.20, Z = -1.45 u)` with a `45°` gold-coated optical relay mirror, `850 nm` IR LED ring, and external CCD camera barrel.
-  - **`Sensor_PT100` (Column Water Jacket RTD Probe)**: Stainless 4-wire PT100 thermal probe threaded into the objective lens cooling manifold at `(X = -3.10, Y = 11.45, Z = +0.85 u)`.
+  - Mu-metal shielded lower conical objective lens housing (`Ø 260 -> 210 mm`), mid-column double condenser and 8-pole stigmator/scan deflection coils (`Body_CoilCondenserUpper`, `Body_CoilCondenserLower`, `Body_ScanDeflectionCoils`), `+8.0 kV` electrostatic Beam Booster liner (`Body_BeamBoosterTube`), annular `InLens SE` / `EsB` detectors (`Body_DetectorInLens`), and water-cooled magnetic-electrostatic objective polepiece (`Body_ObjectivePolepiece`).
+  - Upper Schottky `ZrO/W(100)` Field Emission Gun head (`Body_GunHeadFEG`, `Y = 15.40..17.57 u`), top `-30 kV` HV stress-relief ceramic boot reaching `Y = 18.80 u` (`1880 mm`), `20 l/s` Sputter Ion Getter Pump (`Body_IonGetterPump`, holding `2.0e-8 Pa = 2.0e-10 mbar`), and pneumatic column isolation gate valve (`Body_ValveColumnGate`).
+- **Chamber-Mounted Detectors, Mirrors & Thermal Sensors**:
+  - `Body_DetectorSE2`: Everhart-Thornley secondary electron detector (`+300 V` Faraday cage + scintillator + PMT) mounted clear of the `±0.95 rad` front door zone.
+  - `Pivot_DetectorBSE`: Retractable 4-quadrant solid-state `Sense BSD` diode assembly beneath the objective polepiece.
+  - `Body_DetectorEDS`: `Oxford Ultim Max 100` (`100 mm²`) Peltier-cooled Silicon Drift Detector (`SDD`) at `35°` take-off angle.
+  - `Mirror_OpticalRelay`: `45°` gold-coated optical relay mirror & `850 nm` IR LED chamberscope feeding the Screen-Left secondary monitor.
+  - `Sensor_PT100`: Class-A 4-wire platinum RTD probe threaded into the objective lens water jacket (`20.5 °C`).
+  - `Body_GaugePiraniPenning`: `Pfeiffer PKR 361` full-range Pirani / cold-cathode gauge (`101,325 Pa` down to `10^-7 Pa`).
 
-### 2.4 Vacuum Pumping & Internal Electronics Bay (`X = -8.00..-0.25 u`, `Y = 0.55..7.50 u`)
-- **`Motor_DriveTurboPump` (`Pfeiffer HiPace 300` Turbomolecular Pump)**:
-  - Suspended directly beneath the chamber `DN100CF` bottom port at `(X = -4.15, Y = 5.40..7.75, Z = -0.20 u)` with finned aluminum rotor body, `TC 110` onboard drive unit, `DN25KF` foreline port, and splinter shield.
-- **`Motor_DriveScrollPump` (`Pfeiffer HiScroll 6` Oil-Free Scroll Backing Pump)**:
-  - Mounted on secondary rubber isolators on the lower plinth deck at `(X = -6.35, Y = 0.70..3.10, Z = +2.20 u)`, connected to the turbo foreline via a corrugated stainless-steel `DN25KF` bellows hose (`Body_VacuumForeline_KF25`) with hinged wing-nut KF clamps and pneumatic foreline valve.
-- **`Body_HVTank_30kV` (Spellman 30 kV High-Voltage Oil/Epoxy Tank)**:
-  - Mounted in the rear-left plinth bay at `(X = -6.50, Y = 3.60..6.80, Z = +2.60 u)` with red silicone `-30 kV` HV umbilical cable (`Body_Wire_HV30kV`) routed through rubber grommets to the FEG gun head.
-- **`Assembly_PowerSupply` & `Part_ToroidalTransformer`**:
-  - Perforated honeycombed Mean Well `LRS-350-24` switching PSU cage (`215 × 115 × 50 mm`) with internal bulk caps, yellow Mylar transformer, heatsinks, and 9-terminal screw barrier strip at `(X = -2.10, Y = 4.20, Z = +2.40 u)`.
-  - `300 VA` copper-wound toroidal isolation transformer (`Part_ToroidalTransformer`, `Ø 130 × 65 mm`) with amber Kapton band and dished stainless mounting plate at `(X = -2.10, Y = 1.15, Z = +2.40 u)`.
-- **`PCB_Motherboard` (SmartSEM Real-Time Scan Generator & Control Board)**:
-  - Mounted on 6 brass M3 hex standoffs at `(X = -2.10, Y = 4.40, Z = -1.60 u)` (`280 × 210 × 2.4 mm` 6-layer FR-4 PCB):
-    - `Part_MCU_ARM` (176-pin LQFP STM32H7 / FPGA scan generator with gull-wing leads)
-    - `Part_RAM_Chip` (Dual TSOP-54 DDR4 framebuffers)
-    - `Part_SSD_Module` (M.2 NVMe / BGA eMMC micrograph cache)
-    - `WiFi_BLE` (Shielded 802.11ac / BLE 5.2 telemetry module with U.FL coax to rear `Antenna_WiFi`)
-    - 24-bit Delta-Sigma detector ADC, `CR2032` RTC coin cell, and green Phoenix Contact screw terminal blocks.
-- **`Fan_CabinetCooling_Blower` & Rear Bulkhead I/O Panel (`Z = +5.08 u`)**:
-  - Dual `120 mm` axial exhaust fans with chrome finger-guard grilles (`Fan_CabinetCooling_Blower`), `Port_IEC` C14 AC mains inlet + circuit breaker rocker, `Port_RS232` DB9 service port, `Port_USB` Type-B & `USB_Drive` flash host, `Port_RJ45` Gigabit LAN jack, `Antenna_WiFi` dipole, and Swagelok water chiller bulkhead fittings.
+### 2.4 Vacuum Pumping & Lower Plinth Electronics Bay (`X = -7.80..+0.20 u`, `Y = 0.95..6.95 u`)
+- **`Motor_DriveTurboPump` (`Pfeiffer HiPace 300`, `90,000 RPM`, `260 l/s`)**: Suspended directly beneath the chamber bottom `DN100CF` flange at `(X = -3.80, Y = 5.60..7.50, Z = -0.20 u)` with `TC 110` drive controller and finned barrel.
+- **`Motor_DriveScrollPump` (`Pfeiffer HiScroll 6`, `1,800 RPM`)**: Oil-free dry scroll backing pump on the lower plinth deck linked via corrugated `DN25KF` stainless bellows (`Body_VacuumForeline_KF25`) with wing-nut KF clamps.
+- **`Body_HVTank_30kV`**: Epoxy-potted Spellman `-30 kV` HV multiplier tank (`X = -6.20 u`) driving `Body_Wire_HV30kV_Umbilical` up to the FEG gun head.
+- **`Assembly_PowerSupply` & `Part_ToroidalTransformer`**: Perforated Mean Well `LRS-350-24` (`24 VDC / 14.6 A`) cage PSU (`X = -1.95 u`) and `300 VA` copper toroidal isolation transformer (`X = -1.95 u`).
+- **`PCB_Motherboard`**: 6-layer FR-4 SmartSEM scan generator & control motherboard on 6 M3 brass hex standoffs (`X = -1.95, Y = 4.35, Z = -1.55 u`), carrying `Part_MCU_ARM` (176-pin ARM Cortex-M7 / FPGA), dual `Part_RAM_Chip` (TSOP-54 SDRAM), `Part_SSD_Module` (`256 GB` NVMe/eMMC flash), `WiFi_BLE` radio + U.FL coax to rear `Antenna_WiFi`, 24-bit ADC, `CR2032` RTC battery, and Phoenix Contact green terminal blocks.
+- **Rear Bulkhead I/O & Electrical Continuity (`Z = +5.08 u`)**: `Fan_CabinetCooling_Blower` with chrome wire guard, `Port_IEC` C14/C20 inlet + illuminated breaker, `Port_RS232` DB9, `Port_USB` Type-B, `USB_Drive`, `Port_RJ45` Gigabit LAN, `Antenna_WiFi`, Swagelok chiller fittings, and external `Power_Cord_SJTOW` + `Power_Plug_NEMA` plugged into `Power_Receptacle_Duplex`.
 
-### 2.5 Ergonomic Operator Console, Dual Monitors & Tactile Controls (`X = -0.15..+8.25 u`, `Y = 0.00..13.60 u`)
+### 2.5 Operator Console Desk, Dual 27" Monitors & Tactile Panels (`Screen-LEFT`, `X = +4.50 u`)
 - **`Body_ConsoleDesk`**:
-  - Contoured steel-frame operator table (`W = 840 mm`, `D = 900 mm`, `H = 760 mm` at `X = +4.05, Y = 0.00..7.60, Z = -0.30 u`) with chamfered anthracite laminate top (`Y = 7.35..7.60 u`), rear cable management trough + rubber grommets, and under-desk `ZEISS HP Z4` Acquisition Workstation tower (`Body_WorkstationPC`, `X = +6.80, Y = 0.50..4.80, Z = +1.20 u`).
-- **Dual 27" Widescreen Displays (`UI_LCD` Left Primary & `UI_LCD_Aux` Right Chamberscope/Optics)**:
-  - Articulated dual-arm VESA column stand mounted at `(X = +4.05, Y = 7.60..11.20, Z = +1.40 u)`.
-  - **Left Monitor (`UI_LCD` — SmartSEM Live Scan & EDS Console)**: Centered at `(X = +1.75, Y = 10.65, Z = +0.55 u)`, `460 × 285 × 28 mm` (`4.60 × 2.85 × 0.28 u`) housing with a **`2.5 mm` boolean-carved recessed bezel pocket**, `makeOperatorFacingQuadGeo(4.32, 2.58)` dynamic canvas quad (`flipY = false`, `SRGBColorSpace`) at `z = -0.132 u`, and anti-reflective `Glass_DisplayCover` lens (`z = -0.136 u`, `DIAG-002`, `DIAG-005`, `DIAG-015`).
-  - **Right Monitor (`UI_LCD_ChamberScope` — Vacuum Diagram, Column Raytrace & Live IR Chamberscope)**: Centered at `(X = +6.45, Y = 10.65, Z = +0.55 u)`, angled `-10°` toward the operator, with recessed pocket, upright `makeOperatorFacingQuadGeo(4.32, 2.58)` dynamic canvas, and `Glass_DisplayCover_Right`.
-- **ZEISS Dual-Rotary Control Panel (`Body_RotaryControlPanel`)**:
-  - Seated on the desk at `(X = +1.95, Y = 7.60..8.15, Z = -2.45 u)` (`380 × 190 × 45 mm` sloped `14°` die-cast aluminum console with `>= 4.5 mm` clearance between all controls, `DIAG-018`):
-    - **8 Knurled Aluminum Rotary Encoders (`Knob_*`)** with laser-etched index lines and silkscreen collar scales:
-      1. `Knob_Magnification` (`MAGNIFICATION · 50x–300kx`)
-      2. `Knob_CoarseFocus` (`FOCUS COARSE · WD mm`)
-      3. `Knob_FineFocus` (`FOCUS FINE · nm`)
-      4. `Knob_StigmatorX` (`STIGMATOR X · %`)
-      5. `Knob_StigmatorY` (`STIGMATOR Y · %`)
-      6. `Knob_Brightness` (`BRIGHTNESS · %`)
-      7. `Knob_Contrast` (`CONTRAST · %`)
-      8. `Knob_ProbeCurrent` (`PROBE CURRENT · pA/nA`)
-    - **8 Illuminated Tactile Pushbuttons (`Btn_*`, `0.9 mm` physical travel)**:
-      1. `Btn_Power` (`MAIN POWER`)
-      2. `Btn_PumpVacuum` (`VACUUM PUMP`)
-      3. `Btn_VentChamber` (`VENT N2`)
-      4. `Btn_BeamEHT` (`EHT BEAM ON`)
-      5. `Btn_ScanFreeze` (`SCAN / FREEZE`)
-      6. `Btn_AutoFocus` (`AUTO FOCUS`)
-      7. `Btn_AutoCB` (`AUTO B/C`)
-      8. `Btn_DetectorCycle` (`DETECTOR SEL`)
-- **ZEISS Dual-Joystick Stage Control Box (`Body_DualJoystickBox`)**:
-  - Seated on the desk at `(X = +6.15, Y = 7.60..8.55, Z = -2.45 u)` (`240 × 175 × 50 mm` sloped housing):
-    - `Pivot_JoystickLeftZ` (Left 1-axis hall-effect joystick controlling Stage `Z / Working Distance` with rubber bellows boot).
-    - `Pivot_JoystickRightXYR` (Right larger 3-axis hall-effect joystick with twist crown controlling Stage `X / Y / Rotation`).
-    - `Btn_StageBreak` (Top-center red mushroom `BREAK` emergency stage-stop button) + `Trackball_StageNavigation` precision optical trackball.
+  - Centered at **`X = +4.50 u`** (**Screen-LEFT bay**; spanning `X = +0.50..+8.50 u`, `Y = 0.00..7.60 u`, `Z = -3.40..+3.40 u`) with anthracite HPL tabletop, C-channel steel legs, 4 floor leveling glides at `Y = 0.00 u`, and under-desk **HP Z4 SmartSEM Acquisition Workstation tower (`Body_WorkstationPC`)** below the tabletop (`X = +6.85, Y = 0.25..4.55, Z = +0.65 u`).
+- **Central Dual-Arm Articulated VESA Monitor Column (`X = +4.50, Y = 7.60..10.50, Z = +1.55 u`)**:
+  - Supports both 27-inch monitors via articulated VESA arms mounted directly onto the central stand column:
+    - **Screen-Left Monitor (`X = +6.65 u`, outer left)**: **`UI_LCD_ChamberScope`** (IR Chamberscope live interior feed, Vacuum System Schematic, Gemini II Column Raytrace, and Live `0–10 keV` SDD EDS Spectrum).
+    - **Screen-Right Monitor (`X = +2.35 u`, column-adjacent)**: **`UI_LCD`** (Primary ZEISS SmartSEM Live Micrograph Display & Datazone Footer).
+  - Both displays feature real **`2.5 mm` (`0.025 u`) extruded/carved recessed bezel pockets**, `makeOperatorFacingQuadGeo` upright dynamic `CanvasTexture` (`flipY = false`, `THREE.SRGBColorSpace`), and **`+0.4 mm` (`0.004 u`) anti-reflective optical cover glass (`Glass_DisplayCover` / `Glass_DisplayCover_Right`, `IOR = 1.52`)** (`DIAG-002`, `DIAG-005`, `DIAG-015`).
+- **Tactile Desk Controls (`Y = 7.60 u` tabletop, `>= 4.0 mm` control spacing per `DIAG-018`)**:
+  - **ZEISS Dual-Rotary Control Panel (`Body_RotaryControlPanel`, centered at `X = +2.45 u`, Screen-Right / column-adjacent)**:
+    - **8 Fluted Knurled Aluminum Encoders (`Knob_*`)** rotating **clockwise (`CW`) to increase** (`DIAG-021`):
+      1. `Knob_Magnification` (`50×–300,000×`)
+      2. `Knob_FocusCoarse` (`Objective Focus Coarse · WD mm`)
+      3. `Knob_FocusFine` (`Objective Focus Fine · nm`)
+      4. `Knob_StigmatorX` (`-100%..+100%`)
+      5. `Knob_StigmatorY` (`-100%..+100%`)
+      6. `Knob_Brightness` (`0–100%`)
+      7. `Knob_Contrast` (`0–100%`)
+      8. `Knob_ProbeCurrent` (`3.0–20,000.0 pA`)
+    - **8 Illuminated Beveled Tactile Pushbuttons (`Btn_*`, `0.9 mm` physical travel)** with crisp **`+Y` upward** high-DPI vector silkscreen legends (`DIAG-017`):
+      `Btn_Power` (`STANDBY`), `Btn_EHT` (`EHT ON`), `Btn_VacVent` (`VAC / VENT`), `Btn_AutoFocus` (`AUTO WD`), `Btn_AutoBC` (`AUTO B/C`), `Btn_ScanSpeed` (`SCAN SPD`), `Btn_Freeze` (`FREEZE`), `Btn_Record` (`PHOTO`).
+  - **ZEISS Dual-Joystick Stage Control Box (`Body_DualJoystickBox`, centered at `X = +6.35 u`, Screen-Left / outer left)**:
+    - `Pivot_JoystickLeftZ`: 1-axis proportional `Z / Working Distance` joystick (`2.0–40.0 mm`).
+    - `Pivot_JoystickRightXYR`: 3-axis proportional `X / Y` translation + twist `Rotation` joystick (`±52.5 mm X/Y`, `360° R`).
+    - `Trackball_StageNavigation`: Precision optical stage trackball.
+    - `Btn_StageBreak`: Top-center **red mushroom emergency stage-stop pushbutton with yellow safety collar**.
+
+### 2.6 Standalone VC-E Specimen Prep Bench (`includeLab !== false`, Far Screen-LEFT `X = +14.80 u`)
+- **`Body_SpecimenPrepBench`**: Centered at **`X = +14.80 u`** (far **Screen-LEFT** inside the `VC-E` Microscopy Suite, `Y = 0.00..7.60 u`), resting on 4 steel legs at `Y = 0.00 u`.
+- **`Body_SputterCoater_AuPd` (Benchtop Au/Pd Magnetron Sputter Coater)**:
+  - Detailed chassis featuring a **rotary analog vacuum gauge**, **sample chuck inside a transparent polycarbonate bell jar** (`Glass_SputterBellJar`) with `Au/Pd` magnetron sputter head and argon plasma glow, **power and timer rocker/rotary switches**, and a **rear AC power cord** depositing a **`5.0 nm` Au/Pd film**.
+- **`Body_SEMStubBox` & Preparation Tools**:
+  - **Hinged smoked-acrylic `12.7 mm` SEM pin-stub storage box** holding aluminum pin stubs, paired with a **conductive carbon tape roll** and **precision cross-lock stainless tweezers**.
 
 ---
 
@@ -116,6 +120,6 @@
 | Application | Fastener Specification | Three.js Semantic Prefix |
 | :--- | :--- | :--- |
 | ConFlat (`DN100CF` / `DN63CF` / `DN40CF`) Vacuum Flanges | DIN 912 M6×25 & M8×35 316SS Hex Socket Cap Screws + DIN 125 Washers | `Fastener_HexM6_CF_*` |
-| Plinth Structural Frame & Turbo Pump Mounting | DIN 912 M8×30 Alloy Steel Socket Cap Screws | `Fastener_HexM8_Frame_*` |
-| Service Bay Panels, PSU Cage & Rear Bulkhead | DIN 912 M4×12 Stainless Socket Cap Screws + Washers | `Fastener_HexM4_Panel_*` |
+| Plinth Frame, Pneumatic Isolators & Turbo Pump Mounting | DIN 912 M8×30 Alloy Steel Socket Cap Screws | `Fastener_HexM8_Frame_*` |
+| Service Bay Panels, PSU Cage, `Badge_SREdesigns` & Rear Bulkhead | DIN 912 M4×12 / M3×8 Stainless Socket Cap Screws + Washers | `Fastener_HexM4_Panel_*` |
 | `PCB_Motherboard` & Detector Preamp Standoffs | M3×8 Hex Socket Screws + Brass Hex Standoffs | `Fastener_HexM3_PCB_*` |
