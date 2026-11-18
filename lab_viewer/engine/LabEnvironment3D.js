@@ -2597,51 +2597,6 @@ export class LabEnvironment3D {
     mat.receiveShadow = true;
     rugGrp.add(mat);
     this.root.add(rugGrp);
-
-    // 3. Facility Environmental Monitoring Screen on Entry Column
-    const panelBox = new THREE.Mesh(
-      new THREE.BoxGeometry(0.04, 0.36, 0.24),
-      new THREE.MeshStandardMaterial({ color: 0x1f242c, roughness: 0.3, metalness: 0.7 })
-    );
-    panelBox.position.set(8.12, 1.6, -1.8);
-    this.root.add(panelBox);
-
-    const screenCanvas = document.createElement("canvas");
-    screenCanvas.width = 256;
-    screenCanvas.height = 384;
-    const ctx = screenCanvas.getContext("2d");
-    ctx.fillStyle = "#0c121a";
-    ctx.fillRect(0, 0, 256, 384);
-    ctx.fillStyle = "#00d4e8";
-    ctx.font = "bold 22px monospace";
-    ctx.fillText("FACILITY STATUS", 20, 40);
-    ctx.fillStyle = "#3dd68c";
-    ctx.font = "bold 40px monospace";
-    ctx.fillText("OPTIMAL", 20, 105);
-    ctx.font = "16px monospace";
-    ctx.fillStyle = "#94a3b8";
-    ctx.fillText("HVAC STATUS: 100%", 20, 135);
-    ctx.fillStyle = "#f1f5f9";
-    ctx.font = "bold 34px monospace";
-    ctx.fillText("21.5 °C", 20, 200);
-    ctx.fillStyle = "#94a3b8";
-    ctx.font = "16px monospace";
-    ctx.fillText("FACILITY TEMPERATURE", 20, 230);
-    ctx.fillStyle = "#3dd68c";
-    ctx.font = "bold 20px monospace";
-    ctx.fillText("AIR QUALITY: ISO 7", 20, 290);
-    ctx.fillStyle = "#fbbf24";
-    ctx.font = "16px monospace";
-    ctx.fillText("CAMPUS SECURE", 20, 335);
-
-    const screenTex = new THREE.CanvasTexture(screenCanvas);
-    const screenMesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.24, 0.36),
-      new THREE.MeshBasicMaterial({ map: screenTex, side: THREE.DoubleSide })
-    );
-    screenMesh.position.set(8.145, 1.6, -1.8);
-    screenMesh.rotation.y = Math.PI / 2;
-    this.root.add(screenMesh);
   }
 
   _buildDoubleDoorAssembly(cx, cy, cz, id, rotateY = false) {
@@ -4408,115 +4363,7 @@ export class LabEnvironment3D {
       wallGroup.add(spotArm);
     });
 
-    // 11. Dedicated Digital Telemetry & IAQ Environmental Monitoring Panel
-    // Flush bezel mounted prominently on the right walnut fluted wing (X = 2.25, Y = 1.55, Z = 0.09)
-    const monitorGroup = new THREE.Group();
-    monitorGroup.position.set(wallW / 2 - borderThick - wingW / 2, 1.55, 0.09);
-
-    const bezel = new THREE.Mesh(
-      new THREE.BoxGeometry(0.38, 0.52, 0.02),
-      this.materials.architecturalBlackMetal
-    );
-    monitorGroup.add(bezel);
-
-    const monCanvas = document.createElement("canvas");
-    monCanvas.width = 360;
-    monCanvas.height = 500;
-    const mCtx = monCanvas.getContext("2d");
-    mCtx.fillStyle = "#0c1017";
-    mCtx.fillRect(0, 0, 360, 500);
-
-    // Header badge
-    mCtx.fillStyle = "#1e293b";
-    mCtx.fillRect(10, 10, 340, 60);
-    mCtx.fillStyle = "#3dd68c";
-    mCtx.font = "bold 16px sans-serif";
-    mCtx.fillText("SRE BIOPHILIC HORTICULTURE", 20, 38);
-    mCtx.fillStyle = "#94a3b8";
-    mCtx.font = "12px monospace";
-    mCtx.fillText("SYSTEM STATUS: ONLINE / HEALTHY", 20, 58);
-
-    const stats = [
-      { label: "SUBSTRATE MOISTURE", val: "78.4%", stat: "OPTIMAL", col: "#3dd68c" },
-      { label: "AMBIENT HUMIDITY", val: "62.1% RH", stat: "STABLE", col: "#38bdf8" },
-      { label: "IRRIGATION CYCLE", val: "ACTIVE", stat: "2.4 L/DAY", col: "#facc15" },
-      { label: "VOC ABSORPTION", val: "96.2%", stat: "IAQ GRADE A", col: "#a78bfa" }
-    ];
-
-    stats.forEach((st, i) => {
-      const cy = 90 + i * 95;
-      mCtx.fillStyle = "#141a23";
-      mCtx.fillRect(15, cy, 330, 80);
-      mCtx.strokeStyle = "#334155";
-      mCtx.lineWidth = 1;
-      mCtx.strokeRect(15, cy, 330, 80);
-
-      mCtx.fillStyle = "#64748b";
-      mCtx.font = "bold 11px sans-serif";
-      mCtx.fillText(st.label, 26, cy + 24);
-
-      mCtx.fillStyle = st.col;
-      mCtx.font = "bold 24px monospace";
-      mCtx.fillText(st.val, 26, cy + 54);
-
-      mCtx.fillStyle = "#94a3b8";
-      mCtx.font = "11px monospace";
-      mCtx.textAlign = "right";
-      mCtx.fillText(st.stat, 330, cy + 54);
-      mCtx.textAlign = "left";
-    });
-
-    const monTex = new THREE.CanvasTexture(monCanvas);
-    const monScreen = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.35, 0.49),
-      new THREE.MeshBasicMaterial({ map: monTex })
-    );
-    monScreen.position.set(0, 0, 0.012);
-    monitorGroup.add(monScreen);
-    wallGroup.add(monitorGroup);
-
-    // 12. Etched Architectural Bronze Plaque Centered on Upper Header (Proud of Foliage)
-    const plaqueGroup = new THREE.Group();
-    plaqueGroup.position.set(0, wallH - borderThick / 2 - 0.10, 0.245);
-
-    const plaqueBase = new THREE.Mesh(
-      new THREE.BoxGeometry(2.5, 0.26, 0.015),
-      this.materials.cabinetHandle
-    );
-    plaqueGroup.add(plaqueBase);
-
-    const plCanvas = document.createElement("canvas");
-    plCanvas.width = 1024;
-    plCanvas.height = 130;
-    const plCtx = plCanvas.getContext("2d");
-    plCtx.fillStyle = "#161514";
-    plCtx.fillRect(0, 0, 1024, 130);
-    plCtx.strokeStyle = "#2e2c2a";
-    plCtx.lineWidth = 4;
-    plCtx.strokeRect(4, 4, 1016, 122);
-    plCtx.fillStyle = "#D62828";
-    plCtx.fillRect(28, 25, 80, 80);
-    plCtx.fillStyle = "#ffffff";
-    plCtx.fillRect(62, 40, 12, 50);
-    plCtx.fillRect(43, 59, 50, 12);
-    plCtx.fillStyle = "#F2ECE1";
-    plCtx.font = "700 32px 'Helvetica Neue', Arial, sans-serif";
-    plCtx.textAlign = "left";
-    plCtx.fillText("ChemMate+ BIOPHILIC LIVING WALL", 132, 62);
-    plCtx.font = "500 18px 'Helvetica Neue', Arial, sans-serif";
-    plCtx.fillStyle = "#94a3b8";
-    plCtx.fillText("MULTI-SPECIES HYDROPONIC ECOSYSTEM  ·  VOC CLEANSING & OXYGENATION", 132, 98);
-
-    const plTex = new THREE.CanvasTexture(plCanvas);
-    const plScreen = new THREE.Mesh(
-      new THREE.PlaneGeometry(2.46, 0.24),
-      new THREE.MeshBasicMaterial({ map: plTex })
-    );
-    plScreen.position.set(0, 0, 0.009);
-    plaqueGroup.add(plScreen);
-    wallGroup.add(plaqueGroup);
-
-    // 13. Drip Irrigation Riser & Brass Manifold with Analog Dial Gauge
+    // 11. Drip Irrigation Riser & Brass Manifold with Analog Dial Gauge
     const irriGroup = new THREE.Group();
     irriGroup.position.set(wallW / 2 - borderThick - 0.08, troughH / 2 + 0.20, 0.18);
 
@@ -7471,33 +7318,6 @@ export class LabEnvironment3D {
     jambTop.position.set(0, doorH + 0.04, coldFrameZ);
     unit.add(jambTop);
 
-    // Upper Illuminated Cold-Suite Header Nameplate (Facing -Z toward Lab!)
-    const hdrCanvas = document.createElement("canvas");
-    hdrCanvas.width = 768;
-    hdrCanvas.height = 128;
-    const hdrCtx = hdrCanvas.getContext("2d");
-    hdrCtx.fillStyle = "#0f172a";
-    hdrCtx.fillRect(0, 0, 768, 128);
-    hdrCtx.strokeStyle = cfg.tempColor;
-    hdrCtx.lineWidth = 5;
-    hdrCtx.strokeRect(6, 6, 756, 116);
-    hdrCtx.fillStyle = "#f8fafc";
-    hdrCtx.font = "bold 30px sans-serif";
-    hdrCtx.textAlign = "center";
-    hdrCtx.fillText(cfg.title, 384, 54);
-    hdrCtx.fillStyle = cfg.tempColor;
-    hdrCtx.font = "bold 18px monospace";
-    hdrCtx.fillText(cfg.subtitle, 384, 94);
-    const hdrTex = new THREE.CanvasTexture(hdrCanvas);
-    hdrTex.colorSpace = THREE.SRGBColorSpace;
-    const hdrBack = new THREE.Mesh(new THREE.BoxGeometry(cfg.w - 0.28, 0.30, 0.028), this.materials.matteBlackTrim);
-    hdrBack.position.set(0, doorH + 0.34, -halfD - 0.014);
-    unit.add(hdrBack);
-    const hdrSign = new THREE.Mesh(new THREE.PlaneGeometry(cfg.w - 0.34, 0.25), new THREE.MeshBasicMaterial({ map: hdrTex }));
-    hdrSign.rotation.y = Math.PI; // Faces -Z into Lab!
-    hdrSign.position.set(0, doorH + 0.34, -halfD - 0.030);
-    unit.add(hdrSign);
-
     // 4. Proud-Mounted Overlap Stainless Cold-Room Door on -Z Face (With Heated Observation Viewport, Chrome Hinges & Kason Latch!)
     const doorGroup = new THREE.Group();
     doorGroup.position.set(-doorW / 2, 0, -halfD); // Hinged on -Z front face
@@ -7532,12 +7352,32 @@ export class LabEnvironment3D {
     dBot.castShadow = true;
     doorGroup.add(dBot);
 
-    // Heated Triple-Pane Observation Viewport Glass & Black Anodized Bezel
-    const winBezel = new THREE.Mesh(new THREE.BoxGeometry(winW + 0.05, winH + 0.05, leafThick + 0.012), this.materials.matteBlackTrim);
-    winBezel.position.set(doorW / 2, winCY + 0.01, -leafThick / 2);
-    doorGroup.add(winBezel);
+    // Heated Triple-Pane Observation Viewport Glass & Hollow 4-Piece Anodized Frame
+    const bezelT = 0.032;
+    const bezelD = leafThick + 0.012;
+    const winFrameTop = new THREE.Mesh(new THREE.BoxGeometry(winW + bezelT * 2, bezelT, bezelD), this.materials.matteBlackTrim);
+    winFrameTop.position.set(doorW / 2, winCY + 0.01 + winH / 2 + bezelT / 2, -leafThick / 2);
+    doorGroup.add(winFrameTop);
+    const winFrameBot = winFrameTop.clone();
+    winFrameBot.position.y = winCY + 0.01 - winH / 2 - bezelT / 2;
+    doorGroup.add(winFrameBot);
+    const winFrameL = new THREE.Mesh(new THREE.BoxGeometry(bezelT, winH, bezelD), this.materials.matteBlackTrim);
+    winFrameL.position.set(doorW / 2 - winW / 2 - bezelT / 2, winCY + 0.01, -leafThick / 2);
+    doorGroup.add(winFrameL);
+    const winFrameR = winFrameL.clone();
+    winFrameR.position.x = doorW / 2 + winW / 2 + bezelT / 2;
+    doorGroup.add(winFrameR);
 
-    const winPane = new THREE.Mesh(new THREE.BoxGeometry(winW - 0.02, winH - 0.02, 0.022), this.materials.glass);
+    const clearColdGlassMat = new THREE.MeshPhysicalMaterial({
+      color: 0xe6f2ff,
+      transparent: true,
+      opacity: 0.22,
+      roughness: 0.06,
+      metalness: 0.04,
+      depthWrite: false,
+      side: THREE.DoubleSide
+    });
+    const winPane = new THREE.Mesh(new THREE.BoxGeometry(winW, winH, 0.018), clearColdGlassMat);
     winPane.position.set(doorW / 2, winCY + 0.01, -leafThick / 2);
     doorGroup.add(winPane);
 
@@ -7605,84 +7445,138 @@ export class LabEnvironment3D {
     });
     unit.add(evap);
 
-    // 6. Metro Green Epoxy Wire Storage Shelving + Stocked Reagent Carboys & Cryo Boxes Visible Through Viewport!
-    const bottleAmber = new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.18, metalness: 0.08 });
-    const cryoBoxBlue = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.35, metalness: 0.10 });
+    // 6. Metro Wire Storage Shelving + Authentic Reagent Carboys / Cryo Drawer Racks (Zero Slapped Labels)
+    const isFreezer = cfg.tempStr.includes("-");
+    const bottleAmber = new THREE.MeshPhysicalMaterial({
+      color: 0x92400e,
+      roughness: 0.14,
+      metalness: 0.02,
+      transparent: true,
+      opacity: 0.88
+    });
+    const bottleClear = new THREE.MeshPhysicalMaterial({
+      color: 0xe2e8f0,
+      roughness: 0.10,
+      metalness: 0.02,
+      transparent: true,
+      opacity: 0.55
+    });
+    const capBlueMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.35 });
+    const capRedMat = new THREE.MeshStandardMaterial({ color: 0xb91c1c, roughness: 0.35 });
+    const cryoBoxWhite = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.35, metalness: 0.05 });
+    const cryoBoxBlue = new THREE.MeshStandardMaterial({ color: 0x1d4ed8, roughness: 0.35, metalness: 0.08 });
+    const cryoRackMetal = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, roughness: 0.28, metalness: 0.78 });
+    const trayMetal = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.32, metalness: 0.75 });
+
     [-halfW + 0.36, halfW - 0.36, 0.0].forEach((sx, rIdx) => {
       const rack = new THREE.Group();
       rack.position.set(sx, 0, rIdx === 2 ? halfD - 0.42 : 0);
       const rW = rIdx === 2 ? 0.72 : 0.48;
       const rD = rIdx === 2 ? 0.42 : cfg.d - 0.56;
+
+      // 4 stainless vertical shelving posts
+      [
+        [-rW / 2 + 0.015, -rD / 2 + 0.015],
+        [rW / 2 - 0.015, -rD / 2 + 0.015],
+        [-rW / 2 + 0.015, rD / 2 - 0.015],
+        [rW / 2 - 0.015, rD / 2 - 0.015]
+      ].forEach(([px, pz]) => {
+        const post = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.012, 0.012, 2.05, 10),
+          isFreezer ? cryoRackMetal : this.materials.wireRackGreen
+        );
+        post.position.set(px, 1.025, pz);
+        rack.add(post);
+      });
+
       for (let s = 1; s <= 4; s++) {
         const sy = s * 0.48;
-        const shelf = new THREE.Mesh(new THREE.BoxGeometry(rW, 0.02, rD), this.materials.wireRackGreen);
+        const shelf = new THREE.Mesh(
+          new THREE.BoxGeometry(rW, 0.02, rD),
+          isFreezer ? cryoRackMetal : this.materials.wireRackGreen
+        );
         shelf.position.y = sy;
         rack.add(shelf);
 
-        // Stocked vessels / cryo boxes on tiers 2 & 3 directly visible through door viewport
+        // Authentic vessels (cold room) or anodized cryo drawer racks (freezer) visible through window & open door
         if (s === 2 || s === 3) {
           [-0.14, 0.14].forEach((bx, bIdx) => {
-            const item = cfg.tempStr.includes("-")
-              ? new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.14, 0.18), cryoBoxBlue)
-              : new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.065, 0.22, 14), bottleAmber);
-            item.position.set(bx, sy + (cfg.tempStr.includes("-") ? 0.08 : 0.12), bIdx === 0 ? -0.06 : 0.08);
-            rack.add(item);
+            if (isFreezer) {
+              const cryoUnit = new THREE.Group();
+              cryoUnit.position.set(bx, sy + 0.01, bIdx === 0 ? -0.08 : 0.10);
+              const rackFrame = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.16, 0.18), cryoRackMetal);
+              rackFrame.position.y = 0.08;
+              cryoUnit.add(rackFrame);
+              [0.036, 0.115].forEach((cy, cIdx) => {
+                const box = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.155, 0.056, 0.165),
+                  cIdx === 0 ? cryoBoxWhite : cryoBoxBlue
+                );
+                box.position.set(0, cy, -0.004);
+                cryoUnit.add(box);
+              });
+              rack.add(cryoUnit);
+            } else {
+              const bottle = new THREE.Group();
+              bottle.position.set(bx, sy + 0.01, bIdx === 0 ? -0.08 : 0.10);
+              const glassMat = bIdx === 0 ? bottleAmber : bottleClear;
+              const body = new THREE.Mesh(new THREE.CylinderGeometry(0.056, 0.056, 0.17, 16), glassMat);
+              body.position.y = 0.085;
+              bottle.add(body);
+              const shoulder = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.056, 0.035, 16), glassMat);
+              shoulder.position.y = 0.185;
+              bottle.add(shoulder);
+              const cap = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.026, 0.026, 0.026, 14),
+                bIdx === 0 ? capRedMat : capBlueMat
+              );
+              cap.position.y = 0.212;
+              bottle.add(cap);
+              rack.add(bottle);
+            }
           });
+          if (!isFreezer && rIdx === 2 && s === 2) {
+            const tray = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.024, 0.26), trayMetal);
+            tray.position.set(0, sy + 0.022, 0.02);
+            rack.add(tray);
+          }
         }
       }
       unit.add(rack);
     });
 
     // 7. Vapor-Proof Sub-Zero LED Light Luminaire Inside Unit (Illuminates Viewport Interior!)
-    const coldLight = new THREE.PointLight(cfg.lightColor, cfg.lightIntensity * 2.2, 4.2, 1.3);
+    const coldLight = new THREE.PointLight(cfg.lightColor, cfg.lightIntensity * 2.4, 4.4, 1.3);
     coldLight.position.set(0, cfg.h - 0.24, -0.15);
     unit.add(coldLight);
 
-    // 8. Exterior Digital Microprocessor Temperature HUD Controller & Alarm Panel (Facing -Z Outward Into Lab!)
+    // 8. Compact Recessed Digital PID Thermostat Readout Beside Door Frame (No Giant Stickers)
     const hudGroup = new THREE.Group();
-    hudGroup.position.set(halfW - sideW / 2, 1.48, -halfD - 0.022);
+    hudGroup.position.set(halfW - sideW / 2, 1.54, -halfD - 0.010);
 
-    const hudCase = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.32, 0.04), this.materials.matteBlackTrim);
+    const hudCase = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.095, 0.022), this.materials.matteBlackTrim);
     hudGroup.add(hudCase);
 
     const hudCanvas = document.createElement("canvas");
     hudCanvas.width = 256;
-    hudCanvas.height = 320;
+    hudCanvas.height = 128;
     const hctx = hudCanvas.getContext("2d");
-    hctx.fillStyle = "#0f172a";
-    hctx.fillRect(0, 0, 256, 320);
-    hctx.strokeStyle = "#38bdf8";
-    hctx.lineWidth = 4;
-    hctx.strokeRect(6, 6, 244, 308);
-
-    hctx.fillStyle = "#f8fafc";
-    hctx.font = "bold 18px sans-serif";
+    hctx.fillStyle = "#090d14";
+    hctx.fillRect(0, 0, 256, 128);
+    hctx.fillStyle = isFreezer ? "#7dd3fc" : "#a7f3d0";
+    hctx.font = "bold 54px 'IBM Plex Mono', monospace";
     hctx.textAlign = "center";
-    hctx.fillText(cfg.title.split("·")[0].trim(), 128, 38);
-
-    hctx.fillStyle = cfg.tempColor;
-    hctx.font = "bold 44px monospace";
-    hctx.fillText(cfg.tempStr, 128, 105);
-
-    hctx.fillStyle = "#10b981";
-    hctx.font = "bold 16px monospace";
-    hctx.fillText("STATUS: STABLE · BMS LINKED", 128, 145);
-    hctx.fillText("DEFROST: OFF · FAN AUTO", 128, 172);
-
-    hctx.fillStyle = "#94a3b8";
-    hctx.font = "12px monospace";
-    hctx.fillText("SETPOINT: " + cfg.tempStr, 128, 220);
-    hctx.fillText("ALARM HIGH: " + (cfg.tempStr.includes("-") ? "-12.0°C" : "+8.0°C"), 128, 245);
-    hctx.fillText("CALIBRATED NIST TRACEABLE", 128, 275);
+    hctx.textBaseline = "middle";
+    hctx.fillText(cfg.tempStr, 128, 66);
 
     const hudTex = new THREE.CanvasTexture(hudCanvas);
     hudTex.colorSpace = THREE.SRGBColorSpace;
     const hudScreen = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.21, 0.28),
+      new THREE.PlaneGeometry(0.155, 0.075),
       new THREE.MeshBasicMaterial({ map: hudTex })
     );
-    hudScreen.rotation.y = Math.PI; // Faces -Z toward Lab operator!
-    hudScreen.position.set(0, 0, -0.022);
+    hudScreen.rotation.y = Math.PI;
+    hudScreen.position.set(0, 0, -0.012);
     hudGroup.add(hudScreen);
 
     unit.add(hudGroup);
@@ -8690,31 +8584,6 @@ export class LabEnvironment3D {
         { group: rightPivot, closedAngle: 0, openAngle: -Math.PI * 0.48 }
       ]
     });
-
-    // Illuminated Header Plaque above SEM Suite Double Doors
-    const signCanvas = document.createElement("canvas");
-    signCanvas.width = 512;
-    signCanvas.height = 96;
-    const sCtx = signCanvas.getContext("2d");
-    sCtx.fillStyle = "#090d16";
-    sCtx.fillRect(0, 0, 512, 96);
-    sCtx.strokeStyle = "#38bdf8";
-    sCtx.lineWidth = 4;
-    sCtx.strokeRect(4, 4, 504, 88);
-    sCtx.fillStyle = "#f8fafc";
-    sCtx.font = "bold 24px 'IBM Plex Sans', sans-serif";
-    sCtx.fillText("ZONE 8 · ELECTRON MICROSCOPY SUITE", 22, 42);
-    sCtx.fillStyle = "#38bdf8";
-    sCtx.font = "bold 18px 'IBM Plex Mono', monospace";
-    sCtx.fillText("ZEISS GeminiSEM 500 · VC-E SLAB · < 0.5 mG", 22, 74);
-    const signTex = new THREE.CanvasTexture(signCanvas);
-    signTex.colorSpace = THREE.SRGBColorSpace;
-    const signMesh = new THREE.Mesh(
-      new THREE.BoxGeometry(0.04, 0.34, 1.85),
-      new THREE.MeshBasicMaterial({ map: signTex })
-    );
-    signMesh.position.set(0.89, 2.74, 15.0);
-    suiteGrp.add(signMesh);
 
     // 6. Dedicated Secondary Zone 8 Cleanroom Fill PointLight (crisp hospital-lab illumination under daylight mood)
     const semFillLight = new THREE.PointLight(0xf4f8ff, 1.85, 12.0, 1.15);
